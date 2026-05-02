@@ -6,9 +6,7 @@ import timm
 from torch.utils.data import DataLoader
 from datasets import load_dataset
 
-# ==========================================
 # 1. 환경 및 설정
-# ==========================================
 MODEL_NAME = 'convnextv2_nano.fcmae_ft_in1k' 
 BATCH_SIZE = 64
 NUM_WORKERS = 8 
@@ -24,9 +22,7 @@ def collate_fn(examples):
     labels = [example["label"] for example in examples]
     return torch.stack(images), torch.tensor(labels)
 
-# ==========================================
-# 💡 [핵심 연구] 커스텀 W8A8 MinMax 양자화기 (Fake Quantization)
-# ==========================================
+# 커스텀 W8A8 MinMax 양자화기 
 def apply_w8a8_ptq(model):
     print("\n🧩 [커스텀 W8A8 엔진] 모델 가중치 8비트 압축 시작...")
     quantized_layers = 0
@@ -35,7 +31,7 @@ def apply_w8a8_ptq(model):
     for name, module in model.named_modules():
         # CNN의 핵심인 합성곱(Conv2d)과 선형(Linear) 레이어만 타겟팅
         if isinstance(module, (nn.Conv2d, nn.Linear)):
-            # 💡 지능의 관문인 마지막 출력 헤드(head)는 16비트로 보호 (ignore 역할)
+            # 지능의 관문인 마지막 출력 헤드(head)는 16비트로 보호 (ignore 역할)
             if "head" in name or "classifier" in name:
                 continue
                 
@@ -51,7 +47,7 @@ def apply_w8a8_ptq(model):
                     q_weight = torch.round(weight / scale).clamp(-128, 127)
                     
                     # [Dequantize] 모델 추론을 위해 다시 스케일을 곱해 복원
-                    # 숫자는 FP16 형태지만, 데이터의 해상도는 이미 8비트로 망가진(압축된) 상태입니다.
+                    # 숫자는 FP16 형태지만, 데이터의 해상도는 이미 8비트로 망가진(압축된) 상태
                     # 이를 통해 8비트 환경에서의 '성능(Accuracy) 하락폭'을 완벽하게 측정할 수 있습니다.
                     module.weight.data = q_weight * scale
                     quantized_layers += 1
@@ -68,7 +64,6 @@ def main():
     model.eval()
 
     # 2. 커스텀 W8A8 양자화 적용 
-    # (원본 가중치를 8비트 해상도로 깎아버립니다)
     model = apply_w8a8_ptq(model)
 
     # 3. 데이터셋 로드 (로컬 캐시 사용)
@@ -86,13 +81,13 @@ def main():
     correct_top1 = 0
     total_samples = 0
 
-    print("🔥 GPU 웜업 진행 중...")
+    print("GPU 웜업 진행 중...")
     dummy_input = torch.randn(BATCH_SIZE, 3, 224, 224, dtype=torch.float16, device=DEVICE)
     with torch.no_grad():
         for _ in range(10): _ = model(dummy_input)
     torch.cuda.synchronize()
 
-    print("🏃‍♂️ 8비트로 압축된 모델의 본격적인 추론 시작...")
+    print("8비트로 압축된 모델의 본격적인 추론 시작...")
     start_time = time.time()
 
     with torch.no_grad():
@@ -117,7 +112,7 @@ def main():
 
     # 이론적 메모리 계산 (8비트이므로 원본 파라미터 용량의 딱 절반)
     param_size = sum(p.nelement() for p in model.parameters())
-    theoretical_w8a8_mb = (param_size * 1) / 1024**2 # 1 Byte (8-bit) per param
+    theoretical_w8a8_mb = (param_size * 1) / 1024**2
 
     print("\n" + "="*50)
     print("🏆 [Phase 1.2 W8A8 결과 리포트]")
