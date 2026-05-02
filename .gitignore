@@ -1,3 +1,6 @@
 .env
 *.md
-.
+cheeckpoints_*
+checkpoints_w4a16/qat_w4a16_epoch_1.pth
+checkpoints_w4a16/qat_w4a16_epoch_2.pth
+checkpoints_w4a16/qat_w4a16_epoch_3.pth
