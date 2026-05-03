@@ -1,0 +1,2 @@
+Model,Quantization,Top-1_Accuracy(%),Throughput(FPS),Memory(MB),Time(sec)
+convnextv2_nano.fcmae_ft_in1k,W8A8 (PTQ),81.24,817.55,14.90,61.2

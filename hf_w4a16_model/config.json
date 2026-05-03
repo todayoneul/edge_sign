@@ -1,0 +1,9 @@
+{
+  "architectures": [
+    "ConvNeXtV2ForImageClassification"
+  ],
+  "model_type": "convnextv2",
+  "quantization": "W4A16",
+  "num_classes": 1000,
+  "torch_dtype": "int8"
+}
