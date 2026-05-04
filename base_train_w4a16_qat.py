@@ -165,7 +165,7 @@ def main():
         print(f"\n🔄 [Auto-Resume] 체크포인트 발견! 기존 모델을 불러옵니다: {latest_ckpt}")
         checkpoint = torch.load(latest_ckpt, map_location=DEVICE)
         
-        '''
+        
         # 이전 1~3 에폭은 가중치만 저장했으므로, 예외 처리
         if 'model_state_dict' in checkpoint:
             model.load_state_dict(checkpoint['model_state_dict'])
@@ -179,8 +179,9 @@ def main():
         if start_epoch > EPOCHS:
             print("🎉 이미 목표 에폭(EPOCHS)까지 학습이 완료되었습니다!")
             return
-        '''
-        if 'model_state_dict' in checkpoint:
+        
+        #모델 추출
+        '''if 'model_state_dict' in checkpoint:
             model.load_state_dict(checkpoint['model_state_dict'])
         else:
             model.load_state_dict(checkpoint)
@@ -193,7 +194,7 @@ def main():
         # 💡 3. 추출이 목적이므로 여기서 스크립트를 깔끔하게 종료합니다. (선택 사항)
         import sys
         print("🛑 추출이 완료되어 프로그램을 종료합니다.")
-        sys.exit(0)
+        sys.exit(0)'''
 
     # 데이터셋 로드
     print("📁 ImageNet 데이터셋 로드 중...")
