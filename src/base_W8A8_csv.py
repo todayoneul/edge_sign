@@ -162,7 +162,7 @@ def main():
         writer.writerow([MODEL_NAME, "W8A8 (PTQ)", f"{top1_acc:.2f}", f"{fps:.2f}", f"{theoretical_w8a8_mb:.2f}", f"{total_time:.1f}"])
         
     print(f"결과가 성공적으로 저장되었습니다: {csv_file_path}")
-    export_huggingface_w8a8(model, save_dir=f"./hf_w8a8_model_{MODEL_NAME}")
+    export_huggingface_w8a8(model, save_dir=f"./models/hf_w8a8_model_{MODEL_NAME}")
 
 if __name__ == '__main__':
     import multiprocessing

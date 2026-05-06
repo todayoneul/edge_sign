@@ -100,7 +100,7 @@ def kd_loss_fn(student_logits, teacher_logits, labels, T=TEMPERATURE, alpha=ALPH
     return alpha * soft_loss + (1.0 - alpha) * hard_loss
 
 
-def export_huggingface_1bit(model, save_dir="./hf_1bit_model"):
+def export_huggingface_1bit(model, save_dir="./models/hf_1bit_model"):
     print("\n [1-Bit] 극한의 비트 패킹(Bit-packing) 추출을 시작합니다...")
     os.makedirs(save_dir, exist_ok=True)
     export_state_dict = {}

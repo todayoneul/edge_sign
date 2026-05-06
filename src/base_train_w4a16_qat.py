@@ -21,7 +21,7 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 EPOCHS = 30        
 LEARNING_RATE = 1e-5 #
-SAVE_DIR = "./checkpoints_w4a16"
+SAVE_DIR = "./checkpoints/checkpoints_w4a16"
 LOG_DIR = "./logs"   # 데이터를 저장 폴더
 
 
