@@ -4,6 +4,7 @@ import sys
 import csv
 import glob
 import warnings
+import json
 warnings.filterwarnings("ignore", category=UserWarning, module="PIL.TiffImagePlugin")
 import logging
 logging.getLogger("PIL").setLevel(logging.ERROR) 
@@ -17,7 +18,8 @@ import torch.optim as optim
 import timm
 from torch.utils.data import DataLoader
 from datasets import load_dataset
-
+import numpy as np # 💡 비트 패킹을 위해 numpy가 필요합니다!
+from safetensors.torch import save_file # 💡 safetensors 추가!
 
 # 1. 환경 및 설정
 MODEL_NAME = 'convnextv2_nano.fcmae_ft_in1k' 
@@ -97,6 +99,53 @@ def kd_loss_fn(student_logits, teacher_logits, labels, T=TEMPERATURE, alpha=ALPH
     soft_loss = F.kl_div(student_log_probs, soft_targets, reduction='batchmean') * (T * T)
     return alpha * soft_loss + (1.0 - alpha) * hard_loss
 
+
+def export_huggingface_1bit(model, save_dir="./hf_1bit_model"):
+    print("\n [1-Bit] 극한의 비트 패킹(Bit-packing) 추출을 시작합니다...")
+    os.makedirs(save_dir, exist_ok=True)
+    export_state_dict = {}
+    
+    for name, module in model.named_modules():
+        if isinstance(module, (torch.nn.Conv2d, torch.nn.Linear)):
+            if hasattr(module, 'weight') and module.weight is not None:
+                # 1. 원래 가중치(FP16)를 가져옵니다.
+                weight = module.weight.data
+                
+                # 2. 채널별 스케일(Scale) 계산 (복원을 위해 따로 저장해야 함)
+                if weight.dim() == 4: scale = weight.abs().mean(dim=(1, 2, 3), keepdim=True)
+                elif weight.dim() == 2: scale = weight.abs().mean(dim=1, keepdim=True)
+                else: scale = weight.abs().mean()
+                
+                export_state_dict[f"{name}.scale"] = scale.to(torch.float16)
+                
+                # 3. 이진화 (+1 / -1) 및 Boolean 마스크(0과 1)로 변환
+                binary_mask = (weight > 0).cpu().numpy() 
+                
+                # 4. 🔥 비트 패킹 (8개의 불리언 값을 1개의 uint8 정수로 압축!)
+                packed_bits = np.packbits(binary_mask)
+                export_state_dict[f"{name}.weight_packed"] = torch.from_numpy(packed_bits)
+                
+            if hasattr(module, 'bias') and module.bias is not None:
+                export_state_dict[f"{name}.bias"] = module.bias.data.to(torch.float16)
+                
+        # Normalization 레이어는 그대로 보존
+        elif "norm" in name.lower() or isinstance(module, torch.nn.LayerNorm):
+            if hasattr(module, 'weight') and module.weight is not None:
+                export_state_dict[f"{name}.weight"] = module.weight.to(torch.float16)
+            if hasattr(module, 'bias') and module.bias is not None:
+                export_state_dict[f"{name}.bias"] = module.bias.to(torch.float16)
+
+    config = {"architectures": ["ConvNeXtV2ForImageClassification"], "quantization": "1-Bit_Packed"}
+    with open(os.path.join(save_dir, "config.json"), "w") as f: json.dump(config, f)
+    
+    safetensors_path = os.path.join(save_dir, "model.safetensors")
+    save_file(export_state_dict, safetensors_path)
+    
+    # 1500만 파라미터가 1.8MB로 압축되는 기적을 눈으로 확인하세요!
+    print("="*50)
+    print(f"1-Bit 비트 패킹 포맷 저장 완료! (위치: {save_dir})")
+    print(f"실제 디스크 차지 용량: {os.path.getsize(safetensors_path) / (1024**2):.2f} MB")
+    print("="*50)
 
 # 4. 전처리 및 데이터로더 설정 (위치 정상화)
 _dummy_model = timm.create_model(MODEL_NAME, pretrained=False)
@@ -237,7 +286,8 @@ def main():
             with open(csv_file_path, mode='a', newline='') as f:
                 writer = csv.writer(f)
                 writer.writerow([epoch, f"{avg_train_loss:.4f}", f"{acc:.2f}", f"{current_lr:.6f}", f"{epoch_time:.1f}"])
-
+        print("\n 30 에폭 학습이 모두 종료되었습니다. 최종 모델 추출을 시작합니다.")
+        export_huggingface_1bit(student_model)
     except KeyboardInterrupt:
         print("\n학습 강제 중단! 진행 상황은 안전하게 저장되었습니다.")
         sys.exit(0)

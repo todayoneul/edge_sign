@@ -1,0 +1,1 @@
+{"architectures": ["ConvNeXtV2ForImageClassification"], "quantization": "1-Bit_Packed"}

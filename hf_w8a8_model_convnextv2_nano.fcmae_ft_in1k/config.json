@@ -1,0 +1,1 @@
+{"architectures": ["ConvNeXtV2ForImageClassification"], "quantization": "W8A8", "torch_dtype": "int8"}

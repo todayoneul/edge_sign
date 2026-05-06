@@ -20,6 +20,32 @@ NUM_WORKERS = 8
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 LOG_DIR = "./logs"
 
+import json
+from safetensors.torch import save_file 
+def export_huggingface_w8a8(model, save_dir="./hf_w8a8_model"):
+    print("\n[W8A8] 허깅페이스 표준 포맷(Safetensors) 추출 시작...")
+    os.makedirs(save_dir, exist_ok=True)
+    export_state_dict = {}
+    
+    for name, module in model.named_modules():
+        if isinstance(module, (torch.nn.Conv2d, torch.nn.Linear)):
+            if hasattr(module, 'weight') and module.weight is not None:
+                # W8A8 양자화된 가중치를 int8로 강제 캐스팅
+                export_state_dict[f"{name}.weight"] = module.weight.data.to(torch.int8)
+            if hasattr(module, 'bias') and module.bias is not None:
+                export_state_dict[f"{name}.bias"] = module.bias.data.to(torch.float16)
+        elif "norm" in name.lower() or isinstance(module, torch.nn.LayerNorm):
+            if hasattr(module, 'weight') and module.weight is not None:
+                export_state_dict[f"{name}.weight"] = module.weight.to(torch.float16)
+            if hasattr(module, 'bias') and module.bias is not None:
+                export_state_dict[f"{name}.bias"] = module.bias.to(torch.float16)
+
+    config = {"architectures": ["ConvNeXtV2ForImageClassification"], "quantization": "W8A8", "torch_dtype": "int8"}
+    with open(os.path.join(save_dir, "config.json"), "w") as f: json.dump(config, f)
+    
+    safetensors_path = os.path.join(save_dir, "model.safetensors")
+    save_file(export_state_dict, safetensors_path)
+    print(f"W8A8 저장 완료! 용량: {os.path.getsize(safetensors_path) / (1024**2):.2f} MB")
 
 def apply_w8a8_ptq(model):
     print("\n[커스텀 W8A8 엔진] 모델 가중치 8비트 압축 시작...")
@@ -90,7 +116,7 @@ def main():
     correct_top1 = 0
     total_samples = 0
     
-    print("🏃‍♂️ 8비트 모델 추론 시작 (전체 Validation 데이터셋)...")
+    print("8비트 모델 추론 시작 (전체 Validation 데이터셋)...")
     start_time = time.time()
 
     with torch.no_grad():
@@ -120,12 +146,12 @@ def main():
     theoretical_w8a8_mb = (param_size * 1) / (1024**2) # 1 Byte (8-bit) per param
 
     print("\n" + "="*50)
-    print("🏆 [W8A8 PTQ 최종 결과 리포트]")
+    print("[W8A8 PTQ 최종 결과 리포트]")
     print("="*50)
-    print(f"🎯 성능(P) - Top-1 Accuracy: {top1_acc:.2f} %")
-    print(f"⚡ 속도(S) - Throughput: {fps:.2f} FPS")
-    print(f"💾 메모리(M) - Theoretical Size: {theoretical_w8a8_mb:.2f} MB")
-    print(f"⏱️ 소요 시간: {total_time:.1f} 초")
+    print(f"성능(P) - Top-1 Accuracy: {top1_acc:.2f} %")
+    print(f"속도(S) - Throughput: {fps:.2f} FPS")
+    print(f"메모리(M) - Theoretical Size: {theoretical_w8a8_mb:.2f} MB")
+    print(f"소요 시간: {total_time:.1f} 초")
     print("="*50)
 
     file_exists = os.path.exists(csv_file_path)
@@ -136,6 +162,7 @@ def main():
         writer.writerow([MODEL_NAME, "W8A8 (PTQ)", f"{top1_acc:.2f}", f"{fps:.2f}", f"{theoretical_w8a8_mb:.2f}", f"{total_time:.1f}"])
         
     print(f"결과가 성공적으로 저장되었습니다: {csv_file_path}")
+    export_huggingface_w8a8(model, save_dir=f"./hf_w8a8_model_{MODEL_NAME}")
 
 if __name__ == '__main__':
     import multiprocessing

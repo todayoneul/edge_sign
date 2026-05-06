@@ -1,3 +1,5 @@
 .env
 *.md
 checkpoints_*
+
+!README.md
