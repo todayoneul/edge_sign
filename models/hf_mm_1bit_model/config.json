@@ -1,0 +1,11 @@
+{
+  "architectures": [
+    "ConvNeXtV2ForImageClassification"
+  ],
+  "model_type": "convnextv2",
+  "quantization": "1-Bit_Simulated",
+  "embedding_dim": 512,
+  "base_model": "convnextv2_nano.fcmae_ft_in1k",
+  "task": "Multimodal_ZeroShot_Retrieval",
+  "torch_dtype": "float16"
+}
