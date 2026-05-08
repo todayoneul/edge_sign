@@ -1,1 +1,2 @@
 Epoch,Train_Cosine_Loss,Val_Cosine_Sim,Learning_Rate,Time_sec
+1,0.1552,0.8753,0.000049,2994.7
