@@ -127,7 +127,28 @@ def main():
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=EPOCHS)
     criterion = nn.CosineEmbeddingLoss()
 
-    for epoch in range(1, EPOCHS + 1):
+    start_epoch = 1
+    # Check for latest checkpoint to resume
+    latest_epoch = 0
+    for ckpt_file in glob.glob(os.path.join(SAVE_DIR, "mm_w4a16_epoch_*.pth")):
+        try:
+            ep = int(ckpt_file.split("_epoch_")[-1].split(".")[0])
+            if ep > latest_epoch:
+                latest_epoch = ep
+        except ValueError:
+            pass
+            
+    if latest_epoch > 0:
+        resume_checkpoint = os.path.join(SAVE_DIR, f"mm_w4a16_epoch_{latest_epoch}.pth")
+        print(f"Resuming from checkpoint: {resume_checkpoint}")
+        checkpoint = torch.load(resume_checkpoint, map_location=DEVICE)
+        student_model.load_state_dict(checkpoint['model_state_dict'])
+        start_epoch = checkpoint['epoch'] + 1
+        for _ in range(start_epoch - 1):
+            scheduler.step()
+        print(f"Fast-forwarded scheduler to epoch {start_epoch}")
+
+    for epoch in range(start_epoch, EPOCHS + 1):
         epoch_start_time = time.time()
         student_model.train()
         train_loss = 0.0
