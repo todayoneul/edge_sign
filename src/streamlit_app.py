@@ -24,7 +24,7 @@ FAISS_META_PATH = "./data/faiss_db/general_metadata.txt"
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Set page config
-st.set_page_config(page_title="General VLM Explorer", page_icon="🌐", layout="wide")
+st.set_page_config(page_title="General VLM Explorer", page_icon="VLM", layout="wide")
 
 # Load Models
 @st.cache_resource(show_spinner="Loading Models...")
@@ -82,69 +82,73 @@ def load_models():
 vision_encoder, llm, tokenizer, projection_head, image_transform, clip_tokenizer, clip_text_model, index, metadata = load_models()
 
 # Streamlit UI
-st.title("🌐 Omni-Modal VLM Explorer")
-st.markdown("W8A8 ConvNeXt-Nano와 Qwen 0.5B를 결합한 **초경량 범용 VLM**입니다. 인터넷의 임의의 이미지를 분석하거나 원하는 장면을 텍스트로 검색해 보세요!")
+st.title("Omni-Modal VLM Explorer")
+st.markdown("W8A8 ConvNeXt-Nano와 Qwen 0.5B를 결합한 경량 VLM입니다. 이미지를 설명하거나 질문에 답변하고, 텍스트로 이미지를 검색할 수 있습니다.")
 
-tab1, tab2 = st.tabs(["🤖 VQA (Image-to-Text)", "🔍 Retrieval (Text-to-Image)"])
+tab1, tab2, tab3 = st.tabs(["Image-to-Text", "Text-to-Image", "Text-to-Text"])
+
+def generate_with_image(image, prompt, max_new_tokens=100, temperature=0.7):
+    pixel_values = image_transform(image).unsqueeze(0).to(DEVICE, dtype=torch.bfloat16)
+    encoded = tokenizer(prompt, return_tensors="pt").to(DEVICE)
+
+    with torch.no_grad():
+        vision_features = vision_encoder(pixel_values)
+        image_embeds = projection_head(vision_features).unsqueeze(1)
+        text_embeds = llm.get_input_embeddings()(encoded["input_ids"])
+        inputs_embeds = torch.cat([image_embeds, text_embeds], dim=1)
+
+        attention_mask = encoded["attention_mask"]
+        image_attention_mask = torch.ones(attention_mask.shape[0], 1, dtype=attention_mask.dtype, device=DEVICE)
+        attention_mask = torch.cat([image_attention_mask, attention_mask], dim=1)
+
+        outputs = llm.generate(
+            inputs_embeds=inputs_embeds,
+            attention_mask=attention_mask,
+            max_new_tokens=max_new_tokens,
+            temperature=temperature,
+            do_sample=True,
+            pad_token_id=tokenizer.eos_token_id
+        )
+
+    return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
 with tab1:
-    st.subheader("인터넷 사진 분석기")
+    st.subheader("이미지 설명 및 질문 응답")
     col1, col2 = st.columns([1, 1])
-    
+
     with col1:
-        uploaded_file = st.file_uploader("인터넷에서 구한 임의의 사진을 업로드하세요", type=["jpg", "png", "jpeg"])
+        uploaded_file = st.file_uploader("이미지를 업로드하세요", type=["jpg", "png", "jpeg"])
         if uploaded_file is not None:
             image = Image.open(uploaded_file).convert("RGB")
-            st.image(image, caption="업로드된 사진", use_container_width=True)
-            
+            st.image(image, caption="업로드된 이미지", use_container_width=True)
+
     with col2:
-        prompt = st.text_input("질문:", value="이 이미지를 자세히 설명해 주십시오:")
+        mode = st.radio("모드 선택", ["캡셔닝", "VQA"], horizontal=True)
+        if mode == "캡셔닝":
+            prompt = st.text_input("요청", value="이 이미지를 자세히 설명해 주십시오:")
+        else:
+            prompt = st.text_input("질문", value="이 이미지에서 가장 눈에 띄는 물체는 무엇입니까?")
+
         if st.button("분석 시작") and uploaded_file is not None:
-            with st.spinner("W8A8 비전 인코더가 피처를 추출 중입니다..."):
-                pixel_values = image_transform(image).unsqueeze(0).to(DEVICE, dtype=torch.bfloat16)
-                
+            with st.spinner("이미지 임베딩을 계산 중입니다."):
                 full_prompt = f"<image>\n{prompt}\n"
-                encoded = tokenizer(full_prompt, return_tensors="pt").to(DEVICE)
-                
-                with torch.no_grad():
-                    vision_features = vision_encoder(pixel_values)
-                    image_embeds = projection_head(vision_features).unsqueeze(1)
-                    text_embeds = llm.get_input_embeddings()(encoded["input_ids"])
-                    
-                    inputs_embeds = torch.cat([image_embeds, text_embeds], dim=1)
-                    
-                    attention_mask = encoded["attention_mask"]
-                    image_attention_mask = torch.ones(attention_mask.shape[0], 1, dtype=attention_mask.dtype, device=DEVICE)
-                    attention_mask = torch.cat([image_attention_mask, attention_mask], dim=1)
-                    
-                    outputs = llm.generate(
-                        inputs_embeds=inputs_embeds,
-                        attention_mask=attention_mask,
-                        max_new_tokens=100,
-                        temperature=0.7,
-                        do_sample=True,
-                        pad_token_id=tokenizer.eos_token_id
-                    )
-                    
-                response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-                st.success("분석 완료!")
-                st.write(response)
+                response = generate_with_image(image, full_prompt, max_new_tokens=120)
+            st.write(response)
 
 with tab2:
-    st.subheader("텍스트 기반 사진 검색")
-    query = st.text_input("검색할 이미지의 특징을 영어로 입력하세요 (예: A typical bus station or A beautiful sunset)")
+    st.subheader("텍스트 기반 이미지 검색")
+    query = st.text_input("검색할 이미지의 특징을 영어로 입력하세요")
     if st.button("검색") and query:
         if index is None:
             st.error("FAISS 인덱스가 로드되지 않았습니다.")
         else:
-            with st.spinner("CLIP 임베딩 추출 및 1000장의 인터넷 이미지 중 FAISS 매칭 중..."):
+            with st.spinner("텍스트 임베딩을 계산 중입니다."):
                 inputs = clip_tokenizer(query, return_tensors="pt", padding=True).to(DEVICE)
                 with torch.no_grad():
                     t_feat = F.normalize(clip_text_model(**inputs).text_embeds, p=2, dim=-1).cpu().float().numpy()
-                
-                # We know t_feat is 512, and index is 512
-                D, I = index.search(t_feat, 4) # Top 4
-                
+
+                D, I = index.search(t_feat, 4)
+
                 cols = st.columns(4)
                 for c_idx, col in enumerate(cols):
                     match_idx = I[0][c_idx]
@@ -154,9 +158,27 @@ with tab2:
                             res_img = Image.open(img_path)
                             col.image(res_img, caption=f"유사도: {D[0][c_idx]:.4f}", use_container_width=True)
                         except Exception:
-                            col.write("Image not found.")
+                            col.write("이미지를 찾을 수 없습니다.")
 
-st.sidebar.markdown("### 📊 Architecture Analytics")
+with tab3:
+    st.subheader("텍스트 전용 대화")
+    user_text = st.text_area("입력", height=120)
+    if st.button("응답 생성") and user_text:
+        with st.spinner("모델이 응답을 생성 중입니다."):
+            encoded = tokenizer(user_text, return_tensors="pt").to(DEVICE)
+            with torch.no_grad():
+                outputs = llm.generate(
+                    input_ids=encoded["input_ids"],
+                    attention_mask=encoded["attention_mask"],
+                    max_new_tokens=160,
+                    temperature=0.7,
+                    do_sample=True,
+                    pad_token_id=tokenizer.eos_token_id
+                )
+            response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        st.write(response)
+
+st.sidebar.markdown("### Architecture Analytics")
 st.sidebar.markdown("""
 - **Vision:** ConvNeXt-Nano (W8A8 PTQ)
 - **Vision Size:** 14.9 MB

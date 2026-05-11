@@ -53,9 +53,189 @@ def replace_layers_with_1bit(model):
         else: replace_layers_with_1bit(module)
 
 
-class OmniModal1BitVLM(nn.Module):
+def build_llm_and_tokenizer(
+    llm_name,
+    use_qlora=False,
+    lora_r=16,
+    lora_alpha=32,
+    lora_dropout=0.05,
+    lora_target_modules=None
+):
+    if use_qlora:
+        try:
+            from transformers import BitsAndBytesConfig
+            from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+        except Exception as e:
+            raise RuntimeError("QLoRA 사용을 위해 bitsandbytes와 peft 설치가 필요합니다.") from e
 
-    def __init__(self, vision_model_name='convnextv2_nano.fcmae_ft_in1k', llm_name='Qwen/Qwen1.5-0.5B'):
+        if lora_target_modules is None:
+            lora_target_modules = [
+                "q_proj", "k_proj", "v_proj", "o_proj",
+                "gate_proj", "up_proj", "down_proj"
+            ]
+
+        quant_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.bfloat16,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_use_double_quant=True
+        )
+
+        llm = AutoModelForCausalLM.from_pretrained(
+            llm_name,
+            quantization_config=quant_config,
+            torch_dtype=torch.bfloat16,
+            device_map="auto"
+        )
+        llm = prepare_model_for_kbit_training(llm)
+        lora_config = LoraConfig(
+            r=lora_r,
+            lora_alpha=lora_alpha,
+            lora_dropout=lora_dropout,
+            bias="none",
+            task_type="CAUSAL_LM",
+            target_modules=lora_target_modules
+        )
+        llm = get_peft_model(llm, lora_config)
+    else:
+        llm = AutoModelForCausalLM.from_pretrained(llm_name, torch_dtype=torch.bfloat16)
+
+    tokenizer = AutoTokenizer.from_pretrained(llm_name)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    return llm, tokenizer
+
+
+class OmniModalBase(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def _init_llm(
+        self,
+        llm_name,
+        use_qlora=False,
+        lora_r=16,
+        lora_alpha=32,
+        lora_dropout=0.05,
+        lora_target_modules=None
+    ):
+        self.llm, self.tokenizer = build_llm_and_tokenizer(
+            llm_name=llm_name,
+            use_qlora=use_qlora,
+            lora_r=lora_r,
+            lora_alpha=lora_alpha,
+            lora_dropout=lora_dropout,
+            lora_target_modules=lora_target_modules
+        )
+
+    def _build_inputs(self, text_input_ids, attention_mask=None, labels=None, image_embeds=None):
+        if attention_mask is None:
+            attention_mask = torch.ones_like(text_input_ids, dtype=torch.long)
+
+        text_embeds = self.llm.get_input_embeddings()(text_input_ids)
+        if image_embeds is None:
+            return text_embeds, attention_mask, labels
+
+        inputs_embeds = torch.cat([image_embeds, text_embeds], dim=1)
+        image_attention_mask = torch.ones(
+            attention_mask.shape[0],
+            1,
+            dtype=attention_mask.dtype,
+            device=attention_mask.device
+        )
+        attention_mask = torch.cat([image_attention_mask, attention_mask], dim=1)
+
+        if labels is not None:
+            image_labels = torch.full(
+                (labels.shape[0], 1),
+                -100,
+                dtype=labels.dtype,
+                device=labels.device
+            )
+            labels = torch.cat([image_labels, labels], dim=1)
+
+        return inputs_embeds, attention_mask, labels
+
+    def encode_image(self, images):
+        vision_features = self.vision_encoder(images)
+        return self.projection_head(vision_features).unsqueeze(1)
+
+    def forward(self, images, text_input_ids, attention_mask=None, labels=None):
+        image_embeds = None
+        if images is not None:
+            image_embeds = self.encode_image(images)
+
+        inputs_embeds, attention_mask, labels = self._build_inputs(
+            text_input_ids=text_input_ids,
+            attention_mask=attention_mask,
+            labels=labels,
+            image_embeds=image_embeds
+        )
+        outputs = self.llm(
+            inputs_embeds=inputs_embeds,
+            attention_mask=attention_mask,
+            labels=labels
+        )
+        return outputs
+
+    def generate(
+        self,
+        images=None,
+        prompt=None,
+        input_ids=None,
+        attention_mask=None,
+        max_new_tokens=128,
+        temperature=0.7,
+        do_sample=True
+    ):
+        if input_ids is None:
+            if prompt is None:
+                raise ValueError("프롬프트 또는 input_ids가 필요합니다.")
+            encoded = self.tokenizer(prompt, return_tensors="pt")
+            input_ids = encoded["input_ids"]
+            attention_mask = encoded["attention_mask"]
+
+        device = next(self.llm.parameters()).device
+        input_ids = input_ids.to(device)
+        if attention_mask is not None:
+            attention_mask = attention_mask.to(device)
+
+        image_embeds = None
+        if images is not None:
+            images = images.to(device, dtype=torch.bfloat16)
+            image_embeds = self.encode_image(images)
+
+        inputs_embeds, attention_mask, _ = self._build_inputs(
+            text_input_ids=input_ids,
+            attention_mask=attention_mask,
+            labels=None,
+            image_embeds=image_embeds
+        )
+
+        outputs = self.llm.generate(
+            inputs_embeds=inputs_embeds,
+            attention_mask=attention_mask,
+            max_new_tokens=max_new_tokens,
+            temperature=temperature,
+            do_sample=do_sample,
+            pad_token_id=self.tokenizer.eos_token_id
+        )
+        return outputs
+
+
+class OmniModal1BitVLM(OmniModalBase):
+
+    def __init__(
+        self,
+        vision_model_name='convnextv2_nano.fcmae_ft_in1k',
+        llm_name='Qwen/Qwen1.5-0.5B',
+        use_qlora=False,
+        lora_r=16,
+        lora_alpha=32,
+        lora_dropout=0.05,
+        lora_target_modules=None
+    ):
         super().__init__()
         print("OmniModal1BitVLM 초기화 중...")
         
@@ -71,9 +251,15 @@ class OmniModal1BitVLM(nn.Module):
         # 2. Language Model (Qwen 0.5B)
         print(f"LLM 로드 중: {llm_name}")
         # 참고: 오프라인 환경을 위해 로컬 캐시 또는 HF 토큰이 필요할 수 있습니다.
-        self.llm = AutoModelForCausalLM.from_pretrained(llm_name, torch_dtype=torch.bfloat16)
-        self.tokenizer = AutoTokenizer.from_pretrained(llm_name)
-        
+        self._init_llm(
+            llm_name=llm_name,
+            use_qlora=use_qlora,
+            lora_r=lora_r,
+            lora_alpha=lora_alpha,
+            lora_dropout=lora_dropout,
+            lora_target_modules=lora_target_modules
+        )
+
         llm_hidden_size = self.llm.config.hidden_size
         
         # 3. Projection Head (Vision -> LLM Space)
@@ -85,39 +271,18 @@ class OmniModal1BitVLM(nn.Module):
         for param in self.vision_encoder.parameters():
             param.requires_grad = False
             
-    def forward(self, images, text_input_ids, attention_mask=None, labels=None):
-        """
-        Omni-modal 순전파 구조
-        """
-        # 1. 시각 특징 추출 (B, C)
-        vision_features = self.vision_encoder(images) 
-        
-        # 2. LLM 공간으로 투영 (B, 1, LLM_Dim)
-        image_embeds = self.projection_head(vision_features).unsqueeze(1)
-        
-        # 3. 텍스트 임베딩 추출 (B, S, LLM_Dim)
-        text_embeds = self.llm.get_input_embeddings()(text_input_ids)
-        
-        # 4. 모달리티 병합 (Concat)
-        # 구조: [Image Embeddings] + [Text Embeddings]
-        inputs_embeds = torch.cat([image_embeds, text_embeds], dim=1)
-        
-        # 주의: Attention Mask 처리 로직 추가 (이미지 토큰 1개에 대해 1 추가)
-        if attention_mask is not None:
-            image_attention_mask = torch.ones(attention_mask.shape[0], 1, dtype=attention_mask.dtype, device=attention_mask.device)
-            attention_mask = torch.cat([image_attention_mask, attention_mask], dim=1)
-            
-        # 정답 레이블 처리 (이미지 토큰 위치는 Loss 계산 제외: -100)
-        if labels is not None:
-            image_labels = torch.full((labels.shape[0], 1), -100, dtype=labels.dtype, device=labels.device)
-            labels = torch.cat([image_labels, labels], dim=1)
-        
-        # 5. LLM 처리
-        outputs = self.llm(inputs_embeds=inputs_embeds, attention_mask=attention_mask, labels=labels)
-        return outputs
 
-class OmniModalW8A8VLM(nn.Module):
-    def __init__(self, vision_model_name='convnextv2_nano.fcmae_ft_in1k', llm_name='Qwen/Qwen1.5-0.5B'):
+class OmniModalW8A8VLM(OmniModalBase):
+    def __init__(
+        self,
+        vision_model_name='convnextv2_nano.fcmae_ft_in1k',
+        llm_name='Qwen/Qwen1.5-0.5B',
+        use_qlora=False,
+        lora_r=16,
+        lora_alpha=32,
+        lora_dropout=0.05,
+        lora_target_modules=None
+    ):
         super().__init__()
         print("OmniModalW8A8VLM 초기화 중...")
         
@@ -137,32 +302,21 @@ class OmniModalW8A8VLM(nn.Module):
                 
         self.vision_encoder.head.fc = nn.Identity()
         
-        self.llm = AutoModelForCausalLM.from_pretrained(llm_name, torch_dtype=torch.bfloat16)
-        self.tokenizer = AutoTokenizer.from_pretrained(llm_name)
-        if self.tokenizer.pad_token is None:
-            self.tokenizer.pad_token = self.tokenizer.eos_token
-            
+        self._init_llm(
+            llm_name=llm_name,
+            use_qlora=use_qlora,
+            lora_r=lora_r,
+            lora_alpha=lora_alpha,
+            lora_dropout=lora_dropout,
+            lora_target_modules=lora_target_modules
+        )
+
         self.projection_head = nn.Linear(in_features, self.llm.config.hidden_size)
         
         for param in self.vision_encoder.parameters():
             param.requires_grad = False
 
-    def forward(self, images, text_input_ids, attention_mask=None, labels=None):
-        vision_features = self.vision_encoder(images) 
-        image_embeds = self.projection_head(vision_features).unsqueeze(1)
-        text_embeds = self.llm.get_input_embeddings()(text_input_ids)
-        inputs_embeds = torch.cat([image_embeds, text_embeds], dim=1)
-        
-        if attention_mask is not None:
-            image_attention_mask = torch.ones(attention_mask.shape[0], 1, dtype=attention_mask.dtype, device=attention_mask.device)
-            attention_mask = torch.cat([image_attention_mask, attention_mask], dim=1)
-            
-        if labels is not None:
-            image_labels = torch.full((labels.shape[0], 1), -100, dtype=labels.dtype, device=labels.device)
-            labels = torch.cat([image_labels, labels], dim=1)
-        
-        outputs = self.llm(inputs_embeds=inputs_embeds, attention_mask=attention_mask, labels=labels)
-        return outputs
+    
 
 def test_scaffold():
     print("스캐폴드 코드 검증을 위한 더미 테스트를 시작합니다.")

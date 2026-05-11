@@ -9,13 +9,25 @@ import argparse
 from prepare_vlm_dataset import OmniModalIterableDataset
 from omni_modal_vlm import OmniModalW8A8VLM
 
+
+def parse_csv_list(value):
+    if value is None or value.strip() == "":
+        return None
+    return [v.strip() for v in value.split(",") if v.strip()]
+
+
+def parse_csv_floats(value):
+    if value is None or value.strip() == "":
+        return None
+    return [float(v.strip()) for v in value.split(",") if v.strip()]
+
 def train_projection_head(args):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"디바이스 설정: {device}")
 
     # 1. 모델 초기화
     print("Omni-Modal VLM 모델을 초기화합니다.")
-    model = OmniModalW8A8VLM()
+    model = OmniModalW8A8VLM(llm_name=args.llm_name)
     
     # Vision Encoder에 체크포인트 로드
     if args.vision_ckpt and os.path.exists(args.vision_ckpt):
@@ -43,7 +55,17 @@ def train_projection_head(args):
 
     # 3. 데이터셋 및 데이터로더 준비
     print("데이터셋을 로드합니다 (무제한 스트리밍).")
-    train_dataset = OmniModalIterableDataset(split="train", max_samples=args.max_samples)
+    sources = parse_csv_list(args.sources)
+    source_weights = parse_csv_floats(args.source_weights)
+    train_dataset = OmniModalIterableDataset(
+        split="train",
+        max_samples=args.max_samples,
+        sources=sources,
+        source_weights=source_weights,
+        cache_images=not args.disable_cache,
+        cache_dir=args.cache_dir,
+        seed=args.seed
+    )
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, num_workers=0)
 
     # 4. 옵티마이저 및 스케줄러 설정
@@ -107,12 +129,18 @@ def train_projection_head(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train Projection Head for Omni-Modal VLM")
     parser.add_argument("--vision_ckpt", type=str, default="./models/hf_w8a8_smoothquant/smoothquant_w8a8.pth", help="Path to Vision Encoder checkpoint")
+    parser.add_argument("--llm_name", type=str, default="Qwen/Qwen1.5-0.5B", help="LLM model name")
     parser.add_argument("--epochs", type=int, default=3, help="Number of training epochs")
     parser.add_argument("--batch_size", type=int, default=8, help="Batch size")
     parser.add_argument("--lr", type=float, default=1e-3, help="Learning rate")
     parser.add_argument("--weight_decay", type=float, default=0.01, help="Weight decay")
     parser.add_argument("--save_dir", type=str, default="./checkpoints/vlm_projection", help="Directory to save checkpoints")
     parser.add_argument("--max_samples", type=int, default=None, help="Max samples for training (for quick testing)")
+    parser.add_argument("--sources", type=str, default=None, help="쉼표로 구분된 데이터셋 이름 목록")
+    parser.add_argument("--source_weights", type=str, default=None, help="쉼표로 구분된 데이터셋 가중치 목록")
+    parser.add_argument("--cache_dir", type=str, default="./data/vlm_cache", help="이미지 캐시 디렉터리")
+    parser.add_argument("--disable_cache", action="store_true", help="이미지 캐시 비활성화")
+    parser.add_argument("--seed", type=int, default=42, help="샘플링 시드")
     
     args = parser.parse_args()
     train_projection_head(args)
