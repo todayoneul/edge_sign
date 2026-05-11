@@ -23,12 +23,14 @@ def binarize_weight(weight):
 class BinaryConv2d(nn.Conv2d):
     def forward(self, input):
         bw = binarize_weight(self.weight).to(input.dtype)
-        return torch.nn.functional.conv2d(input, bw, self.bias, self.stride, self.padding, self.dilation, self.groups)
+        bias = self.bias.to(input.dtype) if self.bias is not None else None
+        return torch.nn.functional.conv2d(input, bw, bias, self.stride, self.padding, self.dilation, self.groups)
 
 class BinaryLinear(nn.Linear):
     def forward(self, input):
         bw = binarize_weight(self.weight).to(input.dtype)
-        return torch.nn.functional.linear(input, bw, self.bias)
+        bias = self.bias.to(input.dtype) if self.bias is not None else None
+        return torch.nn.functional.linear(input, bw, bias)
 
 def replace_layers_with_1bit(model):
     for name, module in model.named_children():

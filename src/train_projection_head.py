@@ -32,9 +32,6 @@ def train_projection_head(args):
     else:
         print("경고: 1-Bit Vision Encoder 체크포인트가 지정되지 않았거나 파일을 찾을 수 없습니다. 랜덤 초기화로 진행합니다.")
 
-    # LLM 가중치는 Qwen 모델 구조상 기본적으로 float16/bfloat16으로 로드되었으므로 Projection Head도 맞춰줌
-    model.projection_head = model.projection_head.to(torch.bfloat16)
-
     # 2. 파라미터 동결 (Vision Encoder & LLM 동결, Projection Head만 학습)
     print("파라미터 동결 설정: Vision Encoder 및 LLM 동결. Projection Head만 학습합니다.")
     for param in model.vision_encoder.parameters():
@@ -46,7 +43,8 @@ def train_projection_head(args):
     for param in model.projection_head.parameters():
         param.requires_grad = True
 
-    model = model.to(device)
+    # 모델 전체를 bfloat16으로 변환하여 연산 일관성 유지 (LLM이 이미 bf16이므로 전체를 맞춤)
+    model = model.to(device, dtype=torch.bfloat16)
 
     # 3. 데이터셋 및 데이터로더 준비
     print("데이터셋을 로드합니다.")
