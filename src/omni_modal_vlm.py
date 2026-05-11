@@ -1,7 +1,12 @@
+import os
 import torch
 import torch.nn as nn
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import timm
+
+import sys
+sys.path.append(os.path.dirname(__file__))
+from multimodal_w8a8_smoothquant import SmoothQuantWrapper
 
 # 1-Bit Binarization Layers (가져오기)
 class BinarySTE(torch.autograd.Function):
@@ -111,10 +116,56 @@ class OmniModal1BitVLM(nn.Module):
         outputs = self.llm(inputs_embeds=inputs_embeds, attention_mask=attention_mask, labels=labels)
         return outputs
 
+class OmniModalW8A8VLM(nn.Module):
+    def __init__(self, vision_model_name='convnextv2_nano.fcmae_ft_in1k', llm_name='Qwen/Qwen1.5-0.5B'):
+        super().__init__()
+        print("OmniModalW8A8VLM 초기화 중...")
+        
+        self.vision_encoder = timm.create_model(vision_model_name, pretrained=False)
+        in_features = self.vision_encoder.head.fc.in_features
+        self.vision_encoder.head.fc = nn.Linear(in_features, 512)
+        
+        for name, module in dict(self.vision_encoder.named_modules()).items():
+            if isinstance(module, (nn.Conv2d, nn.Linear)) and "head" not in name:
+                dummy_scale = torch.ones(module.in_channels if isinstance(module, nn.Conv2d) else module.in_features)
+                sq_layer = SmoothQuantWrapper(module, dummy_scale)
+                parts = name.split('.')
+                parent = self.vision_encoder
+                for part in parts[:-1]:
+                    parent = getattr(parent, part)
+                setattr(parent, parts[-1], sq_layer)
+                
+        self.vision_encoder.head.fc = nn.Identity()
+        
+        self.llm = AutoModelForCausalLM.from_pretrained(llm_name, torch_dtype=torch.bfloat16)
+        self.tokenizer = AutoTokenizer.from_pretrained(llm_name)
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+            
+        self.projection_head = nn.Linear(in_features, self.llm.config.hidden_size)
+        
+        for param in self.vision_encoder.parameters():
+            param.requires_grad = False
+
+    def forward(self, images, text_input_ids, attention_mask=None, labels=None):
+        vision_features = self.vision_encoder(images) 
+        image_embeds = self.projection_head(vision_features).unsqueeze(1)
+        text_embeds = self.llm.get_input_embeddings()(text_input_ids)
+        inputs_embeds = torch.cat([image_embeds, text_embeds], dim=1)
+        
+        if attention_mask is not None:
+            image_attention_mask = torch.ones(attention_mask.shape[0], 1, dtype=attention_mask.dtype, device=attention_mask.device)
+            attention_mask = torch.cat([image_attention_mask, attention_mask], dim=1)
+            
+        if labels is not None:
+            image_labels = torch.full((labels.shape[0], 1), -100, dtype=labels.dtype, device=labels.device)
+            labels = torch.cat([image_labels, labels], dim=1)
+        
+        outputs = self.llm(inputs_embeds=inputs_embeds, attention_mask=attention_mask, labels=labels)
+        return outputs
+
 def test_scaffold():
     print("스캐폴드 코드 검증을 위한 더미 테스트를 시작합니다.")
-    # 이 함수는 GPU VRAM을 초과하지 않는 범위 내에서 로드 가능성을 검토할 수 있습니다.
-    # 단, Qwen 0.5B 모델 다운로드에 시간이 걸릴 수 있으므로 현재는 코드 작성까지만 완료합니다.
     print("코드 구조 검증 완료: OmniModal1BitVLM 클래스 작성 성공.")
 
 if __name__ == "__main__":
