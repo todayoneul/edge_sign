@@ -78,7 +78,7 @@ class OmniModal1BitVLM(nn.Module):
         for param in self.vision_encoder.parameters():
             param.requires_grad = False
             
-    def forward(self, images, text_input_ids, attention_mask=None):
+    def forward(self, images, text_input_ids, attention_mask=None, labels=None):
         """
         Omni-modal 순전파 구조
         """
@@ -95,10 +95,18 @@ class OmniModal1BitVLM(nn.Module):
         # 구조: [Image Embeddings] + [Text Embeddings]
         inputs_embeds = torch.cat([image_embeds, text_embeds], dim=1)
         
-        # 주의: Attention Mask 처리 로직 추가 필요 (이미지 토큰에 대한 마스크 확장)
+        # 주의: Attention Mask 처리 로직 추가 (이미지 토큰 1개에 대해 1 추가)
+        if attention_mask is not None:
+            image_attention_mask = torch.ones(attention_mask.shape[0], 1, dtype=attention_mask.dtype, device=attention_mask.device)
+            attention_mask = torch.cat([image_attention_mask, attention_mask], dim=1)
+            
+        # 정답 레이블 처리 (이미지 토큰 위치는 Loss 계산 제외: -100)
+        if labels is not None:
+            image_labels = torch.full((labels.shape[0], 1), -100, dtype=labels.dtype, device=labels.device)
+            labels = torch.cat([image_labels, labels], dim=1)
         
         # 5. LLM 처리
-        outputs = self.llm(inputs_embeds=inputs_embeds, attention_mask=attention_mask)
+        outputs = self.llm(inputs_embeds=inputs_embeds, attention_mask=attention_mask, labels=labels)
         return outputs
 
 def test_scaffold():

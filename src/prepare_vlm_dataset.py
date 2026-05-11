@@ -16,12 +16,18 @@ class OmniModalDataset(Dataset):
     def __init__(self, split="train", max_samples=None):
         print(f"데이터셋 로드 시작: {split} 분할")
         
-        # 가볍고 검증된 이미지-텍스트 쌍 데이터셋 로드 (예: COCO 기반의 작은 데이터셋)
-        # 실제 훈련 시 더 방대한 LLaVA-Instruct 데이터셋 등으로 교체 가능합니다.
-        self.dataset = load_dataset("ydshieh/coco_dataset_script", "2017", split=split, trust_remote_code=True)
+        # 보안상의 이유로 데이터셋 스크립트(.py) 지원이 중단되어, 미리 변환된 Parquet 브랜치를 사용합니다.
+        # HuggingFaceM4/COCO는 Karpathy split을 따르는 검증된 데이터셋입니다.
+        try:
+            self.dataset = load_dataset("HuggingFaceM4/COCO", revision="refs/convert/parquet", split=split)
+        except Exception as e:
+            print(f"데이터셋 로드 중 오류 발생: {e}")
+            print("대체 데이터셋으로 시도합니다...")
+            # 만약 위 데이터셋이 안될 경우를 대비한 대체 로직 (필요시)
+            raise e
         
         if max_samples is not None:
-            self.dataset = self.dataset.select(range(max_samples))
+            self.dataset = self.dataset.select(range(min(max_samples, len(self.dataset))))
             
         print("토크나이저 및 시각 전처리 모듈 초기화 중...")
         # 1. 텍스트 토크나이저 (Qwen)
@@ -45,21 +51,22 @@ class OmniModalDataset(Dataset):
         item = self.dataset[idx]
         
         # 1. 이미지 처리
-        # COCO 데이터셋 구조에서 이미지 추출 (경로 기반 로드)
-        image_path = item['image_path']
-        from PIL import Image
+        # Parquet 버전 데이터셋은 PIL Image 객체를 'image' 필드에 직접 포함하고 있습니다.
         try:
-            image = Image.open(image_path).convert("RGB")
+            image = item['image'].convert("RGB")
         except Exception:
-            # 이미지 로드 실패 시 빈 텐서 반환 (콜레이터에서 필터링 가능)
+            from PIL import Image
             image = Image.new('RGB', (224, 224), color='black')
             
         pixel_values = self.image_transform(image)
         
         # 2. 텍스트 처리
-        # 캡션 중 첫 번째 문장을 정답(Target)으로 사용
-        captions = item['captions']
-        target_text = captions[0] if isinstance(captions, list) and len(captions) > 0 else "설명 없음"
+        # HuggingFaceM4/COCO(Karpathy split) Parquet 버전은 이미지-캡션 쌍이 평탄화되어 있습니다.
+        # sentences 필드가 딕셔너리이며 'raw' 키를 포함합니다.
+        if isinstance(item.get('sentences'), dict) and 'raw' in item['sentences']:
+            target_text = item['sentences']['raw']
+        else:
+            target_text = "설명 없음"
         
         # Omni-Modal 지시어(Prompt) 포맷팅
         prompt = "<image>\n이 이미지를 자세히 설명해 주십시오:\n"

@@ -1,4 +1,5 @@
 import os
+import argparse
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -28,7 +29,10 @@ class SmoothQuantWrapper(nn.Module):
             if isinstance(module, nn.Linear):
                 module.weight.data.mul_(smooth_scale)
             elif isinstance(module, nn.Conv2d):
-                module.weight.data.mul_(smooth_scale.view(-1, 1, 1, 1))
+                if module.groups == module.in_channels and module.in_channels == module.out_channels:
+                    module.weight.data.mul_(smooth_scale.view(-1, 1, 1, 1))
+                else:
+                    module.weight.data.mul_(smooth_scale.view(1, -1, 1, 1))
                 
         # 2. Quantize the smoothed weights to W8
         self._quantize_weights()
@@ -58,7 +62,7 @@ class SmoothQuantWrapper(nn.Module):
         
         return self.module(x_q)
 
-def calibrate_and_apply_smoothquant(model, dataloader, alpha=0.5):
+def calibrate_and_apply_smoothquant(model, dataloader, alpha=0.5, num_calib_batches=5):
     print("🔍 [SmoothQuant] Starting Activation Calibration...")
     model.eval()
     
@@ -87,7 +91,7 @@ def calibrate_and_apply_smoothquant(model, dataloader, alpha=0.5):
     # Run calibration batch
     with torch.no_grad():
         for i, (images, _) in enumerate(dataloader):
-            if i >= 5: break # Calibrate on 5 batches
+            if i >= num_calib_batches: break # Calibrate on configurable batches
             images = images.to(DEVICE, dtype=torch.bfloat16)
             model(images)
             
@@ -121,6 +125,11 @@ def calibrate_and_apply_smoothquant(model, dataloader, alpha=0.5):
 
 # 3. Main
 def main():
+    parser = argparse.ArgumentParser(description="W8A8 SmoothQuant PTQ")
+    parser.add_argument("--calib-batches", type=int, default=5, help="Number of calibration batches (default: 5)")
+    parser.add_argument("--alpha", type=float, default=0.5, help="SmoothQuant alpha ratio (default: 0.5)")
+    args = parser.parse_args()
+
     print("Starting W8A8 SmoothQuant PTQ Process...")
     
     if not os.path.exists(CHECKPOINT_PATH):
@@ -144,7 +153,7 @@ def main():
     
     calib_loader = DataLoader(hf_dataset, batch_size=BATCH_SIZE, collate_fn=collate_fn)
 
-    model_sq = calibrate_and_apply_smoothquant(model, calib_loader, alpha=0.5)
+    model_sq = calibrate_and_apply_smoothquant(model, calib_loader, alpha=args.alpha, num_calib_batches=args.calib_batches)
     
     save_path = os.path.join(SAVE_DIR, "smoothquant_w8a8.pth")
     torch.save(model_sq.state_dict(), save_path)

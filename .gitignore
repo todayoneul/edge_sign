@@ -1,5 +1,5 @@
 .env
 *.md
 checkpoints_*
-
+*/__pycache__
 !README.md
