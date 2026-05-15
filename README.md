@@ -44,15 +44,15 @@
 
 ### 2.2. 4-Bit QAT & Custom STE
 가중치를 16개의 구간(-8 ~ 7)으로 압축할 경우 발생하는 뇌사 상태(Weight Collapse)를 극복하기 위해 **QAT(양자화 인지 학습)** 를 도입했습니다. 미분 불가능한 양자화 함수의 그레디언트를 통과시키기 위해 **Straight-Through Estimator (STE)** 함수를 아래 수식과 같이 사용했습니다. 
-$$\text{Forward: } W_q = \text{Clamp}(\text{Round}(W / \Delta), -8, 7) \times \Delta$$   
-$$\text{Backward: } \frac{\partial L}{\partial W} \approx \frac{\partial L}{\partial W_q} \quad (\text{if } W \in [-8, 7] \text{ else } 0)$$
+$$ \text{Forward: } W_q = \text{Clamp}(\text{Round}(W / \Delta), -8, 7) \times \Delta $$   
+$$ \text{Backward: } \frac{\partial L}{\partial W} \approx \frac{\partial L}{\partial W_q} \quad (\text{if } W \in [-8, 7] \text{ else } 0) $$
 
 ### 2.3. 1-Bit Binarization & Bit-Packing
 모든 CNN 필터 가중치를 흑백(+1과 -1)으로 이진화하며, 필터의 크기 소실을 막기 위해 **채널별 절댓값 평균(Per-channel L1 Norm)** 을 스케일 팩터로 활용합니다. 디스크 추출 시 `numpy.packbits`를 적용하여 8개의 이진 가중치를 1개의 `uint8` 메모리 블록에 욱여넣는(Bit-packing) 기술을 구현해 1.99MB 도달에 성공했습니다.
 
 ### 2.4. Knowledge Distillation (KD) 기반 성능 방어
 1-Bit 환경에서의 치명적인 **정보 병목(Information Bottleneck)** 현상을 극복하기 위해, FP16 교사 모델(Teacher)의 소프트 라벨(KL Divergence)을 혼합하여 연산합니다.   
-$$L_{KD} = \alpha \cdot T^2 \cdot D_{KL}\left( \sigma\left(\frac{Z_S}{T}\right) \| \sigma\left(\frac{Z_T}{T}\right) \right) + (1-\alpha) \cdot CE(Z_S, y)$$
+$$ L_{KD} = \alpha \cdot T^2 \cdot D_{KL}\left( \sigma\left(\frac{Z_S}{T}\right) \| \sigma\left(\frac{Z_T}{T}\right) \right) + (1-\alpha) \cdot CE(Z_S, y) $$
 
 ---
 
