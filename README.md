@@ -43,23 +43,30 @@
 학습이 완료된 모델의 가중치를 256개의 구간(-128 ~ 127)으로 선형 맵핑(Linear Mapping)합니다. 재학습(Epoch) 없이 즉각적인 메모리 절반(14.9MB) 단축이 가능하며, 원본(FP16) 대비 0.64%p의 미미한 성능 하락만을 보였습니다.
 
 ### 2.2. 4-Bit QAT & Custom STE
-가중치를 16개의 구간(-8 ~ 7)으로 압축할 경우 발생하는 뇌사 상태(Weight Collapse)를 극복하기 위해 **QAT(양자화 인지 학습)** 를 도입했습니다. 미분 불가능한 양자화 함수의 그레디언트를 통과시키기 위해 **Straight-Through Estimator (STE)** 함수를 아래와 같이 사용했습니다. 
-$$\text{Forward: } W_q = \text{Clamp}(\text{Round}(W / \Delta), -8, 7) \times \Delta$$   
+가중치를 16개의 구간(-8 ~ 7)으로 압축할 경우 발생하는 뇌사 상태(Weight Collapse)를 극복하기 위해 **QAT(양자화 인지 학습)** 를 도입했습니다. 미분 불가능한 양자화 함수의 그레디언트를 통과시키기 위해 **Straight-Through Estimator (STE)** 함수를 아래 수식과 같이 사용했습니다. 
+$$\text{Forward: } W_q = \text{Clamp}(\text{Round}(W / \Delta), -8, 7) \times \Delta$$   
 $$\text{Backward: } \frac{\partial L}{\partial W} \approx \frac{\partial L}{\partial W_q} \quad (\text{if } W \in [-8, 7] \text{ else } 0)$$
 
 ### 2.3. 1-Bit Binarization & Bit-Packing
 모든 CNN 필터 가중치를 흑백(+1과 -1)으로 이진화하며, 필터의 크기 소실을 막기 위해 **채널별 절댓값 평균(Per-channel L1 Norm)** 을 스케일 팩터로 활용합니다. 디스크 추출 시 `numpy.packbits`를 적용하여 8개의 이진 가중치를 1개의 `uint8` 메모리 블록에 욱여넣는(Bit-packing) 기술을 구현해 1.99MB 도달에 성공했습니다.
 
 ### 2.4. Knowledge Distillation (KD) 기반 성능 방어
-1-Bit 환경에서의 치명적인 **정보 병목(Information Bottleneck)** 현상을 극복하기 위해, FP16 교사 모델(Teacher)의 소프트 라벨(KL Divergence)을 혼합하여 연산합니다.   
+1-Bit 환경에서의 치명적인 **정보 병목(Information Bottleneck)** 현상을 극복하기 위해, FP16 교사 모델(Teacher)의 소프트 라벨(KL Divergence)을 혼합하여 연산합니다.   
 $$L_{KD} = \alpha \cdot T^2 \cdot D_{KL}\left( \sigma\left(\frac{Z_S}{T}\right) \| \sigma\left(\frac{Z_T}{T}\right) \right) + (1-\alpha) \cdot CE(Z_S, y)$$
 
 ---
 
 ## 3. 실험 환경 (Experimental Setup)
+
+### 3.1. Core Engine Training
 * **Dataset:** ImageNet-1K (1.2 Million Images, 1000 Classes) 
 * **Base Architecture:** ConvNeXtV2-Nano (`convnextv2_nano.fcmae_ft_in1k`)
 * **Hardware Framework:** NVIDIA RTX 5070 12GB (Local) / PyTorch 2.x
+
+### 3.2. Target Domain: Korean Sign Language (KSL)
+* **Dataset:** [AI Hub - 수어 영상 데이터](https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=103)
+* **Data Scale:** 한국인 수어 구사자 20인 이상이 참여한 **53.6만 개 이상의 고해상도 수어 영상 클립**.
+* **Usage:** 압축된 비전 엔진이 실제 한국 수어의 문맥과 형태적 특징을 정밀하게 학습하기 위한 파인튜닝(Fine-tuning) 데이터셋으로 활용되었습니다.
 
 ---
 
@@ -114,10 +121,10 @@ $$L_{KD} = \alpha \cdot T^2 \cdot D_{KL}\left( \sigma\left(\frac{Z_S}{T}\right) 
 
 ## 8. Omni-Modal 종합 평가 프레임워크 (최적 모델 선정)
 
-Edge-Sign 백본 모델 선정을 위해, 성능(Performance), 속도(Latency), 메모리(Memory)를 아우르는 **종합 평가 프레임워크(Final Score)** 를 설계하였습니다.   
+Edge-Sign 백본 모델 선정을 위해, 성능(Performance), 속도(Latency), 메모리(Memory)를 아우르는 **종합 평가 프레임워크(Final Score)** 를 설계하였습니다.   
 **Final Score = 0.6 * PerfNorm + 0.2 * SpeedNorm + 0.2 * MemNorm**
 
-**[추론 지연 시간(Latency) 비교 & 파레토 프론티어]** ![Inference Latency Comparison](./assets/mm_latency_comparison.png)   
+**[추론 지연 시간(Latency) 비교 & 파레토 프론티어]** ![Inference Latency Comparison](./assets/mm_latency_comparison.png)   
 ![Pareto Frontier](./assets/mm_final_pareto.png)
 
 | Model | Recall@1 (%) | Latency (ms) | Memory (MB) | Final Score |
@@ -136,9 +143,10 @@ Edge-Sign 백본 모델 선정을 위해, 성능(Performance), 속도(Latency), 
 본 연구를 통해 옴니모달(VLM) 구조가 "초저전력, 15MB 이하의 물리적 크기 제한, 제로 레이턴시"라는 진정한 엣지 환경의 요구사항을 충족하기 어렵다는 한계를 정량적으로 증명했습니다. 이를 바탕으로, **수어 해석에 최적화된 'Action-Trigger 기반 하이브리드 파이프라인'** 으로 최종 배포 방향을 확정했습니다.
 
 ### 시스템 통합 및 배포 구조
-1. **시각 엔진 (W8A8 ConvNeXt):** 종합 평가 1위를 차지한 W8A8 양자화 모델(14.9MB)을 백본으로 채택하여, 카메라 영상을 60FPS로 처리하며 수어 키워드(Label)를 초고속으로 추출합니다.
-2. **논리 및 조립 모듈 (NLP Rule-base):** 무거운 소형 LLM(0.5B 등)을 배제하고, 수십 KB 수준의 경량 버퍼 모듈 및 NLP 형태소 조립기를 통해 추출된 키워드를 자연스러운 한국어 문장으로 결합합니다.
-3. **WebAssembly 기반 배포 (진행 예정):** 시스템 전체 용량을 20MB 이하로 유지하며 ONNX로 추출, 서버 없이 브라우저에서 즉각 동작하는 네이티브 웹 애플리케이션으로 배포합니다.
+1. **시각 엔진 (W8A8 ConvNeXt):** 종합 평가 1위를 차지한 W8A8 양자화 모델(14.9MB)을 백본으로 채택하여, 카메라 영상을 60FPS로 처리하며 수어 키워드(Label)를 추출합니다.
+2. **신뢰할 수 있는 데이터 원천:** [AI Hub의 대규모 수어 영상 데이터](https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=103)를 활용하여 한국수어의 미세한 동작과 비수지 기호에 대한 분류 정확도를 확보했습니다.
+3. **논리 및 조립 모듈 (NLP Rule-base):** 무거운 대형 언어 모델을 배제하고, 수십 KB 수준의 경량 버퍼 모듈을 통해 추출된 키워드를 자연스러운 한국어 문장으로 결합합니다.
+4. **WebAssembly 기반 배포 (진행 예정):** 시스템 전체 용량을 20MB 이하로 유지하며 ONNX로 추출, 서버 없이 사용자 브라우저에서 즉각 동작하는 네이티브 웹 애플리케이션으로 배포합니다.
 
 ---
 
