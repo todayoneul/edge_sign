@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Edge-Sign Web Live</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600&family=Noto+Sans+KR:wght@400;600&family=Space+Grotesk:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/ort.min.js"></script>
+  </head>
+  <body>
+    <div class="bg-orbit"></div>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Edge-Sign Live</p>
+        <h1>On-Device KSL Interpreter</h1>
+        <p class="subtitle">
+          Run the INT8 ONNX model directly in your browser with WebGPU or WASM.
+        </p>
+      </div>
+      <div class="hero-badges">
+        <span class="badge" id="providerBadge">Provider: -</span>
+        <span class="badge" id="modelBadge">Model: -</span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="stage">
+        <canvas id="view" width="960" height="540"></canvas>
+        <div class="stage-hint">Camera feed is rendered here.</div>
+      </section>
+
+      <section class="panel">
+        <div class="card">
+          <h2>Controls</h2>
+          <label class="field">
+            <span>Model path</span>
+            <input id="modelPath" type="text" value="" />
+          </label>
+          <div class="row">
+            <button id="loadModelBtn">Load model</button>
+            <button id="startBtn">Start camera</button>
+            <button id="stopBtn" class="ghost">Stop</button>
+          </div>
+          <p id="message" class="message">Ready.</p>
+        </div>
+
+        <div class="card">
+          <h2>Live stats</h2>
+          <div class="stat">
+            <span class="label">Detected</span>
+            <span id="detectedLabel" class="value">-</span>
+          </div>
+          <div class="stat">
+            <span class="label">Confidence</span>
+            <span id="confidenceLabel" class="value">-</span>
+          </div>
+          <div class="stat">
+            <span class="label">FPS</span>
+            <span id="fpsLabel" class="value">-</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Sentence buffer</h2>
+          <div id="sentenceLabel" class="sentence">-</div>
+        </div>
+
+        <div class="card">
+          <h2>Pipeline</h2>
+          <ul class="pipeline">
+            <li>Center-crop, resize to 224x224, normalize ImageNet stats.</li>
+            <li>Run ONNX inference with WebGPU or WASM.</li>
+            <li>15-frame vote + 1.5s debounce for stable output.</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <video id="video" autoplay muted playsinline></video>
+    <canvas id="inputCanvas" width="224" height="224"></canvas>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
