@@ -52,6 +52,10 @@ $$L_{KD} = \alpha \cdot T^2 \cdot D_{KL}\left( \sigma\left(\frac{Z_S}{T}\right) 
 * **Dataset:** ImageNet-1K (1.2 Million Images, 1000 Classes) 
 * **Base Architecture:** ConvNeXtV2-Nano (`convnextv2_nano.fcmae_ft_in1k`)
 * **Hardware Framework:** NVIDIA RTX 5070 12GB (Local) / PyTorch 2.x
+* **Dependencies:** 프로젝트 구동을 위한 파이썬 패키지 의존성은 루트 디렉토리의 `requirements.txt`에 정의되어 있습니다. 아래 명령어로 쉽게 설치할 수 있습니다.
+  ```bash
+  pip install -r requirements.txt
+  ```
 
 ### 2.2. Target Domain (최종 서비스 도메인: 한국수어)
 * **Dataset:** [AI Hub - 수어 영상 데이터](https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=103)
