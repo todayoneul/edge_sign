@@ -1,5 +1,4 @@
-# Edge-Sign: 초경량 온디바이스 수어 해석 시스템 및 극단적 신경망 압축 프레임워크
-(Edge-Sign: Ultra-Lightweight On-Device Sign Language Interpreter & Extreme Neural Network Compression Framework)
+# Edge-Sign: 초경량 온디바이스 수어 해석 시스템 및 극단적 신경망 압축 프레임워크(Edge-Sign: Ultra-Lightweight On-Device Sign Language Interpreter & Extreme Neural Network Compression Framework)
 
 ## 프로젝트 개요 (Project Plan)
 
@@ -17,23 +16,25 @@
 ---
 
 ## 목차 (Table of Contents)
-- [1. 핵심 방법론: 극단적 신경망 압축 (Core Compression Methodology)](#1-핵심-방법론-극단적-신경망-압축-core-compression-methodology)
+- [1. 핵심 방법론: 신경망 압축 (Core Compression Methodology)](#1-핵심-방법론-신경망-압축-core-compression-methodology)
 - [2. 실험 환경 및 타겟 데이터셋 (Experimental Setup & Target Domain)](#2-실험-환경-및-타겟-데이터셋-experimental-setup--target-domain)
 - [3. [Phase 1] 압축 성능 평가 및 파레토 프론티어 분석](#3-phase-1-압축-성능-평가-및-파레토-프론티어-분석)
 - [4. [Phase 2] 옴니모달(VLM) 한계 검증을 위한 사전 연구](#4-phase-2-옴니모달vlm-한계-검증을-위한-사전-연구)
 - [5. 종합 평가 및 최적 모델 선정 (Final Score)](#5-종합-평가-및-최적-모델-선정-final-score)
-- [6. [최종 계획] Edge-Sign 하이브리드 파이프라인 구축 (Future Work)](#6-최종-계획-edge-sign-하이브리드-파이프라인-구축-future-work)
+- [6. [최종 계획] Edge-Sign 하이브리드 파이프라인 구축 및 KSL 추론 파이프라인 (Future Work & Progress)](#6-최종-계획-edge-sign-하이브리드-파이프라인-구축-및-ksl-추론-파이프라인-future-work--progress)
 
 ---
 
-## 1. 핵심 방법론: 극단적 신경망 압축 (Core Compression Methodology)
+## 1. 핵심 방법론: 신경망 압축 (Core Compression Methodology)
 
 ### 1.1. 8-Bit PTQ (Post-Training Quantization)
 학습이 완료된 모델의 가중치를 256개의 구간(-128 ~ 127)으로 선형 맵핑(Linear Mapping)합니다. 재학습(Epoch) 없이 즉각적인 메모리 절반(14.9MB) 단축이 가능하며, 원본(FP16) 대비 0.64%p의 미미한 성능 하락만을 보였습니다.
 
 ### 1.2. 4-Bit QAT & Custom STE
 가중치를 16개의 구간(-8 ~ 7)으로 압축할 경우 발생하는 뇌사 상태(Weight Collapse)를 극복하기 위해 **QAT(양자화 인지 학습)** 를 도입했습니다. 미분 불가능한 양자화 함수의 그레디언트를 통과시키기 위해 **Straight-Through Estimator (STE)** 함수를 아래 수식과 같이 설계하여 적용했습니다.
-$$\text{Forward: } W_q = \text{Clamp}(\text{Round}(W / \Delta), -8, 7) \times \Delta$$   
+
+$$\text{Forward: } W_q = \text{Clamp}(\text{Round}(W / \Delta), -8, 7) \times \Delta$$
+   
 $$\text{Backward: } \frac{\partial L}{\partial W} \approx \frac{\partial L}{\partial W_q} \quad (\text{if } W \in [-8, 7] \text{ else } 0)$$
 
 ### 1.3. 1-Bit Binarization & Bit-Packing
@@ -116,14 +117,23 @@ Edge-Sign의 최종 백본을 선정하기 위해 성능(Performance), 속도(La
 
 ---
 
-## 6. [최종 계획] Edge-Sign 하이브리드 파이프라인 구축 (Future Work)
+## 6. [최종 계획] Edge-Sign 하이브리드 파이프라인 구축 및 KSL 추론 파이프라인 (Future Work & Progress)
 
-선행 연구의 철저한 한계 분석을 바탕으로, 옴니모달(VLM)을 배제하고 수어 해석에 최적화된 **'Action-Trigger 기반 하이브리드 파이프라인'** 으로 최종 시스템 통합을 진행합니다.
+선행 연구의 철저한 한계 분석을 바탕으로, 옴니모달(VLM)을 배제하고 수어 해석에 최적화된 **'Action-Trigger 기반 하이브리드 파이프라인'** 으로 최종 시스템 통합을 진행 중입니다.
 
-1. **시각 엔진 (W8A8 ConvNeXt):** 종합 평가 1위를 차지한 W8A8 양자화 모델(14.9MB)을 백본으로 채택하여, 카메라 영상을 60FPS로 처리하며 수어 키워드(Label)를 추출합니다.
-2. **AI Hub KSL 파인튜닝:** 압축된 비전 엔진에 한국수어 영상 데이터(REAL-WORD)를 학습시켜 도메인 특화 정확도를 극대화합니다.
+1. **시각 엔진 (W8A8 ConvNeXt) 및 KSL 파인튜닝:** 종합 평가 1위를 차지한 W8A8 양자화 모델을 백본으로 채택하고 실제 한국 수어 데이터셋을 학습시켜 도메인 특화 정확도를 극대화합니다.
+2. **순수 CPU 엣지 추론 최적화:** 무거운 프레임워크(PyTorch 등) 없이 ONNX Runtime만을 이용한 초경량 추론 환경을 구축합니다.
 3. **논리 및 조립 모듈 (NLP Rule-base):** 무거운 언어 모델을 대신하여, 수십 KB 수준의 경량 버퍼 모듈을 통해 추출된 키워드를 즉각적인 한국어 문장으로 결합합니다.
 4. **WebAssembly 기반 배포:** 시스템 전체 용량을 20MB 이하로 유지하며 ONNX로 추출, 서버 통신 없이 사용자 스마트폰 브라우저에서 즉각 동작하는 네이티브 웹 애플리케이션 데모를 완성합니다.
 
----
+### 6.1. W8A8 KSL 도메인 특화 Fine-Tuning 및 모델 경량화 성과
+최종 백본으로 선정된 W8A8 모델에 1,404개 클래스의 실제 한국 수어(KSL) 데이터셋을 파인튜닝하고 모델 추출 과정을 거쳐 극한의 경량화와 최적화를 완료했습니다.
+1. **W8A8 QAT Fine-Tuning:** 사전 양자화 인지 학습(QAT) 기법을 기반으로 ConvNeXtV2-Nano 모델에 KSL 데이터셋을 성공적으로 학습시켜 엣지 배포용 파이프라인 준비를 마쳤습니다.
+2. **ONNX Export 오류 해결 및 최적화:** 최신 PyTorch 버전에 도입된 Dynamo ONNX 익스포터의 형상 추론 오류(Shape Inference Error)를 극복하기 위해 `opset_version=14` 및 레거시(TorchScript) 익스포터 강제 모드로 파이프라인을 성공적으로 전환했습니다. 그 결과 안정적인 추출에 성공했습니다.
+3. **Real INT8 Dynamic Quantization:** ONNX Runtime의 동적 양자화를 통해 가중치를 완벽하게 물리적 INT8 규격으로 압축, 모델 사이즈를 FP32 60.70MB에서 **15.61MB** 로 감축하여 **압축률 약 3.9배**를 달성했습니다.
 
+### 6.2. 엣지 디바이스용 순수 CPU 추론 테스트 성공
+PyTorch 등 무거운 라이브러리 없이 순수 `ONNX Runtime(CPUExecutionProvider)`만을 사용하여 최종 KSL 타겟 추론 검증을 성공적으로 마쳤습니다.
+* **한국어 경로 버그 해결:** 한글 폴더/파일 경로로 인해 발생하던 이미지 로딩 문제(`cv2.imread`)를 `numpy` 바이트 배열 디코딩 방식으로 우회하여 안정적으로 이미지를 로드합니다.
+* **Float64 에러 수정:** ONNX 엔진이 요구하는 엄격한 타입 입력 규격(float32)에 맞춰 NumPy 전처리 결과 타입 파이프라인을 고도화했습니다.
+* **추론 결과:** "가능" 클래스의 테스트 이미지(`NIA_SL_WORD2493_REAL01_D_1.jpg`)에 대해 추론한 결과, 정답 라벨("가능")을 **1위 (신뢰도 41.18%)** 로 성공적으로 분류해 내며 가벼운 용량에도 뛰어난 인식 능력을 보존함을 증명했습니다.

@@ -20,7 +20,9 @@ for label, path in logs.items():
     if os.path.exists(path):
         df = pd.read_csv(path)
         # Check column names
-        val_col = [c for c in df.columns if 'val' in c.lower() or 'cosine' in c.lower()]
+        val_col = [c for c in df.columns if 'val_cosine_sim' in c.lower()]
+        if not val_col:
+            val_col = [c for c in df.columns if 'val' in c.lower() and 'loss' not in c.lower()]
         if len(val_col) > 0:
             plt.plot(df['Epoch'], df[val_col[0]], marker='o', label=label, linewidth=2)
 
