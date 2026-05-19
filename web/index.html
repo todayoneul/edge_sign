@@ -12,6 +12,8 @@
     />
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/ort.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
   </head>
   <body>
     <div class="bg-orbit"></div>
@@ -42,6 +44,21 @@
             <span>Model path</span>
             <input id="modelPath" type="text" value="" />
           </label>
+          <label class="toggle">
+            <input id="roiToggle" type="checkbox" />
+            <span>Use MediaPipe ROI</span>
+          </label>
+          <div class="row">
+            <label class="toggle">
+              <input id="handsToggle" type="checkbox" checked />
+              <span>Hands</span>
+            </label>
+            <label class="toggle">
+              <input id="faceToggle" type="checkbox" checked />
+              <span>Face</span>
+            </label>
+          </div>
+          <p class="hint">ROI uses hands/face landmarks. Fallback to center crop.</p>
           <div class="row">
             <button id="loadModelBtn">Load model</button>
             <button id="startBtn">Start camera</button>
@@ -64,6 +81,10 @@
             <span class="label">FPS</span>
             <span id="fpsLabel" class="value">-</span>
           </div>
+          <div class="stat">
+            <span class="label">ROI</span>
+            <span id="roiStatusLabel" class="value">Off</span>
+          </div>
         </div>
 
         <div class="card">
@@ -75,6 +96,7 @@
           <h2>Pipeline</h2>
           <ul class="pipeline">
             <li>Center-crop, resize to 224x224, normalize ImageNet stats.</li>
+            <li>Optional MediaPipe ROI on hands + face landmarks.</li>
             <li>Run ONNX inference with WebGPU or WASM.</li>
             <li>15-frame vote + 1.5s debounce for stable output.</li>
           </ul>

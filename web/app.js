@@ -8,6 +8,12 @@ const CONFIG = {
   fpsWindow: 30,
 };
 
+const ROI_CONFIG = {
+  updateMs: 120,
+  padding: 0.3,
+  minSize: 120,
+};
+
 const DEFAULT_CONFIG = {
   hfRepoId: "",
   hfRevision: "main",
@@ -47,6 +53,19 @@ const state = {
   fpsHistory: [],
   lastFrameTime: performance.now(),
   inputBuffer: null,
+  roiEnabled: false,
+  useHands: true,
+  useFace: true,
+  roi: null,
+  roiStatus: "Off",
+  hands: null,
+  faceMesh: null,
+  handLandmarks: [],
+  faceLandmarks: [],
+  mediaPipeReady: false,
+  lastRoiUpdate: 0,
+  handsBusy: false,
+  faceBusy: false,
 };
 
 const video = document.getElementById("video");
@@ -61,16 +80,191 @@ const messageEl = document.getElementById("message");
 const detectedLabelEl = document.getElementById("detectedLabel");
 const confidenceLabelEl = document.getElementById("confidenceLabel");
 const fpsLabelEl = document.getElementById("fpsLabel");
+const roiStatusLabelEl = document.getElementById("roiStatusLabel");
 const sentenceLabelEl = document.getElementById("sentenceLabel");
 
 const modelPathInput = document.getElementById("modelPath");
 const loadModelBtn = document.getElementById("loadModelBtn");
 const startBtn = document.getElementById("startBtn");
 const stopBtn = document.getElementById("stopBtn");
+const roiToggle = document.getElementById("roiToggle");
+const handsToggle = document.getElementById("handsToggle");
+const faceToggle = document.getElementById("faceToggle");
 
 function setMessage(text, isError = false) {
   messageEl.textContent = text;
   messageEl.style.color = isError ? "#ff9b9b" : "";
+}
+
+function updateRoiStatus(text) {
+  state.roiStatus = text;
+  roiStatusLabelEl.textContent = text;
+}
+
+function getBoundsFromLandmarks(landmarksList) {
+  if (!landmarksList || landmarksList.length === 0) {
+    return null;
+  }
+  let minX = 1;
+  let minY = 1;
+  let maxX = 0;
+  let maxY = 0;
+
+  for (const landmarks of landmarksList) {
+    for (const point of landmarks) {
+      if (point.x < minX) minX = point.x;
+      if (point.y < minY) minY = point.y;
+      if (point.x > maxX) maxX = point.x;
+      if (point.y > maxY) maxY = point.y;
+    }
+  }
+
+  if (maxX <= minX || maxY <= minY) {
+    return null;
+  }
+
+  return { minX, minY, maxX, maxY };
+}
+
+function mergeBounds(a, b) {
+  if (!a) return b;
+  if (!b) return a;
+  return {
+    minX: Math.min(a.minX, b.minX),
+    minY: Math.min(a.minY, b.minY),
+    maxX: Math.max(a.maxX, b.maxX),
+    maxY: Math.max(a.maxY, b.maxY),
+  };
+}
+
+function buildRoiFromBounds(bounds, width, height) {
+  if (!bounds) return null;
+
+  const centerX = ((bounds.minX + bounds.maxX) / 2) * width;
+  const centerY = ((bounds.minY + bounds.maxY) / 2) * height;
+  const boxWidth = (bounds.maxX - bounds.minX) * width;
+  const boxHeight = (bounds.maxY - bounds.minY) * height;
+  const size = Math.max(boxWidth, boxHeight) * (1 + ROI_CONFIG.padding);
+  const finalSize = Math.max(size, ROI_CONFIG.minSize);
+
+  let x = centerX - finalSize / 2;
+  let y = centerY - finalSize / 2;
+  x = Math.max(0, Math.min(x, width - finalSize));
+  y = Math.max(0, Math.min(y, height - finalSize));
+
+  return { x, y, size: finalSize };
+}
+
+function updateRoiFromLandmarks() {
+  const width = video.videoWidth;
+  const height = video.videoHeight;
+  if (!width || !height) {
+    return;
+  }
+
+  let bounds = null;
+  if (state.useHands) {
+    bounds = mergeBounds(bounds, getBoundsFromLandmarks(state.handLandmarks));
+  }
+  if (state.useFace) {
+    bounds = mergeBounds(bounds, getBoundsFromLandmarks(state.faceLandmarks));
+  }
+
+  const roi = buildRoiFromBounds(bounds, width, height);
+  state.roi = roi;
+  if (state.roiEnabled) {
+    updateRoiStatus(roi ? "MediaPipe" : "Center");
+  }
+}
+
+async function initMediaPipe() {
+  if (state.mediaPipeReady) {
+    return;
+  }
+  if (!window.Hands || !window.FaceMesh) {
+    setMessage("MediaPipe scripts not loaded.", true);
+    return;
+  }
+
+  state.hands = new Hands({
+    locateFile: (file) =>
+      `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
+  });
+  state.hands.setOptions({
+    maxNumHands: 2,
+    modelComplexity: 1,
+    minDetectionConfidence: 0.5,
+    minTrackingConfidence: 0.5,
+  });
+  state.hands.onResults((results) => {
+    state.handsBusy = false;
+    state.handLandmarks = results.multiHandLandmarks || [];
+    updateRoiFromLandmarks();
+  });
+
+  state.faceMesh = new FaceMesh({
+    locateFile: (file) =>
+      `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+  });
+  state.faceMesh.setOptions({
+    maxNumFaces: 1,
+    refineLandmarks: false,
+    minDetectionConfidence: 0.5,
+    minTrackingConfidence: 0.5,
+  });
+  state.faceMesh.onResults((results) => {
+    state.faceBusy = false;
+    state.faceLandmarks = results.multiFaceLandmarks || [];
+    updateRoiFromLandmarks();
+  });
+
+  state.mediaPipeReady = true;
+}
+
+function maybeUpdateRoi() {
+  if (!state.roiEnabled || !state.mediaPipeReady) {
+    return;
+  }
+  if (video.readyState < 2) {
+    return;
+  }
+  const now = performance.now();
+  if (now - state.lastRoiUpdate < ROI_CONFIG.updateMs) {
+    return;
+  }
+  state.lastRoiUpdate = now;
+
+  if (state.useHands && state.hands && !state.handsBusy) {
+    state.handsBusy = true;
+    state.hands.send({ image: video }).catch(() => {
+      state.handsBusy = false;
+    });
+  }
+
+  if (state.useFace && state.faceMesh && !state.faceBusy) {
+    state.faceBusy = true;
+    state.faceMesh.send({ image: video }).catch(() => {
+      state.faceBusy = false;
+    });
+  }
+}
+
+function getCropRegion(width, height) {
+  if (state.roiEnabled && state.roi) {
+    return {
+      sx: state.roi.x,
+      sy: state.roi.y,
+      size: state.roi.size,
+      source: "roi",
+    };
+  }
+  const cropSize = Math.min(width, height);
+  return {
+    sx: (width - cropSize) / 2,
+    sy: (height - cropSize) / 2,
+    size: cropSize,
+    source: "center",
+  };
 }
 
 async function loadLabels() {
@@ -163,12 +357,13 @@ function drawFrame() {
   }
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  const cropSize = Math.min(canvas.width, canvas.height);
-  const x1 = (canvas.width - cropSize) / 2;
-  const y1 = (canvas.height - cropSize) / 2;
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
+  const region = getCropRegion(canvas.width, canvas.height);
+  ctx.strokeStyle =
+    region.source === "roi"
+      ? "rgba(32, 214, 165, 0.9)"
+      : "rgba(255, 255, 255, 0.7)";
   ctx.lineWidth = 2;
-  ctx.strokeRect(x1, y1, cropSize, cropSize);
+  ctx.strokeRect(region.sx, region.sy, region.size, region.size);
 }
 
 function updateFps() {
@@ -279,15 +474,13 @@ async function runInference() {
     return;
   }
 
-  const cropSize = Math.min(width, height);
-  const sx = (width - cropSize) / 2;
-  const sy = (height - cropSize) / 2;
+  const region = getCropRegion(width, height);
   inputCtx.drawImage(
     video,
-    sx,
-    sy,
-    cropSize,
-    cropSize,
+    region.sx,
+    region.sy,
+    region.size,
+    region.size,
     0,
     0,
     CONFIG.inputSize,
@@ -315,6 +508,11 @@ async function runInference() {
 function renderLoop() {
   drawFrame();
   updateFps();
+  maybeUpdateRoi();
+
+  if (!state.roiEnabled) {
+    updateRoiStatus("Off");
+  }
 
   if (state.isRunning && state.session && !state.inFlight) {
     state.inFlight = true;
@@ -342,9 +540,32 @@ stopBtn.addEventListener("click", () => {
 modelPathInput.addEventListener("change", () => {
   state.session = null;
 });
+roiToggle.addEventListener("change", async () => {
+  state.roiEnabled = roiToggle.checked;
+  if (state.roiEnabled) {
+    updateRoiStatus("Loading");
+    await initMediaPipe();
+    updateRoiFromLandmarks();
+  } else {
+    state.roi = null;
+    updateRoiStatus("Off");
+  }
+});
+handsToggle.addEventListener("change", () => {
+  state.useHands = handsToggle.checked;
+  updateRoiFromLandmarks();
+});
+faceToggle.addEventListener("change", () => {
+  state.useFace = faceToggle.checked;
+  updateRoiFromLandmarks();
+});
 
 async function bootstrap() {
   modelPathInput.value = MODEL_DEFAULT_PATH;
+  roiToggle.checked = false;
+  handsToggle.checked = true;
+  faceToggle.checked = true;
+  updateRoiStatus("Off");
   await loadLabels();
   requestAnimationFrame(renderLoop);
 }
