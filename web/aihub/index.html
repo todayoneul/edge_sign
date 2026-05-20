@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AIhub Keypoint Live</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">AIhub Keypoints</p>
+        <h1>OpenPose Live Interpreter</h1>
+        <p class="subtitle">
+          Live webcam streaming to a FastAPI backend with OpenPose keypoints and
+          landmark classifier.
+        </p>
+      </div>
+      <div class="hero-badges">
+        <span class="badge" id="wsBadge">WS: -</span>
+        <span class="badge" id="statusBadge">Status: idle</span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="stage">
+        <canvas id="view" width="960" height="540"></canvas>
+        <div class="stage-hint">Camera feed preview.</div>
+      </section>
+
+      <section class="panel">
+        <div class="card">
+          <h2>Controls</h2>
+          <label class="field">
+            <span>WebSocket URL</span>
+            <input id="wsUrl" type="text" value="ws://localhost:8001/ws" />
+          </label>
+          <label class="field">
+            <span>Send FPS</span>
+            <input id="sendFps" type="number" min="1" max="15" value="5" />
+          </label>
+          <div class="row">
+            <button id="startBtn">Start</button>
+            <button id="stopBtn" class="ghost">Stop</button>
+          </div>
+          <p id="message" class="message">Ready.</p>
+        </div>
+
+        <div class="card">
+          <h2>Live stats</h2>
+          <div class="stat">
+            <span class="label">Detected</span>
+            <span id="detectedLabel" class="value">-</span>
+          </div>
+          <div class="stat">
+            <span class="label">Confidence</span>
+            <span id="confidenceLabel" class="value">-</span>
+          </div>
+          <div class="stat">
+            <span class="label">Stable</span>
+            <span id="stableLabel" class="value">-</span>
+          </div>
+          <div class="stat">
+            <span class="label">FPS</span>
+            <span id="fpsLabel" class="value">-</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <video id="video" autoplay muted playsinline></video>
+    <canvas id="capture" width="640" height="360"></canvas>
+
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -58,3 +58,41 @@ python -m http.server 8000 --directory web
 - WebGPU 환경이 지원되는 브라우저에서는 최상의 프레임(FPS) 속도로 동작하며, 지원되지 않을 경우 WASM 백엔드로 자동 대체(Fallback)됩니다.
 - 모델 경로나 설정이 변경된 경우, 웹 페이지에서 모델을 다시 로드해야 정상적으로 반영됩니다.
 - MediaPipe ROI를 켜면 손/얼굴 랜드마크를 기준으로 크롭하며, 카메라 거리/배경 변화에 더 강해집니다. 성능이 느리면 끄는 것을 권장합니다.
+
+## AIhub Keypoint Live (OpenPose)
+
+이 데모는 OpenPose로 AIhub 스타일 키포인트를 추출하고, 학습된 랜드마크 분류기로 실시간 인식을 수행합니다.
+
+### 1) 서버 실행 (FastAPI)
+
+필요 패키지:
+
+```powershell
+pip install fastapi uvicorn opencv-python
+```
+
+OpenPose 경로를 환경 변수로 지정합니다:
+
+```powershell
+$env:OPENPOSE_BIN="C:\openpose\bin\OpenPoseDemo.exe"
+$env:OPENPOSE_MODEL_DIR="C:\openpose\models"
+```
+
+서버 실행:
+
+```powershell
+python scripts/aihub_web_server.py --weights ./checkpoints/landmark_best.pth --labels ./dataset/landmarks_top50/labels.json
+```
+
+### 2) 웹 UI 실행
+
+```powershell
+python -m http.server 8000 --directory web
+```
+
+브라우저에서 `http://localhost:8000/aihub/`로 접속합니다.
+
+### 참고
+
+- W8A8 PTQ는 기본 활성화입니다. 끄려면 `--no-w8a8` 옵션을 사용하세요.
+- OpenPose는 프레임당 비용이 크므로 `Send FPS`를 낮게 설정하는 것을 권장합니다.
