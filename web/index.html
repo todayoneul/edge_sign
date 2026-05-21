@@ -1,113 +1,193 @@
-<!doctype html>
-<html lang="en">
-  <head>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Edge-Sign Web Live</title>
+    <title>Edge-Sign Unified Live Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600&family=Noto+Sans+KR:wght@400;600&family=Space+Grotesk:wght@400;600&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/ort.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
-  </head>
-  <body>
-    <div class="bg-orbit"></div>
-    <header class="hero">
-      <div>
-        <p class="eyebrow">Edge-Sign Live</p>
-        <h1>On-Device KSL Interpreter</h1>
-        <p class="subtitle">
-          Run the INT8 ONNX model directly in your browser with WebGPU or WASM.
-        </p>
-      </div>
-      <div class="hero-badges">
-        <span class="badge" id="providerBadge">Provider: -</span>
-        <span class="badge" id="modelBadge">Model: -</span>
-      </div>
-    </header>
+    
+    <!-- MediaPipe dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <!-- Premium background glowing orbits -->
+    <div class="bg-orbit bg-orbit-1"></div>
+    <div class="bg-orbit bg-orbit-2"></div>
 
-    <main class="layout">
-      <section class="stage">
-        <canvas id="view" width="960" height="540"></canvas>
-        <div class="stage-hint">Camera feed is rendered here.</div>
-      </section>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-brand">
+                <span class="eyebrow">On-Device Landmark sequence</span>
+                <h1>Edge-Sign <span>Unified Dashboard</span></h1>
+            </div>
+            <div class="header-status">
+                <div id="wsStatusBadge" class="status-badge disconnected">
+                    <span class="status-dot"></span>
+                    <span id="wsStatusText">연결 끊김</span>
+                </div>
+            </div>
+        </header>
 
-      <section class="panel">
-        <div class="card">
-          <h2>Controls</h2>
-          <label class="field">
-            <span>Model path</span>
-            <input id="modelPath" type="text" value="" />
-          </label>
-          <label class="toggle">
-            <input id="roiToggle" type="checkbox" />
-            <span>Use MediaPipe ROI</span>
-          </label>
-          <div class="row">
-            <label class="toggle">
-              <input id="handsToggle" type="checkbox" checked />
-              <span>Hands</span>
-            </label>
-            <label class="toggle">
-              <input id="faceToggle" type="checkbox" checked />
-              <span>Face</span>
-            </label>
-          </div>
-          <p class="hint">ROI uses hands/face landmarks. Fallback to center crop.</p>
-          <div class="row">
-            <button id="loadModelBtn">Load model</button>
-            <button id="startBtn">Start camera</button>
-            <button id="stopBtn" class="ghost">Stop</button>
-          </div>
-          <p id="message" class="message">Ready.</p>
+        <!-- Model Switcher Tabs -->
+        <div class="model-switcher">
+            <button id="tabMediapipe" class="tab-btn active" data-model="mediapipe">
+                <div class="tab-icon">✨</div>
+                <div class="tab-content">
+                    <span class="tab-title">MediaPipe Sequence Model</span>
+                    <span class="tab-desc">2,771 수어 단어 사본 • 실시간 정규화</span>
+                </div>
+            </button>
+            <button id="tabLandmark" class="tab-btn" data-model="landmark">
+                <div class="tab-icon">⚡</div>
+                <div class="tab-content">
+                    <span class="tab-title">AIHub Landmark Model</span>
+                    <span class="tab-desc">50 핵심 수어 단어 사본 • 고강도 학습</span>
+                </div>
+            </button>
         </div>
 
-        <div class="card">
-          <h2>Live stats</h2>
-          <div class="stat">
-            <span class="label">Detected</span>
-            <span id="detectedLabel" class="value">-</span>
-          </div>
-          <div class="stat">
-            <span class="label">Confidence</span>
-            <span id="confidenceLabel" class="value">-</span>
-          </div>
-          <div class="stat">
-            <span class="label">FPS</span>
-            <span id="fpsLabel" class="value">-</span>
-          </div>
-          <div class="stat">
-            <span class="label">ROI</span>
-            <span id="roiStatusLabel" class="value">Off</span>
-          </div>
-        </div>
+        <!-- Main Layout Grid -->
+        <main class="dashboard-grid">
+            
+            <!-- Left Column: Camera and Visualization -->
+            <div class="visualizer-card">
+                <div class="canvas-wrapper">
+                    <video id="inputVideo" autoplay playsinline></video>
+                    <canvas id="outputCanvas" width="640" height="480"></canvas>
+                    <div id="loadingOverlay" class="canvas-overlay">
+                        <div class="spinner"></div>
+                        <p>MediaPipe & 카메라 초기화 중...</p>
+                    </div>
+                </div>
+                <div class="visualizer-footer">
+                    <button id="startBtn" class="primary-btn">
+                        <span class="btn-icon">▶</span> 실시간 인식 시작
+                    </button>
+                    <button id="stopBtn" class="danger-btn" disabled>
+                        <span class="btn-icon">■</span> 정지
+                    </button>
+                </div>
+            </div>
 
-        <div class="card">
-          <h2>Sentence buffer</h2>
-          <div id="sentenceLabel" class="sentence">-</div>
-        </div>
+            <!-- Right Column: Control Panel & Live Outputs -->
+            <div class="panel-column">
+                
+                <!-- Live Predictions Card -->
+                <div class="dashboard-card live-prediction-card">
+                    <div class="card-header">
+                        <h2>실시간 분석 결과 (Live Inference)</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="main-display">
+                            <span class="display-label">현재 인식된 동작</span>
+                            <span id="detectedLabel" class="display-value">-</span>
+                        </div>
+                        
+                        <div class="confidence-section">
+                            <div class="confidence-labels">
+                                <span>신뢰도 (Confidence)</span>
+                                <span id="confidenceLabel">0%</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div id="confidenceBar" class="progress-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
 
-        <div class="card">
-          <h2>Pipeline</h2>
-          <ul class="pipeline">
-            <li>Center-crop, resize to 224x224, normalize ImageNet stats.</li>
-            <li>Optional MediaPipe ROI on hands + face landmarks.</li>
-            <li>Run ONNX inference with WebGPU or WASM.</li>
-            <li>15-frame vote + 1.5s debounce for stable output.</li>
-          </ul>
-        </div>
-      </section>
-    </main>
+                        <div class="stable-section">
+                            <span class="display-label">확정 번역 단어 (Stable Emit)</span>
+                            <div id="stableResult" class="stable-value">대기 중...</div>
+                        </div>
+                    </div>
+                </div>
 
-    <video id="video" autoplay muted playsinline></video>
-    <canvas id="inputCanvas" width="224" height="224"></canvas>
+                <!-- Sentence History Card -->
+                <div class="dashboard-card sentence-history-card">
+                    <div class="card-header">
+                        <h2>수어 문장 버퍼 (Sentence History)</h2>
+                        <button id="clearHistoryBtn" class="small-btn">지우기</button>
+                    </div>
+                    <div class="card-body">
+                        <div id="sentenceBuffer" class="sentence-buffer-box">
+                            동작을 시작하면 여기에 수어 단어가 누적되어 문장으로 표현됩니다.
+                        </div>
+                    </div>
+                </div>
 
-    <script src="config.js"></script>
+                <!-- Live Performance Metrics -->
+                <div class="dashboard-card metrics-card">
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <span class="metric-val" id="fpsLabel">0.0</span>
+                            <span class="metric-lbl">인프라 FPS</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-val" id="latencyLabel">0</span>
+                            <span class="metric-lbl">지연시간 (ms)</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-val" id="quantizationLabel">FP32</span>
+                            <span class="metric-lbl">양자화 상태</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Card (Collapsible) -->
+                <div class="dashboard-card settings-card">
+                    <div class="card-header collapsible-header" id="settingsToggle">
+                        <h2>인프라 제어 설정 (Advanced Settings)</h2>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="card-body collapsible-body" id="settingsBody">
+                        <div class="setting-group">
+                            <label for="wsUrlInput">WebSocket URL</label>
+                            <input type="text" id="wsUrlInput" value="ws://localhost:8000/ws/mediapipe" />
+                        </div>
+                        
+                        <div class="settings-row">
+                            <div class="setting-group">
+                                <label for="inferIntervalInput">추론 간격 (초)</label>
+                                <input type="number" id="inferIntervalInput" min="0.02" max="1.0" step="0.01" value="0.1" />
+                            </div>
+                            <div class="setting-group">
+                                <label for="windowSizeInput">윈도우 크기 (프레임)</label>
+                                <input type="number" id="windowSizeInput" min="5" max="100" step="1" value="30" />
+                            </div>
+                        </div>
+
+                        <div class="settings-row">
+                            <div class="setting-group">
+                                <label for="voteSizeInput">투표 버퍼 크기</label>
+                                <input type="number" id="voteSizeInput" min="3" max="50" step="1" value="10" />
+                            </div>
+                            <div class="setting-group">
+                                <label for="minVotesInput">최소 투표 수</label>
+                                <input type="number" id="minVotesInput" min="1" max="50" step="1" value="6" />
+                            </div>
+                        </div>
+
+                        <div class="settings-row">
+                            <div class="setting-group">
+                                <label for="minConfInput">최소 신뢰도</label>
+                                <input type="number" id="minConfInput" min="0.1" max="1.0" step="0.05" value="0.3" />
+                            </div>
+                            <div class="setting-group">
+                                <label for="minGapInput">디바운스 간격 (초)</label>
+                                <input type="number" id="minGapInput" min="0.1" max="5.0" step="0.1" value="1.0" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+    
     <script src="app.js"></script>
-  </body>
+</body>
 </html>
