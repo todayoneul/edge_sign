@@ -318,6 +318,12 @@ async function startStreaming() {
             
             fpsLabel.textContent = payload.fps ? payload.fps.toFixed(1) : "0.0";
 
+            if (payload.quantized !== undefined) {
+                const qType = payload.quantized ? "W8A8" : "FP32";
+                const suffix = state.selectedModel === "mediapipe" ? " (MeanStd)" : " (Raw)";
+                quantizationLabel.textContent = qType + suffix;
+            }
+
             if (payload.stable && payload.stable !== "-" && payload.stable !== "") {
                 stableResult.textContent = payload.stable;
                 stableResult.style.color = "var(--success-color)";

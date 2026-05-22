@@ -221,6 +221,7 @@ async def run_websocket_inference(
                     "confidence": 0.0,
                     "stable": "-",
                     "fps": 0.0,
+                    "quantized": getattr(app.state, "w8a8", False)
                 }))
                 continue
 
@@ -249,6 +250,7 @@ async def run_websocket_inference(
                 "confidence": conf,
                 "stable": stable_label or "",
                 "fps": fps,
+                "quantized": getattr(app.state, "w8a8", False)
             }))
     except WebSocketDisconnect:
         print(f"Client disconnected from WebSocket endpoint: {model_name}")
@@ -304,6 +306,7 @@ def main():
     args = parse_args()
     device = torch.device(args.device)
     app.state.device = device
+    app.state.w8a8 = args.w8a8
 
     print(f"Device: {device}")
     print(f"Quantization enabled (W8A8 PTQ): {args.w8a8}")
