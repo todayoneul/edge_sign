@@ -5,6 +5,13 @@ const state = {
     modelSource: "local",       // "local" or "hf"
     loadedConfigKey: null,
     
+    // Input Mode Settings
+    inputMode: "camera",        // "camera" | "video" | "image"
+    uploadedFile: null,
+    uploadedFileUrl: null,
+    noHandFrames: 0,
+    videoTimerId: null,
+    
     // WebSocket States
     ws: null,
     sentTimestamps: [],
@@ -36,6 +43,16 @@ const videoEl = document.getElementById("inputVideo");
 const canvasEl = document.getElementById("outputCanvas");
 const canvasCtx = canvasEl.getContext("2d");
 const loadingOverlay = document.getElementById("loadingOverlay");
+const loadingOverlayText = document.getElementById("loadingOverlayText");
+
+// Input source elements
+const inputModeCamera = document.getElementById("inputModeCamera");
+const inputModeVideo = document.getElementById("inputModeVideo");
+const inputModeImage = document.getElementById("inputModeImage");
+const uploadZone = document.getElementById("uploadZone");
+const mediaFileInput = document.getElementById("mediaFileInput");
+const uploadVideo = document.getElementById("uploadVideo");
+const uploadImage = document.getElementById("uploadImage");
 
 const startBtn = document.getElementById("startBtn");
 const stopBtn = document.getElementById("stopBtn");
@@ -254,6 +271,39 @@ function extractFeatures(results) {
 function onResults(results) {
     if (!state.isStreaming) return;
 
+    // 1. Hands detection check (Idle filtering)
+    const hasHands = results.leftHandLandmarks || results.rightHandLandmarks;
+    if (hasHands) {
+        state.noHandFrames = 0;
+    } else {
+        state.noHandFrames++;
+        if (state.noHandFrames >= 5) {
+            // Clear sliding windows immediately
+            state.clientSeqBuffer = [];
+            state.clientVoteBuffer = [];
+            
+            // Clear UI displays
+            detectedLabel.textContent = "-";
+            confidenceLabel.textContent = "0%";
+            confidenceBar.style.width = "0%";
+            stableResult.textContent = "대기 중 (손 검출 안됨)";
+            stableResult.style.color = "var(--text-muted)";
+            
+            // Draw skeleton anyway so user sees canvas feed
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+            canvasCtx.drawImage(results.image, 0, 0, canvasEl.width, canvasEl.height);
+            if (results.poseLandmarks) {
+                drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: '#a855f7', lineWidth: 2 });
+                drawLandmarks(canvasCtx, results.poseLandmarks, { color: '#3b82f6', lineWidth: 1, radius: 2 });
+            }
+            canvasCtx.restore();
+            
+            // Skip model inference
+            return;
+        }
+    }
+
     canvasCtx.save();
     canvasCtx.clearRect(0, 0, canvasEl.width, canvasEl.height);
     
@@ -310,18 +360,24 @@ async function runClientInference(features) {
     }
     
     // 2. Append to client sliding window buffer
-    state.clientSeqBuffer.push(normalized);
-    
-    // Cap buffer size to static shape sequence length
     const T = state.selectedModel === "mediapipe" ? 30 : 40;
-    if (state.clientSeqBuffer.length > T) {
-        state.clientSeqBuffer.shift();
+    if (state.inputMode === "image") {
+        // For static image, replicate normalized frame T times to fill buffer
+        state.clientSeqBuffer = [];
+        for (let i = 0; i < T; i++) {
+            state.clientSeqBuffer.push(normalized);
+        }
+    } else {
+        state.clientSeqBuffer.push(normalized);
+        if (state.clientSeqBuffer.length > T) {
+            state.clientSeqBuffer.shift();
+        }
     }
     
-    // 3. Control inference interval
+    // 3. Control inference interval (Ignore interval check in static image mode)
     const now = performance.now();
     const inferInterval = parseFloat(inferIntervalInput.value) || 0.1;
-    if (now - state.clientLastInfer < inferInterval * 1000) {
+    if (state.inputMode !== "image" && (now - state.clientLastInfer < inferInterval * 1000)) {
         return;
     }
     state.clientLastInfer = now;
@@ -380,10 +436,14 @@ async function runClientInference(features) {
         quantizationLabel.textContent = `ONNX (WASM)`;
         
         // 9. Stable prediction voting
-        state.clientVoteBuffer.push(maxIdx);
         const voteSize = parseInt(voteSizeInput.value) || 10;
-        if (state.clientVoteBuffer.length > voteSize) {
-            state.clientVoteBuffer.shift();
+        if (state.inputMode === "image") {
+            state.clientVoteBuffer = Array(voteSize).fill(maxIdx);
+        } else {
+            state.clientVoteBuffer.push(maxIdx);
+            if (state.clientVoteBuffer.length > voteSize) {
+                state.clientVoteBuffer.shift();
+            }
         }
         
         // Count votes in buffer
@@ -405,7 +465,7 @@ async function runClientInference(features) {
         
         if (conf >= minConf && topCount >= minVotes) {
             const timeSinceLastEmit = (startTime - state.clientLastEmit) / 1000;
-            if (timeSinceLastEmit >= minGap) {
+            if (state.inputMode === "image" || timeSinceLastEmit >= minGap) {
                 const stableLabel = state.clientLabels[topIdx];
                 if (stableLabel && stableLabel !== "-" && stableLabel !== "") {
                     stableResult.textContent = stableLabel;
@@ -423,16 +483,22 @@ async function runClientInference(features) {
         console.error("ONNX Inference runtime error:", e);
     }
     
-    // FPS Calculation for Client
-    const frameTime = now - state.clientLastFrameTime;
-    state.clientLastFrameTime = now;
-    if (frameTime > 0) {
-        state.clientFpsHistory.push(1000.0 / frameTime);
-        if (state.clientFpsHistory.length > 30) {
-            state.clientFpsHistory.shift();
+    // FPS Calculation for Client (or Image Mode special termination)
+    if (state.inputMode === "image") {
+        stopStreaming();
+        stableResult.textContent = `${stableResult.textContent} (분석 완료)`;
+        stableResult.style.color = "var(--success-color)";
+    } else {
+        const frameTime = now - state.clientLastFrameTime;
+        state.clientLastFrameTime = now;
+        if (frameTime > 0) {
+            state.clientFpsHistory.push(1000.0 / frameTime);
+            if (state.clientFpsHistory.length > 30) {
+                state.clientFpsHistory.shift();
+            }
+            const fps = state.clientFpsHistory.reduce((a, b) => a + b, 0) / state.clientFpsHistory.length;
+            fpsLabel.textContent = fps.toFixed(1);
         }
-        const fps = state.clientFpsHistory.reduce((a, b) => a + b, 0) / state.clientFpsHistory.length;
-        fpsLabel.textContent = fps.toFixed(1);
     }
 }
 
@@ -604,168 +670,99 @@ function setModelSource(source) {
 }
 
 // Initialize and Start camera & connection
+// Video Frame Processing Loop (for uploaded video files)
+async function processVideoFrames() {
+    if (!state.isStreaming || uploadVideo.paused || uploadVideo.ended) {
+        if (uploadVideo.ended) {
+            stopStreaming();
+            stableResult.textContent = "분석 완료 (동영상 재생 끝)";
+            stableResult.style.color = "var(--success-color)";
+        }
+        return;
+    }
+    try {
+        if (state.holistic) {
+            await state.holistic.send({ image: uploadVideo });
+        }
+    } catch (e) {
+        console.error("비디오 프레임 처리 오류:", e);
+    }
+    
+    if (state.isStreaming) {
+        if (uploadVideo.requestVideoFrameCallback) {
+            state.videoTimerId = uploadVideo.requestVideoFrameCallback(processVideoFrames);
+        } else {
+            state.videoTimerId = setTimeout(processVideoFrames, 1000 / 30); // Fallback to 30 FPS
+        }
+    }
+}
+
+// Static Image Processing
+async function processStaticImage() {
+    if (!state.holistic) return;
+    loadingOverlay.classList.remove("hidden");
+    loadingOverlayText.textContent = "이미지 분석 중...";
+    try {
+        // Ensure image is loaded fully before MediaPipe runs
+        if (uploadImage.complete) {
+            await state.holistic.send({ image: uploadImage });
+        } else {
+            uploadImage.onload = async () => {
+                await state.holistic.send({ image: uploadImage });
+                loadingOverlay.classList.add("hidden");
+            };
+            return;
+        }
+    } catch (e) {
+        console.error("이미지 분석 오류:", e);
+        alert(`이미지 분석 실패: ${e.message}`);
+    } finally {
+        loadingOverlay.classList.add("hidden");
+    }
+}
+
+// Initialize and Start camera/file & connection
 async function startStreaming() {
+    // Client-side ONNX mode check
+    if (state.executionMode === "client" && !state.clientSession) {
+        if (state.isModelLoading) {
+            console.log("모델이 아직 다운로드 중입니다. 잠시만 기다려주세요.");
+        } else {
+            alert("모델 로드에 실패했습니다. 설정을 확인해주세요.");
+            resetUI();
+            return;
+        }
+    }
+
+    // Input mode file validations
+    if (state.inputMode === "video" && !state.uploadedFile) {
+        alert("분석할 동영상 파일을 먼저 업로드해주세요.");
+        return;
+    }
+    if (state.inputMode === "image" && !state.uploadedFile) {
+        alert("분석할 이미지 파일을 먼저 업로드해주세요.");
+        return;
+    }
+
     startBtn.disabled = true;
     tabMediapipe.disabled = true;
     tabLandmark.disabled = true;
     loadingOverlay.classList.remove("hidden");
 
-    // Client-side ONNX mode initialization
-    if (state.executionMode === "client") {
-        if (!state.clientSession) {
-            if (state.isModelLoading) {
-                console.log("모델이 다운로드 및 로딩 중입니다. 카메라를 먼저 시작합니다.");
-            } else {
-                alert("모델 로드에 실패했습니다. 설정을 확인해주세요.");
-                resetUI();
-                return;
-            }
-        }
-        state.isStreaming = true;
-        stopBtn.disabled = false;
-        stableResult.textContent = "카메라 준비 중...";
-        
-        state.clientSeqBuffer = [];
-        state.clientVoteBuffer = [];
-        state.clientLastEmit = 0;
-        state.clientLastInfer = 0;
-        state.clientLastFrameTime = performance.now();
-        state.clientFpsHistory = [];
-        
-        // Initialize MediaPipe Holistic (if not done)
-        if (!state.holistic) {
-            state.loadingMP = true;
-            state.holistic = new Holistic({
-                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`
-            });
+    state.isStreaming = true;
+    stopBtn.disabled = false;
+    stableResult.textContent = "분석 준비 중...";
 
-            state.holistic.setOptions({
-                modelComplexity: 1,
-                smoothLandmarks: true,
-                refineFaceLandmarks: false,
-                minDetectionConfidence: 0.5,
-                minTrackingConfidence: 0.5
-            });
+    // Clear sequences/buffers
+    state.clientSeqBuffer = [];
+    state.clientVoteBuffer = [];
+    state.clientLastEmit = 0;
+    state.clientLastInfer = 0;
+    state.clientLastFrameTime = performance.now();
+    state.clientFpsHistory = [];
+    state.noHandFrames = 0;
 
-            state.holistic.onResults(onResults);
-            state.loadingMP = false;
-        }
-
-        // Initialize Camera Utilities (if not done)
-        if (!state.camera) {
-            state.camera = new Camera(videoEl, {
-                onFrame: async () => {
-                    if (state.isStreaming && state.holistic) {
-                        await state.holistic.send({ image: videoEl });
-                    }
-                },
-                width: 640,
-                height: 480
-            });
-            
-            try {
-                await state.camera.start();
-                loadingOverlay.classList.add("hidden");
-                stableResult.textContent = "동작을 시작하세요!";
-            } catch (err) {
-                alert(`카메라 스트림 시작 실패: ${err.message}`);
-                stopStreaming();
-            }
-        } else {
-            loadingOverlay.classList.add("hidden");
-            stableResult.textContent = "동작을 시작하세요!";
-        }
-        return;
-    }
-
-    // WebSocket Server mode initialization
-    const wsUrl = wsUrlInput.value.trim();
-    if (!wsUrl) {
-        alert("WebSocket URL을 정확히 입력해주세요.");
-        resetUI();
-        return;
-    }
-
-    // Build URL with query params for configuration
-    const queryParams = new URLSearchParams({
-        window_size: windowSizeInput.value,
-        vote_size: voteSizeInput.value,
-        min_votes: minVotesInput.value,
-        min_conf: minConfInput.value,
-        min_gap: minGapInput.value,
-        infer_interval: inferIntervalInput.value
-    });
-
-    const fullWsUrl = `${wsUrl}?${queryParams.toString()}`;
-    console.log(`Connecting to: ${fullWsUrl}`);
-
-    // Establish WebSocket Connection
-    try {
-        state.ws = new WebSocket(fullWsUrl);
-        state.ws.binaryType = "arraybuffer";
-    } catch (e) {
-        alert(`WebSocket 연결에 실패했습니다: ${e.message}`);
-        resetUI();
-        return;
-    }
-
-    state.ws.onopen = () => {
-        wsStatusBadge.className = "status-badge connected";
-        wsStatusText.textContent = "연결됨";
-        state.isStreaming = true;
-        stopBtn.disabled = false;
-        stableResult.textContent = "카메라 준비 중...";
-    };
-
-    state.ws.onmessage = (event) => {
-        const receiveTime = performance.now();
-        const sendTime = state.sentTimestamps.shift();
-        if (sendTime) {
-            const latency = receiveTime - sendTime;
-            latencyLabel.textContent = Math.round(latency);
-        }
-
-        try {
-            const payload = JSON.parse(event.data);
-            detectedLabel.textContent = payload.label || "-";
-            
-            const conf = payload.confidence || 0.0;
-            confidenceLabel.textContent = `${Math.round(conf * 100)}%`;
-            confidenceBar.style.width = `${Math.round(conf * 100)}%`;
-            
-            fpsLabel.textContent = payload.fps ? payload.fps.toFixed(1) : "0.0";
-
-            if (payload.quantized !== undefined) {
-                const qType = payload.quantized ? "W8A8" : "FP32";
-                const suffix = state.selectedModel === "mediapipe" ? " (MeanStd)" : " (Raw)";
-                quantizationLabel.textContent = qType + suffix;
-            }
-
-            if (payload.stable && payload.stable !== "-" && payload.stable !== "") {
-                stableResult.textContent = payload.stable;
-                stableResult.style.color = "var(--success-color)";
-                stableResult.style.transform = "scale(1.15)";
-                setTimeout(() => { stableResult.style.transform = "scale(1)"; }, 150);
-
-                // Add to sentence buffer
-                state.sentenceBuffer.push(payload.stable);
-                updateSentenceBufferUI();
-            }
-        } catch (e) {
-            console.error("JSON 파싱 오류:", e);
-        }
-    };
-
-    state.ws.onerror = (e) => {
-        console.error("WebSocket 오류 발생:", e);
-    };
-
-    state.ws.onclose = () => {
-        console.log("WebSocket 연결 닫힘.");
-        stopStreaming();
-    };
-
-    // Load MediaPipe Holistic model
+    // Initialize MediaPipe Holistic (if not done)
     if (!state.holistic) {
         state.loadingMP = true;
         state.holistic = new Holistic({
@@ -784,29 +781,135 @@ async function startStreaming() {
         state.loadingMP = false;
     }
 
-    // Initialize Camera Utilities
-    if (!state.camera) {
-        state.camera = new Camera(videoEl, {
-            onFrame: async () => {
-                if (state.isStreaming && state.holistic) {
-                    await state.holistic.send({ image: videoEl });
+    // Mirroring classes
+    if (state.inputMode === "camera") {
+        canvasEl.classList.add("mirror");
+    } else {
+        canvasEl.classList.remove("mirror");
+    }
+
+    // Split based on input modes
+    if (state.inputMode === "camera") {
+        // --- WebCam Stream Mode ---
+        if (state.executionMode === "server") {
+            // Server WebSocket initialization
+            const wsUrl = wsUrlInput.value.trim();
+            if (!wsUrl) {
+                alert("WebSocket URL을 정확히 입력해주세요.");
+                resetUI();
+                return;
+            }
+            const queryParams = new URLSearchParams({
+                window_size: windowSizeInput.value,
+                vote_size: voteSizeInput.value,
+                min_votes: minVotesInput.value,
+                min_conf: minConfInput.value,
+                min_gap: minGapInput.value,
+                infer_interval: inferIntervalInput.value
+            });
+            const fullWsUrl = `${wsUrl}?${queryParams.toString()}`;
+            console.log(`Connecting to: ${fullWsUrl}`);
+
+            try {
+                state.ws = new WebSocket(fullWsUrl);
+                state.ws.binaryType = "arraybuffer";
+            } catch (e) {
+                alert(`WebSocket 연결에 실패했습니다: ${e.message}`);
+                resetUI();
+                return;
+            }
+
+            state.ws.onopen = () => {
+                wsStatusBadge.className = "status-badge connected";
+                wsStatusText.textContent = "연결됨";
+                stableResult.textContent = "카메라 준비 중...";
+            };
+
+            state.ws.onmessage = (event) => {
+                const receiveTime = performance.now();
+                const sendTime = state.sentTimestamps.shift();
+                if (sendTime) {
+                    const latency = receiveTime - sendTime;
+                    latencyLabel.textContent = Math.round(latency);
                 }
-            },
-            width: 640,
-            height: 480
-        });
-        
-        try {
-            await state.camera.start();
+
+                try {
+                    const payload = JSON.parse(event.data);
+                    detectedLabel.textContent = payload.label || "-";
+                    const conf = payload.confidence || 0.0;
+                    confidenceLabel.textContent = `${Math.round(conf * 100)}%`;
+                    confidenceBar.style.width = `${Math.round(conf * 100)}%`;
+                    fpsLabel.textContent = payload.fps ? payload.fps.toFixed(1) : "0.0";
+
+                    if (payload.quantized !== undefined) {
+                        const qType = payload.quantized ? "W8A8" : "FP32";
+                        const suffix = state.selectedModel === "mediapipe" ? " (MeanStd)" : " (Raw)";
+                        quantizationLabel.textContent = qType + suffix;
+                    }
+
+                    if (payload.stable && payload.stable !== "-" && payload.stable !== "") {
+                        stableResult.textContent = payload.stable;
+                        stableResult.style.color = "var(--success-color)";
+                        stableResult.style.transform = "scale(1.15)";
+                        setTimeout(() => { stableResult.style.transform = "scale(1)"; }, 150);
+                        state.sentenceBuffer.push(payload.stable);
+                        updateSentenceBufferUI();
+                    }
+                } catch (e) {
+                    console.error("WebSocket 메시지 파싱 에러:", e);
+                }
+            };
+
+            state.ws.onclose = () => {
+                console.log("WebSocket 연결 종료됨.");
+                stopStreaming();
+            };
+        }
+
+        if (!state.camera) {
+            state.camera = new Camera(videoEl, {
+                onFrame: async () => {
+                    if (state.isStreaming && state.holistic) {
+                        await state.holistic.send({ image: videoEl });
+                    }
+                },
+                width: 640,
+                height: 480
+            });
+
+            try {
+                await state.camera.start();
+                loadingOverlay.classList.add("hidden");
+                stableResult.textContent = "동작을 시작하세요!";
+            } catch (err) {
+                alert(`카메라 스트림 시작 실패: ${err.message}`);
+                stopStreaming();
+            }
+        } else {
             loadingOverlay.classList.add("hidden");
             stableResult.textContent = "동작을 시작하세요!";
-        } catch (err) {
-            alert(`카메라 스트림 시작 실패: ${err.message}`);
-            stopStreaming();
         }
-    } else {
+    } else if (state.inputMode === "video") {
+        // --- Video File Stream Mode ---
         loadingOverlay.classList.add("hidden");
-        stableResult.textContent = "동작을 시작하세요!";
+        stableResult.textContent = "동영상 분석 재생 중...";
+        
+        uploadVideo.currentTime = 0;
+        uploadVideo.play().then(() => {
+            if (uploadVideo.requestVideoFrameCallback) {
+                state.videoTimerId = uploadVideo.requestVideoFrameCallback(processVideoFrames);
+            } else {
+                state.videoTimerId = setTimeout(processVideoFrames, 1000 / 30);
+            }
+        }).catch(err => {
+            alert(`동영상 자동 재생 실패: ${err.message}`);
+            stopStreaming();
+        });
+    } else if (state.inputMode === "image") {
+        // --- Image File Static Mode ---
+        loadingOverlay.classList.add("hidden");
+        stableResult.textContent = "이미지 단일 프레임 분석 중...";
+        await processStaticImage();
     }
 }
 
@@ -820,6 +923,17 @@ function stopStreaming() {
     if (state.camera) {
         state.camera.stop();
         state.camera = null;
+    }
+    if (uploadVideo) {
+        uploadVideo.pause();
+    }
+    if (state.videoTimerId) {
+        if (uploadVideo.cancelVideoFrameCallback) {
+            uploadVideo.cancelVideoFrameCallback(state.videoTimerId);
+        } else {
+            clearTimeout(state.videoTimerId);
+        }
+        state.videoTimerId = null;
     }
 
     resetUI();
@@ -838,11 +952,41 @@ function resetUI() {
     detectedLabel.textContent = "-";
     confidenceLabel.textContent = "0%";
     confidenceBar.style.width = "0%";
-    stableResult.textContent = "대기 중...";
+    
+    if (state.inputMode === "camera") {
+        stableResult.textContent = "대기 중...";
+        canvasCtx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+    } else {
+        stableResult.textContent = "분석 대기 중";
+        if (state.uploadedFile) {
+            redrawUploadedMedia();
+        } else {
+            canvasCtx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+        }
+    }
+    
     fpsLabel.textContent = "0.0";
     latencyLabel.textContent = "0";
+    updateStartButtonText();
+}
 
+function redrawUploadedMedia() {
     canvasCtx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+    if (state.inputMode === "image" && uploadImage.src) {
+        canvasCtx.drawImage(uploadImage, 0, 0, canvasEl.width, canvasEl.height);
+    } else if (state.inputMode === "video" && uploadVideo.src) {
+        canvasCtx.drawImage(uploadVideo, 0, 0, canvasEl.width, canvasEl.height);
+    }
+}
+
+function updateStartButtonText() {
+    if (state.inputMode === "camera") {
+        startBtn.innerHTML = `<span class="btn-icon">▶</span> 실시간 인식 시작`;
+    } else if (state.inputMode === "video") {
+        startBtn.innerHTML = `<span class="btn-icon">▶</span> 동영상 분석 시작`;
+    } else if (state.inputMode === "image") {
+        startBtn.innerHTML = `<span class="btn-icon">▶</span> 이미지 분석 시작`;
+    }
 }
 
 function updateSentenceBufferUI() {
@@ -853,6 +997,85 @@ function updateSentenceBufferUI() {
         sentenceBufferEl.textContent = state.sentenceBuffer.join(" ");
         sentenceBufferEl.style.color = "#fff";
         sentenceBufferEl.scrollTop = sentenceBufferEl.scrollHeight;
+    }
+}
+
+// Input Mode Switches Handler
+function setInputMode(mode) {
+    if (state.isStreaming) {
+        stopStreaming();
+    }
+    
+    state.inputMode = mode;
+    
+    // Manage switcher button states
+    inputModeCamera.classList.toggle("active", mode === "camera");
+    inputModeVideo.classList.toggle("active", mode === "video");
+    inputModeImage.classList.toggle("active", mode === "image");
+    
+    // Revoke previous URL to release memory
+    if (state.uploadedFileUrl) {
+        URL.revokeObjectURL(state.uploadedFileUrl);
+    }
+    state.uploadedFile = null;
+    state.uploadedFileUrl = null;
+    mediaFileInput.value = "";
+    
+    // Manage visibility
+    if (mode === "camera") {
+        uploadZone.classList.add("hidden");
+        videoEl.style.display = "block";
+    } else {
+        uploadZone.classList.remove("hidden");
+        videoEl.style.display = "none";
+        
+        if (mode === "video") {
+            mediaFileInput.accept = "video/*";
+            uploadZone.querySelector(".upload-title").textContent = "비디오 파일을 드래그하거나 클릭하여 업로드";
+            uploadZone.querySelector(".upload-subtitle").textContent = "지원 형식: MP4, MOV, WebM";
+        } else {
+            mediaFileInput.accept = "image/*";
+            uploadZone.querySelector(".upload-title").textContent = "이미지 파일을 드래그하거나 클릭하여 업로드";
+            uploadZone.querySelector(".upload-subtitle").textContent = "지원 형식: PNG, JPG, JPEG";
+        }
+    }
+    
+    resetUI();
+}
+
+// Load chosen video/image file into memory
+function handleMediaFile(file) {
+    if (!file) return;
+    
+    if (state.inputMode === "video" && !file.type.startsWith("video/")) {
+        alert("올바른 동영상 파일을 선택해주세요.");
+        return;
+    }
+    if (state.inputMode === "image" && !file.type.startsWith("image/")) {
+        alert("올바른 이미지 파일을 선택해주세요.");
+        return;
+    }
+    
+    state.uploadedFile = file;
+    state.uploadedFileUrl = URL.createObjectURL(file);
+    
+    uploadZone.classList.add("hidden");
+    loadingOverlay.classList.remove("hidden");
+    loadingOverlayText.textContent = "미디어 파일 로드 중...";
+    
+    if (state.inputMode === "video") {
+        uploadVideo.src = state.uploadedFileUrl;
+        uploadVideo.load();
+        uploadVideo.onloadeddata = () => {
+            loadingOverlay.classList.add("hidden");
+            redrawUploadedMedia();
+        };
+    } else if (state.inputMode === "image") {
+        uploadImage.src = state.uploadedFileUrl;
+        uploadImage.onload = () => {
+            loadingOverlay.classList.add("hidden");
+            redrawUploadedMedia();
+        };
     }
 }
 
@@ -906,6 +1129,32 @@ function selectModel(modelName) {
     }
 }
 
+// Drag & Drop event bindings
+uploadZone.addEventListener("click", () => mediaFileInput.click());
+
+uploadZone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    uploadZone.classList.add("dragover");
+});
+
+uploadZone.addEventListener("dragleave", () => {
+    uploadZone.classList.remove("dragover");
+});
+
+uploadZone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove("dragover");
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleMediaFile(e.dataTransfer.files[0]);
+    }
+});
+
+mediaFileInput.addEventListener("change", (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+        handleMediaFile(e.target.files[0]);
+    }
+});
+
 // Collapsible Settings Event
 settingsToggle.addEventListener("click", () => {
     settingsCard.classList.toggle("collapsed");
@@ -922,6 +1171,11 @@ modeClient.addEventListener("click", () => setExecutionMode("client"));
 // Model Source Switcher Buttons
 sourceLocal.addEventListener("click", () => setModelSource("local"));
 sourceHf.addEventListener("click", () => setModelSource("hf"));
+
+// Input Mode Switcher Buttons
+inputModeCamera.addEventListener("click", () => setInputMode("camera"));
+inputModeVideo.addEventListener("click", () => setInputMode("video"));
+inputModeImage.addEventListener("click", () => setInputMode("image"));
 
 // HF Username Input Change
 hfUsernameInput.addEventListener("change", () => {
@@ -955,5 +1209,6 @@ if (window.EDGE_SIGN_CONFIG) {
 
 selectModel("mediapipe");
 setExecutionMode("client"); // Start with client mode default
+setInputMode("camera");     // Start with camera input mode default
 settingsCard.classList.add("collapsed"); // start collapsed for clean UI
 updateSentenceBufferUI();
