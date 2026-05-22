@@ -1,6 +1,6 @@
 window.EDGE_SIGN_CONFIG = {
   // 기본 로딩 소스 설정: 'local' (로컬 파일) 또는 'hf' (Hugging Face Hub)
-  defaultSource: "local",
+  defaultSource: "hf",
   
   // 기본 Hugging Face 사용자 이름 (업로드 후 해당 아이디로 변경 가능)
   hfUsername: "gyann",

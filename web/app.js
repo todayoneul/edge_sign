@@ -1,7 +1,7 @@
 // Global App State
 const state = {
     selectedModel: "mediapipe", // "mediapipe" or "landmark"
-    executionMode: "server",    // "server" or "client"
+    executionMode: "client",    // "server" or "client"
     modelSource: "local",       // "local" or "hf"
     loadedConfigKey: null,
     
@@ -490,11 +490,44 @@ async function loadClientModelIfNeeded() {
             state.clientStats = null;
         }
         
-        console.log(`[ONNX Load] Loading ONNX session from: ${modelUrl}`);
+        console.log(`[ONNX Load] Fetching ONNX model binary from: ${modelUrl}`);
+        modelStatusText.textContent = "모델 본체 다운로드 중...";
+        const modelResponse = await fetch(modelUrl);
+        if (!modelResponse.ok) throw new Error(`Model 파일 로드 실패: ${modelResponse.statusText}`);
+        const modelBuffer = await modelResponse.arrayBuffer();
+
+        // Check and fetch external data (.data) if it exists
+        const dataUrl = `${modelUrl}.data`;
+        let sessionOptions = {};
+        
+        try {
+            modelStatusText.textContent = "외부 데이터 체크 중...";
+            const dataResponse = await fetch(dataUrl, { method: 'HEAD' });
+            if (dataResponse.ok) {
+                console.log(`[ONNX Load] External data found. Fetching from: ${dataUrl}`);
+                modelStatusText.textContent = "가중치 데이터(.data) 다운로드 중...";
+                const dataFetch = await fetch(dataUrl);
+                const dataBuffer = await dataFetch.arrayBuffer();
+                
+                // path MUST EXACTLY MATCH the external data path saved in the ONNX file
+                sessionOptions.externalData = [
+                    {
+                        data: new Uint8Array(dataBuffer),
+                        path: `${config.modelFile}.data`
+                    }
+                ];
+            } else {
+                console.log(`[ONNX Load] No external data file found (HTTP ${dataResponse.status}).`);
+            }
+        } catch (e) {
+            console.log(`[ONNX Load] External data check error: ${e.message}. Proceeding without it.`);
+        }
+        
         // Configure ONNX Runtime to use WASM with multi-threading
         ort.env.wasm.numThreads = 4;
         
-        state.clientSession = await ort.InferenceSession.create(modelUrl);
+        modelStatusText.textContent = "ONNX 엔진 초기화 및 컴파일 중...";
+        state.clientSession = await ort.InferenceSession.create(modelBuffer, sessionOptions);
         console.log("[ONNX Load] InferenceSession created successfully!");
         
         state.loadedConfigKey = configKey;
@@ -580,9 +613,13 @@ async function startStreaming() {
     // Client-side ONNX mode initialization
     if (state.executionMode === "client") {
         if (!state.clientSession) {
-            alert("모델이 로드되지 않았습니다. 잠시만 기다리시거나 모델 경로를 확인해주세요.");
-            resetUI();
-            return;
+            if (state.isModelLoading) {
+                console.log("모델이 다운로드 및 로딩 중입니다. 카메라를 먼저 시작합니다.");
+            } else {
+                alert("모델 로드에 실패했습니다. 설정을 확인해주세요.");
+                resetUI();
+                return;
+            }
         }
         state.isStreaming = true;
         stopBtn.disabled = false;
@@ -917,6 +954,6 @@ if (window.EDGE_SIGN_CONFIG) {
 }
 
 selectModel("mediapipe");
-setExecutionMode("server"); // Start with server mode default
+setExecutionMode("client"); // Start with client mode default
 settingsCard.classList.add("collapsed"); // start collapsed for clean UI
 updateSentenceBufferUI();

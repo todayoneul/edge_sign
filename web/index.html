@@ -59,12 +59,36 @@
         <div class="execution-switcher-container">
             <span class="switcher-label">추론 실행 위치 (Inference Location)</span>
             <div class="execution-switcher">
-                <button id="modeServer" class="mode-btn active" data-mode="server">
+                <button id="modeServer" class="mode-btn" data-mode="server">
                     🖥️ 로컬 서버 (WebSocket)
                 </button>
-                <button id="modeClient" class="mode-btn" data-mode="client">
+                <button id="modeClient" class="mode-btn active" data-mode="client">
                     💻 브라우저 자체 실행 (ONNX Runtime Web)
                 </button>
+            </div>
+        </div>
+
+        <!-- Client-side ONNX settings group (Moved from settings to be visible) -->
+        <div style="padding: 10px 20px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 20px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+            <div class="setting-group" id="clientSettingsGroup" style="margin-bottom: 0;">
+                <label style="font-size: 0.85rem; color: #a1a1aa; margin-bottom: 5px; display: block;">모델 로딩 소스</label>
+                <div class="source-switcher">
+                    <button type="button" id="sourceHf" class="source-btn active" data-source="hf">🤗 Hugging Face Hub</button>
+                    <button type="button" id="sourceLocal" class="source-btn" data-source="local">📁 로컬 에셋</button>
+                </div>
+            </div>
+
+            <div class="setting-group" id="hfUsernameGroup" style="margin-bottom: 0;">
+                <label for="hfUsernameInput" style="font-size: 0.85rem; color: #a1a1aa; margin-bottom: 5px; display: block;">Hugging Face 계정명</label>
+                <input type="text" id="hfUsernameInput" value="gyann" style="padding: 8px;" />
+            </div>
+
+            <div class="setting-group" id="modelStatusGroup" style="margin-bottom: 0; flex: 1;">
+                <label style="font-size: 0.85rem; color: #a1a1aa; margin-bottom: 5px; display: block;">엔진 로딩 상태</label>
+                <div class="model-status-box" style="padding: 8px 12px; margin: 0;">
+                    <span class="status-indicator-dot red" id="modelStatusDot"></span>
+                    <span id="modelStatusText">대기 중</span>
+                </div>
             </div>
         </div>
 
@@ -166,27 +190,7 @@
                             <input type="text" id="wsUrlInput" value="ws://localhost:8000/ws/mediapipe" />
                         </div>
                         
-                        <!-- Client-side ONNX settings group -->
-                        <div class="setting-group" id="clientSettingsGroup" style="display: none;">
-                            <label>모델 로딩 소스 (Model Source)</label>
-                            <div class="source-switcher">
-                                <button type="button" id="sourceLocal" class="source-btn active" data-source="local">📁 로컬 에셋 (Local)</button>
-                                <button type="button" id="sourceHf" class="source-btn" data-source="hf">🤗 Hugging Face Hub</button>
-                            </div>
-                        </div>
-
-                        <div class="setting-group" id="hfUsernameGroup" style="display: none;">
-                            <label for="hfUsernameInput">Hugging Face 사용자 이름 (Username)</label>
-                            <input type="text" id="hfUsernameInput" value="gyann" />
-                        </div>
-
-                        <div class="setting-group" id="modelStatusGroup" style="display: none;">
-                            <label>ONNX 엔진 로딩 상태 (Engine Status)</label>
-                            <div class="model-status-box">
-                                <span class="status-indicator-dot red" id="modelStatusDot"></span>
-                                <span id="modelStatusText">모델 로드 대기 중</span>
-                            </div>
-                        </div>
+                        <!-- Client-side settings moved to top panel -->
                         
                         <div class="settings-row">
                             <div class="setting-group">
