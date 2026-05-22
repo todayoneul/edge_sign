@@ -13,12 +13,15 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js" crossorigin="anonymous"></script>
+    
+    <!-- ONNX Runtime Web -->
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
 </head>
 <body>
     <!-- Premium background glowing orbits -->
     <div class="bg-orbit bg-orbit-1"></div>
     <div class="bg-orbit bg-orbit-2"></div>
-
+ 
     <div class="app-container">
         <!-- Header -->
         <header class="app-header">
@@ -33,7 +36,7 @@
                 </div>
             </div>
         </header>
-
+ 
         <!-- Model Switcher Tabs -->
         <div class="model-switcher">
             <button id="tabMediapipe" class="tab-btn active" data-model="mediapipe">
@@ -50,6 +53,19 @@
                     <span class="tab-desc">50 핵심 수어 단어 사본 • 고강도 학습</span>
                 </div>
             </button>
+        </div>
+
+        <!-- Execution Mode Switcher -->
+        <div class="execution-switcher-container">
+            <span class="switcher-label">추론 실행 위치 (Inference Location)</span>
+            <div class="execution-switcher">
+                <button id="modeServer" class="mode-btn active" data-mode="server">
+                    🖥️ 로컬 서버 (WebSocket)
+                </button>
+                <button id="modeClient" class="mode-btn" data-mode="client">
+                    💻 브라우저 자체 실행 (ONNX Runtime Web)
+                </button>
+            </div>
         </div>
 
         <!-- Main Layout Grid -->
@@ -144,9 +160,32 @@
                         <span class="arrow">▼</span>
                     </div>
                     <div class="card-body collapsible-body" id="settingsBody">
-                        <div class="setting-group">
+                        <!-- WebSocket settings group -->
+                        <div class="setting-group" id="wsSettingsGroup">
                             <label for="wsUrlInput">WebSocket URL</label>
                             <input type="text" id="wsUrlInput" value="ws://localhost:8000/ws/mediapipe" />
+                        </div>
+                        
+                        <!-- Client-side ONNX settings group -->
+                        <div class="setting-group" id="clientSettingsGroup" style="display: none;">
+                            <label>모델 로딩 소스 (Model Source)</label>
+                            <div class="source-switcher">
+                                <button type="button" id="sourceLocal" class="source-btn active" data-source="local">📁 로컬 에셋 (Local)</button>
+                                <button type="button" id="sourceHf" class="source-btn" data-source="hf">🤗 Hugging Face Hub</button>
+                            </div>
+                        </div>
+
+                        <div class="setting-group" id="hfUsernameGroup" style="display: none;">
+                            <label for="hfUsernameInput">Hugging Face 사용자 이름 (Username)</label>
+                            <input type="text" id="hfUsernameInput" value="gyann" />
+                        </div>
+
+                        <div class="setting-group" id="modelStatusGroup" style="display: none;">
+                            <label>ONNX 엔진 로딩 상태 (Engine Status)</label>
+                            <div class="model-status-box">
+                                <span class="status-indicator-dot red" id="modelStatusDot"></span>
+                                <span id="modelStatusText">모델 로드 대기 중</span>
+                            </div>
                         </div>
                         
                         <div class="settings-row">
@@ -188,6 +227,7 @@
         </main>
     </div>
     
+    <script src="config.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

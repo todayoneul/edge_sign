@@ -1,12 +1,31 @@
 // Global App State
 const state = {
     selectedModel: "mediapipe", // "mediapipe" or "landmark"
+    executionMode: "server",    // "server" or "client"
+    modelSource: "local",       // "local" or "hf"
+    loadedConfigKey: null,
+    
+    // WebSocket States
     ws: null,
+    sentTimestamps: [],
+    
+    // Client-Side ONNX States
+    clientSession: null,
+    clientLabels: null,
+    clientStats: null,          // For MediaPipe model normalization
+    clientSeqBuffer: [],        // sliding window of Float32Array frames
+    clientVoteBuffer: [],
+    clientLastEmit: 0,
+    clientLastInfer: 0,
+    clientLastFrameTime: performance.now(),
+    clientFpsHistory: [],
+    isModelLoading: false,
+    
+    // Camera & MediaPipe Holistic
     camera: null,
     holistic: null,
     isStreaming: false,
     sentenceBuffer: [],
-    sentTimestamps: [],
     lastFrameTime: performance.now(),
     fpsHistory: [],
     loadingMP: false
@@ -48,6 +67,19 @@ const voteSizeInput = document.getElementById("voteSizeInput");
 const minVotesInput = document.getElementById("minVotesInput");
 const minConfInput = document.getElementById("minConfInput");
 const minGapInput = document.getElementById("minGapInput");
+
+// Execution Mode / Source Elements
+const modeServer = document.getElementById("modeServer");
+const modeClient = document.getElementById("modeClient");
+const wsSettingsGroup = document.getElementById("wsSettingsGroup");
+const clientSettingsGroup = document.getElementById("clientSettingsGroup");
+const hfUsernameGroup = document.getElementById("hfUsernameGroup");
+const hfUsernameInput = document.getElementById("hfUsernameInput");
+const modelStatusGroup = document.getElementById("modelStatusGroup");
+const modelStatusDot = document.getElementById("modelStatusDot");
+const modelStatusText = document.getElementById("modelStatusText");
+const sourceLocal = document.getElementById("sourceLocal");
+const sourceHf = document.getElementById("sourceHf");
 
 // MediaPipe 33 keypoints mapping to OpenPose 25 keypoints
 const POSE_MAPPING = [
@@ -136,7 +168,6 @@ function extractFeatures(results) {
     }
 
     // 2. Face 2D (70 * 3 = 210)
-    // MediaPipe provides 468/478 points, but the model maps the first 70 points
     if (results.faceLandmarks) {
         for (let i = 0; i < 70; i++) { 
             add2DPoint(results.faceLandmarks[i]); 
@@ -226,7 +257,7 @@ function onResults(results) {
     canvasCtx.save();
     canvasCtx.clearRect(0, 0, canvasEl.width, canvasEl.height);
     
-    // Draw raw video frame (mirrored automatically by canvas layout scaleX)
+    // Draw raw video frame
     canvasCtx.drawImage(results.image, 0, 0, canvasEl.width, canvasEl.height);
     
     // Draw MediaPipe landmark overlays
@@ -244,14 +275,298 @@ function onResults(results) {
     }
     canvasCtx.restore();
 
-    // Stream 959-dimensional Float32 landmark features via WebSocket
-    if (state.ws && state.ws.readyState === WebSocket.OPEN) {
-        const featureArray = extractFeatures(results);
-        state.sentTimestamps.push(performance.now());
-        if (state.sentTimestamps.length > 100) {
-            state.sentTimestamps.shift();
+    // Extract 959-dimensional Float32 landmark features
+    const featureArray = extractFeatures(results);
+    
+    if (state.executionMode === "client") {
+        // Run Client-Side ONNX Inference
+        runClientInference(featureArray);
+    } else {
+        // Stream via WebSocket to Server
+        if (state.ws && state.ws.readyState === WebSocket.OPEN) {
+            state.sentTimestamps.push(performance.now());
+            if (state.sentTimestamps.length > 100) {
+                state.sentTimestamps.shift();
+            }
+            state.ws.send(featureArray.buffer); // binary send
         }
-        state.ws.send(featureArray.buffer); // binary send
+    }
+}
+
+// Client-Side ONNX Inference Pipeline
+async function runClientInference(features) {
+    if (!state.clientSession || !state.clientLabels) return;
+    
+    // 1. Normalization (Z-score) for MediaPipe model
+    const normalized = new Float32Array(959);
+    if (state.selectedModel === "mediapipe" && state.clientStats) {
+        const mean = state.clientStats.mean;
+        const std = state.clientStats.std;
+        for (let i = 0; i < 959; i++) {
+            normalized[i] = (features[i] - mean[i]) / (std[i] + 1e-8);
+        }
+    } else {
+        normalized.set(features);
+    }
+    
+    // 2. Append to client sliding window buffer
+    state.clientSeqBuffer.push(normalized);
+    
+    // Cap buffer size to static shape sequence length
+    const T = state.selectedModel === "mediapipe" ? 30 : 40;
+    if (state.clientSeqBuffer.length > T) {
+        state.clientSeqBuffer.shift();
+    }
+    
+    // 3. Control inference interval
+    const now = performance.now();
+    const inferInterval = parseFloat(inferIntervalInput.value) || 0.1;
+    if (now - state.clientLastInfer < inferInterval * 1000) {
+        return;
+    }
+    state.clientLastInfer = now;
+    
+    // 4. Wait for minimum frames (default: 10)
+    const currentBufferLength = state.clientSeqBuffer.length;
+    if (currentBufferLength < 10) {
+        detectedLabel.textContent = "-";
+        confidenceLabel.textContent = "0%";
+        confidenceBar.style.width = "0%";
+        return;
+    }
+    
+    // 5. Prepare input data with zero-padding if length < T
+    const inputData = new Float32Array(T * 959);
+    for (let i = 0; i < currentBufferLength; i++) {
+        inputData.set(state.clientSeqBuffer[i], i * 959);
+    }
+    
+    // 6. Run Session Inference
+    const startTime = performance.now();
+    try {
+        const tensor = new ort.Tensor('float32', inputData, [1, T, 959]);
+        const runResults = await state.clientSession.run({ input: tensor });
+        const outputTensor = runResults.output;
+        const outputData = outputTensor.data; // Float32Array of logits
+        
+        const runLatency = performance.now() - startTime;
+        latencyLabel.textContent = Math.round(runLatency);
+        
+        // 7. Softmax and Argmax
+        let maxIdx = 0;
+        let maxLogit = outputData[0];
+        for (let i = 1; i < outputData.length; i++) {
+            if (outputData[i] > maxLogit) {
+                maxLogit = outputData[i];
+                maxIdx = i;
+            }
+        }
+        
+        // Logsumexp trick to avoid numerical overflow during Softmax
+        let sumExp = 0.0;
+        for (let i = 0; i < outputData.length; i++) {
+            sumExp += Math.exp(outputData[i] - maxLogit);
+        }
+        const conf = 1.0 / sumExp;
+        
+        const label = state.clientLabels[maxIdx] || "-";
+        
+        // 8. Update UI displays
+        detectedLabel.textContent = label;
+        confidenceLabel.textContent = `${Math.round(conf * 100)}%`;
+        confidenceBar.style.width = `${Math.round(conf * 100)}%`;
+        
+        // Set Quantization label to show active ONNX state
+        quantizationLabel.textContent = `ONNX (WASM)`;
+        
+        // 9. Stable prediction voting
+        state.clientVoteBuffer.push(maxIdx);
+        const voteSize = parseInt(voteSizeInput.value) || 10;
+        if (state.clientVoteBuffer.length > voteSize) {
+            state.clientVoteBuffer.shift();
+        }
+        
+        // Count votes in buffer
+        const counts = {};
+        let topIdx = maxIdx;
+        let topCount = 0;
+        for (let idx of state.clientVoteBuffer) {
+            counts[idx] = (counts[idx] || 0) + 1;
+            if (counts[idx] > topCount) {
+                topCount = counts[idx];
+                topIdx = idx;
+            }
+        }
+        
+        // Emit stable label based on filters
+        const minVotes = parseInt(minVotesInput.value) || 6;
+        const minConf = parseFloat(minConfInput.value) || 0.3;
+        const minGap = parseFloat(minGapInput.value) || 1.0;
+        
+        if (conf >= minConf && topCount >= minVotes) {
+            const timeSinceLastEmit = (startTime - state.clientLastEmit) / 1000;
+            if (timeSinceLastEmit >= minGap) {
+                const stableLabel = state.clientLabels[topIdx];
+                if (stableLabel && stableLabel !== "-" && stableLabel !== "") {
+                    stableResult.textContent = stableLabel;
+                    stableResult.style.color = "var(--success-color)";
+                    stableResult.style.transform = "scale(1.15)";
+                    setTimeout(() => { stableResult.style.transform = "scale(1)"; }, 150);
+                    
+                    state.sentenceBuffer.push(stableLabel);
+                    updateSentenceBufferUI();
+                    state.clientLastEmit = startTime;
+                }
+            }
+        }
+    } catch (e) {
+        console.error("ONNX Inference runtime error:", e);
+    }
+    
+    // FPS Calculation for Client
+    const frameTime = now - state.clientLastFrameTime;
+    state.clientLastFrameTime = now;
+    if (frameTime > 0) {
+        state.clientFpsHistory.push(1000.0 / frameTime);
+        if (state.clientFpsHistory.length > 30) {
+            state.clientFpsHistory.shift();
+        }
+        const fps = state.clientFpsHistory.reduce((a, b) => a + b, 0) / state.clientFpsHistory.length;
+        fpsLabel.textContent = fps.toFixed(1);
+    }
+}
+
+// Load Client ONNX Model Session and assets
+async function loadClientModelIfNeeded() {
+    const modelName = state.selectedModel;
+    const source = state.modelSource;
+    const username = hfUsernameInput.value.trim() || "gyann";
+    
+    const configKey = `${modelName}_${source}_${username}`;
+    
+    if (state.loadedConfigKey === configKey && state.clientSession) {
+        modelStatusDot.className = "status-indicator-dot green";
+        modelStatusText.textContent = "엔진 로드 완료";
+        return;
+    }
+    
+    if (state.isModelLoading) return;
+    state.isModelLoading = true;
+    
+    modelStatusDot.className = "status-indicator-dot orange";
+    modelStatusText.textContent = "모델 로드 중... (시간이 걸릴 수 있습니다)";
+    
+    try {
+        if (!window.EDGE_SIGN_CONFIG) {
+            throw new Error("config.js 설정을 불러올 수 없습니다.");
+        }
+        
+        const config = window.EDGE_SIGN_CONFIG[modelName];
+        let modelUrl, labelsUrl, statsUrl;
+        
+        if (source === "local") {
+            modelUrl = config.localModelUrl;
+            labelsUrl = config.localLabelsUrl;
+            statsUrl = config.localStatsUrl || null;
+        } else {
+            const repoUrl = `https://huggingface.co/${username}/${config.hfRepo}/resolve/${config.hfRevision}`;
+            modelUrl = `${repoUrl}/${config.modelFile}`;
+            labelsUrl = `${repoUrl}/${config.labelsFile}`;
+            statsUrl = config.statsFile ? `${repoUrl}/${config.statsFile}` : null;
+        }
+        
+        console.log(`[ONNX Load] Source: ${source}`);
+        console.log(`[ONNX Load] Fetching labels from: ${labelsUrl}`);
+        const labelsResponse = await fetch(labelsUrl);
+        if (!labelsResponse.ok) throw new Error(`Labels 파일 로드 실패: ${labelsResponse.statusText}`);
+        state.clientLabels = await labelsResponse.json();
+        
+        if (statsUrl) {
+            console.log(`[ONNX Load] Fetching normalisation stats from: ${statsUrl}`);
+            const statsResponse = await fetch(statsUrl);
+            if (!statsResponse.ok) throw new Error(`Stats 파일 로드 실패: ${statsResponse.statusText}`);
+            state.clientStats = await statsResponse.json();
+        } else {
+            state.clientStats = null;
+        }
+        
+        console.log(`[ONNX Load] Loading ONNX session from: ${modelUrl}`);
+        // Configure ONNX Runtime to use WASM with multi-threading
+        ort.env.wasm.numThreads = 4;
+        
+        state.clientSession = await ort.InferenceSession.create(modelUrl);
+        console.log("[ONNX Load] InferenceSession created successfully!");
+        
+        state.loadedConfigKey = configKey;
+        modelStatusDot.className = "status-indicator-dot green";
+        modelStatusText.textContent = "엔진 로드 완료 (준비됨)";
+    } catch (err) {
+        console.error("[ONNX Load] Error loading assets:", err);
+        modelStatusDot.className = "status-indicator-dot red";
+        modelStatusText.textContent = `로드 실패: ${err.message}`;
+        state.clientSession = null;
+        state.clientLabels = null;
+        state.clientStats = null;
+        state.loadedConfigKey = null;
+    } finally {
+        state.isModelLoading = false;
+    }
+}
+
+// Set Active Execution Mode (Server or Client)
+function setExecutionMode(mode) {
+    state.executionMode = mode;
+    
+    if (state.isStreaming) {
+        stopStreaming();
+    }
+    
+    if (mode === "server") {
+        modeServer.classList.add("active");
+        modeClient.classList.remove("active");
+        wsSettingsGroup.style.display = "block";
+        clientSettingsGroup.style.display = "none";
+        hfUsernameGroup.style.display = "none";
+        modelStatusGroup.style.display = "none";
+        wsStatusBadge.style.display = "flex";
+        
+        const suffix = state.selectedModel === "mediapipe" ? " (MeanStd)" : " (Raw)";
+        quantizationLabel.textContent = "FP32" + suffix;
+    } else {
+        modeServer.classList.remove("active");
+        modeClient.classList.add("active");
+        wsSettingsGroup.style.display = "none";
+        clientSettingsGroup.style.display = "block";
+        
+        if (state.modelSource === "hf") {
+            hfUsernameGroup.style.display = "block";
+        } else {
+            hfUsernameGroup.style.display = "none";
+        }
+        modelStatusGroup.style.display = "block";
+        wsStatusBadge.style.display = "none"; // Hide WebSocket badge in client mode
+        
+        quantizationLabel.textContent = "ONNX (WASM)";
+        loadClientModelIfNeeded();
+    }
+}
+
+// Set Active Model Source (Local folder or Hugging Face Hub)
+function setModelSource(source) {
+    state.modelSource = source;
+    
+    if (source === "local") {
+        sourceLocal.classList.add("active");
+        sourceHf.classList.remove("active");
+        hfUsernameGroup.style.display = "none";
+    } else {
+        sourceLocal.classList.remove("active");
+        sourceHf.classList.add("active");
+        hfUsernameGroup.style.display = "block";
+    }
+    
+    if (state.executionMode === "client") {
+        loadClientModelIfNeeded();
     }
 }
 
@@ -262,6 +577,71 @@ async function startStreaming() {
     tabLandmark.disabled = true;
     loadingOverlay.classList.remove("hidden");
 
+    // Client-side ONNX mode initialization
+    if (state.executionMode === "client") {
+        if (!state.clientSession) {
+            alert("모델이 로드되지 않았습니다. 잠시만 기다리시거나 모델 경로를 확인해주세요.");
+            resetUI();
+            return;
+        }
+        state.isStreaming = true;
+        stopBtn.disabled = false;
+        stableResult.textContent = "카메라 준비 중...";
+        
+        state.clientSeqBuffer = [];
+        state.clientVoteBuffer = [];
+        state.clientLastEmit = 0;
+        state.clientLastInfer = 0;
+        state.clientLastFrameTime = performance.now();
+        state.clientFpsHistory = [];
+        
+        // Initialize MediaPipe Holistic (if not done)
+        if (!state.holistic) {
+            state.loadingMP = true;
+            state.holistic = new Holistic({
+                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`
+            });
+
+            state.holistic.setOptions({
+                modelComplexity: 1,
+                smoothLandmarks: true,
+                refineFaceLandmarks: false,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
+
+            state.holistic.onResults(onResults);
+            state.loadingMP = false;
+        }
+
+        // Initialize Camera Utilities (if not done)
+        if (!state.camera) {
+            state.camera = new Camera(videoEl, {
+                onFrame: async () => {
+                    if (state.isStreaming && state.holistic) {
+                        await state.holistic.send({ image: videoEl });
+                    }
+                },
+                width: 640,
+                height: 480
+            });
+            
+            try {
+                await state.camera.start();
+                loadingOverlay.classList.add("hidden");
+                stableResult.textContent = "동작을 시작하세요!";
+            } catch (err) {
+                alert(`카메라 스트림 시작 실패: ${err.message}`);
+                stopStreaming();
+            }
+        } else {
+            loadingOverlay.classList.add("hidden");
+            stableResult.textContent = "동작을 시작하세요!";
+        }
+        return;
+    }
+
+    // WebSocket Server mode initialization
     const wsUrl = wsUrlInput.value.trim();
     if (!wsUrl) {
         alert("WebSocket URL을 정확히 입력해주세요.");
@@ -435,7 +815,6 @@ function updateSentenceBufferUI() {
     } else {
         sentenceBufferEl.textContent = state.sentenceBuffer.join(" ");
         sentenceBufferEl.style.color = "#fff";
-        // Scroll to bottom
         sentenceBufferEl.scrollTop = sentenceBufferEl.scrollHeight;
     }
 }
@@ -461,7 +840,13 @@ function selectModel(modelName) {
         minVotesInput.value = "6";
         minConfInput.value = "0.3";
         minGapInput.value = "1.0";
-        quantizationLabel.textContent = "FP32 (MeanStd)";
+        
+        if (state.executionMode === "server") {
+            quantizationLabel.textContent = "FP32 (MeanStd)";
+        } else {
+            quantizationLabel.textContent = "ONNX (WASM)";
+            loadClientModelIfNeeded();
+        }
     } else {
         tabMediapipe.classList.remove("active");
         tabLandmark.classList.add("active");
@@ -474,7 +859,13 @@ function selectModel(modelName) {
         minVotesInput.value = "9";
         minConfInput.value = "0.45";
         minGapInput.value = "1.5";
-        quantizationLabel.textContent = "FP32 (Raw)";
+        
+        if (state.executionMode === "server") {
+            quantizationLabel.textContent = "FP32 (Raw)";
+        } else {
+            quantizationLabel.textContent = "ONNX (WASM)";
+            loadClientModelIfNeeded();
+        }
     }
 }
 
@@ -487,6 +878,21 @@ settingsToggle.addEventListener("click", () => {
 tabMediapipe.addEventListener("click", () => selectModel("mediapipe"));
 tabLandmark.addEventListener("click", () => selectModel("landmark"));
 
+// Execution Mode Switcher Buttons
+modeServer.addEventListener("click", () => setExecutionMode("server"));
+modeClient.addEventListener("click", () => setExecutionMode("client"));
+
+// Model Source Switcher Buttons
+sourceLocal.addEventListener("click", () => setModelSource("local"));
+sourceHf.addEventListener("click", () => setModelSource("hf"));
+
+// HF Username Input Change
+hfUsernameInput.addEventListener("change", () => {
+    if (state.executionMode === "client" && state.modelSource === "hf") {
+        loadClientModelIfNeeded();
+    }
+});
+
 // Control Buttons Click
 startBtn.addEventListener("click", startStreaming);
 stopBtn.addEventListener("click", stopStreaming);
@@ -496,6 +902,21 @@ clearHistoryBtn.addEventListener("click", () => {
 });
 
 // Setup Initial UI state
+if (window.EDGE_SIGN_CONFIG) {
+    state.modelSource = window.EDGE_SIGN_CONFIG.defaultSource || "local";
+    state.hfUsername = window.EDGE_SIGN_CONFIG.hfUsername || "gyann";
+    hfUsernameInput.value = state.hfUsername;
+    
+    if (state.modelSource === "local") {
+        sourceLocal.classList.add("active");
+        sourceHf.classList.remove("active");
+    } else {
+        sourceLocal.classList.remove("active");
+        sourceHf.classList.add("active");
+    }
+}
+
 selectModel("mediapipe");
+setExecutionMode("server"); // Start with server mode default
 settingsCard.classList.add("collapsed"); // start collapsed for clean UI
 updateSentenceBufferUI();

@@ -1,0 +1,14 @@
+{
+  "model_type": "ksl_sequence_classifier",
+  "input_shape": [
+    1,
+    40,
+    959
+  ],
+  "hidden_dim": 128,
+  "num_layers": 2,
+  "num_classes": 50,
+  "dropout": 0.1,
+  "normalization": "none",
+  "vocabulary_file": "landmark_labels.json"
+}

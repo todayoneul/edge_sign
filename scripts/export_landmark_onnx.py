@@ -49,21 +49,17 @@ def main():
     wrapper_landmark = LandmarkModelONNXWrapper(model_landmark)
     wrapper_landmark.eval()
     
-    dummy_input_landmark = torch.randn(1, 30, 959) # Batch size 1, Sequence length 30, Feature dim 959
+    dummy_input_landmark = torch.randn(1, 40, 959) # Default window size for AIHub landmark is 40
     
     torch.onnx.export(
         wrapper_landmark,
         dummy_input_landmark,
         "./web/model/landmark_best.onnx",
         export_params=True,
-        opset_version=14,
+        opset_version=17,
         do_constant_folding=True,
         input_names=['input'],
-        output_names=['output'],
-        dynamic_axes={
-            'input': {0: 'batch_size', 1: 'sequence_length'},
-            'output': {0: 'batch_size'}
-        }
+        output_names=['output']
     )
     print("landmark_best.onnx exported successfully.")
     
@@ -82,23 +78,44 @@ def main():
     wrapper_mediapipe = LandmarkModelONNXWrapper(model_mediapipe)
     wrapper_mediapipe.eval()
     
-    dummy_input_mediapipe = torch.randn(1, 30, 959)
+    dummy_input_mediapipe = torch.randn(1, 30, 959) # Default window size for MediaPipe is 30
     
     torch.onnx.export(
         wrapper_mediapipe,
         dummy_input_mediapipe,
         "./web/model/mediapipe_best.onnx",
         export_params=True,
-        opset_version=14,
+        opset_version=17,
         do_constant_folding=True,
         input_names=['input'],
-        output_names=['output'],
-        dynamic_axes={
-            'input': {0: 'batch_size', 1: 'sequence_length'},
-            'output': {0: 'batch_size'}
-        }
+        output_names=['output']
     )
     print("mediapipe_best.onnx exported successfully.")
+
+    # 3. Export normalisation stats and labels to web/model/
+    stats_path = "./checkpoints/mediapipe_best.stats.npz"
+    if os.path.exists(stats_path):
+        import numpy as np
+        import json
+        print(f"Exporting normalisation stats from {stats_path} to web/model/mediapipe_stats.json...")
+        stats = np.load(stats_path)
+        mean = stats["mean"].tolist()
+        std = stats["std"].tolist()
+        with open("./web/model/mediapipe_stats.json", "w", encoding="utf-8") as f:
+            json.dump({"mean": mean, "std": std}, f)
+        print("mediapipe_stats.json exported successfully.")
+    
+    import shutil
+    
+    mp_labels_src = "./dataset/mediapipe_from_videos/labels.json"
+    if os.path.exists(mp_labels_src):
+        print("Copying MediaPipe labels to web/model/mediapipe_labels.json...")
+        shutil.copy(mp_labels_src, "./web/model/mediapipe_labels.json")
+        
+    ah_labels_src = "./dataset/landmarks_top50/labels.json"
+    if os.path.exists(ah_labels_src):
+        print("Copying AIHub labels to web/model/landmark_labels.json...")
+        shutil.copy(ah_labels_src, "./web/model/landmark_labels.json")
 
 if __name__ == "__main__":
     main()
