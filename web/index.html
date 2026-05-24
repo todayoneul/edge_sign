@@ -2,19 +2,16 @@
 <html lang="ko">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Edge-Sign Unified Live Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>On-Device 한글 손글씨 OCR</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#0a0c16" />
     
-    <!-- MediaPipe dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js" crossorigin="anonymous"></script>
-    
-    <!-- ONNX Runtime Web -->
+    <!-- ONNX Runtime Web via CDN -->
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
 </head>
 <body>
@@ -26,243 +23,183 @@
         <!-- Header -->
         <header class="app-header">
             <div class="header-brand">
-                <span class="eyebrow">On-Device Landmark sequence</span>
-                <h1>Edge-Sign <span>Unified Dashboard</span></h1>
+                <span class="eyebrow">W8A8 Quantized On-Device Model</span>
+                <h1>한글 손글씨 <span>OCR</span></h1>
             </div>
             <div class="header-status">
-                <div id="wsStatusBadge" class="status-badge disconnected">
+                <div id="modelStatusBadge" class="status-badge disconnected">
                     <span class="status-dot"></span>
-                    <span id="wsStatusText">연결 끊김</span>
+                    <span id="modelStatusText">모델 로딩 중...</span>
                 </div>
             </div>
         </header>
  
-        <!-- Model Switcher Tabs -->
+        <!-- Tab Switcher -->
         <div class="model-switcher">
-            <button id="tabMediapipe" class="tab-btn active" data-model="mediapipe">
-                <div class="tab-icon">✨</div>
+            <button id="tabCanvas" class="tab-btn active">
+                <div class="tab-icon">✍️</div>
                 <div class="tab-content">
-                    <span class="tab-title">MediaPipe Sequence Model</span>
-                    <span class="tab-desc">2,771 수어 단어 사본 • 실시간 정규화</span>
+                    <span class="tab-title">손글씨 패드 (Canvas)</span>
+                    <span class="tab-desc">직접 화면에 마우스나 손가락으로 그리기</span>
                 </div>
             </button>
-            <button id="tabLandmark" class="tab-btn" data-model="landmark">
-                <div class="tab-icon">⚡</div>
+            <button id="tabCamera" class="tab-btn">
+                <div class="tab-icon">📷</div>
                 <div class="tab-content">
-                    <span class="tab-title">AIHub Landmark Model</span>
-                    <span class="tab-desc">50 핵심 수어 단어 사본 • 고강도 학습</span>
+                    <span class="tab-title">실시간 카메라 (Camera)</span>
+                    <span class="tab-desc">카메라로 손글씨를 실시간 스캔 및 인식</span>
                 </div>
             </button>
-        </div>
-
-        <!-- Execution Mode Switcher -->
-        <div class="execution-switcher-container">
-            <span class="switcher-label">추론 실행 위치 (Inference Location)</span>
-            <div class="execution-switcher">
-                <button id="modeServer" class="mode-btn" data-mode="server">
-                    🖥️ 로컬 서버 (WebSocket)
-                </button>
-                <button id="modeClient" class="mode-btn active" data-mode="client">
-                    💻 브라우저 자체 실행 (ONNX Runtime Web)
-                </button>
-            </div>
-        </div>
-
-        <!-- Input Source Switcher -->
-        <div class="execution-switcher-container" id="inputSourceContainer">
-            <span class="switcher-label">입력 소스 선택 (Input Source)</span>
-            <div class="execution-switcher">
-                <button id="inputModeCamera" class="mode-btn active" data-mode="camera">
-                    📷 실시간 카메라 (Webcam)
-                </button>
-                <button id="inputModeVideo" class="mode-btn" data-mode="video">
-                    🎥 동영상 파일 업로드 (Video)
-                </button>
-                <button id="inputModeImage" class="mode-btn" data-mode="image">
-                    🖼️ 이미지 파일 업로드 (Image)
-                </button>
-            </div>
-        </div>
-
-        <!-- Client-side ONNX settings group (Moved from settings to be visible) -->
-        <div style="padding: 10px 20px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 20px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
-            <div class="setting-group" id="clientSettingsGroup" style="margin-bottom: 0;">
-                <label style="font-size: 0.85rem; color: #a1a1aa; margin-bottom: 5px; display: block;">모델 로딩 소스</label>
-                <div class="source-switcher">
-                    <button type="button" id="sourceHf" class="source-btn active" data-source="hf">🤗 Hugging Face Hub</button>
-                    <button type="button" id="sourceLocal" class="source-btn" data-source="local">📁 로컬 에셋</button>
-                </div>
-            </div>
-
-            <div class="setting-group" id="hfUsernameGroup" style="margin-bottom: 0;">
-                <label for="hfUsernameInput" style="font-size: 0.85rem; color: #a1a1aa; margin-bottom: 5px; display: block;">Hugging Face 계정명</label>
-                <input type="text" id="hfUsernameInput" value="gyann" style="padding: 8px;" />
-            </div>
-
-            <div class="setting-group" id="modelStatusGroup" style="margin-bottom: 0; flex: 1;">
-                <label style="font-size: 0.85rem; color: #a1a1aa; margin-bottom: 5px; display: block;">엔진 로딩 상태</label>
-                <div class="model-status-box" style="padding: 8px 12px; margin: 0;">
-                    <span class="status-indicator-dot red" id="modelStatusDot"></span>
-                    <span id="modelStatusText">대기 중</span>
-                </div>
-            </div>
         </div>
 
         <!-- Main Layout Grid -->
         <main class="dashboard-grid">
             
-            <!-- Left Column: Camera and Visualization -->
+            <!-- Left Column: Input Source (Canvas or Video) -->
             <div class="visualizer-card">
-                <div class="canvas-wrapper">
-                    <video id="inputVideo" autoplay playsinline></video>
-                    <canvas id="outputCanvas" width="640" height="480"></canvas>
-                    
-                    <!-- Hidden media elements for file uploads -->
-                    <video id="uploadVideo" playsinline loop muted style="display: none;"></video>
-                    <img id="uploadImage" style="display: none; max-width: 100%; max-height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; z-index: 1;" />
-                    <input type="file" id="mediaFileInput" style="display: none;" />
-
-                    <!-- Drag & Drop Upload Zone Overlay -->
-                    <div id="uploadZone" class="canvas-overlay upload-zone hidden">
-                        <div class="upload-content">
-                            <div class="upload-icon">📁</div>
-                            <p class="upload-title">파일을 여기로 드래그하거나 클릭하여 업로드</p>
-                            <p class="upload-subtitle">지원 형식: MP4, MOV, WebM (비디오) / PNG, JPG, JPEG (이미지)</p>
+                <!-- Tab 1: Canvas Interface -->
+                <div id="canvasArea" class="input-area active">
+                    <div class="canvas-wrapper" style="background: #111528;">
+                        <canvas id="drawingCanvas" width="400" height="400" style="position: relative; z-index: 5;"></canvas>
+                        <canvas id="canvasOverlay" width="400" height="400" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 6;"></canvas>
+                        <div class="canvas-grid-lines"></div>
+                    </div>
+                    <!-- Recognition Mode Toggle -->
+                    <div class="canvas-mode-toggle">
+                        <span class="toggle-label">인식 모드 (Mode):</span>
+                        <div class="toggle-buttons">
+                            <button id="btnModeSingle" class="toggle-btn active">단일 글자 (Single)</button>
+                            <button id="btnModeMulti" class="toggle-btn">다중 글자 (Multi-Char)</button>
                         </div>
                     </div>
-
-                    <div id="loadingOverlay" class="canvas-overlay">
-                        <div class="spinner"></div>
-                        <p id="loadingOverlayText">MediaPipe & 카메라 초기화 중...</p>
+                    <!-- Multi-character Gap Threshold Slider (Visible in Multi Mode) -->
+                    <div id="multiGapControl" class="threshold-control-panel hidden" style="margin-top: 12px; padding: 12px; background: rgba(255, 255, 255, 0.02); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                        <label for="gapSlider" style="font-size: 0.9rem; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span>글자 분할 간격 (Merge Gap):</span>
+                            <span style="font-weight: 600; color: #3b82f6;"><span id="gapVal">55</span>px</span>
+                        </label>
+                        <input type="range" id="gapSlider" min="20" max="150" value="55" style="width: 100%; cursor: pointer;" />
+                    </div>
+                    <!-- Preprocessed Preview Panel for Canvas -->
+                    <div class="threshold-control-panel hidden" id="canvasPreviewPanel" style="margin-top: 12px; padding: 12px; background: rgba(255, 255, 255, 0.02); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                        <div class="threshold-preview-container" style="margin-top: 0; justify-content: center; gap: 15px; display: flex; align-items: center;">
+                            <canvas id="drawingPreviewCanvas" width="64" height="64" style="background: #ffffff; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px;"></canvas>
+                            <span style="font-size: 0.85rem; color: #94a3b8; font-weight: 500;">모델 입력 변환 이미지 (64x64)</span>
+                        </div>
+                    </div>
+                    <div class="visualizer-footer">
+                        <button id="clearCanvasBtn" class="danger-btn">
+                            <span class="btn-icon">🗑️</span> 지우기 (Clear)
+                        </button>
+                        <button id="addCharBtn" class="primary-btn">
+                            <span class="btn-icon">📥</span> 텍스트 입력 (Insert)
+                        </button>
                     </div>
                 </div>
-                <div class="visualizer-footer">
-                    <button id="startBtn" class="primary-btn">
-                        <span class="btn-icon">▶</span> 실시간 인식 시작
-                    </button>
-                    <button id="stopBtn" class="danger-btn" disabled>
-                        <span class="btn-icon">■</span> 정지
-                    </button>
+
+                <!-- Tab 2: Camera Interface -->
+                <div id="cameraArea" class="input-area hidden">
+                    <div class="canvas-wrapper">
+                        <video id="webcamVideo" autoplay playsinline muted></video>
+                        <canvas id="cameraOverlayCanvas"></canvas>
+                        <div class="camera-crop-box">
+                            <div class="crop-corners"></div>
+                            <span class="crop-label">글자를 상자 안에 맞추세요</span>
+                        </div>
+                    </div>
+                    <div class="threshold-control-panel">
+                        <label for="thresholdSlider">이진화 임계값 (Threshold): <span id="thresholdVal">128</span></label>
+                        <input type="range" id="thresholdSlider" min="50" max="200" value="128" />
+                        <div class="threshold-preview-container">
+                            <canvas id="thresholdPreviewCanvas" width="64" height="64"></canvas>
+                            <span>입력 이미지 프리뷰</span>
+                        </div>
+                    </div>
+                    <div class="visualizer-footer">
+                        <button id="startCamBtn" class="primary-btn">
+                            <span class="btn-icon">▶</span> 카메라 켜기 (Start)
+                        </button>
+                        <button id="stopCamBtn" class="danger-btn" disabled>
+                            <span class="btn-icon">■</span> 카메라 끄기 (Stop)
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Right Column: Control Panel & Live Outputs -->
+            <!-- Right Column: Prediction Results & Text Buffer -->
             <div class="panel-column">
                 
                 <!-- Live Predictions Card -->
                 <div class="dashboard-card live-prediction-card">
                     <div class="card-header">
-                        <h2>실시간 분석 결과 (Live Inference)</h2>
+                        <h2>인식 결과 (Inference Results)</h2>
                     </div>
                     <div class="card-body">
                         <div class="main-display">
-                            <span class="display-label">현재 인식된 동작</span>
+                            <span class="display-label">인식된 글자 (Top-1)</span>
                             <span id="detectedLabel" class="display-value">-</span>
                         </div>
                         
-                        <div class="confidence-section">
-                            <div class="confidence-labels">
-                                <span>신뢰도 (Confidence)</span>
-                                <span id="confidenceLabel">0%</span>
+                        <!-- Top-5 Candidates -->
+                        <div class="candidates-section">
+                            <span class="display-label">후보 문자군 (Top-5 candidates)</span>
+                            <div id="candidatesList" class="candidates-list">
+                                <!-- Populated dynamically -->
+                                <div class="candidate-item-empty">대기 중...</div>
                             </div>
-                            <div class="progress-bar-container">
-                                <div id="confidenceBar" class="progress-bar" style="width: 0%"></div>
-                            </div>
-                        </div>
-
-                        <div class="stable-section">
-                            <span class="display-label">확정 번역 단어 (Stable Emit)</span>
-                            <div id="stableResult" class="stable-value">대기 중...</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Sentence History Card -->
+                <!-- Text Buffer Card (Accumulated characters) -->
                 <div class="dashboard-card sentence-history-card">
                     <div class="card-header">
-                        <h2>수어 문장 버퍼 (Sentence History)</h2>
-                        <button id="clearHistoryBtn" class="small-btn">지우기</button>
+                        <h2>텍스트 입력기 (Text Input Buffer)</h2>
+                        <div class="buffer-actions">
+                            <button id="copyTextBtn" class="small-btn">복사</button>
+                            <button id="clearTextBtn" class="small-btn danger">비우기</button>
+                        </div>
                     </div>
                     <div class="card-body">
-                        <div id="sentenceBuffer" class="sentence-buffer-box">
-                            동작을 시작하면 여기에 수어 단어가 누적되어 문장으로 표현됩니다.
+                        <div id="textBuffer" class="sentence-buffer-box" contenteditable="true" placeholder="손글씨를 입력하면 여기에 텍스트가 완성됩니다."></div>
+                        <div class="keyboard-helper-buttons">
+                            <button id="btnSpace" class="helper-btn">띄어쓰기 (Space)</button>
+                            <button id="btnBackspace" class="helper-btn">한 글자 지우기 (Backspace)</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Live Performance Metrics -->
+                <!-- Performance Metrics -->
                 <div class="dashboard-card metrics-card">
                     <div class="metrics-grid">
                         <div class="metric-item">
-                            <span class="metric-val" id="fpsLabel">0.0</span>
-                            <span class="metric-lbl">인프라 FPS</span>
+                          <span class="metric-val" id="inferenceTimeLabel">0.0 ms</span>
+                          <span class="metric-lbl">추론 속도 (Inference)</span>
                         </div>
                         <div class="metric-item">
-                            <span class="metric-val" id="latencyLabel">0</span>
-                            <span class="metric-lbl">지연시간 (ms)</span>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-val" id="quantizationLabel">FP32</span>
-                            <span class="metric-lbl">양자화 상태</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Settings Card (Collapsible) -->
-                <div class="dashboard-card settings-card">
-                    <div class="card-header collapsible-header" id="settingsToggle">
-                        <h2>인프라 제어 설정 (Advanced Settings)</h2>
-                        <span class="arrow">▼</span>
-                    </div>
-                    <div class="card-body collapsible-body" id="settingsBody">
-                        <!-- WebSocket settings group -->
-                        <div class="setting-group" id="wsSettingsGroup">
-                            <label for="wsUrlInput">WebSocket URL</label>
-                            <input type="text" id="wsUrlInput" value="ws://localhost:8000/ws/mediapipe" />
-                        </div>
-                        
-                        <!-- Client-side settings moved to top panel -->
-                        
-                        <div class="settings-row">
-                            <div class="setting-group">
-                                <label for="inferIntervalInput">추론 간격 (초)</label>
-                                <input type="number" id="inferIntervalInput" min="0.02" max="1.0" step="0.01" value="0.1" />
-                            </div>
-                            <div class="setting-group">
-                                <label for="windowSizeInput">윈도우 크기 (프레임)</label>
-                                <input type="number" id="windowSizeInput" min="5" max="100" step="1" value="30" />
-                            </div>
-                        </div>
-
-                        <div class="settings-row">
-                            <div class="setting-group">
-                                <label for="voteSizeInput">투표 버퍼 크기</label>
-                                <input type="number" id="voteSizeInput" min="3" max="50" step="1" value="10" />
-                            </div>
-                            <div class="setting-group">
-                                <label for="minVotesInput">최소 투표 수</label>
-                                <input type="number" id="minVotesInput" min="1" max="50" step="1" value="6" />
-                            </div>
-                        </div>
-
-                        <div class="settings-row">
-                            <div class="setting-group">
-                                <label for="minConfInput">최소 신뢰도</label>
-                                <input type="number" id="minConfInput" min="0.1" max="1.0" step="0.05" value="0.3" />
-                            </div>
-                            <div class="setting-group">
-                                <label for="minGapInput">디바운스 간격 (초)</label>
-                                <input type="number" id="minGapInput" min="0.1" max="5.0" step="0.1" value="1.0" />
-                            </div>
+                          <span class="metric-val" id="modelSizeLabel">0.72 MB</span>
+                          <span class="metric-lbl">모델 크기 (Quantized)</span>
                         </div>
                     </div>
                 </div>
 
             </div>
+
         </main>
     </div>
-    
-    <script src="config.js"></script>
+
+    <!-- PWA Installation Prompt Banner -->
+    <div id="pwaInstallBanner" class="pwa-banner hidden">
+        <div class="pwa-banner-content">
+            <span class="pwa-icon">📱</span>
+            <div>
+                <p class="pwa-title">한글 손글씨 OCR 앱 설치</p>
+                <p class="pwa-desc">홈 화면에 추가하여 인터넷 연결 없이 앱처럼 편리하게 사용해보세요.</p>
+            </div>
+        </div>
+        <button id="pwaInstallBtn" class="pwa-install-btn">설치하기</button>
+    </div>
+
     <script src="app.js"></script>
 </body>
 </html>

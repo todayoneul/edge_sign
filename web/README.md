@@ -53,6 +53,8 @@ Copy-Item -Force .\model_space\convnextv2_ksl_int8.onnx .\web\model\convnextv2_k
 python -m http.server 8000 --directory web
 ```
 
+---
+
 ## 참고 사항
 
 - WebGPU 환경이 지원되는 브라우저에서는 최상의 프레임(FPS) 속도로 동작하며, 지원되지 않을 경우 WASM 백엔드로 자동 대체(Fallback)됩니다.

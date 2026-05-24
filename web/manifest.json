@@ -1,0 +1,24 @@
+{
+  "name": "한글 손글씨 OCR (On-Device)",
+  "short_name": "한글 OCR",
+  "description": "서버 없이 브라우저 내에서 실시간으로 동작하는 인공지능 한글 손글씨 OCR 서비스",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0c16",
+  "theme_color": "#0a0c16",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

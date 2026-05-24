@@ -1,1214 +1,834 @@
-// Global App State
+// App State
 const state = {
-    selectedModel: "mediapipe", // "mediapipe" or "landmark"
-    executionMode: "client",    // "server" or "client"
-    modelSource: "local",       // "local" or "hf"
-    loadedConfigKey: null,
-    
-    // Input Mode Settings
-    inputMode: "camera",        // "camera" | "video" | "image"
-    uploadedFile: null,
-    uploadedFileUrl: null,
-    noHandFrames: 0,
-    videoTimerId: null,
-    
-    // WebSocket States
-    ws: null,
-    sentTimestamps: [],
-    
-    // Client-Side ONNX States
-    clientSession: null,
-    clientLabels: null,
-    clientStats: null,          // For MediaPipe model normalization
-    clientSeqBuffer: [],        // sliding window of Float32Array frames
-    clientVoteBuffer: [],
-    clientLastEmit: 0,
-    clientLastInfer: 0,
-    clientLastFrameTime: performance.now(),
-    clientFpsHistory: [],
-    isModelLoading: false,
-    
-    // Camera & MediaPipe Holistic
-    camera: null,
-    holistic: null,
-    isStreaming: false,
-    sentenceBuffer: [],
-    lastFrameTime: performance.now(),
-    fpsHistory: [],
-    loadingMP: false
+    session: null,
+    idxToChar: null,
+    currentMode: 'canvas', // 'canvas' or 'camera'
+    canvasRecognitionMode: 'single', // 'single' (entire canvas) or 'multi' (horizontal segmentation)
+    canvasMergeGap: 55, // Horizontal segmentation merge threshold
+    isDrawing: false,
+    hasDrawn: false,
+    lastX: 0,
+    lastY: 0,
+    webcamStream: null,
+    cameraAnimId: null,
+    threshold: 128,
+    isModelLoading: true
 };
 
-// UI Elements
-const videoEl = document.getElementById("inputVideo");
-const canvasEl = document.getElementById("outputCanvas");
-const canvasCtx = canvasEl.getContext("2d");
-const loadingOverlay = document.getElementById("loadingOverlay");
-const loadingOverlayText = document.getElementById("loadingOverlayText");
+// Elements
+const el = {
+    modelStatusBadge: document.getElementById('modelStatusBadge'),
+    modelStatusText: document.getElementById('modelStatusText'),
+    tabCanvas: document.getElementById('tabCanvas'),
+    tabCamera: document.getElementById('tabCamera'),
+    canvasArea: document.getElementById('canvasArea'),
+    cameraArea: document.getElementById('cameraArea'),
+    drawingCanvas: document.getElementById('drawingCanvas'),
+    canvasOverlay: document.getElementById('canvasOverlay'),
+    multiGapControl: document.getElementById('multiGapControl'),
+    gapSlider: document.getElementById('gapSlider'),
+    gapVal: document.getElementById('gapVal'),
+    canvasPreviewPanel: document.getElementById('canvasPreviewPanel'),
+    drawingPreviewCanvas: document.getElementById('drawingPreviewCanvas'),
+    clearCanvasBtn: document.getElementById('clearCanvasBtn'),
+    addCharBtn: document.getElementById('addCharBtn'),
+    webcamVideo: document.getElementById('webcamVideo'),
+    cameraOverlayCanvas: document.getElementById('cameraOverlayCanvas'),
+    thresholdSlider: document.getElementById('thresholdSlider'),
+    thresholdVal: document.getElementById('thresholdVal'),
+    thresholdPreviewCanvas: document.getElementById('thresholdPreviewCanvas'),
+    startCamBtn: document.getElementById('startCamBtn'),
+    stopCamBtn: document.getElementById('stopCamBtn'),
+    detectedLabel: document.getElementById('detectedLabel'),
+    candidatesList: document.getElementById('candidatesList'),
+    textBuffer: document.getElementById('textBuffer'),
+    copyTextBtn: document.getElementById('copyTextBtn'),
+    clearTextBtn: document.getElementById('clearTextBtn'),
+    btnSpace: document.getElementById('btnSpace'),
+    btnBackspace: document.getElementById('btnBackspace'),
+    inferenceTimeLabel: document.getElementById('inferenceTimeLabel'),
+    pwaInstallBanner: document.getElementById('pwaInstallBanner'),
+    pwaInstallBtn: document.getElementById('pwaInstallBtn'),
+    btnModeSingle: document.getElementById('btnModeSingle'),
+    btnModeMulti: document.getElementById('btnModeMulti')
+};
 
-// Input source elements
-const inputModeCamera = document.getElementById("inputModeCamera");
-const inputModeVideo = document.getElementById("inputModeVideo");
-const inputModeImage = document.getElementById("inputModeImage");
-const uploadZone = document.getElementById("uploadZone");
-const mediaFileInput = document.getElementById("mediaFileInput");
-const uploadVideo = document.getElementById("uploadVideo");
-const uploadImage = document.getElementById("uploadImage");
+// Canvas drawing context configuration
+const ctx = el.drawingCanvas.getContext('2d', { willReadFrequently: true });
+ctx.lineWidth = 14;
+ctx.lineCap = 'round';
+ctx.lineJoin = 'round';
+ctx.strokeStyle = '#000000'; // Draw black strokes
 
-const startBtn = document.getElementById("startBtn");
-const stopBtn = document.getElementById("stopBtn");
-const tabMediapipe = document.getElementById("tabMediapipe");
-const tabLandmark = document.getElementById("tabLandmark");
+const overlayCtx = el.canvasOverlay ? el.canvasOverlay.getContext('2d') : null;
 
-const wsStatusBadge = document.getElementById("wsStatusBadge");
-const wsStatusText = document.getElementById("wsStatusText");
-
-const detectedLabel = document.getElementById("detectedLabel");
-const confidenceLabel = document.getElementById("confidenceLabel");
-const confidenceBar = document.getElementById("confidenceBar");
-const stableResult = document.getElementById("stableResult");
-const sentenceBufferEl = document.getElementById("sentenceBuffer");
-const clearHistoryBtn = document.getElementById("clearHistoryBtn");
-
-const fpsLabel = document.getElementById("fpsLabel");
-const latencyLabel = document.getElementById("latencyLabel");
-const quantizationLabel = document.getElementById("quantizationLabel");
-
-// Settings Elements
-const settingsToggle = document.getElementById("settingsToggle");
-const settingsBody = document.getElementById("settingsBody");
-const settingsCard = document.querySelector(".settings-card");
-const wsUrlInput = document.getElementById("wsUrlInput");
-const inferIntervalInput = document.getElementById("inferIntervalInput");
-const windowSizeInput = document.getElementById("windowSizeInput");
-const voteSizeInput = document.getElementById("voteSizeInput");
-const minVotesInput = document.getElementById("minVotesInput");
-const minConfInput = document.getElementById("minConfInput");
-const minGapInput = document.getElementById("minGapInput");
-
-// Execution Mode / Source Elements
-const modeServer = document.getElementById("modeServer");
-const modeClient = document.getElementById("modeClient");
-const wsSettingsGroup = document.getElementById("wsSettingsGroup");
-const clientSettingsGroup = document.getElementById("clientSettingsGroup");
-const hfUsernameGroup = document.getElementById("hfUsernameGroup");
-const hfUsernameInput = document.getElementById("hfUsernameInput");
-const modelStatusGroup = document.getElementById("modelStatusGroup");
-const modelStatusDot = document.getElementById("modelStatusDot");
-const modelStatusText = document.getElementById("modelStatusText");
-const sourceLocal = document.getElementById("sourceLocal");
-const sourceHf = document.getElementById("sourceHf");
-
-// MediaPipe 33 keypoints mapping to OpenPose 25 keypoints
-const POSE_MAPPING = [
-    0, // 0: Nose
-    [11, 12], // 1: Neck (midpoint of left/right shoulders)
-    12, // 2: R-Sho
-    14, // 3: R-Elb
-    16, // 4: R-Wr
-    11, // 5: L-Sho
-    13, // 6: L-Elb
-    15, // 7: L-Wr
-    [23, 24], // 8: MidHip (midpoint of left/right hips)
-    24, // 9: R-Hip
-    26, // 10: R-Knee
-    28, // 11: R-Ank
-    23, // 12: L-Hip
-    25, // 13: L-Knee
-    27, // 14: L-Ank
-    5, // 15: R-Eye
-    2, // 16: L-Eye
-    8, // 17: R-Ear
-    7, // 18: L-Ear
-    31, // 19: L-BigToe
-    29, // 20: L-SmallToe
-    31, // 21: L-Heel
-    32, // 22: R-BigToe
-    30, // 23: R-SmallToe
-    32, // 24: R-Heel
-];
-
-// OpenPose Layout Dims:
-// pose_2d(75) + face_2d(210) + left_hand_2d(63) + right_hand_2d(63) = 411
-// pose_3d(100) + face_3d(280) + left_hand_3d(84) + right_hand_3d(84) = 548
-// Total = 959 dimensions
-
-function extractFeatures(results) {
-    const features = new Float32Array(959);
-    let offset = 0;
-
-    // Helper to add 2D Point (x, y, visibility)
-    function add2DPoint(point) {
-        if (point) {
-            features[offset++] = point.x;
-            features[offset++] = point.y;
-            features[offset++] = point.visibility !== undefined ? point.visibility : 1.0;
-        } else {
-            offset += 3;
-        }
-    }
-
-    // Helper to add 3D Point (x, y, z, visibility)
-    function add3DPoint(point) {
-        if (point) {
-            features[offset++] = point.x;
-            features[offset++] = point.y;
-            features[offset++] = point.z || 0.0;
-            features[offset++] = point.visibility !== undefined ? point.visibility : 1.0;
-        } else {
-            offset += 4;
-        }
-    }
-
-    // --- 2D Coordinates (411 dimensions) ---
-    // 1. Pose 2D (25 * 3 = 75)
-    if (results.poseLandmarks) {
-        for (let i = 0; i < 25; i++) {
-            const mapIdx = POSE_MAPPING[i];
-            if (Array.isArray(mapIdx)) {
-                const p1 = results.poseLandmarks[mapIdx[0]];
-                const p2 = results.poseLandmarks[mapIdx[1]];
-                if (p1 && p2) {
-                    add2DPoint({ 
-                        x: (p1.x + p2.x) / 2, 
-                        y: (p1.y + p2.y) / 2, 
-                        visibility: Math.min(p1.visibility, p2.visibility) 
-                    });
-                } else {
-                    add2DPoint(null);
-                }
-            } else {
-                add2DPoint(results.poseLandmarks[mapIdx]);
-            }
-        }
-    } else { 
-        offset += 75; 
-    }
-
-    // 2. Face 2D (70 * 3 = 210)
-    if (results.faceLandmarks) {
-        for (let i = 0; i < 70; i++) { 
-            add2DPoint(results.faceLandmarks[i]); 
-        }
-    } else { 
-        offset += 210; 
-    }
-
-    // 3. Left Hand 2D (21 * 3 = 63)
-    if (results.leftHandLandmarks) {
-        for (let i = 0; i < 21; i++) { 
-            add2DPoint(results.leftHandLandmarks[i]); 
-        }
-    } else { 
-        offset += 63; 
-    }
-
-    // 4. Right Hand 2D (21 * 3 = 63)
-    if (results.rightHandLandmarks) {
-        for (let i = 0; i < 21; i++) { 
-            add2DPoint(results.rightHandLandmarks[i]); 
-        }
-    } else { 
-        offset += 63; 
-    }
-
-    // --- 3D Coordinates (548 dimensions) ---
-    // 5. Pose 3D (25 * 4 = 100)
-    if (results.poseWorldLandmarks) {
-        for (let i = 0; i < 25; i++) {
-            const mapIdx = POSE_MAPPING[i];
-            if (Array.isArray(mapIdx)) {
-                const p1 = results.poseWorldLandmarks[mapIdx[0]];
-                const p2 = results.poseWorldLandmarks[mapIdx[1]];
-                if (p1 && p2) {
-                    add3DPoint({ 
-                        x: (p1.x + p2.x) / 2, 
-                        y: (p1.y + p2.y) / 2, 
-                        z: (p1.z + p2.z) / 2, 
-                        visibility: Math.min(p1.visibility, p2.visibility) 
-                    });
-                } else {
-                    add3DPoint(null);
-                }
-            } else {
-                add3DPoint(results.poseWorldLandmarks[mapIdx]);
-            }
-        }
-    } else { 
-        offset += 100; 
-    }
-
-    // 6. Face 3D (70 * 4 = 280)
-    if (results.faceLandmarks) {
-        for (let i = 0; i < 70; i++) { 
-            add3DPoint(results.faceLandmarks[i]); 
-        }
-    } else { 
-        offset += 280; 
-    }
-
-    // 7. Left Hand 3D (21 * 4 = 84)
-    if (results.leftHandLandmarks) {
-        for (let i = 0; i < 21; i++) { 
-            add3DPoint(results.leftHandLandmarks[i]); 
-        }
-    } else { 
-        offset += 84; 
-    }
-
-    // 8. Right Hand 3D (21 * 4 = 84)
-    if (results.rightHandLandmarks) {
-        for (let i = 0; i < 21; i++) { 
-            add3DPoint(results.rightHandLandmarks[i]); 
-        }
-    } else { 
-        offset += 84; 
-    }
-
-    return features;
-}
-
-// Draw skeleton and connections overlay on canvas
-function onResults(results) {
-    if (!state.isStreaming) return;
-
-    // 1. Hands detection check (Idle filtering)
-    const hasHands = results.leftHandLandmarks || results.rightHandLandmarks;
-    if (hasHands) {
-        state.noHandFrames = 0;
-    } else {
-        state.noHandFrames++;
-        if (state.noHandFrames >= 5) {
-            // Clear sliding windows immediately
-            state.clientSeqBuffer = [];
-            state.clientVoteBuffer = [];
-            
-            // Clear UI displays
-            detectedLabel.textContent = "-";
-            confidenceLabel.textContent = "0%";
-            confidenceBar.style.width = "0%";
-            stableResult.textContent = "대기 중 (손 검출 안됨)";
-            stableResult.style.color = "var(--text-muted)";
-            
-            // Draw skeleton anyway so user sees canvas feed
-            canvasCtx.save();
-            canvasCtx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-            canvasCtx.drawImage(results.image, 0, 0, canvasEl.width, canvasEl.height);
-            if (results.poseLandmarks) {
-                drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: '#a855f7', lineWidth: 2 });
-                drawLandmarks(canvasCtx, results.poseLandmarks, { color: '#3b82f6', lineWidth: 1, radius: 2 });
-            }
-            canvasCtx.restore();
-            
-            // Skip model inference
-            return;
-        }
-    }
-
-    canvasCtx.save();
-    canvasCtx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-    
-    // Draw raw video frame
-    canvasCtx.drawImage(results.image, 0, 0, canvasEl.width, canvasEl.height);
-    
-    // Draw MediaPipe landmark overlays
-    if (results.poseLandmarks) {
-        drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: '#a855f7', lineWidth: 2 });
-        drawLandmarks(canvasCtx, results.poseLandmarks, { color: '#3b82f6', lineWidth: 1, radius: 2 });
-    }
-    if (results.leftHandLandmarks) {
-        drawConnectors(canvasCtx, results.leftHandLandmarks, HAND_CONNECTIONS, { color: '#06b6d4', lineWidth: 2 });
-        drawLandmarks(canvasCtx, results.leftHandLandmarks, { color: '#10b981', lineWidth: 1, radius: 2 });
-    }
-    if (results.rightHandLandmarks) {
-        drawConnectors(canvasCtx, results.rightHandLandmarks, HAND_CONNECTIONS, { color: '#06b6d4', lineWidth: 2 });
-        drawLandmarks(canvasCtx, results.rightHandLandmarks, { color: '#a855f7', lineWidth: 1, radius: 2 });
-    }
-    canvasCtx.restore();
-
-    // Extract 959-dimensional Float32 landmark features
-    const featureArray = extractFeatures(results);
-    
-    if (state.executionMode === "client") {
-        // Run Client-Side ONNX Inference
-        runClientInference(featureArray);
-    } else {
-        // Stream via WebSocket to Server
-        if (state.ws && state.ws.readyState === WebSocket.OPEN) {
-            state.sentTimestamps.push(performance.now());
-            if (state.sentTimestamps.length > 100) {
-                state.sentTimestamps.shift();
-            }
-            state.ws.send(featureArray.buffer); // binary send
-        }
+// Initialize drawing canvas background to white
+function clearCanvas() {
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, el.drawingCanvas.width, el.drawingCanvas.height);
+    clearOverlay();
+    state.hasDrawn = false;
+    clearPredictions();
+    if (el.drawingPreviewCanvas) {
+        const pCtx = el.drawingPreviewCanvas.getContext('2d');
+        pCtx.fillStyle = '#FFFFFF';
+        pCtx.fillRect(0, 0, 64, 64);
     }
 }
 
-// Client-Side ONNX Inference Pipeline
-async function runClientInference(features) {
-    if (!state.clientSession || !state.clientLabels) return;
-    
-    // 1. Normalization (Z-score) for MediaPipe model
-    const normalized = new Float32Array(959);
-    if (state.selectedModel === "mediapipe" && state.clientStats) {
-        const mean = state.clientStats.mean;
-        const std = state.clientStats.std;
-        for (let i = 0; i < 959; i++) {
-            normalized[i] = (features[i] - mean[i]) / (std[i] + 1e-8);
+function clearOverlay() {
+    if (overlayCtx) {
+        overlayCtx.clearRect(0, 0, el.canvasOverlay.width, el.canvasOverlay.height);
+    }
+}
+
+function clearPredictions() {
+    el.detectedLabel.textContent = '-';
+    el.candidatesList.innerHTML = '<div class="candidate-item-empty">대기 중...</div>';
+}
+
+// Setup Event Listeners
+function initEvents() {
+    // Tab switching
+    el.tabCanvas.addEventListener('click', () => switchTab('canvas'));
+    el.tabCamera.addEventListener('click', () => switchTab('camera'));
+
+    // Canvas drawing (Mouse)
+    el.drawingCanvas.addEventListener('mousedown', startDrawing);
+    el.drawingCanvas.addEventListener('mousemove', draw);
+    el.drawingCanvas.addEventListener('mouseup', stopDrawing);
+    el.drawingCanvas.addEventListener('mouseleave', stopDrawing);
+
+    // Canvas drawing (Touch)
+    el.drawingCanvas.addEventListener('touchstart', (e) => {
+        startDrawing(e);
+        e.preventDefault();
+    }, { passive: false });
+    el.drawingCanvas.addEventListener('touchmove', (e) => {
+        draw(e);
+        e.preventDefault();
+    }, { passive: false });
+    el.drawingCanvas.addEventListener('touchend', (e) => {
+        stopDrawing();
+        e.preventDefault();
+    });
+
+    // Clear and insert actions
+    el.clearCanvasBtn.addEventListener('click', clearCanvas);
+    el.addCharBtn.addEventListener('click', () => {
+        const topChar = el.detectedLabel.textContent;
+        if (topChar && topChar !== '-') {
+            insertText(topChar);
+            clearCanvas();
         }
+    });
+
+    // Keyboard helper actions
+    el.btnSpace.addEventListener('click', () => insertText(' '));
+    el.btnBackspace.addEventListener('click', () => {
+        const text = el.textBuffer.textContent;
+        if (text.length > 0) {
+            el.textBuffer.textContent = text.slice(0, -1);
+        }
+    });
+    el.copyTextBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(el.textBuffer.textContent);
+        const originalText = el.copyTextBtn.textContent;
+        el.copyTextBtn.textContent = '복사됨!';
+        setTimeout(() => el.copyTextBtn.textContent = originalText, 1500);
+    });
+    el.clearTextBtn.addEventListener('click', () => {
+        el.textBuffer.textContent = '';
+    });
+
+    // Recognition Mode switching
+    el.btnModeSingle.addEventListener('click', () => {
+        state.canvasRecognitionMode = 'single';
+        el.btnModeSingle.classList.add('active');
+        el.btnModeMulti.classList.remove('active');
+        if (el.multiGapControl) el.multiGapControl.classList.add('hidden');
+        if (el.canvasPreviewPanel) el.canvasPreviewPanel.classList.add('hidden');
+        clearOverlay();
+        if (state.hasDrawn) runInferenceOnCanvas();
+    });
+    el.btnModeMulti.addEventListener('click', () => {
+        state.canvasRecognitionMode = 'multi';
+        el.btnModeMulti.classList.add('active');
+        el.btnModeSingle.classList.remove('active');
+        if (el.multiGapControl) el.multiGapControl.classList.remove('hidden');
+        if (el.canvasPreviewPanel) el.canvasPreviewPanel.classList.remove('hidden');
+        clearOverlay();
+        if (state.hasDrawn) runInferenceOnCanvas();
+    });
+
+    // Merge Gap Slider
+    if (el.gapSlider) {
+        el.gapSlider.addEventListener('input', (e) => {
+            state.canvasMergeGap = parseInt(e.target.value);
+            if (el.gapVal) el.gapVal.textContent = state.canvasMergeGap;
+        });
+        el.gapSlider.addEventListener('change', () => {
+            if (state.hasDrawn) runInferenceOnCanvas();
+        });
+    }
+
+    // Camera actions
+    el.startCamBtn.addEventListener('click', startWebcam);
+    el.stopCamBtn.addEventListener('click', stopWebcam);
+    el.thresholdSlider.addEventListener('input', (e) => {
+        state.threshold = parseInt(e.target.value);
+        el.thresholdVal.textContent = state.threshold;
+    });
+}
+
+function switchTab(mode) {
+    if (mode === state.currentMode) return;
+    
+    state.currentMode = mode;
+    clearPredictions();
+
+    if (mode === 'canvas') {
+        el.tabCanvas.classList.add('active');
+        el.tabCamera.classList.remove('active');
+        el.canvasArea.classList.remove('hidden');
+        el.canvasArea.classList.add('active');
+        el.cameraArea.classList.remove('active');
+        el.cameraArea.classList.add('hidden');
+        stopWebcam();
+        clearCanvas();
     } else {
-        normalized.set(features);
+        el.tabCamera.classList.add('active');
+        el.tabCanvas.classList.remove('active');
+        el.cameraArea.classList.remove('hidden');
+        el.cameraArea.classList.add('active');
+        el.canvasArea.classList.remove('active');
+        el.canvasArea.classList.add('hidden');
+    }
+}
+
+// Coordinate translation helper handling responsive canvas bounds and scaling
+function getCanvasCoords(e, canvas) {
+    const rect = canvas.getBoundingClientRect();
+    let clientX, clientY;
+    if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+    } else if (e.changedTouches && e.changedTouches.length > 0) {
+        clientX = e.changedTouches[0].clientX;
+        clientY = e.changedTouches[0].clientY;
+    } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
     }
     
-    // 2. Append to client sliding window buffer
-    const T = state.selectedModel === "mediapipe" ? 30 : 40;
-    if (state.inputMode === "image") {
-        // For static image, replicate normalized frame T times to fill buffer
-        state.clientSeqBuffer = [];
-        for (let i = 0; i < T; i++) {
-            state.clientSeqBuffer.push(normalized);
+    return {
+        x: (clientX - rect.left) * (canvas.width / rect.width),
+        y: (clientY - rect.top) * (canvas.height / rect.height)
+    };
+}
+
+// Drawing Logic
+function startDrawing(e) {
+    state.isDrawing = true;
+    state.hasDrawn = true;
+    const coords = getCanvasCoords(e, el.drawingCanvas);
+    state.lastX = coords.x;
+    state.lastY = coords.y;
+    clearOverlay();
+}
+
+function draw(e) {
+    if (!state.isDrawing) return;
+    const coords = getCanvasCoords(e, el.drawingCanvas);
+
+    ctx.beginPath();
+    ctx.moveTo(state.lastX, state.lastY);
+    ctx.lineTo(coords.x, coords.y);
+    ctx.stroke();
+
+    state.lastX = coords.x;
+    state.lastY = coords.y;
+}
+
+function stopDrawing() {
+    if (state.isDrawing) {
+        state.isDrawing = false;
+        runInferenceOnCanvas();
+    }
+}
+
+function insertText(text) {
+    if (el.textBuffer.textContent === '손글씨를 입력하면 여기에 텍스트가 완성됩니다.') {
+        el.textBuffer.textContent = '';
+    }
+    el.textBuffer.textContent += text;
+}
+
+// Vertical projection-based segmentation to support multiple characters side-by-side
+function segmentCanvas(canvas, mergeGapThreshold) {
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+    
+    // Get full canvas image data
+    const imgData = ctx.getImageData(0, 0, width, height);
+    
+    // 1. Calculate vertical projection (number of ink pixels in each column)
+    const projection = new Int32Array(width);
+    for (let x = 0; x < width; x++) {
+        let count = 0;
+        for (let y = 0; y < height; y++) {
+            const idx = (y * width + x) * 4;
+            const r = imgData.data[idx];
+            const g = imgData.data[idx + 1];
+            const b = imgData.data[idx + 2];
+            // Dark pixel check (ink)
+            if (r < 240 || g < 240 || b < 240) {
+                count++;
+            }
         }
-    } else {
-        state.clientSeqBuffer.push(normalized);
-        if (state.clientSeqBuffer.length > T) {
-            state.clientSeqBuffer.shift();
+        projection[x] = count;
+    }
+    
+    // 2. Find ink intervals
+    const minPixelThreshold = 1; // Ignore single-pixel noise
+    let intervals = [];
+    let inInterval = false;
+    let start = 0;
+    
+    for (let x = 0; x < width; x++) {
+        const isInk = projection[x] >= minPixelThreshold;
+        if (isInk && !inInterval) {
+            start = x;
+            inInterval = true;
+        } else if (!isInk && inInterval) {
+            intervals.push({ start, end: x - 1 });
+            inInterval = false;
+        }
+    }
+    if (inInterval) {
+        intervals.push({ start, end: width - 1 });
+    }
+    
+    if (intervals.length === 0) return [];
+    
+    // 3. Merge intervals separated by gaps smaller than mergeGapThreshold
+    // This groups strokes of the same character (e.g. 'ㅇ' and 'ㅣ' in '아')
+    let merged = [intervals[0]];
+    
+    for (let i = 1; i < intervals.length; i++) {
+        const prev = merged[merged.length - 1];
+        const curr = intervals[i];
+        const gap = curr.start - prev.end;
+        
+        if (gap <= mergeGapThreshold) {
+            prev.end = curr.end;
+        } else {
+            merged.push(curr);
         }
     }
     
-    // 3. Control inference interval (Ignore interval check in static image mode)
-    const now = performance.now();
-    const inferInterval = parseFloat(inferIntervalInput.value) || 0.1;
-    if (state.inputMode !== "image" && (now - state.clientLastInfer < inferInterval * 1000)) {
+    // 4. For each merged horizontal interval, find vertical bounds to crop tightly
+    let charBoxes = [];
+    merged.forEach(interval => {
+        let minY = height;
+        let maxY = 0;
+        let found = false;
+        
+        for (let x = interval.start; x <= interval.end; x++) {
+            for (let y = 0; y < height; y++) {
+                const idx = (y * width + x) * 4;
+                const r = imgData.data[idx];
+                const g = imgData.data[idx + 1];
+                const b = imgData.data[idx + 2];
+                if (r < 240 || g < 240 || b < 240) {
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                    found = true;
+                }
+            }
+        }
+        
+        if (found) {
+            // Add padding around bounds
+            const margin = 8;
+            minY = Math.max(0, minY - margin);
+            maxY = Math.min(height, maxY + margin);
+            const minX = Math.max(0, interval.start - margin);
+            const maxX = Math.min(width, interval.end + margin);
+            
+            charBoxes.push({ minX, maxX, minY, maxY });
+        }
+    });
+    
+    return charBoxes;
+}
+
+// Image Preprocessing & Inference
+async function runInferenceOnCanvas() {
+    if (!state.session || !state.idxToChar || !state.hasDrawn) return;
+
+    // Segment the drawing canvas into multiple character boxes
+    const rect = el.drawingCanvas.getBoundingClientRect();
+    const scaleFactor = rect.width ? (el.drawingCanvas.width / rect.width) : 1.0;
+    const mergeGapThreshold = state.canvasRecognitionMode === 'single' ? 9999 : (state.canvasMergeGap * scaleFactor);
+    
+    const charBoxes = segmentCanvas(el.drawingCanvas, mergeGapThreshold);
+    if (charBoxes.length === 0) {
+        clearPredictions();
+        clearOverlay();
         return;
     }
-    state.clientLastInfer = now;
     
-    // 4. Wait for minimum frames (default: 10)
-    const currentBufferLength = state.clientSeqBuffer.length;
-    if (currentBufferLength < 10) {
-        detectedLabel.textContent = "-";
-        confidenceLabel.textContent = "0%";
-        confidenceBar.style.width = "0%";
-        return;
+    let recognizedChars = [];
+    let multiCandidatesHTML = '';
+    const startOverallTime = performance.now();
+    
+    el.candidatesList.innerHTML = ''; // Clear candidates panel
+
+    // Show preview panel and clear it
+    if (el.canvasPreviewPanel) {
+        el.canvasPreviewPanel.classList.remove('hidden');
+    }
+
+    for (let c = 0; c < charBoxes.length; c++) {
+        const bounds = charBoxes[c];
+        
+        // Create temporary canvas for cropping and resizing
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = 64;
+        tempCanvas.height = 64;
+        const tCtx = tempCanvas.getContext('2d');
+        
+        // Fill white background
+        tCtx.fillStyle = '#FFFFFF';
+        tCtx.fillRect(0, 0, 64, 64);
+        
+        const srcWidth = bounds.maxX - bounds.minX;
+        const srcHeight = bounds.maxY - bounds.minY;
+        const maxLen = Math.max(srcWidth, srcHeight);
+        
+        // Dynamic Scaling to fix the stroke thickness and character size mismatch!
+        // We want stroke width in 64x64 to be ~2.8px (ideal training width).
+        // Since canvas stroke is 14px, the ideal scale is 2.8 / 14 = 0.20.
+        // We cap the maximum size to 44px (to ensure it fits within 64x64 with a margin),
+        // and cap the minimum size to 28px (so small drawings are legible).
+        let scale = 2.8 / 14; 
+        const targetSize = 44; 
+        if (maxLen * scale > targetSize) {
+            scale = targetSize / maxLen;
+        } else if (maxLen * scale < 28) {
+            scale = 28 / maxLen;
+        }
+        
+        const targetW = srcWidth * scale;
+        const targetH = srcHeight * scale;
+        const targetX = (64 - targetW) / 2;
+        const targetY = (64 - targetH) / 2;
+        
+        tCtx.drawImage(
+            el.drawingCanvas,
+            bounds.minX, bounds.minY, srcWidth, srcHeight, // Source
+            targetX, targetY, targetW, targetH // Destination
+        );
+
+        // Update the 64x64 preview canvas in the UI with the first character
+        if (c === 0 && el.drawingPreviewCanvas) {
+            const pCtx = el.drawingPreviewCanvas.getContext('2d');
+            pCtx.fillStyle = '#FFFFFF';
+            pCtx.fillRect(0, 0, 64, 64);
+            pCtx.drawImage(tempCanvas, 0, 0);
+        }
+
+        // Get 64x64 pixel data and convert to normalized float array [-1.0, 1.0]
+        const preprocData = tCtx.getImageData(0, 0, 64, 64);
+        const floatBuffer = new Float32Array(64 * 64);
+        for (let i = 0; i < 64 * 64; i++) {
+            const r = preprocData.data[i * 4];
+            const g = preprocData.data[i * 4 + 1];
+            const b = preprocData.data[i * 4 + 2];
+            const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+            floatBuffer[i] = (gray / 255.0 - 0.5) / 0.5;
+        }
+
+        // Run ONNX prediction
+        const tensor = new ort.Tensor('float32', floatBuffer, [1, 1, 64, 64]);
+        const results = await state.session.run({ input: tensor });
+        const output = results.output.data;
+        const top5 = getTopK(output, 5);
+        
+        const top1Char = state.idxToChar[top5[0].index];
+        recognizedChars.push(top1Char);
+        
+        // Build candidates list HTML
+        if (charBoxes.length > 1) {
+            multiCandidatesHTML += `
+                <div class="multi-char-candidates-group">
+                    <div class="multi-char-header">글자 ${c + 1} (${top1Char}) 후보군:</div>
+            `;
+        }
+        
+        top5.forEach((cand, rank) => {
+            const char = state.idxToChar[cand.index];
+            const probPercent = (cand.prob * 100).toFixed(1);
+            
+            if (charBoxes.length > 1) {
+                multiCandidatesHTML += `
+                    <div class="candidate-item" data-char="${char}">
+                        <span class="candidate-rank">${rank + 1}</span>
+                        <span class="candidate-char">${char}</span>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: ${probPercent}%"></div>
+                        </div>
+                        <span class="candidate-prob">${probPercent}%</span>
+                    </div>
+                `;
+            } else {
+                const item = document.createElement('div');
+                item.className = 'candidate-item';
+                item.innerHTML = `
+                    <span class="candidate-rank">${rank + 1}</span>
+                    <span class="candidate-char">${char}</span>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: ${probPercent}%"></div>
+                    </div>
+                    <span class="candidate-prob">${probPercent}%</span>
+                `;
+                item.addEventListener('click', () => {
+                    insertText(char);
+                    clearCanvas();
+                });
+                el.candidatesList.appendChild(item);
+            }
+        });
+        
+        if (charBoxes.length > 1) {
+            multiCandidatesHTML += `</div>`;
+        }
     }
     
-    // 5. Prepare input data with zero-padding if length < T
-    const inputData = new Float32Array(T * 959);
-    for (let i = 0; i < currentBufferLength; i++) {
-        inputData.set(state.clientSeqBuffer[i], i * 959);
-    }
+    // Performance display
+    const overallTime = performance.now() - startOverallTime;
+    el.inferenceTimeLabel.textContent = `${overallTime.toFixed(1)} ms`;
     
-    // 6. Run Session Inference
+    // Render overall string
+    const resultString = recognizedChars.join('');
+    el.detectedLabel.textContent = resultString;
+    
+    if (charBoxes.length > 1) {
+        el.candidatesList.innerHTML = multiCandidatesHTML;
+        
+        // Attach click triggers to multi-candidates
+        el.candidatesList.querySelectorAll('.candidate-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const char = item.getAttribute('data-char');
+                insertText(char);
+                clearCanvas();
+            });
+        });
+    }
+
+    // Draw the bounding boxes and their labels on the overlay canvas
+    drawBoundingBoxes(charBoxes, recognizedChars);
+}
+
+function drawBoundingBoxes(charBoxes, recognizedChars) {
+    clearOverlay();
+    if (!overlayCtx) return;
+    if (state.canvasRecognitionMode === 'single') return; // In single mode, don't draw bounding box to avoid clutter
+    
+    charBoxes.forEach((box, idx) => {
+        // Draw bounding box rectangle
+        overlayCtx.strokeStyle = 'rgba(59, 130, 246, 0.8)'; // sleek blue with opacity
+        overlayCtx.lineWidth = 2;
+        overlayCtx.strokeRect(box.minX, box.minY, box.maxX - box.minX, box.maxY - box.minY);
+        
+        // Draw a subtle background for the box
+        overlayCtx.fillStyle = 'rgba(59, 130, 246, 0.05)';
+        overlayCtx.fillRect(box.minX, box.minY, box.maxX - box.minX, box.maxY - box.minY);
+        
+        // Draw text label (Character index + prediction if available)
+        const predChar = recognizedChars && recognizedChars[idx] ? recognizedChars[idx] : `글자 ${idx + 1}`;
+        overlayCtx.fillStyle = '#3b82f6';
+        overlayCtx.font = 'bold 12px sans-serif';
+        overlayCtx.textBaseline = 'bottom';
+        
+        // Background for the label text
+        const textWidth = overlayCtx.measureText(predChar).width;
+        overlayCtx.fillStyle = 'rgba(10, 12, 22, 0.8)';
+        overlayCtx.fillRect(box.minX, Math.max(0, box.minY - 18), textWidth + 10, 18);
+        
+        // Label border
+        overlayCtx.strokeStyle = 'rgba(59, 130, 246, 0.4)';
+        overlayCtx.strokeRect(box.minX, Math.max(0, box.minY - 18), textWidth + 10, 18);
+        
+        // Draw the text
+        overlayCtx.fillStyle = '#60a5fa';
+        overlayCtx.fillText(predChar, box.minX + 5, Math.max(0, box.minY - 3));
+    });
+}
+
+// Prediction executor
+async function predict(inputData) {
     const startTime = performance.now();
     try {
-        const tensor = new ort.Tensor('float32', inputData, [1, T, 959]);
-        const runResults = await state.clientSession.run({ input: tensor });
-        const outputTensor = runResults.output;
-        const outputData = outputTensor.data; // Float32Array of logits
+        // Create ONNX tensor: shape [1, 1, 64, 64]
+        const tensor = new ort.Tensor('float32', inputData, [1, 1, 64, 64]);
         
-        const runLatency = performance.now() - startTime;
-        latencyLabel.textContent = Math.round(runLatency);
+        // Run inference
+        const results = await state.session.run({ input: tensor });
+        const output = results.output.data; // Float32 logits of size 2350
         
-        // 7. Softmax and Argmax
-        let maxIdx = 0;
-        let maxLogit = outputData[0];
-        for (let i = 1; i < outputData.length; i++) {
-            if (outputData[i] > maxLogit) {
-                maxLogit = outputData[i];
-                maxIdx = i;
-            }
-        }
+        // Compute softmax or simple argmax/topk
+        const top5 = getTopK(output, 5);
         
-        // Logsumexp trick to avoid numerical overflow during Softmax
-        let sumExp = 0.0;
-        for (let i = 0; i < outputData.length; i++) {
-            sumExp += Math.exp(outputData[i] - maxLogit);
-        }
-        const conf = 1.0 / sumExp;
+        const inferTime = performance.now() - startTime;
+        el.inferenceTimeLabel.textContent = `${inferTime.toFixed(1)} ms`;
+
+        // Render top-1 result
+        const top1Char = state.idxToChar[top5[0].index];
+        el.detectedLabel.textContent = top1Char;
         
-        const label = state.clientLabels[maxIdx] || "-";
-        
-        // 8. Update UI displays
-        detectedLabel.textContent = label;
-        confidenceLabel.textContent = `${Math.round(conf * 100)}%`;
-        confidenceBar.style.width = `${Math.round(conf * 100)}%`;
-        
-        // Set Quantization label to show active ONNX state
-        quantizationLabel.textContent = `ONNX (WASM)`;
-        
-        // 9. Stable prediction voting
-        const voteSize = parseInt(voteSizeInput.value) || 10;
-        if (state.inputMode === "image") {
-            state.clientVoteBuffer = Array(voteSize).fill(maxIdx);
-        } else {
-            state.clientVoteBuffer.push(maxIdx);
-            if (state.clientVoteBuffer.length > voteSize) {
-                state.clientVoteBuffer.shift();
-            }
-        }
-        
-        // Count votes in buffer
-        const counts = {};
-        let topIdx = maxIdx;
-        let topCount = 0;
-        for (let idx of state.clientVoteBuffer) {
-            counts[idx] = (counts[idx] || 0) + 1;
-            if (counts[idx] > topCount) {
-                topCount = counts[idx];
-                topIdx = idx;
-            }
-        }
-        
-        // Emit stable label based on filters
-        const minVotes = parseInt(minVotesInput.value) || 6;
-        const minConf = parseFloat(minConfInput.value) || 0.3;
-        const minGap = parseFloat(minGapInput.value) || 1.0;
-        
-        if (conf >= minConf && topCount >= minVotes) {
-            const timeSinceLastEmit = (startTime - state.clientLastEmit) / 1000;
-            if (state.inputMode === "image" || timeSinceLastEmit >= minGap) {
-                const stableLabel = state.clientLabels[topIdx];
-                if (stableLabel && stableLabel !== "-" && stableLabel !== "") {
-                    stableResult.textContent = stableLabel;
-                    stableResult.style.color = "var(--success-color)";
-                    stableResult.style.transform = "scale(1.15)";
-                    setTimeout(() => { stableResult.style.transform = "scale(1)"; }, 150);
-                    
-                    state.sentenceBuffer.push(stableLabel);
-                    updateSentenceBufferUI();
-                    state.clientLastEmit = startTime;
+        // Render top-5 lists
+        el.candidatesList.innerHTML = '';
+        top5.forEach((cand, rank) => {
+            const char = state.idxToChar[cand.index];
+            const probPercent = (cand.prob * 100).toFixed(1);
+            
+            const item = document.createElement('div');
+            item.className = 'candidate-item';
+            item.innerHTML = `
+                <span class="candidate-rank">${rank + 1}</span>
+                <span class="candidate-char">${char}</span>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: ${probPercent}%"></div>
+                </div>
+                <span class="candidate-prob">${probPercent}%</span>
+            `;
+            
+            // Add click support to manually override or insert the candidate
+            item.addEventListener('click', () => {
+                insertText(char);
+                if (state.currentMode === 'canvas') {
+                    clearCanvas();
                 }
-            }
-        }
+            });
+            el.candidatesList.appendChild(item);
+        });
+
     } catch (e) {
-        console.error("ONNX Inference runtime error:", e);
-    }
-    
-    // FPS Calculation for Client (or Image Mode special termination)
-    if (state.inputMode === "image") {
-        stopStreaming();
-        stableResult.textContent = `${stableResult.textContent} (분석 완료)`;
-        stableResult.style.color = "var(--success-color)";
-    } else {
-        const frameTime = now - state.clientLastFrameTime;
-        state.clientLastFrameTime = now;
-        if (frameTime > 0) {
-            state.clientFpsHistory.push(1000.0 / frameTime);
-            if (state.clientFpsHistory.length > 30) {
-                state.clientFpsHistory.shift();
-            }
-            const fps = state.clientFpsHistory.reduce((a, b) => a + b, 0) / state.clientFpsHistory.length;
-            fpsLabel.textContent = fps.toFixed(1);
-        }
+        console.error("Prediction error:", e);
     }
 }
 
-// Load Client ONNX Model Session and assets
-async function loadClientModelIfNeeded() {
-    const modelName = state.selectedModel;
-    const source = state.modelSource;
-    const username = hfUsernameInput.value.trim() || "gyann";
+// Helper to compute Softmax and Top-K
+function getTopK(logits, k) {
+    // Convert Float32Array to regular JavaScript array to allow mapping to objects
+    const logitsArray = Array.from(logits);
     
-    const configKey = `${modelName}_${source}_${username}`;
-    
-    if (state.loadedConfigKey === configKey && state.clientSession) {
-        modelStatusDot.className = "status-indicator-dot green";
-        modelStatusText.textContent = "엔진 로드 완료";
-        return;
+    // Calculate max logit manually to avoid stack size limits with Math.max(...logits)
+    let maxLogit = -Infinity;
+    for (let i = 0; i < logitsArray.length; i++) {
+        if (logitsArray[i] > maxLogit) {
+            maxLogit = logitsArray[i];
+        }
     }
     
-    if (state.isModelLoading) return;
-    state.isModelLoading = true;
+    // Softmax
+    const exps = logitsArray.map(x => Math.exp(x - maxLogit));
+    const sumExps = exps.reduce((a, b) => a + b, 0);
+    const probs = exps.map(x => x / (sumExps || 1)); // prevent division by zero
     
-    modelStatusDot.className = "status-indicator-dot orange";
-    modelStatusText.textContent = "모델 로드 중... (시간이 걸릴 수 있습니다)";
+    // Map to { prob, index } objects and sort
+    const probIndices = probs.map((prob, index) => ({ prob, index }));
+    probIndices.sort((a, b) => b.prob - a.prob);
     
-    try {
-        if (!window.EDGE_SIGN_CONFIG) {
-            throw new Error("config.js 설정을 불러올 수 없습니다.");
-        }
-        
-        const config = window.EDGE_SIGN_CONFIG[modelName];
-        let modelUrl, labelsUrl, statsUrl;
-        
-        if (source === "local") {
-            modelUrl = config.localModelUrl;
-            labelsUrl = config.localLabelsUrl;
-            statsUrl = config.localStatsUrl || null;
-        } else {
-            const repoUrl = `https://huggingface.co/${username}/${config.hfRepo}/resolve/${config.hfRevision}`;
-            modelUrl = `${repoUrl}/${config.modelFile}`;
-            labelsUrl = `${repoUrl}/${config.labelsFile}`;
-            statsUrl = config.statsFile ? `${repoUrl}/${config.statsFile}` : null;
-        }
-        
-        console.log(`[ONNX Load] Source: ${source}`);
-        console.log(`[ONNX Load] Fetching labels from: ${labelsUrl}`);
-        const labelsResponse = await fetch(labelsUrl);
-        if (!labelsResponse.ok) throw new Error(`Labels 파일 로드 실패: ${labelsResponse.statusText}`);
-        state.clientLabels = await labelsResponse.json();
-        
-        if (statsUrl) {
-            console.log(`[ONNX Load] Fetching normalisation stats from: ${statsUrl}`);
-            const statsResponse = await fetch(statsUrl);
-            if (!statsResponse.ok) throw new Error(`Stats 파일 로드 실패: ${statsResponse.statusText}`);
-            state.clientStats = await statsResponse.json();
-        } else {
-            state.clientStats = null;
-        }
-        
-        console.log(`[ONNX Load] Fetching ONNX model binary from: ${modelUrl}`);
-        modelStatusText.textContent = "모델 본체 다운로드 중...";
-        const modelResponse = await fetch(modelUrl);
-        if (!modelResponse.ok) throw new Error(`Model 파일 로드 실패: ${modelResponse.statusText}`);
-        const modelBuffer = await modelResponse.arrayBuffer();
+    return probIndices.slice(0, k);
+}
 
-        // Check and fetch external data (.data) if it exists
-        const dataUrl = `${modelUrl}.data`;
-        let sessionOptions = {};
+// Webcam Logic
+async function startWebcam() {
+    try {
+        el.startCamBtn.disabled = true;
+        const constraints = {
+            video: {
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+                facingMode: 'environment' // Rear camera on mobile
+            },
+            audio: false
+        };
         
-        try {
-            modelStatusText.textContent = "외부 데이터 체크 중...";
-            const dataResponse = await fetch(dataUrl, { method: 'HEAD' });
-            if (dataResponse.ok) {
-                console.log(`[ONNX Load] External data found. Fetching from: ${dataUrl}`);
-                modelStatusText.textContent = "가중치 데이터(.data) 다운로드 중...";
-                const dataFetch = await fetch(dataUrl);
-                const dataBuffer = await dataFetch.arrayBuffer();
-                
-                // path MUST EXACTLY MATCH the external data path saved in the ONNX file
-                sessionOptions.externalData = [
-                    {
-                        data: new Uint8Array(dataBuffer),
-                        path: `${config.modelFile}.data`
-                    }
-                ];
-            } else {
-                console.log(`[ONNX Load] No external data file found (HTTP ${dataResponse.status}).`);
-            }
-        } catch (e) {
-            console.log(`[ONNX Load] External data check error: ${e.message}. Proceeding without it.`);
+        state.webcamStream = await navigator.mediaDevices.getUserMedia(constraints);
+        el.webcamVideo.srcObject = state.webcamStream;
+        el.stopCamBtn.disabled = false;
+        
+        // Start process loop
+        processCameraFrame();
+        
+    } catch (e) {
+        console.error("Error opening camera:", e);
+        alert("카메라를 열 수 없습니다. 권한을 확인해주세요.");
+        el.startCamBtn.disabled = false;
+    }
+}
+
+function stopWebcam() {
+    if (state.cameraAnimId) {
+        cancelAnimationFrame(state.cameraAnimId);
+        state.cameraAnimId = null;
+    }
+    if (state.webcamStream) {
+        state.webcamStream.getTracks().forEach(track => track.stop());
+        state.webcamStream = null;
+    }
+    el.webcamVideo.srcObject = null;
+    el.startCamBtn.disabled = false;
+    el.stopCamBtn.disabled = true;
+}
+
+function processCameraFrame() {
+    if (!state.webcamStream || el.webcamVideo.paused || el.webcamVideo.ended) {
+        state.cameraAnimId = requestAnimationFrame(processCameraFrame);
+        return;
+    }
+
+    // Sync overlay canvas size
+    const vW = el.webcamVideo.videoWidth;
+    const vH = el.webcamVideo.videoHeight;
+    
+    if (vW > 0 && vH > 0) {
+        if (el.cameraOverlayCanvas.width !== vW || el.cameraOverlayCanvas.height !== vH) {
+            el.cameraOverlayCanvas.width = vW;
+            el.cameraOverlayCanvas.height = vH;
+        }
+
+        const oCtx = el.cameraOverlayCanvas.getContext('2d');
+        oCtx.clearRect(0, 0, vW, vH);
+        
+        // Calculate crop box in video coordinate space
+        // Typically a square centered in the frame
+        const boxSize = Math.min(vW, vH) * 0.5; // 50% of the smallest dimension
+        const boxX = (vW - boxSize) / 2;
+        const boxY = (vH - boxSize) / 2;
+        
+        // 1. Draw target box overlay on screen
+        oCtx.strokeStyle = '#3b82f6';
+        oCtx.lineWidth = 4;
+        oCtx.strokeRect(boxX, boxY, boxSize, boxSize);
+        
+        // Add corner ticks
+        oCtx.fillStyle = '#3b82f6';
+        const tick = 20;
+        oCtx.fillRect(boxX - 2, boxY - 2, tick, 6);
+        oCtx.fillRect(boxX - 2, boxY - 2, 6, tick);
+        oCtx.fillRect(boxX + boxSize - tick + 2, boxY - 2, tick, 6);
+        oCtx.fillRect(boxX + boxSize - 4, boxY - 2, 6, tick);
+        oCtx.fillRect(boxX - 2, boxY + boxSize - 4, tick, 6);
+        oCtx.fillRect(boxX - 2, boxY + boxSize - tick + 2, 6, tick);
+        oCtx.fillRect(boxX + boxSize - tick + 2, boxY + boxSize - 4, tick, 6);
+        oCtx.fillRect(boxX + boxSize - 4, boxY + boxSize - tick + 2, 6, tick);
+
+        // 2. Extract cropped area and apply thresholding for inference
+        const cropCanvas = document.createElement('canvas');
+        cropCanvas.width = 64;
+        cropCanvas.height = 64;
+        const cCtx = cropCanvas.getContext('2d');
+        
+        // Draw cropped area into 64x64
+        cCtx.drawImage(el.webcamVideo, boxX, boxY, boxSize, boxSize, 0, 0, 64, 64);
+        
+        const cropImgData = cCtx.getImageData(0, 0, 64, 64);
+        const floatBuffer = new Float32Array(64 * 64);
+        
+        // Thresholding Preview Canvas context
+        const pCtx = el.thresholdPreviewCanvas.getContext('2d');
+        const pImgData = pCtx.createImageData(64, 64);
+
+        // Apply thresholding filter (grayscale -> binary white/black)
+        for (let i = 0; i < 64 * 64; i++) {
+            const idx = i * 4;
+            const r = cropImgData.data[idx];
+            const g = cropImgData.data[idx + 1];
+            const b = cropImgData.data[idx + 2];
+            const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+            
+            // If the luminance is below threshold, it's black (ink), otherwise white (paper background)
+            const binaryVal = gray < state.threshold ? 0 : 255;
+            
+            // Fill preview image
+            pImgData.data[idx] = binaryVal;
+            pImgData.data[idx + 1] = binaryVal;
+            pImgData.data[idx + 2] = binaryVal;
+            pImgData.data[idx + 3] = 255; // Alpha
+            
+            // Normalize: (binaryVal / 255.0 - 0.5) / 0.5
+            floatBuffer[i] = (binaryVal / 255.0 - 0.5) / 0.5;
         }
         
-        // Configure ONNX Runtime to use WASM with multi-threading
-        ort.env.wasm.numThreads = 4;
+        // Draw binary preview on screen
+        pCtx.putImageData(pImgData, 0, 0);
+
+        // Run prediction
+        if (state.session && state.idxToChar) {
+            predict(floatBuffer);
+        }
+    }
+    
+    // Loop
+    state.cameraAnimId = requestAnimationFrame(processCameraFrame);
+}
+
+// Load Model and Data
+async function loadModelAndData() {
+    try {
+        console.log("Loading mapping and model...");
+        el.modelStatusText.textContent = '인덱스 맵 로딩 중...';
+
+        // 1. Fetch idx_to_char map
+        const mapRes = await fetch('idx_to_char.json');
+        state.idxToChar = await mapRes.json();
         
-        modelStatusText.textContent = "ONNX 엔진 초기화 및 컴파일 중...";
-        state.clientSession = await ort.InferenceSession.create(modelBuffer, sessionOptions);
-        console.log("[ONNX Load] InferenceSession created successfully!");
-        
-        state.loadedConfigKey = configKey;
-        modelStatusDot.className = "status-indicator-dot green";
-        modelStatusText.textContent = "엔진 로드 완료 (준비됨)";
-    } catch (err) {
-        console.error("[ONNX Load] Error loading assets:", err);
-        modelStatusDot.className = "status-indicator-dot red";
-        modelStatusText.textContent = `로드 실패: ${err.message}`;
-        state.clientSession = null;
-        state.clientLabels = null;
-        state.clientStats = null;
-        state.loadedConfigKey = null;
-    } finally {
+        // 2. Fetch quantized ONNX model
+        el.modelStatusText.textContent = 'ONNX 모델 로딩 중...';
+        state.session = await ort.InferenceSession.create('korean_ocr_quant.onnx', {
+            executionProviders: ['wasm'] // Use WebAssembly for on-device inference
+        });
+
+        console.log("Model loaded successfully!");
         state.isModelLoading = false;
-    }
-}
-
-// Set Active Execution Mode (Server or Client)
-function setExecutionMode(mode) {
-    state.executionMode = mode;
-    
-    if (state.isStreaming) {
-        stopStreaming();
-    }
-    
-    if (mode === "server") {
-        modeServer.classList.add("active");
-        modeClient.classList.remove("active");
-        wsSettingsGroup.style.display = "block";
-        clientSettingsGroup.style.display = "none";
-        hfUsernameGroup.style.display = "none";
-        modelStatusGroup.style.display = "none";
-        wsStatusBadge.style.display = "flex";
         
-        const suffix = state.selectedModel === "mediapipe" ? " (MeanStd)" : " (Raw)";
-        quantizationLabel.textContent = "FP32" + suffix;
-    } else {
-        modeServer.classList.remove("active");
-        modeClient.classList.add("active");
-        wsSettingsGroup.style.display = "none";
-        clientSettingsGroup.style.display = "block";
+        // Update badge UI
+        el.modelStatusBadge.classList.remove('disconnected');
+        el.modelStatusBadge.classList.add('connected');
+        el.modelStatusText.textContent = '준비 완료 (On-Device)';
         
-        if (state.modelSource === "hf") {
-            hfUsernameGroup.style.display = "block";
-        } else {
-            hfUsernameGroup.style.display = "none";
-        }
-        modelStatusGroup.style.display = "block";
-        wsStatusBadge.style.display = "none"; // Hide WebSocket badge in client mode
+        // Initial drawing canvas setup
+        clearCanvas();
         
-        quantizationLabel.textContent = "ONNX (WASM)";
-        loadClientModelIfNeeded();
-    }
-}
-
-// Set Active Model Source (Local folder or Hugging Face Hub)
-function setModelSource(source) {
-    state.modelSource = source;
-    
-    if (source === "local") {
-        sourceLocal.classList.add("active");
-        sourceHf.classList.remove("active");
-        hfUsernameGroup.style.display = "none";
-    } else {
-        sourceLocal.classList.remove("active");
-        sourceHf.classList.add("active");
-        hfUsernameGroup.style.display = "block";
-    }
-    
-    if (state.executionMode === "client") {
-        loadClientModelIfNeeded();
-    }
-}
-
-// Initialize and Start camera & connection
-// Video Frame Processing Loop (for uploaded video files)
-async function processVideoFrames() {
-    if (!state.isStreaming || uploadVideo.paused || uploadVideo.ended) {
-        if (uploadVideo.ended) {
-            stopStreaming();
-            stableResult.textContent = "분석 완료 (동영상 재생 끝)";
-            stableResult.style.color = "var(--success-color)";
-        }
-        return;
-    }
-    try {
-        if (state.holistic) {
-            await state.holistic.send({ image: uploadVideo });
-        }
     } catch (e) {
-        console.error("비디오 프레임 처리 오류:", e);
-    }
-    
-    if (state.isStreaming) {
-        if (uploadVideo.requestVideoFrameCallback) {
-            state.videoTimerId = uploadVideo.requestVideoFrameCallback(processVideoFrames);
-        } else {
-            state.videoTimerId = setTimeout(processVideoFrames, 1000 / 30); // Fallback to 30 FPS
-        }
+        console.error("Failed to load model/data:", e);
+        el.modelStatusText.textContent = '로딩 에러 (오류 발생)';
+        alert("모델을 불러오는데 실패했습니다. idx_to_char.json 및 korean_ocr_quant.onnx가 올바른 위치에 있는지 확인해주세요.");
     }
 }
 
-// Static Image Processing
-async function processStaticImage() {
-    if (!state.holistic) return;
-    loadingOverlay.classList.remove("hidden");
-    loadingOverlayText.textContent = "이미지 분석 중...";
-    try {
-        // Ensure image is loaded fully before MediaPipe runs
-        if (uploadImage.complete) {
-            await state.holistic.send({ image: uploadImage });
-        } else {
-            uploadImage.onload = async () => {
-                await state.holistic.send({ image: uploadImage });
-                loadingOverlay.classList.add("hidden");
-            };
-            return;
-        }
-    } catch (e) {
-        console.error("이미지 분석 오류:", e);
-        alert(`이미지 분석 실패: ${e.message}`);
-    } finally {
-        loadingOverlay.classList.add("hidden");
-    }
-}
-
-// Initialize and Start camera/file & connection
-async function startStreaming() {
-    // Client-side ONNX mode check
-    if (state.executionMode === "client" && !state.clientSession) {
-        if (state.isModelLoading) {
-            console.log("모델이 아직 다운로드 중입니다. 잠시만 기다려주세요.");
-        } else {
-            alert("모델 로드에 실패했습니다. 설정을 확인해주세요.");
-            resetUI();
-            return;
-        }
-    }
-
-    // Input mode file validations
-    if (state.inputMode === "video" && !state.uploadedFile) {
-        alert("분석할 동영상 파일을 먼저 업로드해주세요.");
-        return;
-    }
-    if (state.inputMode === "image" && !state.uploadedFile) {
-        alert("분석할 이미지 파일을 먼저 업로드해주세요.");
-        return;
-    }
-
-    startBtn.disabled = true;
-    tabMediapipe.disabled = true;
-    tabLandmark.disabled = true;
-    loadingOverlay.classList.remove("hidden");
-
-    state.isStreaming = true;
-    stopBtn.disabled = false;
-    stableResult.textContent = "분석 준비 중...";
-
-    // Clear sequences/buffers
-    state.clientSeqBuffer = [];
-    state.clientVoteBuffer = [];
-    state.clientLastEmit = 0;
-    state.clientLastInfer = 0;
-    state.clientLastFrameTime = performance.now();
-    state.clientFpsHistory = [];
-    state.noHandFrames = 0;
-
-    // Initialize MediaPipe Holistic (if not done)
-    if (!state.holistic) {
-        state.loadingMP = true;
-        state.holistic = new Holistic({
-            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`
-        });
-
-        state.holistic.setOptions({
-            modelComplexity: 1,
-            smoothLandmarks: true,
-            refineFaceLandmarks: false,
-            minDetectionConfidence: 0.5,
-            minTrackingConfidence: 0.5
-        });
-
-        state.holistic.onResults(onResults);
-        state.loadingMP = false;
-    }
-
-    // Mirroring classes
-    if (state.inputMode === "camera") {
-        canvasEl.classList.add("mirror");
-    } else {
-        canvasEl.classList.remove("mirror");
-    }
-
-    // Split based on input modes
-    if (state.inputMode === "camera") {
-        // --- WebCam Stream Mode ---
-        if (state.executionMode === "server") {
-            // Server WebSocket initialization
-            const wsUrl = wsUrlInput.value.trim();
-            if (!wsUrl) {
-                alert("WebSocket URL을 정확히 입력해주세요.");
-                resetUI();
-                return;
-            }
-            const queryParams = new URLSearchParams({
-                window_size: windowSizeInput.value,
-                vote_size: voteSizeInput.value,
-                min_votes: minVotesInput.value,
-                min_conf: minConfInput.value,
-                min_gap: minGapInput.value,
-                infer_interval: inferIntervalInput.value
-            });
-            const fullWsUrl = `${wsUrl}?${queryParams.toString()}`;
-            console.log(`Connecting to: ${fullWsUrl}`);
-
-            try {
-                state.ws = new WebSocket(fullWsUrl);
-                state.ws.binaryType = "arraybuffer";
-            } catch (e) {
-                alert(`WebSocket 연결에 실패했습니다: ${e.message}`);
-                resetUI();
-                return;
-            }
-
-            state.ws.onopen = () => {
-                wsStatusBadge.className = "status-badge connected";
-                wsStatusText.textContent = "연결됨";
-                stableResult.textContent = "카메라 준비 중...";
-            };
-
-            state.ws.onmessage = (event) => {
-                const receiveTime = performance.now();
-                const sendTime = state.sentTimestamps.shift();
-                if (sendTime) {
-                    const latency = receiveTime - sendTime;
-                    latencyLabel.textContent = Math.round(latency);
-                }
-
-                try {
-                    const payload = JSON.parse(event.data);
-                    detectedLabel.textContent = payload.label || "-";
-                    const conf = payload.confidence || 0.0;
-                    confidenceLabel.textContent = `${Math.round(conf * 100)}%`;
-                    confidenceBar.style.width = `${Math.round(conf * 100)}%`;
-                    fpsLabel.textContent = payload.fps ? payload.fps.toFixed(1) : "0.0";
-
-                    if (payload.quantized !== undefined) {
-                        const qType = payload.quantized ? "W8A8" : "FP32";
-                        const suffix = state.selectedModel === "mediapipe" ? " (MeanStd)" : " (Raw)";
-                        quantizationLabel.textContent = qType + suffix;
-                    }
-
-                    if (payload.stable && payload.stable !== "-" && payload.stable !== "") {
-                        stableResult.textContent = payload.stable;
-                        stableResult.style.color = "var(--success-color)";
-                        stableResult.style.transform = "scale(1.15)";
-                        setTimeout(() => { stableResult.style.transform = "scale(1)"; }, 150);
-                        state.sentenceBuffer.push(payload.stable);
-                        updateSentenceBufferUI();
-                    }
-                } catch (e) {
-                    console.error("WebSocket 메시지 파싱 에러:", e);
-                }
-            };
-
-            state.ws.onclose = () => {
-                console.log("WebSocket 연결 종료됨.");
-                stopStreaming();
-            };
-        }
-
-        if (!state.camera) {
-            state.camera = new Camera(videoEl, {
-                onFrame: async () => {
-                    if (state.isStreaming && state.holistic) {
-                        await state.holistic.send({ image: videoEl });
-                    }
-                },
-                width: 640,
-                height: 480
-            });
-
-            try {
-                await state.camera.start();
-                loadingOverlay.classList.add("hidden");
-                stableResult.textContent = "동작을 시작하세요!";
-            } catch (err) {
-                alert(`카메라 스트림 시작 실패: ${err.message}`);
-                stopStreaming();
-            }
-        } else {
-            loadingOverlay.classList.add("hidden");
-            stableResult.textContent = "동작을 시작하세요!";
-        }
-    } else if (state.inputMode === "video") {
-        // --- Video File Stream Mode ---
-        loadingOverlay.classList.add("hidden");
-        stableResult.textContent = "동영상 분석 재생 중...";
-        
-        uploadVideo.currentTime = 0;
-        uploadVideo.play().then(() => {
-            if (uploadVideo.requestVideoFrameCallback) {
-                state.videoTimerId = uploadVideo.requestVideoFrameCallback(processVideoFrames);
-            } else {
-                state.videoTimerId = setTimeout(processVideoFrames, 1000 / 30);
-            }
-        }).catch(err => {
-            alert(`동영상 자동 재생 실패: ${err.message}`);
-            stopStreaming();
-        });
-    } else if (state.inputMode === "image") {
-        // --- Image File Static Mode ---
-        loadingOverlay.classList.add("hidden");
-        stableResult.textContent = "이미지 단일 프레임 분석 중...";
-        await processStaticImage();
-    }
-}
-
-function stopStreaming() {
-    state.isStreaming = false;
-    
-    if (state.ws) {
-        state.ws.close();
-        state.ws = null;
-    }
-    if (state.camera) {
-        state.camera.stop();
-        state.camera = null;
-    }
-    if (uploadVideo) {
-        uploadVideo.pause();
-    }
-    if (state.videoTimerId) {
-        if (uploadVideo.cancelVideoFrameCallback) {
-            uploadVideo.cancelVideoFrameCallback(state.videoTimerId);
-        } else {
-            clearTimeout(state.videoTimerId);
-        }
-        state.videoTimerId = null;
-    }
-
-    resetUI();
-}
-
-function resetUI() {
-    startBtn.disabled = false;
-    stopBtn.disabled = true;
-    tabMediapipe.disabled = false;
-    tabLandmark.disabled = false;
-    loadingOverlay.classList.add("hidden");
-
-    wsStatusBadge.className = "status-badge disconnected";
-    wsStatusText.textContent = "연결 끊김";
-    
-    detectedLabel.textContent = "-";
-    confidenceLabel.textContent = "0%";
-    confidenceBar.style.width = "0%";
-    
-    if (state.inputMode === "camera") {
-        stableResult.textContent = "대기 중...";
-        canvasCtx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-    } else {
-        stableResult.textContent = "분석 대기 중";
-        if (state.uploadedFile) {
-            redrawUploadedMedia();
-        } else {
-            canvasCtx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        }
-    }
-    
-    fpsLabel.textContent = "0.0";
-    latencyLabel.textContent = "0";
-    updateStartButtonText();
-}
-
-function redrawUploadedMedia() {
-    canvasCtx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-    if (state.inputMode === "image" && uploadImage.src) {
-        canvasCtx.drawImage(uploadImage, 0, 0, canvasEl.width, canvasEl.height);
-    } else if (state.inputMode === "video" && uploadVideo.src) {
-        canvasCtx.drawImage(uploadVideo, 0, 0, canvasEl.width, canvasEl.height);
-    }
-}
-
-function updateStartButtonText() {
-    if (state.inputMode === "camera") {
-        startBtn.innerHTML = `<span class="btn-icon">▶</span> 실시간 인식 시작`;
-    } else if (state.inputMode === "video") {
-        startBtn.innerHTML = `<span class="btn-icon">▶</span> 동영상 분석 시작`;
-    } else if (state.inputMode === "image") {
-        startBtn.innerHTML = `<span class="btn-icon">▶</span> 이미지 분석 시작`;
-    }
-}
-
-function updateSentenceBufferUI() {
-    if (state.sentenceBuffer.length === 0) {
-        sentenceBufferEl.textContent = "동작을 시작하면 여기에 수어 단어가 누적되어 문장으로 표현됩니다.";
-        sentenceBufferEl.style.color = "var(--text-muted)";
-    } else {
-        sentenceBufferEl.textContent = state.sentenceBuffer.join(" ");
-        sentenceBufferEl.style.color = "#fff";
-        sentenceBufferEl.scrollTop = sentenceBufferEl.scrollHeight;
-    }
-}
-
-// Input Mode Switches Handler
-function setInputMode(mode) {
-    if (state.isStreaming) {
-        stopStreaming();
-    }
-    
-    state.inputMode = mode;
-    
-    // Manage switcher button states
-    inputModeCamera.classList.toggle("active", mode === "camera");
-    inputModeVideo.classList.toggle("active", mode === "video");
-    inputModeImage.classList.toggle("active", mode === "image");
-    
-    // Revoke previous URL to release memory
-    if (state.uploadedFileUrl) {
-        URL.revokeObjectURL(state.uploadedFileUrl);
-    }
-    state.uploadedFile = null;
-    state.uploadedFileUrl = null;
-    mediaFileInput.value = "";
-    
-    // Manage visibility
-    if (mode === "camera") {
-        uploadZone.classList.add("hidden");
-        videoEl.style.display = "block";
-    } else {
-        uploadZone.classList.remove("hidden");
-        videoEl.style.display = "none";
-        
-        if (mode === "video") {
-            mediaFileInput.accept = "video/*";
-            uploadZone.querySelector(".upload-title").textContent = "비디오 파일을 드래그하거나 클릭하여 업로드";
-            uploadZone.querySelector(".upload-subtitle").textContent = "지원 형식: MP4, MOV, WebM";
-        } else {
-            mediaFileInput.accept = "image/*";
-            uploadZone.querySelector(".upload-title").textContent = "이미지 파일을 드래그하거나 클릭하여 업로드";
-            uploadZone.querySelector(".upload-subtitle").textContent = "지원 형식: PNG, JPG, JPEG";
-        }
-    }
-    
-    resetUI();
-}
-
-// Load chosen video/image file into memory
-function handleMediaFile(file) {
-    if (!file) return;
-    
-    if (state.inputMode === "video" && !file.type.startsWith("video/")) {
-        alert("올바른 동영상 파일을 선택해주세요.");
-        return;
-    }
-    if (state.inputMode === "image" && !file.type.startsWith("image/")) {
-        alert("올바른 이미지 파일을 선택해주세요.");
-        return;
-    }
-    
-    state.uploadedFile = file;
-    state.uploadedFileUrl = URL.createObjectURL(file);
-    
-    uploadZone.classList.add("hidden");
-    loadingOverlay.classList.remove("hidden");
-    loadingOverlayText.textContent = "미디어 파일 로드 중...";
-    
-    if (state.inputMode === "video") {
-        uploadVideo.src = state.uploadedFileUrl;
-        uploadVideo.load();
-        uploadVideo.onloadeddata = () => {
-            loadingOverlay.classList.add("hidden");
-            redrawUploadedMedia();
-        };
-    } else if (state.inputMode === "image") {
-        uploadImage.src = state.uploadedFileUrl;
-        uploadImage.onload = () => {
-            loadingOverlay.classList.add("hidden");
-            redrawUploadedMedia();
-        };
-    }
-}
-
-// Tab Switching Handler
-function selectModel(modelName) {
-    if (state.isStreaming) {
-        alert("먼저 인식을 정지한 후 모델을 변경해주세요.");
-        return;
-    }
-
-    state.selectedModel = modelName;
-
-    if (modelName === "mediapipe") {
-        tabMediapipe.classList.add("active");
-        tabLandmark.classList.remove("active");
-        wsUrlInput.value = "ws://localhost:8000/ws/mediapipe";
-        
-        // Update recommended defaults for MediaPipe Model
-        inferIntervalInput.value = "0.1";
-        windowSizeInput.value = "30";
-        voteSizeInput.value = "10";
-        minVotesInput.value = "6";
-        minConfInput.value = "0.3";
-        minGapInput.value = "1.0";
-        
-        if (state.executionMode === "server") {
-            quantizationLabel.textContent = "FP32 (MeanStd)";
-        } else {
-            quantizationLabel.textContent = "ONNX (WASM)";
-            loadClientModelIfNeeded();
-        }
-    } else {
-        tabMediapipe.classList.remove("active");
-        tabLandmark.classList.add("active");
-        wsUrlInput.value = "ws://localhost:8000/ws/landmark";
-
-        // Update recommended defaults for AIHub Model
-        inferIntervalInput.value = "0.15";
-        windowSizeInput.value = "40";
-        voteSizeInput.value = "15";
-        minVotesInput.value = "9";
-        minConfInput.value = "0.45";
-        minGapInput.value = "1.5";
-        
-        if (state.executionMode === "server") {
-            quantizationLabel.textContent = "FP32 (Raw)";
-        } else {
-            quantizationLabel.textContent = "ONNX (WASM)";
-            loadClientModelIfNeeded();
-        }
-    }
-}
-
-// Drag & Drop event bindings
-uploadZone.addEventListener("click", () => mediaFileInput.click());
-
-uploadZone.addEventListener("dragover", (e) => {
+// PWA Installation Banner support
+window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
-    uploadZone.classList.add("dragover");
-});
-
-uploadZone.addEventListener("dragleave", () => {
-    uploadZone.classList.remove("dragover");
-});
-
-uploadZone.addEventListener("drop", (e) => {
-    e.preventDefault();
-    uploadZone.classList.remove("dragover");
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        handleMediaFile(e.dataTransfer.files[0]);
-    }
-});
-
-mediaFileInput.addEventListener("change", (e) => {
-    if (e.target.files && e.target.files.length > 0) {
-        handleMediaFile(e.target.files[0]);
-    }
-});
-
-// Collapsible Settings Event
-settingsToggle.addEventListener("click", () => {
-    settingsCard.classList.toggle("collapsed");
-});
-
-// Tab Buttons Click
-tabMediapipe.addEventListener("click", () => selectModel("mediapipe"));
-tabLandmark.addEventListener("click", () => selectModel("landmark"));
-
-// Execution Mode Switcher Buttons
-modeServer.addEventListener("click", () => setExecutionMode("server"));
-modeClient.addEventListener("click", () => setExecutionMode("client"));
-
-// Model Source Switcher Buttons
-sourceLocal.addEventListener("click", () => setModelSource("local"));
-sourceHf.addEventListener("click", () => setModelSource("hf"));
-
-// Input Mode Switcher Buttons
-inputModeCamera.addEventListener("click", () => setInputMode("camera"));
-inputModeVideo.addEventListener("click", () => setInputMode("video"));
-inputModeImage.addEventListener("click", () => setInputMode("image"));
-
-// HF Username Input Change
-hfUsernameInput.addEventListener("change", () => {
-    if (state.executionMode === "client" && state.modelSource === "hf") {
-        loadClientModelIfNeeded();
-    }
-});
-
-// Control Buttons Click
-startBtn.addEventListener("click", startStreaming);
-stopBtn.addEventListener("click", stopStreaming);
-clearHistoryBtn.addEventListener("click", () => {
-    state.sentenceBuffer = [];
-    updateSentenceBufferUI();
-});
-
-// Setup Initial UI state
-if (window.EDGE_SIGN_CONFIG) {
-    state.modelSource = window.EDGE_SIGN_CONFIG.defaultSource || "local";
-    state.hfUsername = window.EDGE_SIGN_CONFIG.hfUsername || "gyann";
-    hfUsernameInput.value = state.hfUsername;
+    const deferredPrompt = e;
+    el.pwaInstallBanner.classList.remove('hidden');
     
-    if (state.modelSource === "local") {
-        sourceLocal.classList.add("active");
-        sourceHf.classList.remove("active");
-    } else {
-        sourceLocal.classList.remove("active");
-        sourceHf.classList.add("active");
-    }
-}
+    el.pwaInstallBtn.addEventListener('click', async () => {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to install prompt: ${outcome}`);
+        el.pwaInstallBanner.classList.add('hidden');
+    });
+});
 
-selectModel("mediapipe");
-setExecutionMode("client"); // Start with client mode default
-setInputMode("camera");     // Start with camera input mode default
-settingsCard.classList.add("collapsed"); // start collapsed for clean UI
-updateSentenceBufferUI();
+// App Entry Point
+window.addEventListener('DOMContentLoaded', () => {
+    initEvents();
+    loadModelAndData();
+});
