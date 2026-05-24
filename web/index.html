@@ -27,6 +27,9 @@
                 <h1>한글 손글씨 <span>OCR</span></h1>
             </div>
             <div class="header-status">
+                <button id="headerInstallBtn" class="install-header-btn">
+                    <span class="btn-icon">📥</span> 앱 설치
+                </button>
                 <div id="modelStatusBadge" class="status-badge disconnected">
                     <span class="status-dot"></span>
                     <span id="modelStatusText">모델 로딩 중...</span>
@@ -60,25 +63,42 @@
                 <!-- Tab 1: Canvas Interface -->
                 <div id="canvasArea" class="input-area active">
                     <div class="canvas-wrapper" style="background: #111528;">
-                        <canvas id="drawingCanvas" width="400" height="400" style="position: relative; z-index: 5;"></canvas>
-                        <canvas id="canvasOverlay" width="400" height="400" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 6;"></canvas>
+                        <canvas id="drawingCanvas" width="1600" height="700" style="position: relative; z-index: 5;"></canvas>
+                        <canvas id="canvasOverlay" width="1600" height="700" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 6;"></canvas>
                         <div class="canvas-grid-lines"></div>
                     </div>
-                    <!-- Recognition Mode Toggle -->
-                    <div class="canvas-mode-toggle">
-                        <span class="toggle-label">인식 모드 (Mode):</span>
-                        <div class="toggle-buttons">
-                            <button id="btnModeSingle" class="toggle-btn active">단일 글자 (Single)</button>
-                            <button id="btnModeMulti" class="toggle-btn">다중 글자 (Multi-Char)</button>
+                    <!-- Controls Toolbar: Tool Selector, Brush/Eraser Size, & Recognition Mode -->
+                    <div class="canvas-controls-toolbar">
+                        <div class="toolbar-group">
+                            <span class="toolbar-label">도구:</span>
+                            <div class="toolbar-buttons">
+                                <button id="btnToolPen" class="toggle-btn active">✏️ 연필 (Pen)</button>
+                                <button id="btnToolEraser" class="toggle-btn">🧽 지우개 (Eraser)</button>
+                            </div>
+                        </div>
+                        <div class="toolbar-group" id="toolSizeGroup">
+                            <span class="toolbar-label">크기: <span id="toolSizeVal">14</span>px</span>
+                            <input type="range" id="toolSizeSlider" min="5" max="30" value="14" class="toolbar-slider">
+                        </div>
+                        <div class="toolbar-group">
+                            <span class="toolbar-label">인식 모드:</span>
+                            <div class="toggle-buttons">
+                                <button id="btnModeSingle" class="toggle-btn active">단일 글자 (Single)</button>
+                                <button id="btnModeMulti" class="toggle-btn">다중 글자 (Multi-Char)</button>
+                            </div>
                         </div>
                     </div>
                     <!-- Multi-character Gap Threshold Slider (Visible in Multi Mode) -->
                     <div id="multiGapControl" class="threshold-control-panel hidden" style="margin-top: 12px; padding: 12px; background: rgba(255, 255, 255, 0.02); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05);">
                         <label for="gapSlider" style="font-size: 0.9rem; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                             <span>글자 분할 간격 (Merge Gap):</span>
-                            <span style="font-weight: 600; color: #3b82f6;"><span id="gapVal">55</span>px</span>
+                            <span style="font-weight: 600; color: #3b82f6;"><span id="gapVal">30</span>px</span>
                         </label>
-                        <input type="range" id="gapSlider" min="20" max="150" value="55" style="width: 100%; cursor: pointer;" />
+                        <input type="range" id="gapSlider" min="10" max="100" value="30" style="width: 100%; cursor: pointer;" />
+                        <div style="font-size: 0.78rem; color: #64748b; margin-top: 8px; line-height: 1.45; display: flex; gap: 6px; align-items: flex-start;">
+                            <span>💡</span>
+                            <span>글자 사이에 약간의 여백을 주고 세로 가림선이 겹치지 않게 쓰면 더 잘 분할됩니다. 파란 영역 상자를 보며 슬라이더로 간격을 조절하세요.</span>
+                        </div>
                     </div>
                     <!-- Preprocessed Preview Panel for Canvas -->
                     <div class="threshold-control-panel hidden" id="canvasPreviewPanel" style="margin-top: 12px; padding: 12px; background: rgba(255, 255, 255, 0.02); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05);">
@@ -148,44 +168,43 @@
                                 <div class="candidate-item-empty">대기 중...</div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Text Buffer Card (Accumulated characters) -->
-                <div class="dashboard-card sentence-history-card">
-                    <div class="card-header">
-                        <h2>텍스트 입력기 (Text Input Buffer)</h2>
-                        <div class="buffer-actions">
-                            <button id="copyTextBtn" class="small-btn">복사</button>
-                            <button id="clearTextBtn" class="small-btn danger">비우기</button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div id="textBuffer" class="sentence-buffer-box" contenteditable="true" placeholder="손글씨를 입력하면 여기에 텍스트가 완성됩니다."></div>
-                        <div class="keyboard-helper-buttons">
-                            <button id="btnSpace" class="helper-btn">띄어쓰기 (Space)</button>
-                            <button id="btnBackspace" class="helper-btn">한 글자 지우기 (Backspace)</button>
+                        <!-- Compact Performance Metrics -->
+                        <div class="compact-metrics-row">
+                            <div class="compact-metric">
+                                <span class="metric-lbl">속도:</span>
+                                <span class="metric-val" id="inferenceTimeLabel">0.0 ms</span>
+                            </div>
+                            <div class="compact-metric">
+                                <span class="metric-lbl">모델:</span>
+                                <span class="metric-val" id="modelSizeLabel">0.72 MB</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Performance Metrics -->
-                <div class="dashboard-card metrics-card">
-                    <div class="metrics-grid">
-                        <div class="metric-item">
-                          <span class="metric-val" id="inferenceTimeLabel">0.0 ms</span>
-                          <span class="metric-lbl">추론 속도 (Inference)</span>
-                        </div>
-                        <div class="metric-item">
-                          <span class="metric-val" id="modelSizeLabel">0.72 MB</span>
-                          <span class="metric-lbl">모델 크기 (Quantized)</span>
-                        </div>
+                <!-- Text Buffer Card removed to be compact at the bottom -->
+
                     </div>
                 </div>
 
             </div>
 
         </main>
+
+        <!-- Bottom Full-Width Compact Text Input Buffer -->
+        <div class="bottom-buffer-card">
+            <div class="buffer-left">
+                <span class="buffer-icon">📝</span>
+                <div id="textBuffer" class="bottom-buffer-box" contenteditable="true" placeholder="손글씨를 쓰거나 카메라로 스캔하여 완성해 보세요."></div>
+            </div>
+            <div class="buffer-actions">
+                <button id="btnSpace" class="buffer-btn">␣ 띄어쓰기</button>
+                <button id="btnBackspace" class="buffer-btn">⌫ 지우기</button>
+                <button id="copyTextBtn" class="buffer-btn copy">📋 복사</button>
+                <button id="clearTextBtn" class="buffer-btn danger">🗑️ 비우기</button>
+            </div>
+        </div>
     </div>
 
     <!-- PWA Installation Prompt Banner -->
@@ -198,6 +217,65 @@
             </div>
         </div>
         <button id="pwaInstallBtn" class="pwa-install-btn">설치하기</button>
+    </div>
+
+    <!-- PWA Installation Instructions Modal -->
+    <div id="installInstructionsModal" class="modal-backdrop hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>앱 다운로드 및 설치 안내</h3>
+                <button id="closeModalBtn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="os-selector">
+                    <button id="btnSelectAndroid" class="os-tab-btn active">Android / PC</button>
+                    <button id="btnSelectIOS" class="os-tab-btn">iOS (Apple)</button>
+                </div>
+                
+                <!-- iOS Instructions -->
+                <div id="instructionsIOS" class="instruction-content hidden">
+                    <ol class="steps-list">
+                        <li>
+                            <span class="step-num">1</span>
+                            <span class="step-text">Safari 브라우저 하단의 <strong>[공유]</strong> 아이콘(상자에서 위로 향하는 화살표)을 누릅니다.</span>
+                        </li>
+                        <li>
+                            <span class="step-num">2</span>
+                            <span class="step-text">공유 메뉴 목록을 아래로 스크롤하여 <strong>[홈 화면에 추가]</strong>를 터치합니다.</span>
+                        </li>
+                        <li>
+                            <span class="step-num">3</span>
+                            <span class="step-text">우측 상단의 <strong>[추가]</strong> 버튼을 누르면 홈 화면에 바로가기 앱이 생성됩니다.</span>
+                        </li>
+                    </ol>
+                    <div class="tip-box">
+                        <span class="tip-icon">💡</span>
+                        <span class="step-text">이 작업은 반드시 <strong>Safari 브라우저</strong>에서 진행하셔야 합니다.</span>
+                    </div>
+                </div>
+
+                <!-- Android/Desktop Instructions -->
+                <div id="instructionsAndroid" class="instruction-content">
+                    <ol class="steps-list">
+                        <li>
+                            <span class="step-num">1</span>
+                            <span class="step-text">브라우저 주소창 우측의 <strong>설치 아이콘(➕ 또는 다운로드 기호)</strong>을 클릭합니다.</span>
+                        </li>
+                        <li>
+                            <span class="step-num">2</span>
+                            <span class="step-text">또는 브라우저 <strong>[설정(세로 점 3개)]</strong> 메뉴에서 <strong>[앱 설치]</strong> 또는 <strong>[홈 화면에 추가]</strong>를 누릅니다.</span>
+                        </li>
+                        <li>
+                            <span class="step-num">3</span>
+                            <span class="step-text">팝업창에서 <strong>[설치]</strong>를 클릭하면 바탕화면이나 홈 화면에 앱이 설치됩니다.</span>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="closeModalBtnFooter" class="primary-btn">닫기</button>
+            </div>
+        </div>
     </div>
 
     <script src="app.js"></script>

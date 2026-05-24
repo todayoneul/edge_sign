@@ -4,7 +4,7 @@ const state = {
     idxToChar: null,
     currentMode: 'canvas', // 'canvas' or 'camera'
     canvasRecognitionMode: 'single', // 'single' (entire canvas) or 'multi' (horizontal segmentation)
-    canvasMergeGap: 55, // Horizontal segmentation merge threshold
+    canvasMergeGap: 30, // Horizontal segmentation merge threshold
     isDrawing: false,
     hasDrawn: false,
     lastX: 0,
@@ -12,7 +12,10 @@ const state = {
     webcamStream: null,
     cameraAnimId: null,
     threshold: 128,
-    isModelLoading: true
+    isModelLoading: true,
+    currentTool: 'pen', // 'pen' or 'eraser'
+    penSize: 14,        // Adjustable pen size
+    eraserSize: 36      // Adjustable eraser size
 };
 
 // Elements
@@ -50,7 +53,19 @@ const el = {
     pwaInstallBanner: document.getElementById('pwaInstallBanner'),
     pwaInstallBtn: document.getElementById('pwaInstallBtn'),
     btnModeSingle: document.getElementById('btnModeSingle'),
-    btnModeMulti: document.getElementById('btnModeMulti')
+    btnModeMulti: document.getElementById('btnModeMulti'),
+    btnToolPen: document.getElementById('btnToolPen'),
+    btnToolEraser: document.getElementById('btnToolEraser'),
+    headerInstallBtn: document.getElementById('headerInstallBtn'),
+    installInstructionsModal: document.getElementById('installInstructionsModal'),
+    closeModalBtn: document.getElementById('closeModalBtn'),
+    closeModalBtnFooter: document.getElementById('closeModalBtnFooter'),
+    btnSelectAndroid: document.getElementById('btnSelectAndroid'),
+    btnSelectIOS: document.getElementById('btnSelectIOS'),
+    instructionsAndroid: document.getElementById('instructionsAndroid'),
+    instructionsIOS: document.getElementById('instructionsIOS'),
+    toolSizeSlider: document.getElementById('toolSizeSlider'),
+    toolSizeVal: document.getElementById('toolSizeVal')
 };
 
 // Canvas drawing context configuration
@@ -141,6 +156,51 @@ function initEvents() {
         el.textBuffer.textContent = '';
     });
 
+    // Drawing Tool toggles
+    el.btnToolPen.addEventListener('click', () => {
+        state.currentTool = 'pen';
+        el.btnToolPen.classList.add('active');
+        el.btnToolEraser.classList.remove('active');
+        
+        // Update slider context for Pen
+        if (el.toolSizeSlider) {
+            el.toolSizeSlider.min = 5;
+            el.toolSizeSlider.max = 30;
+            el.toolSizeSlider.value = state.penSize;
+        }
+        if (el.toolSizeVal) el.toolSizeVal.textContent = state.penSize;
+        ctx.lineWidth = state.penSize;
+    });
+    el.btnToolEraser.addEventListener('click', () => {
+        state.currentTool = 'eraser';
+        el.btnToolEraser.classList.add('active');
+        el.btnToolPen.classList.remove('active');
+        
+        // Update slider context for Eraser
+        if (el.toolSizeSlider) {
+            el.toolSizeSlider.min = 10;
+            el.toolSizeSlider.max = 80;
+            el.toolSizeSlider.value = state.eraserSize;
+        }
+        if (el.toolSizeVal) el.toolSizeVal.textContent = state.eraserSize;
+        ctx.lineWidth = state.eraserSize;
+    });
+
+    // Tool Size Slider
+    if (el.toolSizeSlider) {
+        el.toolSizeSlider.addEventListener('input', (e) => {
+            const size = parseInt(e.target.value);
+            if (el.toolSizeVal) el.toolSizeVal.textContent = size;
+            
+            if (state.currentTool === 'eraser') {
+                state.eraserSize = size;
+            } else {
+                state.penSize = size;
+            }
+            ctx.lineWidth = size;
+        });
+    }
+
     // Recognition Mode switching
     el.btnModeSingle.addEventListener('click', () => {
         state.canvasRecognitionMode = 'single';
@@ -179,6 +239,43 @@ function initEvents() {
         state.threshold = parseInt(e.target.value);
         el.thresholdVal.textContent = state.threshold;
     });
+
+    // PWA Install Button handlers
+    if (el.headerInstallBtn) {
+        el.headerInstallBtn.addEventListener('click', () => {
+            handleInstallClick();
+        });
+    }
+    if (el.pwaInstallBtn) {
+        el.pwaInstallBtn.addEventListener('click', () => {
+            handleInstallClick();
+        });
+    }
+
+    // Modal control actions
+    if (el.closeModalBtn) {
+        el.closeModalBtn.addEventListener('click', () => {
+            el.installInstructionsModal.classList.add('hidden');
+        });
+    }
+    if (el.closeModalBtnFooter) {
+        el.closeModalBtnFooter.addEventListener('click', () => {
+            el.installInstructionsModal.classList.add('hidden');
+        });
+    }
+    if (el.installInstructionsModal) {
+        el.installInstructionsModal.addEventListener('click', (e) => {
+            if (e.target === el.installInstructionsModal) {
+                el.installInstructionsModal.classList.add('hidden');
+            }
+        });
+    }
+    if (el.btnSelectAndroid) {
+        el.btnSelectAndroid.addEventListener('click', () => switchInstructionTab('android'));
+    }
+    if (el.btnSelectIOS) {
+        el.btnSelectIOS.addEventListener('click', () => switchInstructionTab('ios'));
+    }
 }
 
 function switchTab(mode) {
@@ -231,6 +328,16 @@ function getCanvasCoords(e, canvas) {
 function startDrawing(e) {
     state.isDrawing = true;
     state.hasDrawn = true;
+    
+    // Set properties according to tool and size
+    if (state.currentTool === 'eraser') {
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = state.eraserSize;
+    } else {
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = state.penSize;
+    }
+    
     const coords = getCanvasCoords(e, el.drawingCanvas);
     state.lastX = coords.x;
     state.lastY = coords.y;
@@ -258,7 +365,8 @@ function stopDrawing() {
 }
 
 function insertText(text) {
-    if (el.textBuffer.textContent === '손글씨를 입력하면 여기에 텍스트가 완성됩니다.') {
+    if (el.textBuffer.textContent === '손글씨를 쓰거나 카메라로 스캔하여 완성해 보세요.' ||
+        el.textBuffer.textContent === '손글씨를 입력하면 여기에 텍스트가 완성됩니다.') {
         el.textBuffer.textContent = '';
     }
     el.textBuffer.textContent += text;
@@ -813,22 +921,78 @@ async function loadModelAndData() {
     }
 }
 
-// PWA Installation Banner support
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    const deferredPrompt = e;
-    el.pwaInstallBanner.classList.remove('hidden');
-    
-    el.pwaInstallBtn.addEventListener('click', async () => {
+let deferredPrompt = null;
+
+// PWA Install helper
+async function handleInstallClick() {
+    if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         console.log(`User response to install prompt: ${outcome}`);
-        el.pwaInstallBanner.classList.add('hidden');
-    });
+        if (outcome === 'accepted') {
+            deferredPrompt = null;
+            if (el.pwaInstallBanner) el.pwaInstallBanner.classList.add('hidden');
+            if (el.headerInstallBtn) el.headerInstallBtn.classList.add('hidden');
+        }
+    } else {
+        showInstallModal();
+    }
+}
+
+function showInstallModal() {
+    if (!el.installInstructionsModal) return;
+    
+    el.installInstructionsModal.classList.remove('hidden');
+    
+    // Detect iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+        switchInstructionTab('ios');
+    } else {
+        switchInstructionTab('android');
+    }
+}
+
+function switchInstructionTab(os) {
+    if (os === 'ios') {
+        el.btnSelectIOS.classList.add('active');
+        el.btnSelectAndroid.classList.remove('active');
+        el.instructionsIOS.classList.remove('hidden');
+        el.instructionsAndroid.classList.add('hidden');
+    } else {
+        el.btnSelectAndroid.classList.add('active');
+        el.btnSelectIOS.classList.remove('active');
+        el.instructionsAndroid.classList.remove('hidden');
+        el.instructionsIOS.classList.add('hidden');
+    }
+}
+
+function checkStandalone() {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    if (isStandalone) {
+        if (el.headerInstallBtn) el.headerInstallBtn.classList.add('hidden');
+        if (el.pwaInstallBanner) el.pwaInstallBanner.classList.add('hidden');
+    }
+}
+
+// PWA Installation events
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (el.pwaInstallBanner) el.pwaInstallBanner.classList.remove('hidden');
+    if (el.headerInstallBtn) el.headerInstallBtn.classList.remove('hidden');
+});
+
+window.addEventListener('appinstalled', () => {
+    console.log('PWA was installed');
+    deferredPrompt = null;
+    if (el.pwaInstallBanner) el.pwaInstallBanner.classList.add('hidden');
+    if (el.headerInstallBtn) el.headerInstallBtn.classList.add('hidden');
 });
 
 // App Entry Point
 window.addEventListener('DOMContentLoaded', () => {
     initEvents();
     loadModelAndData();
+    checkStandalone();
 });
