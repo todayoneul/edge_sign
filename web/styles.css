@@ -1656,3 +1656,10 @@ button {
     font-size: 0.9rem;
 }
 
+#btnToggleAttention.active {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.25) 0%, rgba(239, 68, 68, 0.25) 100%);
+    border-color: #f97316;
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(249, 115, 22, 0.4);
+}
+

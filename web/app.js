@@ -15,7 +15,8 @@ const state = {
     isModelLoading: true,
     currentTool: 'pen', // 'pen' or 'eraser'
     penSize: 14,        // Adjustable pen size
-    eraserSize: 36      // Adjustable eraser size
+    eraserSize: 36,     // Adjustable eraser size
+    showAttentionMap: true // Show visual attention heatmap overlay
 };
 
 // Elements
@@ -65,7 +66,8 @@ const el = {
     instructionsAndroid: document.getElementById('instructionsAndroid'),
     instructionsIOS: document.getElementById('instructionsIOS'),
     toolSizeSlider: document.getElementById('toolSizeSlider'),
-    toolSizeVal: document.getElementById('toolSizeVal')
+    toolSizeVal: document.getElementById('toolSizeVal'),
+    btnToggleAttention: document.getElementById('btnToggleAttention')
 };
 
 // Canvas drawing context configuration
@@ -275,6 +277,22 @@ function initEvents() {
     }
     if (el.btnSelectIOS) {
         el.btnSelectIOS.addEventListener('click', () => switchInstructionTab('ios'));
+    }
+
+    // Attention Map toggle
+    if (el.btnToggleAttention) {
+        el.btnToggleAttention.addEventListener('click', () => {
+            state.showAttentionMap = !state.showAttentionMap;
+            if (state.showAttentionMap) {
+                el.btnToggleAttention.classList.add('active');
+            } else {
+                el.btnToggleAttention.classList.remove('active');
+                clearOverlay();
+            }
+            if (state.hasDrawn) {
+                runInferenceOnCanvas();
+            }
+        });
     }
 }
 
@@ -490,6 +508,7 @@ async function runInferenceOnCanvas() {
     
     let recognizedChars = [];
     let multiCandidatesHTML = '';
+    let saliencyMaps = [];
     const startOverallTime = performance.now();
     
     el.candidatesList.innerHTML = ''; // Clear candidates panel
@@ -506,7 +525,7 @@ async function runInferenceOnCanvas() {
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = 64;
         tempCanvas.height = 64;
-        const tCtx = tempCanvas.getContext('2d');
+        const tCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
         
         // Fill white background
         tCtx.fillStyle = '#FFFFFF';
@@ -517,10 +536,6 @@ async function runInferenceOnCanvas() {
         const maxLen = Math.max(srcWidth, srcHeight);
         
         // Dynamic Scaling to fix the stroke thickness and character size mismatch!
-        // We want stroke width in 64x64 to be ~2.8px (ideal training width).
-        // Since canvas stroke is 14px, the ideal scale is 2.8 / 14 = 0.20.
-        // We cap the maximum size to 44px (to ensure it fits within 64x64 with a margin),
-        // and cap the minimum size to 28px (so small drawings are legible).
         let scale = 2.8 / 14; 
         const targetSize = 44; 
         if (maxLen * scale > targetSize) {
@@ -567,6 +582,12 @@ async function runInferenceOnCanvas() {
         
         const top1Char = state.idxToChar[top5[0].index];
         recognizedChars.push(top1Char);
+
+        // Compute saliency map if active
+        if (state.showAttentionMap) {
+            const saliencyGrid = await computeSaliencyMap(tempCanvas, top5[0].index, output[top5[0].index]);
+            saliencyMaps.push(saliencyGrid);
+        }
         
         // Build candidates list HTML
         if (charBoxes.length > 1) {
@@ -636,8 +657,12 @@ async function runInferenceOnCanvas() {
         });
     }
 
-    // Draw the bounding boxes and their labels on the overlay canvas
-    drawBoundingBoxes(charBoxes, recognizedChars);
+    // Draw visual feedback (Attention Heatmap or standard Bounding Boxes)
+    if (state.showAttentionMap) {
+        drawAttentionHeatmap(charBoxes, saliencyMaps);
+    } else {
+        drawBoundingBoxes(charBoxes, recognizedChars);
+    }
 }
 
 function drawBoundingBoxes(charBoxes, recognizedChars) {
@@ -673,6 +698,138 @@ function drawBoundingBoxes(charBoxes, recognizedChars) {
         // Draw the text
         overlayCtx.fillStyle = '#60a5fa';
         overlayCtx.fillText(predChar, box.minX + 5, Math.max(0, box.minY - 3));
+    });
+}
+
+// Compute Perturbation-based Saliency Map in real-time
+async function computeSaliencyMap(tempCanvas, charIdx, baseLogit) {
+    const tCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+    
+    // Get original float buffer from 64x64 canvas
+    const origImgData = tCtx.getImageData(0, 0, 64, 64);
+    const origFloatBuffer = new Float32Array(64 * 64);
+    for (let i = 0; i < 64 * 64; i++) {
+        const r = origImgData.data[i * 4];
+        const g = origImgData.data[i * 4 + 1];
+        const b = origImgData.data[i * 4 + 2];
+        const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+        origFloatBuffer[i] = (gray / 255.0 - 0.5) / 0.5;
+    }
+    
+    const saliencyGrid = new Float32Array(8 * 8);
+    
+    // Run perturbation on each of the 64 blocks (8x8 cells)
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const perturbedBuffer = new Float32Array(origFloatBuffer);
+            
+            // Mask out 8x8 block (set to white background: 1.0)
+            let hasInk = false;
+            for (let y = r * 8; y < (r + 1) * 8; y++) {
+                for (let x = c * 8; x < (c + 1) * 8; x++) {
+                    const idx = y * 64 + x;
+                    if (perturbedBuffer[idx] < 0) { // Ink pixel is negative
+                        hasInk = true;
+                    }
+                    perturbedBuffer[idx] = 1.0; // Mask block as background
+                }
+            }
+            
+            // If the cell contains no strokes, it has no impact on predictions (saliency is 0)
+            if (!hasInk) {
+                saliencyGrid[r * 8 + c] = 0;
+                continue;
+            }
+            
+            // Run inference with perturbed buffer
+            const pTensor = new ort.Tensor('float32', perturbedBuffer, [1, 1, 64, 64]);
+            const pResults = await state.session.run({ input: pTensor });
+            const pOutput = pResults.output.data;
+            const pLogit = pOutput[charIdx];
+            
+            // Importance score is the drop in logit value
+            const drop = Math.max(0, baseLogit - pLogit);
+            saliencyGrid[r * 8 + c] = drop;
+        }
+    }
+    
+    // Normalize saliency grid to [0.0, 1.0]
+    let maxDrop = 0.0001;
+    for (let i = 0; i < 64; i++) {
+        if (saliencyGrid[i] > maxDrop) maxDrop = saliencyGrid[i];
+    }
+    for (let i = 0; i < 64; i++) {
+        saliencyGrid[i] /= maxDrop;
+    }
+    
+    return saliencyGrid;
+}
+
+// Draw Saliency/Attention Heatmap overlay on top of the written character strokes
+function drawAttentionHeatmap(charBoxes, saliencyMaps) {
+    clearOverlay();
+    if (!overlayCtx) return;
+    
+    charBoxes.forEach((box, idx) => {
+        const saliency = saliencyMaps[idx];
+        if (!saliency) return;
+        
+        // Draw a glowing orange outline bounding box
+        overlayCtx.strokeStyle = 'rgba(249, 115, 22, 0.4)';
+        overlayCtx.lineWidth = 1.5;
+        overlayCtx.strokeRect(box.minX, box.minY, box.maxX - box.minX, box.maxY - box.minY);
+        
+        const boxW = box.maxX - box.minX;
+        const boxH = box.maxY - box.minY;
+        const stepX = boxW / 8;
+        const stepY = boxH / 8;
+        
+        // Render 8x8 importance grid using radial gradients
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const val = saliency[r * 8 + c];
+                if (val < 0.05) continue; // Skip negligible values
+                
+                const centerX = box.minX + (c + 0.5) * stepX;
+                const centerY = box.minY + (r + 0.5) * stepY;
+                const radius = Math.max(stepX, stepY) * 1.5 * val;
+                
+                const grad = overlayCtx.createRadialGradient(
+                    centerX, centerY, 2, 
+                    centerX, centerY, radius
+                );
+                
+                const alpha = val * 0.45; // Max opacity 45%
+                
+                // Color palette (Red: Hot/High, Orange: Medium, Blue: Low, Edge: Transparent)
+                grad.addColorStop(0, `rgba(239, 68, 68, ${alpha})`);     // center: hot red
+                grad.addColorStop(0.3, `rgba(249, 115, 22, ${alpha * 0.7})`); // middle: orange
+                grad.addColorStop(0.7, `rgba(59, 130, 246, ${alpha * 0.3})`); // outer: blue
+                grad.addColorStop(1, 'rgba(59, 130, 246, 0)');          // edge: transparent
+                
+                overlayCtx.fillStyle = grad;
+                overlayCtx.beginPath();
+                overlayCtx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                overlayCtx.fill();
+            }
+        }
+        
+        // Draw the predicted character text overlay tag
+        const predChar = el.detectedLabel.textContent[idx] || '';
+        if (predChar) {
+            overlayCtx.font = 'bold 12px sans-serif';
+            overlayCtx.textBaseline = 'bottom';
+            
+            const textWidth = overlayCtx.measureText(predChar).width;
+            overlayCtx.fillStyle = 'rgba(10, 12, 22, 0.85)';
+            overlayCtx.fillRect(box.minX, Math.max(0, box.minY - 18), textWidth + 10, 18);
+            
+            overlayCtx.strokeStyle = 'rgba(249, 115, 22, 0.5)';
+            overlayCtx.strokeRect(box.minX, Math.max(0, box.minY - 18), textWidth + 10, 18);
+            
+            overlayCtx.fillStyle = '#fb923c'; // light orange text
+            overlayCtx.fillText(predChar, box.minX + 5, Math.max(0, box.minY - 3));
+        }
     });
 }
 
