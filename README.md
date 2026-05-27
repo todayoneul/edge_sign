@@ -19,9 +19,12 @@
 - [1. 핵심 방법론: 신경망 압축 (Core Compression Methodology)](#1-핵심-방법론-신경망-압축-core-compression-methodology)
 - [2. 실험 환경 및 타겟 데이터셋 (Experimental Setup & Target Domain)](#2-실험-환경-및-타겟-데이터셋-experimental-setup--target-domain)
 - [3. [Phase 1] 압축 성능 평가 및 파레토 프론티어 분석](#3-phase-1-압축-성능-평가-및-파레토-프론티어-분석)
-- [4. [Phase 2] 옴니모달(VLM) 한계 검증을 위한 사전 연구](#4-phase-2-옴니모달vlm-한계-검증을-위한-사전-연구)
+- [4. [Phase 1] 옴니모달(VLM) 한계 검증을 위한 사전 연구](#4-phase-1-옴니모달vlm-한계-검증을-위한-사전-연구)
 - [5. 종합 평가 및 최적 모델 선정 (Final Score)](#5-종합-평가-및-최적-모델-선정-final-score)
-- [6. [최종 계획] Edge-Sign 하이브리드 파이프라인 구축 및 KSL 추론 파이프라인 (Future Work & Progress)](#6-최종-계획-edge-sign-하이브리드-파이프라인-구축-및-ksl-추론-파이프라인-future-work--progress)
+- [6. [Phase 2] 검출+추적+인식 파이프라인 설계](#6-phase-2-검출추적인식-파이프라인-설계)
+- [7. Phase 2 양자화 실험 매트릭스](#7-phase-2-양자화-실험-매트릭스)
+- [8. 웹 배포 아키텍처 및 추론 환경](#8-웹-배포-아키텍처-및-추론-환경)
+- [9. 재현 가이드 (Reproduction Guide)](#9-재현-가이드-reproduction-guide)
 
 ---
 
@@ -77,7 +80,7 @@ $$L_{KD} = \alpha \cdot T^2 \cdot D_{KL}\left( \sigma\left(\frac{Z_S}{T}\right) 
 
 ---
 
-## 4. [Phase 2] 옴니모달(VLM) 한계 검증을 위한 사전 연구
+## 4. [Phase 1] 옴니모달(VLM) 한계 검증을 위한 사전 연구
 
 수어 동작을 자연어로 번역하기 위해, 시각 정보를 언어 모델(LLM)에 직접 전달하는 옴니모달(VLM) 아키텍처가 엣지 환경에 적합한지 1-Bit 압축 환경에서 선행 검증을 수행했습니다.
 
@@ -104,75 +107,274 @@ $$L_{KD} = \alpha \cdot T^2 \cdot D_{KL}\left( \sigma\left(\frac{Z_S}{T}\right) 
 
 ## 5. 종합 평가 및 최적 모델 선정 (Final Score)
 
-Edge-Sign의 최종 백본을 선정하기 위해 성능(Performance), 속도(Latency), 메모리(Memory)를 아우르는 **종합 평가 프레임워크(Final Score)** 를 자체 설계하여 분석했습니다.   
-**Final Score = 0.6 * PerfNorm + 0.2 * SpeedNorm + 0.2 * MemNorm**
+Edge-Sign의 최종 백본을 선정하기 위해 성능(Performance), 속도(Latency), 메모리(Memory)를 아우르는 **종합 평가 프레임워크(Final Score)** 를 설계하였습니다.
 
-**[추론 지연 시간(Latency) 비교 & 파레토 프론티어]** ![Inference Latency Comparison](./assets/mm_latency_comparison.png)   
+$$\text{Final Score} = 0.6 \times \text{PerfNorm} + 0.2 \times \text{SpeedNorm} + 0.2 \times \text{MemNorm}$$
+
+각 항은 FP16 기준선 대비 정규화된 값이며 상한을 1.0으로 고정합니다.
+
+**추론 지연 시간 비교 및 파레토 프론티어**
+
+![Inference Latency Comparison](./assets/mm_latency_comparison.png)
 ![Pareto Frontier](./assets/mm_final_pareto.png)
 
-| Model | Recall@1 (%) | Latency (ms) | Memory (MB) | Final Score |
+| 모델 | Recall@1 (%) | Latency (ms) | Memory (MB) | Final Score |
 | :--- | :---: | :---: | :---: | :---: |
-| **W8A8 (SmoothQuant PTQ)** | 38.50 | 10.29 | 30.70 | **0.8068** |
-| **FP16 (Baseline)** | 39.00 | 6.09 | 125.00 | 0.8000 |
-| **W4A16 (QAT)** | 34.80 | 9.97 | 14.92 | 0.7628 |
-| **1-Bit (Linear Head)** | 14.20 | 9.02 | 1.99 | 0.3680 |
+| **W8A8 SmoothQuant PTQ** | 38.50 | 10.29 | 30.70 | **0.8068** |
+| FP16 Baseline | 39.00 | 6.09 | 125.00 | 0.8000 |
+| W4A16 QAT | 34.80 | 9.97 | 14.92 | 0.7628 |
+| W8A8 QAT | 36.80 | 12.28 | 14.90 | 0.7314 |
+| 1-Bit (Linear Head) | 14.20 | 9.02 | 1.99 | 0.3680 |
+| 1-Bit (MLP Head) | 11.30 | 8.51 | 1.99 | 0.3218 |
 
-**최종 결론:** W8A8 모델이 종합 평가 최고점(0.8068)을 기록했습니다. 그러나 본 연구를 통해 VLM 구조(Vision + LLM) 채택 시 발생하는 수백 MB의 텍스트 모델 메모리 오버헤드와 실시간 추론 속도(FPS) 저하 현상을 확인했습니다. 이는 **"초저전력, 15MB 이하의 물리적 크기 제한, 제로 레이턴시"** 라는 본 프로젝트의 목표를 달성하기 어렵다는 것을 시사합니다.
+**분석:** W8A8 SmoothQuant 모델이 종합 평가 1위(0.8068)를 기록했습니다. FP16 대비 Recall@1 손실은 0.5%p에 불과하면서 속도 및 메모리 항에서 FP16을 역전합니다. 반면 VLM(Vision + LLM) 구조는 텍스트 모델 오버헤드로 인해 수백 MB의 메모리를 소비하고 실시간 FPS를 충족하지 못함을 확인하였습니다. 따라서 W8A8 SmoothQuant를 Phase 2 파이프라인의 인식 백본으로 채택합니다.
+
+### 5.1. W8A8 KSL 도메인 파인튜닝 및 ONNX 배포 성과
+
+W8A8 백본에 1,404개 클래스의 한국 수어(KSL) 데이터셋을 파인튜닝한 후 ONNX로 추출하였습니다.
+
+- **ONNX Export:** 최신 PyTorch의 Dynamo 익스포터에서 발생하는 형상 추론 오류(Shape Inference Error)를 `opset_version=14` 및 TorchScript 익스포터로 전환하여 해결하였습니다.
+- **ONNX Runtime INT8 동적 양자화:** FP32 60.70 MB → **15.61 MB** (압축률 3.9×).
+- **순수 CPU 추론 검증:** PyTorch 의존성 없이 `ONNX Runtime(CPUExecutionProvider)`만으로 추론하며, 테스트 이미지("가능" 클래스)를 Rank-1 신뢰도 41.18%로 정확히 분류하였습니다.
+
+### 5.2. 실시간 웹캠 데모 (MediaPipe 기반)
+
+MediaPipe에서 추출한 랜드마크를 학습된 OpenPose 959차원 형식으로 변환한 후 FastAPI WebSocket으로 전송하여 서버 측 추론을 수행합니다.
+
+```bash
+# 백엔드 서버 실행
+python scripts/mediapipe_ws_server.py
+
+# 프론트엔드 실행 (브라우저에서 web/mediapipe/index.html 열기)
+
+# LAN 환경에서 모바일 접속
+cd web/mediapipe && python -m http.server 8080
+# 접속: http://<호스트 IP>:8080
+```
+
+### 5.3. 진단 대시보드 (온디바이스 분석)
+
+ONNX 엔진을 브라우저(WebAssembly)에 이식하여 서버 연동 없이 동작하는 분석 인터페이스를 구현하였습니다.
+
+- **획 단위 기여도 분석 (Stroke-level Attribution):** 획별 Ablation 테스트로 예측 Logit에 기여하는 핵심 획을 실시간 시각화합니다.
+- **자소 분석 (Hangul Decomposer):** 유니코드 연산으로 초/중/종성을 분해하고 획수 일치성(Consistency Score)을 트리 그래프로 표시합니다.
+- **양자화 샌드박스:** 8-Bit에서 1-Bit까지 활성화 텐서의 가상 양자화를 시뮬레이션하며 MSE, KL Divergence, 분포 히스토그램을 브라우저에서 렌더링합니다.
+- **강건성 및 엔트로피 분석:** 가우시안/임펄스 노이즈 주입 시 출력 분포의 Shannon Entropy를 연산하여 모델의 의사결정 불확실성을 정량화합니다.
 
 ---
 
-## 6. [최종 계획] Edge-Sign 하이브리드 파이프라인 구축 및 KSL 추론 파이프라인 (Future Work & Progress)
+## 6. [Phase 2] 검출+추적+인식 파이프라인 설계
 
-선행 연구의 철저한 한계 분석을 바탕으로, 옴니모달(VLM)을 배제하고 수어 해석에 최적화된 **'Action-Trigger 기반 하이브리드 파이프라인'** 으로 최종 시스템 통합을 진행 중입니다.
+Phase 1의 분류 양자화 연구를 기반으로, Phase 2에서는 검출(Detection) → 추적(Tracking) → 인식(Recognition)의 3단계 파이프라인에 단계별 양자화를 적용합니다. 핵심 연구 질문은 **어떤 단계가 양자화에 가장 민감한가**이며, 그 결과를 바탕으로 15 MB 예산 내에서 최적 구성을 도출합니다.
 
-1. **시각 엔진 (W8A8 ConvNeXt) 및 KSL 파인튜닝:** 종합 평가 1위를 차지한 W8A8 양자화 모델을 백본으로 채택하고 실제 한국 수어 데이터셋을 학습시켜 도메인 특화 정확도를 극대화합니다.
-2. **순수 CPU 엣지 추론 최적화:** 무거운 프레임워크(PyTorch 등) 없이 ONNX Runtime만을 이용한 초경량 추론 환경을 구축합니다.
-3. **논리 및 조립 모듈 (NLP Rule-base):** 무거운 언어 모델을 대신하여, 수십 KB 수준의 경량 버퍼 모듈을 통해 추출된 키워드를 즉각적인 한국어 문장으로 결합합니다.
-4. **WebAssembly 기반 배포:** 시스템 전체 용량을 20MB 이하로 유지하며 ONNX로 추출, 서버 통신 없이 사용자 스마트폰 브라우저에서 즉각 동작하는 네이티브 웹 애플리케이션 데모를 완성합니다.
+### 6.1. 전체 파이프라인 구조
 
-### 6.1. W8A8 KSL 도메인 특화 Fine-Tuning 및 모델 경량화 성과
-최종 백본으로 선정된 W8A8 모델에 1,404개 클래스의 실제 한국 수어(KSL) 데이터셋을 파인튜닝하고 모델 추출 과정을 거쳐 극한의 경량화와 최적화를 완료했습니다.
-1. **W8A8 QAT Fine-Tuning:** 사전 양자화 인지 학습(QAT) 기법을 기반으로 ConvNeXtV2-Nano 모델에 KSL 데이터셋을 성공적으로 학습시켜 엣지 배포용 파이프라인 준비를 마쳤습니다.
-2. **ONNX Export 오류 해결 및 최적화:** 최신 PyTorch 버전에 도입된 Dynamo ONNX 익스포터의 형상 추론 오류(Shape Inference Error)를 극복하기 위해 `opset_version=14` 및 레거시(TorchScript) 익스포터 강제 모드로 파이프라인을 성공적으로 전환했습니다. 그 결과 안정적인 추출에 성공했습니다.
-3. **Real INT8 Dynamic Quantization:** ONNX Runtime의 동적 양자화를 통해 가중치를 완벽하게 물리적 INT8 규격으로 압축, 모델 사이즈를 FP32 60.70MB에서 **15.61MB** 로 감축하여 **압축률 약 3.9배**를 달성했습니다.
+```
+영상 입력 (대시캠 / 거리 영상 / 웹캠, 640×480)
+         │
+         ▼
+┌─────────────────────────────┐
+│ 1단계: YOLOv8-Nano 검출기   │  양자화 대상 — 3.2M params, FP16 ~6.3 MB
+│ 클래스: signboard           │  입력: 640×640 RGB
+│         traffic_sign        │  출력: bbox, confidence, class
+└─────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────┐
+│ 2단계: ByteTrack 추적기      │  모델 파라미터 없음 (Kalman Filter + IoU)
+│ ablation: BoT-SORT + ReID   │  (E6 실험에서 OSNet-x0.25 ReID 양자화)
+└─────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────┐
+│ 3단계: 클래스별 분기 인식기  │
+│                             │
+│  signboard  → KoreanOCRNet  │  700K params, 2350 한글 문자 클래스
+│    ROI 크롭: 64×64 gray     │
+│                             │
+│  traffic_sign → TrafficNet  │  65K params, 12 교통표지판 클래스
+│    ROI 크롭: 32×32 RGB      │
+└─────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────┐
+│ 결과 조합 + 오버레이 출력    │
+│ Track ID + bbox             │
+│ 간판: OCR 텍스트            │
+│ 표지판: 분류 라벨            │
+└─────────────────────────────┘
+```
 
-### 6.2. 엣지 디바이스용 순수 CPU 추론 테스트 성공
-PyTorch 등 무거운 라이브러리 없이 순수 `ONNX Runtime(CPUExecutionProvider)`만을 사용하여 최종 KSL 타겟 추론 검증을 성공적으로 마쳤습니다.
-* **한국어 경로 버그 해결:** 한글 폴더/파일 경로로 인해 발생하던 이미지 로딩 문제(`cv2.imread`)를 `numpy` 바이트 배열 디코딩 방식으로 우회하여 안정적으로 이미지를 로드합니다.
-* **Float64 에러 수정:** ONNX 엔진이 요구하는 엄격한 타입 입력 규격(float32)에 맞춰 NumPy 전처리 결과 타입 파이프라인을 고도화했습니다.
-* **추론 결과:** "가능" 클래스의 테스트 이미지(`NIA_SL_WORD2493_REAL01_D_1.jpg`)에 대해 추론한 결과, 정답 라벨("가능")을 **1위 (신뢰도 41.18%)** 로 성공적으로 분류해 내며 가벼운 용량에도 뛰어난 인식 능력을 보존함을 증명했습니다.
+### 6.2. 모델 선택 근거
 
-### 6.3. 🚀 Real-time MediaPipe Webcam Demo (Edge-Sign)
-무거운 OpenPose 라이브러리 없이, 맥북이나 모바일 기기 등 엣지 디바이스에서도 가볍게 시연할 수 있도록 **MediaPipe 기반 실시간 웹캠 데모** 구현을 완료했습니다. 브라우저에서 MediaPipe를 통해 추출한 랜드마크를 학습된 OpenPose 959차원 형식으로 즉시 변환하고, 이를 FastAPI 백엔드로 웹소켓(WebSocket) 전송하여 제로 레이턴시 추론을 수행합니다.
+| 구성 요소 | 선택 모델 | 선택 근거 |
+| :--- | :--- | :--- |
+| 검출기 | YOLOv8-Nano (3.2M) | Ultralytics ONNX/양자화 지원 가장 성숙. 엣지 예산 충족 |
+| 추적기 (기본) | ByteTrack | 추가 모델 파라미터 없음. 검출기 양자화 효과를 순수하게 분리 가능 |
+| 추적기 (ablation) | BoT-SORT + OSNet-x0.25 | ReID 백본 양자화 효과를 E6 실험에서 측정 |
+| 간판 OCR | KoreanOCRNet (700K) | Phase 1에서 양자화 실험 완료. 신규 학습 불필요 |
+| 교통표지판 분류 | TrafficSignNet (65K) | 동일 — Phase 1 재활용 |
 
-**실행 방법 (Execution Guide):**
+### 6.3. 데이터 파이프라인
 
-1. **백엔드 서버 실행 (터미널)**
-   가벼운 Float32 배열 데이터만 받아 파이토치 모델 추론을 수행하는 웹소켓 서버를 엽니다.
-   ```bash
-   python scripts/mediapipe_ws_server.py
-   ```
+AI Hub 데이터셋 188(신호등/도로표지판, 수도권)의 원천 데이터는 개별 이미지가 아닌 **동영상 시퀀스**입니다. 프레임 단위 랜덤 분할을 적용할 경우 동일 동영상의 인접 프레임이 train/val에 동시 노출되어 데이터 리크가 발생합니다. 이를 방지하기 위해 **시퀀스 단위 분할**을 채택합니다.
 
-2. **프론트엔드 (데모 화면) 실행**
-   터미널 명령어나 파일 탐색기를 통해 웹 브라우저에서 HTML 파일을 엽니다.
-   ```bash
-   # Mac 환경
-   open web/mediapipe/index.html
-   ```
+```
+AI Hub validation 동영상 (~40 GB, ~30 fps)
+         │
+         ▼
+scripts/extract_frames.py
+  --fps 5              # 6× 다운샘플: 시각적 중복 제거
+  --split_by sequence  # 동영상 경계 단위로 train/val 분리 (프레임 리크 없음)
+         │
+         ├── train sequences (80%) → data/aihub_traffic/frames/train/
+         └── val sequences   (20%) → data/aihub_traffic/frames/val/
+                                     + data/aihub_traffic/val_videos/  ← 추적 평가·시연용 원본 보존
+         │
+         ▼
+src/detect/prepare_dataset.py --source aihub_traffic
+  # AI Hub JSON 어노테이션 → YOLO bbox 포맷 (.txt)
+         │
+         ▼  (GTSDB 합산: --source all)
+data/yolo_signs/dataset.yaml  →  YOLOv8n 학습
+```
 
-3. **모바일 카메라 시연 (동일 Wi-Fi 환경)**
-   핸드폰 등에서 데모를 시연하려면, 아래 명령어로 간단한 로컬 웹 서버를 열고 핸드폰 브라우저에서 맥북의 IP로 접속하면 됩니다.
-   ```bash
-   cd web/mediapipe
-   python -m http.server 8080
-   ```
-   * 접속 주소 예시: `http://192.168.0.x:8080`
-   * 화면 내 **WebSocket URL** 값을 맥북 IP(예: `ws://192.168.0.x:8001/ws`)로 수정한 뒤 **[카메라 및 서버 연결 시작]** 버튼을 누르면 실시간 KSL 번역이 시작됩니다.
+| 분할 방식 | 데이터 리크 | 이유 |
+| :--- | :---: | :--- |
+| 프레임 단위 랜덤 분할 | 발생 | 동일 동영상의 인접 프레임이 train/val에 동시 존재 |
+| 시퀀스 단위 분할 (채택) | 없음 | train 동영상과 val 동영상이 완전히 분리됨 |
 
-### 6.4. 🔬 Ph.D. Advanced Diagnostics Lab (박사 과정 연구 진단 랩) 온디바이스 통합 완료
-초경량 ONNX 엔진을 브라우저(WebAssembly) 단에 100% 오프라인으로 이식하여, 단순 문자 인식을 넘어선 **연구자 수준의 지능형 분석 대시보드**를 구축했습니다. 
-- **획 XAI (Stroke-level Attribution):** 사용자가 그린 획 단위로 Ablation(제거) 테스트를 실시간 수행하여, 모델의 예측(Logit)에 기여하는 핵심 획을 형광 네온 효과로 시각화합니다.
-- **자소 분석 (Hangul Graph Decomposer):** 유니코드 연산을 통해 글자를 초/중/종성으로 분해하고, 트리 구조 그래프를 통해 신경망 데이터 흐름과 획수 일치성(Consistency Score)을 분석합니다.
-- **양자화 샌드박스 (Quantization Sandbox):** 8-Bit부터 1-Bit Binarization까지 활성화 텐서의 가상 양자화를 시뮬레이션하여 MSE 오차, KL Divergence 및 실시간 히스토그램을 브라우저 단에서 렌더링합니다.
-- **강건성 및 엔트로피 (Robustness & Shannon Entropy):** 가우시안/임펄스 노이즈 주입 시 출력 확률 분포의 Shannon Entropy를 연산하여 모델의 의사결정 불확실성(Confused/Confident)을 즉각 판별합니다.
-*(※ 로컬 백엔드 연동이 필요 없는 100% 순수 프론트엔드 오프라인 AI 아키텍처 구현 달성)*
+val 분할의 원본 동영상은 추적 평가(MOTA/IDF1/HOTA는 연속 프레임 시퀀스 필요) 및 웹 시연에 직접 활용합니다.
+
+---
+
+## 7. Phase 2 양자화 실험 매트릭스
+
+파이프라인의 각 단계를 독립적으로 양자화하여 단계별 민감도를 정량화합니다. E0 대 E1 비교는 검출기 단계의 민감도를 분리하고, E0 대 E2 비교는 인식기 단계의 민감도를 분리합니다.
+
+### 실험 구성
+
+| ID | 검출기 | 추적기 | 간판 OCR | 교통 분류 | 예상 총 크기 |
+| :--- | :--- | :--- | :--- | :--- | :---: |
+| E0 | FP16 | ByteTrack | FP16 | FP16 | ~10 MB |
+| E1 | **W8A8** | ByteTrack | FP16 | FP16 | ~8 MB |
+| E2 | FP16 | ByteTrack | **W8A8** | **W8A8** | ~7 MB |
+| E3 | W8A8 전체 | ByteTrack | W8A8 | W8A8 | ~5 MB |
+| E4 | W4A16 전체 | ByteTrack | W4A16 | W4A16 | ~3 MB |
+| E5 | SmoothQuant | ByteTrack | SmoothQuant | SmoothQuant | ~6 MB |
+| E6 | W8A8 | **BoT-SORT** (W8A8 ReID) | W8A8 | W8A8 | ~7 MB |
+| E7 | W4A16 | ByteTrack | **1-Bit** | **1-Bit** | ~2 MB |
+
+### 평가 지표
+
+검출 단계: mAP@0.5, mAP@0.5:0.95, Precision, Recall  
+추적 단계: MOTA, IDF1, HOTA, ID Switches  
+인식 단계: OCR 문자 정확도, OCR 단어 정확도, 표지판 Top-1/Top-5  
+종합: 총 모델 크기, FPS (CPU), FPS (ONNX Runtime Web), Final Score
+
+$$\text{Final Score} = 0.6 \times \frac{\text{인식률}_i}{\text{인식률}_{E0}} + 0.2 \times \frac{\text{Latency}_{E0}}{\text{Latency}_i} + 0.2 \times \min\!\left(1, \frac{\text{크기}_{E0}}{\text{크기}_i}\right)$$
+
+실험 결과는 `docs/EXPERIMENTS.md`에 기록하며, 완료 후 Pareto Frontier 차트를 생성합니다.
+
+---
+
+## 8. 웹 배포 아키텍처 및 추론 환경
+
+### 모드 1: 전체 클라이언트 사이드 추론 (목표)
+
+```
+브라우저 (ONNX Runtime Web)
+┌──────────────────────────────────┐
+│  Camera API → 프레임 캡처         │
+│  → YOLOv8n ONNX (WASM/WebGPU)   │
+│  → ByteTrack (순수 JavaScript)   │
+│  → ROI 크롭                       │
+│  → OCR / 분류 ONNX (WASM)        │
+│  → Canvas 오버레이 렌더링          │
+└──────────────────────────────────┘
+총 모델 페이로드 목표: < 15 MB
+```
+
+### 모드 2: 서버 어시스트 (Fallback)
+
+```
+브라우저                        FastAPI 서버
+┌────────────┐   WebSocket    ┌──────────────────┐
+│ Camera     │ ────────────►  │ YOLOv8n          │
+│ 프레임      │                │ + ByteTrack      │
+│            │ ◄────────────  │ + 인식기          │
+│ 결과 표시   │   JSON 결과    │ (CPU / GPU)      │
+└────────────┘                └──────────────────┘
+```
+
+참조 구현: `scripts/mediapipe_ws_server.py` (WebSocket 서버), `web/app.js` (ONNX Runtime Web 클라이언트)
+
+---
+
+## 9. 재현 가이드 (Reproduction Guide)
+
+### 환경 설치
+
+```bash
+pip install -r requirements.txt
+```
+
+### Phase 1 — 분류 양자화
+
+```bash
+python src/base_model.py                    # FP16 기준선
+python src/base_W8A8.py                     # W8A8 PTQ
+python src/base_train_w4a16_qat.py          # W4A16 QAT
+python src/base_train_1bit_kd.py            # 1-Bit + KD
+python src/multimodal_w8a8_smoothquant.py   # SmoothQuant
+python src/final_omnimodal_eval.py          # 종합 평가 (Final Score)
+```
+
+### Phase 1 — ONNX 추출 및 CPU 추론
+
+```bash
+python src/export_onnx.py     # PyTorch → ONNX (opset 14, TorchScript)
+python src/quantize_int8.py   # ONNX Runtime INT8 동적 양자화
+```
+
+### Phase 1 — 웹 데모
+
+```bash
+python scripts/mediapipe_ws_server.py   # MediaPipe WebSocket 서버
+
+# LAN 환경에서 모바일 접속
+cd web/mediapipe && python -m http.server 8080
+```
+
+### Phase 2 — 데이터 준비
+
+```bash
+# GTSDB
+python scripts/download_gtsdb.py
+python src/detect/prepare_dataset.py --source gtsdb
+
+# AI Hub 동영상 → 프레임 (시퀀스 단위 분할)
+python scripts/extract_frames.py \
+  --input  data/aihub_traffic/validation \
+  --output data/aihub_traffic/frames \
+  --fps 5 --split_by sequence
+
+# 어노테이션 변환 및 통합
+python src/detect/prepare_dataset.py --source aihub_traffic
+python src/detect/prepare_dataset.py --source all
+```
+
+### Phase 2 — 검출 학습
+
+```bash
+python src/detect/yolo_train.py --mode train --epochs 100
+python src/detect/yolo_train.py --mode val
+python src/detect/export_yolo_onnx.py --weights best.pt
+```
+
+### Phase 2 — E2E 파이프라인 및 양자화 실험 (진행 예정)
+
+```bash
+python src/pipeline/e2e_pipeline.py    # 전체 파이프라인 추론
+python src/quant/run_experiments.py    # E0–E7 실험 일괄 실행
+```
