@@ -168,3 +168,11 @@ PyTorch 등 무거운 라이브러리 없이 순수 `ONNX Runtime(CPUExecutionPr
    ```
    * 접속 주소 예시: `http://192.168.0.x:8080`
    * 화면 내 **WebSocket URL** 값을 맥북 IP(예: `ws://192.168.0.x:8001/ws`)로 수정한 뒤 **[카메라 및 서버 연결 시작]** 버튼을 누르면 실시간 KSL 번역이 시작됩니다.
+
+### 6.4. 🔬 Ph.D. Advanced Diagnostics Lab (박사 과정 연구 진단 랩) 온디바이스 통합 완료
+초경량 ONNX 엔진을 브라우저(WebAssembly) 단에 100% 오프라인으로 이식하여, 단순 문자 인식을 넘어선 **연구자 수준의 지능형 분석 대시보드**를 구축했습니다. 
+- **획 XAI (Stroke-level Attribution):** 사용자가 그린 획 단위로 Ablation(제거) 테스트를 실시간 수행하여, 모델의 예측(Logit)에 기여하는 핵심 획을 형광 네온 효과로 시각화합니다.
+- **자소 분석 (Hangul Graph Decomposer):** 유니코드 연산을 통해 글자를 초/중/종성으로 분해하고, 트리 구조 그래프를 통해 신경망 데이터 흐름과 획수 일치성(Consistency Score)을 분석합니다.
+- **양자화 샌드박스 (Quantization Sandbox):** 8-Bit부터 1-Bit Binarization까지 활성화 텐서의 가상 양자화를 시뮬레이션하여 MSE 오차, KL Divergence 및 실시간 히스토그램을 브라우저 단에서 렌더링합니다.
+- **강건성 및 엔트로피 (Robustness & Shannon Entropy):** 가우시안/임펄스 노이즈 주입 시 출력 확률 분포의 Shannon Entropy를 연산하여 모델의 의사결정 불확실성(Confused/Confident)을 즉각 판별합니다.
+*(※ 로컬 백엔드 연동이 필요 없는 100% 순수 프론트엔드 오프라인 AI 아키텍처 구현 달성)*
