@@ -138,11 +138,12 @@ $$\text{Final Score} = 0.6 \times \text{PerfNorm} + 0.2 \times \text{SpeedNorm} 
 
 **→ W8A8 SmoothQuant를 Phase 2 파이프라인의 인식 백본으로 채택합니다.**
 
-### 5.1. ONNX 배포 성과
+### 5.1. ONNX 배포 검증
 
-- **ONNX Export:** `opset_version=14` + TorchScript 익스포터로 Shape Inference Error 해결
-- **ONNX Runtime INT8 동적 양자화:** FP32 60.70 MB → **15.61 MB** (압축률 3.9×)
-- **순수 CPU 추론:** `ONNX Runtime (CPUExecutionProvider)`만으로 테스트 이미지 Rank-1 신뢰도 41.18% 정확 분류
+- **ONNX Export:** `opset_version=14` + TorchScript 익스포터로 안정적 내보내기 검증 (`src/export_onnx.py`)  
+  *(최신 PyTorch Dynamo 익스포터에서 발생하는 Shape Inference Error는 TorchScript 모드로 우회)*
+- **ONNX Runtime 동적 양자화:** INT8 동적 양자화 구현 완료 (`src/quantize_int8.py`) — Phase 2 ONNX 파이프라인에 동일 방식 적용 예정
+- **순수 CPU 추론:** `ONNX Runtime (CPUExecutionProvider)` 단독 추론 경로 확보 (PyTorch 의존성 없음)
 
 ---
 
