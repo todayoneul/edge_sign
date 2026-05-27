@@ -65,11 +65,18 @@ pip install -r requirements.txt
 
 ### 2.2. Phase 2 — 검출+추적+인식 데이터셋
 
-| 데이터셋 | 설명 | 용도 |
-| :--- | :--- | :--- |
-| [AI Hub 신호등·도로표지판 인지 영상(수도권)](https://aihub.or.kr/) | 9 시퀀스, 110,900 프레임 (30 fps) | YOLOv8n 검출 학습 |
-| [AI Hub 야외 실제 촬영 한글 이미지](https://aihub.or.kr/) | 30,141 JPG+JSON 쌍 | 간판 OCR 학습 |
-| [GTSDB](https://benchmark.ini.rub.de/gtsdb_news.html) | 독일 교통표지판 벤치마크 | 교통표지판 검출 보강 |
+| 데이터셋 | 원본 형식 | 규모 | 용도 |
+| :--- | :--- | :--- | :--- |
+| [AI Hub 신호등·도로표지판 인지 영상(수도권)](https://aihub.or.kr/) | TAR 아카이브 (JPG 프레임) | 9 시퀀스 / 110,900 프레임 (37 GB) | YOLOv8n 검출 학습 |
+| [AI Hub 야외 실제 촬영 한글 이미지](https://aihub.or.kr/) | JPG + JSON (이미 해제) | Training 25,837 / Validation 4,304장 | 간판 signboard 검출 |
+| [GTSDB](https://benchmark.ini.rub.de/gtsdb_news.html) | PPM + gt.txt | 900장 (train 720 / val 180) | 교통표지판 검출 보강 |
+
+**최종 통합 학습셋 (`data/yolo_signs/`):** train **26,866** 장 / val **4,667** 장 — 2 클래스 (`traffic_sign`, `signboard`)
+
+| 클래스 | 매핑 |
+| :--- | :--- |
+| `traffic_sign` (0) | GTSDB 교통표지판 + AI Hub `traffic_sign` + `traffic_light` |
+| `signboard` (1) | AI Hub 야외 한글 간판 (가로형 / 세로형 / 실내형) |
 
 ---
 
@@ -189,34 +196,66 @@ $$\text{Final Score} = 0.6 \times \text{PerfNorm} + 0.2 \times \text{SpeedNorm} 
 
 ### 6.3. 데이터 파이프라인
 
-AI Hub 데이터셋의 원천 데이터는 **동영상 시퀀스**입니다.  
-프레임 단위 랜덤 분할 시 동일 동영상의 인접 프레임이 train/val에 동시 노출되어 **데이터 리크**가 발생합니다.  
-이를 방지하기 위해 **시퀀스 단위 분할**을 채택합니다.
+> **주의:** AI Hub 신호등·도로표지판 데이터는 동영상 파일이 아닌 **이미 추출된 JPG 프레임을 TAR 아카이브에 패킹**한 형태입니다.  
+> 각 TAR = 1개 촬영 시퀀스 (카메라 기종 / 해상도 / 주야간 / 번호로 구분).
 
-```
-AI Hub validation 동영상 (~40 GB, ~30 fps)
-         │
-         ▼
-scripts/extract_frames.py
-  --sample_rate 6          # 6× 다운샘플: 30fps→5fps, 시각적 중복 제거
-  --split_by sequence      # 동영상 경계 단위 train/val 분리 (프레임 리크 없음)
-         │
-         ├── train sequences (80%) → data/aihub_traffic/frames/train/
-         └── val sequences   (20%) → data/aihub_traffic/frames/val/
-                                     + data/aihub_traffic/val_videos/  ← 추적 평가·시연용
-         │
-         ▼
-src/detect/prepare_dataset.py --source aihub_traffic
-  # AI Hub JSON 어노테이션 → YOLO bbox 포맷 (.txt)
-         │
-         ▼  (GTSDB 합산: --source all)
-data/yolo_signs/dataset.yaml  →  YOLOv8n 학습
-```
+#### 시퀀스 단위 분할 — 데이터 리크 방지
+
+인접 프레임을 프레임 단위로 랜덤 분할하면 동일 장면이 train/val에 동시 노출되어 **데이터 리크**가 발생합니다.  
+이를 방지하기 위해 **TAR(시퀀스) 단위로 분할**하여 train/val/test 경계가 완전히 분리되도록 합니다.
 
 | 분할 방식 | 데이터 리크 | 이유 |
 | :--- | :---: | :--- |
-| 프레임 단위 랜덤 분할 | **발생** | 동일 동영상 인접 프레임이 train/val에 동시 존재 |
-| **시퀀스 단위 분할 (채택)** | **없음** | train/val 동영상이 완전히 분리됨 |
+| 프레임 단위 랜덤 분할 | **발생** | 동일 장면의 인접 프레임이 train/val에 동시 존재 |
+| **시퀀스(TAR) 단위 분할 (채택)** | **없음** | train/val/test 시퀀스가 완전히 분리됨 |
+
+#### 시퀀스 배정 결과
+
+| 시퀀스 | 해상도 | 주야간 | 분할 |
+| :--- | :---: | :---: | :---: |
+| c_validation_1280_720_daylight_1,2,3 | 1280×720 | 주간 | train |
+| c_validation_1920_1200_daylight_1 | 1920×1200 | 주간 | train |
+| d_validation_1920_1080_daylight_1,2 | 1920×1080 | 주간 | train |
+| d_validation_1920_1080_night_1 | 1920×1080 | 야간 | val |
+| c_validation_1280_720_night_1 | 1280×720 | 야간 | test |
+| c_validation_1920_1200_night_1 | 1920×1200 | 야간 | test |
+
+*train 6개 / val 1개 / test 2개 — 크기 내림차순 배정.*  
+*test 시퀀스는 연속 프레임 보존 → ByteTrack 추적 평가(MOTA/IDF1/HOTA) + 웹 시연에 사용.*
+
+#### 처리 파이프라인
+
+```
+AIhub/신호등-도로표지판 인지 영상(수도권)/Validation/
+  [원천]*.tar  (JPG 프레임)  +  [라벨]*.tar  (JSON 어노테이션)
+         │
+         ▼
+scripts/extract_frames.py  --sample_rate 6
+  # 매 6번째 프레임 서브샘플 (30fps → 5fps 시뮬레이션)
+  # 시퀀스 크기 기준 자동 분할: train 6 / val 1 / test 2
+  # 추출 결과: 18,488 프레임 (train 18,146 / val 184 / test 158)
+         │
+         ├── data/aihub_traffic/train/images/{seq}/  +  labels/{seq}/
+         ├── data/aihub_traffic/val/images/{seq}/    +  labels/{seq}/
+         └── data/aihub_traffic/test/images/{seq}/   +  labels/{seq}/
+                                                     ↑ ByteTrack 추적 평가용
+         │
+         ▼
+src/detect/prepare_dataset.py --source aihub_traffic   # JSON xyxy → YOLO
+src/detect/prepare_dataset.py --source aihub_signboard # COCO xywh → YOLO
+src/detect/prepare_dataset.py --source gtsdb           # PPM/gt.txt → YOLO
+         │
+         ▼  (--source all 로 3개 합산)
+data/yolo_signs/
+  ├── images/train/  26,866 JPGs   (GTSDB + AI Hub traffic + AI Hub signboard)
+  ├── images/val/     4,667 JPGs
+  ├── labels/train/  26,866 .txt   (YOLO format: class cx cy bw bh)
+  ├── labels/val/     4,667 .txt
+  └── dataset.yaml                 (nc=2, names: traffic_sign / signboard)
+         │
+         ▼
+YOLOv8n 학습  →  src/detect/yolo_train.py
+```
 
 ---
 
@@ -314,16 +353,18 @@ python src/quantize_int8.py   # ONNX Runtime INT8 동적 양자화
 python scripts/download_gtsdb.py
 python src/detect/prepare_dataset.py --source gtsdb
 
-# AI Hub 동영상 → 프레임 (시퀀스 단위 분할)
+# AI Hub 신호등·도로표지판 TAR 해제 + 서브샘플링 (시퀀스 단위 분할)
+# 입력: [원천]*.tar + [라벨]*.tar (JPG 프레임 in TAR, 동영상 아님)
+# 결과: data/aihub_traffic/{train,val,test}/{images,labels}/{seq}/
 python scripts/extract_frames.py \
   --input  "AIhub/신호등-도로표지판 인지 영상(수도권)/Validation" \
   --output data/aihub_traffic \
-  --sample_rate 6
+  --sample_rate 6   # 30fps → 5fps (18,488 프레임 추출)
 
-# 어노테이션 변환 및 통합
-python src/detect/prepare_dataset.py --source aihub_traffic
-python src/detect/prepare_dataset.py --source aihub_signboard
-python src/detect/prepare_dataset.py --source all
+# 어노테이션 변환 및 통합 (→ data/yolo_signs/)
+python src/detect/prepare_dataset.py --source aihub_traffic    # JSON xyxy → YOLO
+python src/detect/prepare_dataset.py --source aihub_signboard  # COCO xywh → YOLO
+python src/detect/prepare_dataset.py --source all              # 3개 합산: train 26,866 / val 4,667
 ```
 
 ### Phase 2 — 검출 학습
