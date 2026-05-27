@@ -18,15 +18,26 @@
 
 - [ ] 데이터셋 선정 및 준비
   - [x] GTSDB 다운로드 완료 (2026-05-27) — `data/GTSDB/FullIJCNN2013/`, 900장 + gt.txt
-  - [ ] AI Hub 188 (신호등/도로표지판, 수도권) validation 동영상 다운로드 중 (~40GB)
-    - ⚠️ **원천 데이터가 동영상** — 프레임 추출 후 YOLO 포맷 변환 필요
-  - [ ] AI Hub 동영상 → 프레임 추출 → `scripts/extract_frames.py`
-    - `--fps 5` 추출 (30fps 원본에서 6배 다운샘플, 시각적 중복 제거)
-    - **시퀀스 단위** train(80%)/val(20%) 분할 — 프레임 단위 분할 시 데이터 리크 발생
-    - 추적 시연용 원본 동영상 시퀀스 별도 보존
+  - [x] AI Hub 신호등-도로표지판 인지 영상(수도권) TAR 다운로드 완료 (2026-05-27)
+    - ✅ 9개 시퀀스, 총 110,900 JPG 프레임 + JSON 어노테이션 (TAR 압축 상태, 37GB)
+    - ⚠️ **원천 데이터는 동영상이 아닌 JPG 프레임** — TAR 아카이브에 이미 프레임으로 저장됨
+    - JSON 포맷: `{"annotation":[{"box":[x1,y1,x2,y2],"class":"traffic_sign"/"traffic_light"}],"image":{"imsize":[W,H]}}`
+    - 시퀀스별 파일 크기: daylight_1,2(1280×720)≈30k프레임, d_daylight_1,2(1920×1080)≈15k프레임 등
+  - [x] AI Hub 030.야외 실제 촬영 한글 이미지 다운로드 완료 (2026-05-27)
+    - ✅ 이미 압축 해제됨 (JPG+JSON 쌍): Training 25,837장 + Validation 4,304장
+    - JSON 포맷: `{"images":[{"width":W,"height":H}],"annotations":[{"bbox":[x,y,w,h],"text":"..."}]}`
+    - 카테고리: 가로형간판(18,841), 실내간판(6,574), 세로형간판(363) 등
+  - [ ] AI Hub 다양한 형태의 한글 문자 OCR 데이터 ZIP 해제 (선택사항, 39.6GB)
+    - 인쇄체+필기체 한글 문자 인식용 — OCR 인식기 개선에 활용 예정
+  - [ ] 신호등-도로표지판 TAR 해제 + 시퀀스 분할 → `scripts/extract_frames.py`
+    - `--sample_rate 6` (30fps→5fps 서브샘플링, 시각적 중복 제거)
+    - **시퀀스 단위 분할**: 9개 TAR → train 6개 / val 1~2개 / test 1~2개
+    - test 시퀀스는 연속 프레임 보존 → ByteTrack 추적 평가 및 웹 시연에 사용
   - [ ] GTSDB → YOLO 포맷 변환 → `src/detect/prepare_dataset.py --source gtsdb`
-  - [ ] AI Hub 프레임 → YOLO 포맷 변환 → `src/detect/prepare_dataset.py --source aihub_traffic`
-    - AI Hub JSON 어노테이션 구조 확인 후 `convert_aihub_traffic()` 구현 (현재 stub)
+  - [ ] 신호등-도로표지판 프레임 → YOLO 포맷 변환 → `--source aihub_traffic`
+    - JSON xyxy bbox → YOLO 정규화 cx cy w h (구현 완료)
+  - [ ] 야외 한글 이미지 → YOLO 포맷 변환 → `--source aihub_signboard`
+    - JSON COCO-style xywh bbox → YOLO 정규화 cx cy w h (구현 완료)
 - [ ] YOLOv8n 학습
   - [ ] GTSDB only 기준선 학습 (AI Hub 도착 전 선행) → `src/detect/yolo_train.py`
   - [ ] GTSDB + AI Hub 합산 학습 → `--source all`
@@ -44,17 +55,17 @@
 
 - [ ] ByteTrack 구현
   - [ ] Kalman Filter + IoU 매칭 구현 → `src/track/bytetrack.py`
-  - [ ] AI Hub val 동영상 시퀀스에서 동작 확인 (원본 동영상 직접 사용)
+  - [ ] AI Hub test 시퀀스 (연속 프레임) 에서 동작 확인
 - [ ] BoT-SORT 통합 (ablation용)
   - [ ] 경량 ReID 백본 선택 (OSNet-x0.25 ~0.5M params)
   - [ ] BoT-SORT 구현 → `src/track/botsort.py`
 - [ ] MOT 평가
-  - [ ] 테스트 시퀀스 준비 — AI Hub val 분할에서 예약한 동영상 클립 사용
-    - ⚠️ 시퀀스 단위 분할로 val 동영상은 학습에 미등장, 리크 없음
+  - [ ] 테스트 시퀀스 준비 — extract_frames.py의 test split 시퀀스 사용
+    - ⚠️ 시퀀스 단위 분할로 test 프레임은 학습에 미등장, 리크 없음
   - [ ] MOTA/IDF1/HOTA 평가 코드 → `src/track/eval_tracking.py`
   - [ ] FP16 기준선 추적 메트릭 기록 → `docs/EXPERIMENTS.md`
 
-**완료 기준:** ByteTrack MOTA > 0.5 on AI Hub val 동영상 시퀀스
+**완료 기준:** ByteTrack MOTA > 0.5 on AI Hub test 시퀀스
 
 ---
 
@@ -127,7 +138,7 @@
   - [ ] `web/detection/styles.css` — 스타일링
 - [ ] 실시간 기능
   - [ ] 웹캠/영상 입력 → 검출 → 추적 → 인식 오버레이
-  - [ ] **AI Hub 동영상 클립 재생 모드** — 준비된 val 시퀀스를 브라우저에서 재생하며 파이프라인 시연
+  - [ ] **AI Hub 프레임 시퀀스 재생 모드** — test 시퀀스 프레임을 브라우저에서 재생하며 파이프라인 시연
   - [ ] 양자화 모델 전환 토글 (FP16/W8A8/W4A16 비교)
   - [ ] FPS + 모델 크기 실시간 표시
 - [ ] 서버 fallback 모드

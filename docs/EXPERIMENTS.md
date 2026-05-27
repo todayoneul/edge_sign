@@ -27,14 +27,19 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
 
 ### 데이터셋 정보
 
-| 소스 | 원천 형식 | 처리 방법 | 용도 | 상태 |
-|------|-----------|-----------|------|------|
-| GTSDB | PPM 이미지 + gt.txt | 직접 변환 | traffic_sign 학습 | ✅ 완료 (900장) |
-| AI Hub 188 (수도권) | **동영상** | fps=5 추출 → 시퀀스 분할 → YOLO 변환 | traffic_sign 학습+추적평가 | ⏳ 다운로드 중 (~40GB) |
-| AI Hub 105 (한글 간판) | **동영상** | fps=5 추출 → 시퀀스 분할 → YOLO 변환 | signboard 학습 | 예정 |
+| 소스 | 원천 형식 | 처리 방법 | 클래스 | 크기 | 상태 |
+|------|-----------|-----------|--------|------|------|
+| GTSDB | PPM + gt.txt | 직접 변환 | traffic_sign(0) | 900장 | ✅ 변환 대기 |
+| AI Hub 신호등-도로표지판(수도권) | **JPG 프레임 in TAR** | TAR 해제 → ÷6 서브샘플 → 시퀀스 분할 → YOLO 변환 | traffic_sign(0)+traffic_light(0) | 9시퀀스 110,900프레임 (37GB) | ✅ 다운로드 완료, TAR 해제 대기 |
+| AI Hub 030.야외 한글 이미지 | **JPG+JSON (이미 해제됨)** | 직접 YOLO 변환 | signboard(1) | 학습 25,837장 + 검증 4,304장 | ✅ 바로 변환 가능 |
+| AI Hub 다양한 형태의 한글 OCR | **ZIP 압축** | ZIP 해제 → OCR 학습 데이터 | (문자 인식용) | 39.6GB 압축 | ⏳ 선택사항, 추후 처리 |
 
-> ⚠️ **시퀀스 기반 분할 적용**: AI Hub 동영상 단위로 train(80%)/val(20%) 분리.
-> val 동영상 원본은 추적 평가(MOTA/IDF1/HOTA) 및 웹 시연에 직접 사용.
+> ⚠️ **시퀀스 단위 분할**: 신호등-도로표지판 TAR 9개 → train 6 / val 1~2 / test 1~2.
+> test 시퀀스는 연속 프레임 보존 → ByteTrack 추적 평가(MOTA/IDF1/HOTA) + 웹 시연에 사용.
+>
+> **JSON 포맷 확인 완료:**
+> - 신호등-도로표지판: `{"annotation":[{"box":[x1,y1,x2,y2], "class":"traffic_sign"/"traffic_light"}], "image":{"imsize":[W,H]}}`
+> - 야외 한글 이미지: `{"images":[{"width":W,"height":H}], "annotations":[{"bbox":[x,y,w,h], "text":"..."}]}`
 
 ### 실험 구성
 
@@ -141,6 +146,9 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
 
 > 실험 중 발견한 사항, 예상치 못한 결과, 디버깅 노트 등을 여기에 기록합니다.
 
-- **2026-05-27**: AI Hub 188 원천 데이터가 동영상임을 확인. 프레임 단위 랜덤 분할 불가 (데이터 리크). `scripts/extract_frames.py`에서 시퀀스 단위 분할 구현 예정.
-- **2026-05-27**: 추적 평가 시퀀스 = AI Hub val 분할 원본 동영상. 별도 테스트 영상 불필요.
-- **2026-05-27**: GTSDB 단독 기준선 학습을 AI Hub 데이터 도착 전 먼저 진행하여 파이프라인 검증 선행.
+- **2026-05-27**: AI Hub 신호등-도로표지판 원천 데이터 실제 확인 — 동영상이 아닌 JPG 프레임 (TAR 아카이브). 9개 시퀀스, 총 110,900 프레임. `scripts/extract_frames.py`에서 TAR 해제 + 서브샘플(÷6) + 시퀀스 분할 구현 완료.
+- **2026-05-27**: 030.야외 한글 이미지 이미 압축 해제됨. 학습 25,837장 + 검증 4,304장. `prepare_dataset.py --source aihub_signboard` 구현 완료 (COCO-style xywh → YOLO 변환).
+- **2026-05-27**: 신호등-도로표지판 JSON 포맷 확인: `annotation[].box` = [x1,y1,x2,y2] xyxy 절대픽셀. traffic_light → class 0 (traffic_sign)으로 통합.
+- **2026-05-27**: 추적 평가 시퀀스 = test 분할 시퀀스 (d_1920_1080_night_1 예정). 별도 테스트 영상 불필요.
+- **2026-05-27**: GTSDB 단독 기준선 학습 먼저 진행 (TAR 해제 대기 없이 즉시 가능) → 파이프라인 검증 후 AI Hub 데이터 추가.
+- **2026-05-27**: 다양한 형태의 한글 문자 OCR (ZIP, 39.6GB) → Phase 2 초기에는 불필요. OCR 인식기 개선 필요 시 추후 처리.
