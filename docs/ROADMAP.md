@@ -38,11 +38,12 @@
   - [x] 야외 한글 이미지 → YOLO 포맷 변환 완료 (2026-05-27) — 12,303장 (train 8,000 / val 4,303)
   - ✅ **최종 yolo_signs**: train 26,866장 / val 4,667장 (GTSDB + 신호등 + 간판 통합)
 - [ ] YOLOv8n 학습
-  - [x] GTSDB + AI Hub 합산 학습 시작 (2026-05-28) — `runs/detect/edge_sign_v2_e0/`
-    - ⏳ **현재 진행 중**: epoch 84/100, mAP@0.5=0.572 (목표 0.70 향해 상승 중)
-    - 설정: batch=32, imgsz=640, cos_lr, patience=20, RTX 5070, ~2h/100ep
-    - `weights/best.pt` 체크포인트 저장됨 (epoch 84 기준)
-  - [ ] FP16 기준선 mAP 측정 및 기록 → `docs/EXPERIMENTS.md` E0 행
+  - [x] GTSDB + AI Hub 합산 학습 완료 (2026-05-28) — `runs/detect/edge_sign_v2_e0/`
+    - 설정: batch=32, imgsz=640, cos_lr, patience=20, RTX 5070, 100 epoch
+    - best epoch: 97, `weights/best.pt` (11.77 MB)
+  - [x] FP16 기준선 mAP 측정 및 기록 완료 (2026-05-28) → `docs/EXPERIMENTS.md` E0 행
+    - mAP@0.5=**0.573**, mAP@0.5:0.95=0.401, P=0.710, R=0.504
+    - ⚠️ **목표 0.70 미달** — AI Hub traffic TAR 데이터 미포함이 주원인
 - [ ] ONNX 내보내기
   - [ ] PyTorch → ONNX 변환 → `src/detect/export_yolo_onnx.py`
   - [ ] ONNX 모델 검증 (추론 결과 일치 확인)

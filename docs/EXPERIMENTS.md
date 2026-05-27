@@ -58,7 +58,7 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
 
 | ID | mAP@0.5 | mAP@0.5:0.95 | Precision | Recall | 모델 크기 |
 |----|---------|---------------|-----------|--------|-----------|
-| E0 | ⏳ 학습 중 (ep84/100, 현재 0.572) | ⏳ (현재 0.398) | ⏳ (현재 0.710) | ⏳ (현재 0.501) | ~6.3MB (FP16) |
+| E0 | **0.573** ⚠️ (<0.70 목표 미달) | 0.401 | 0.710 | 0.504 | 11.77 MB (FP32) |
 | E1 | — | — | — | — | — |
 | E2 | — | — | — | — | — |
 | E3 | — | — | — | — | — |
@@ -151,6 +151,13 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
 - **2026-05-27**: 신호등-도로표지판 JSON 포맷 확인: `annotation[].box` = [x1,y1,x2,y2] xyxy 절대픽셀. traffic_light → class 0 (traffic_sign)으로 통합.
 - **2026-05-27**: 추적 평가 시퀀스 = test 분할 시퀀스 (d_1920_1080_night_1 예정). 별도 테스트 영상 불필요.
 - **2026-05-27**: GTSDB 단독 기준선 학습 먼저 진행 (TAR 해제 대기 없이 즉시 가능) → 파이프라인 검증 후 AI Hub 데이터 추가.
+- **2026-05-28**: **E0 학습 완료** — YOLOv8n FP32, batch=32, 100 epoch, RTX 5070.
+  - 최종 val (best.pt, ep97 기준): mAP@0.5=**0.573**, mAP@0.5:0.95=0.401, P=0.710, R=0.504
+  - 클래스별: traffic_sign(P=0.776, R=0.453, mAP50=0.531) / signboard(P=0.644, R=0.555, mAP50=0.615)
+  - 모델 크기: 11.77 MB (FP32 best.pt)
+  - **⚠️ 목표 mAP@0.5 > 0.70 미달성 (0.573)**
+  - **원인 분석**: AI Hub 신호등-도로표지판 TAR 데이터 미포함 (현재 학습 데이터는 GTSDB 900장 + 간판 25,837장만). traffic_sign 클래스 심각한 불균형 (val 943 인스턴스 vs signboard 15,171). traffic_sign mAP50=0.531로 특히 낮음.
+  - **개선 방향**: `scripts/extract_frames.py`로 AI Hub TAR 해제 후 `--source all`로 재학습 필요. 또는 traffic_sign에 upsampling/focal loss 적용.
 - **2026-05-27**: 다양한 형태의 한글 문자 OCR (ZIP, 39.6GB) → Phase 2 초기에는 불필요. OCR 인식기 개선 필요 시 추후 처리.
 - **2026-05-28**: E0 학습 시작 (`edge_sign_v2_e0`). GTSDB+AI Hub 합산 데이터(26,866 train / 4,667 val). epoch 84/100 완료, mAP@0.5=0.572 (손실 지속 감소 중, 오버피팅 없음). 최종 mAP@0.5 ~0.60-0.65 예상. `runs/detect/edge_sign_v2_e0/weights/best.pt` 저장됨.
 - **2026-05-28**: 주행 Q&A 데모 아키텍처 결정: 엣지 파이프라인(YOLOv8n-INT8 + OCR-INT8) → 구조화 JSON → Claude Haiku API → 자연어 답변. 연구 결론부 시연용.
