@@ -47,6 +47,46 @@
 
 ---
 
+## 데이터 파이프라인
+
+> AI Hub 188 (신호등/도로표지판 인지 영상 - 수도권) 원천 데이터가 **동영상 파일**임을 반영한 파이프라인.
+
+```
+AI Hub validation (~40GB 동영상)
+       │
+       ▼
+scripts/extract_frames.py
+  - --fps 5  (30fps 원본에서 5fps 추출, 6x 다운샘플로 시각적 중복 제거)
+  - --split_by sequence  ← ★ 핵심: 동영상 단위로 train/val 분할
+       │                         (프레임 단위 분할 시 인접 프레임 리크 발생)
+       ├─── train_seqs (80%) → data/aihub_traffic/frames/train/
+       └─── val_seqs   (20%) → data/aihub_traffic/frames/val/
+                                 + data/aihub_traffic/val_videos/  ← 추적 평가·시연용 원본 보존
+       │
+       ▼
+src/detect/prepare_dataset.py --source aihub_traffic
+  - AI Hub JSON 어노테이션 → YOLO bbox 포맷 (.txt)
+  - data/yolo_signs/images/{train,val}/
+  - data/yolo_signs/labels/{train,val}/
+       │
+       ▼ (GTSDB 데이터 합산 --source all)
+data/yolo_signs/dataset.yaml  → YOLOv8n 학습 입력
+```
+
+### 시퀀스 기반 분할의 중요성
+
+| 분할 방식 | 리크 여부 | 이유 |
+|-----------|-----------|------|
+| **프레임 단위** (잘못된 방법) | ⚠️ 리크 | 동일 동영상의 인접 프레임이 train/val에 동시 존재 |
+| **시퀀스 단위** (올바른 방법) | ✅ 없음 | train 동영상과 val 동영상이 완전히 분리됨 |
+
+### 시연용 영상 활용
+
+- AI Hub val 시퀀스에서 예약한 원본 동영상 클립 → Phase 2 추적 평가 + Phase 6 웹 시연에 직접 사용
+- 실제 한국 도로/교차로 영상이므로 간판·표지판이 자연스럽게 포함됨
+
+---
+
 ## 모델 선택 근거
 
 ### 검출기: YOLOv8-Nano
@@ -142,3 +182,6 @@ ReID 양자화  ──► 추적 IDF1 변화 (ID 재식별 정확도)
 | 2026-05-27 | 간판+교통표지판 두 도메인 통합 | "Sign" 브랜딩 유지 + 다중 클래스 검출의 복잡도 증가 + 기존 OCR/분류기 모두 재활용 | 수어(정확도 부족으로 보류), 일반 MOT(기존 인프라 활용 불가) |
 | 2026-05-27 | ByteTrack 기본 추적기 | 추가 모델 없어서 양자화 효과를 검출기에 순수 분리 가능 | BoT-SORT(ablation으로 병행), StrongSORT(ReID 너무 큼) |
 | 2026-05-27 | 기존 OCR/분류기 재활용 | Phase 1 양자화 경험 활용, 새 학습 불필요 | ConvNeXtV2-Nano로 통합(오버킬), 경량 MobileNet(기존 코드 없음) |
+| 2026-05-27 | AI Hub validation only (~40GB) 사용 + 재분할 | 전체 191만 장 다운로드(수 TB) 불가. val 데이터만으로도 수천~수만 프레임 확보 가능 | 전체 학습 데이터(너무 큼), GTSDB만(한국 도로 표지판 없음) |
+| 2026-05-27 | 동영상 → 시퀀스 단위 train/val 분할 (fps=5 추출) | AI Hub 원천이 동영상 파일. 프레임 단위 분할 시 인접 프레임 간 데이터 리크 발생. fps=5는 30fps 원본 대비 6x 다운샘플로 시각적 중복 제거와 데이터 크기 균형 | fps=1(너무 희소), 프레임 단위 분할(리크), 원본 fps 전체 사용(저장소 과다) |
+| 2026-05-27 | val 동영상 원본 별도 보존 (추적 평가·시연용) | 추적 평가(MOTA/IDF1)는 연속 프레임 시퀀스가 필요. 웹 시연도 실제 도로 영상을 사용해야 설득력 있음 | 별도 테스트 동영상 촬영(불필요한 추가 작업) |
