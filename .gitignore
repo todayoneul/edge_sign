@@ -10,3 +10,4 @@
 /AIhub
 /dataset
 model_space/
+*.pt
