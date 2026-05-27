@@ -75,46 +75,19 @@
 **목표:** 검출 → 추적 → 클래스별 분기 인식 전체 파이프라인 완성
 
 - [ ] 트랙별 ROI 크롭 구현
-  - [ ] 검출 bbox → 추적된 ID별 이미지 크롭
-  - [ ] 시간 버퍼 (최근 T=8 프레임) 관리
+  - [x] 검출 bbox → 추적된 ID별 이미지 크롭 (2026-05-28) — `e2e_pipeline.py` preprocess_ocr_roi()
+  - [x] 시간 버퍼 (최근 T=8 프레임) 관리 (2026-05-28) — deque(maxlen=8) per track_id
 - [ ] 인식기 분기 연결
-  - [ ] signboard → KoreanOCRNet (기존 `src/korean_ocr_model.py`)
-  - [ ] traffic_sign → TrafficSignNet (기존 `src/model.py`)
-- [ ] E2E 파이프라인 → `src/pipeline/e2e_pipeline.py`
+  - [x] signboard → KoreanOCRNet ONNX 연결 완료 (2026-05-28) — `e2e_pipeline.py` _run_ocr()
+  - [ ] traffic_sign → TrafficSignNet (기존 `src/model.py`) — ONNX 미변환, 추후 추가
+- [x] E2E 파이프라인 구현 완료 (2026-05-28) → `src/pipeline/e2e_pipeline.py`
+  - YOLOv8n-ONNX 검출 + ByteTracker + KoreanOCRNet OCR 통합
+  - CLI: `python src/pipeline/e2e_pipeline.py --dry_run` 으로 초기화 확인 가능
 - [ ] E2E 평가 → `src/pipeline/eval_e2e.py`
 - [ ] FP16 기준선 E2E 메트릭 기록 → `docs/EXPERIMENTS.md` E0 행 완성
+  - ⚠️ YOLOv8n ONNX 변환 선행 필요 (`export_yolo_onnx.py`)
 
 **완료 기준:** 영상 입력 → 검출+추적+인식 결과 출력 파이프라인 동작
-
----
-
-## Phase 7: 주행 Q&A 결론 데모 (결론 섹션용)
-**목표:** "엣지 압축 인식 + 클라우드 언어 지능" 하이브리드 시연
-
-### 연구 스토리
-> 엣지 디바이스(`<15MB` 모델)가 실시간으로 표지판/간판 인식 → 구조화 JSON 생성 →
-> Claude API가 컨텍스트를 받아 운전자 질문에 자연어 답변.
-
-### 구현 항목
-- [ ] E2E 파이프라인 ONNX 추론 + ByteTrack 통합 → `src/pipeline/e2e_pipeline.py`
-  - YOLOv8n-ONNX 검출 → ByteTracker 추적 → ROI 크롭 → OCR/분류 인식
-  - track별 결과 누적 (temporal buffer, deque maxlen=8)
-  - 출력: `{"frame_id": ..., "tracks": [{id, class, text/category, conf, bbox}]}`
-- [ ] Claude API Q&A 브리지 → `src/pipeline/qa_bridge.py`
-  - `build_context(tracks)` → 자연어 컨텍스트 문자열
-  - `ask_stream(context, question)` → AsyncIterator (claude-haiku-4-5-20251001)
-  - `ANTHROPIC_API_KEY` → `.env` (python-dotenv)
-- [ ] FastAPI 백엔드 → `src/pipeline/app.py`
-  - `WS /ws/stream`: 프레임 수신 → 파이프라인 → JSON 전송
-  - `POST /api/qa` (SSE): context + question → 스트리밍 답변
-  - `GET /detection/`: 웹 데모 UI 서빙
-- [ ] 웹 데모 UI → `web/detection/`
-  - 좌측: 실시간 프레임 + bbox 오버레이 + track ID
-  - 우측: 인식 결과 목록 + 채팅 Q&A UI (스트리밍 답변)
-  - 동영상 파일 업로드 or 웹캠 입력
-- [ ] `.env.example` 생성 (ANTHROPIC_API_KEY 템플릿)
-
-**완료 기준:** AI Hub 도로 영상 재생 → 표지판/간판 인식 → 질문 입력 → Claude 답변 시연
 
 ---
 
@@ -163,27 +136,48 @@
 ## Phase 6: 웹 배포 + 시연 (7~8주차)
 **목표:** 브라우저에서 실시간 검출+추적+인식 시연
 
-- [ ] 웹 프론트엔드 구현
-  - [ ] `web/detection/index.html` — UI 레이아웃
-  - [ ] `web/detection/app.js` — ONNX Runtime Web 추론
-  - [ ] `web/detection/bytetrack.js` — JS ByteTrack
-  - [ ] `web/detection/styles.css` — 스타일링
-- [ ] 실시간 기능
-  - [ ] 웹캠/영상 입력 → 검출 → 추적 → 인식 오버레이
-  - [ ] **AI Hub 프레임 시퀀스 재생 모드** — test 시퀀스 프레임을 브라우저에서 재생하며 파이프라인 시연
+- [ ] 웹 프론트엔드 구현 (서버 어시스트 방식 — Phase 7에서 선행 구현)
+  - [x] `web/detection/index.html` — 영상 뷰 + 트랙 목록 + Q&A 채팅 UI (2026-05-28)
+  - [x] `web/detection/app.js` — WebSocket 프레임 전송 + SSE Q&A 클라이언트 (2026-05-28)
+  - [ ] `web/detection/bytetrack.js` — JS ByteTrack (전체 클라이언트 사이드 목표 시 필요)
   - [ ] 양자화 모델 전환 토글 (FP16/W8A8/W4A16 비교)
   - [ ] FPS + 모델 크기 실시간 표시
-- [ ] 서버 fallback 모드
-  - [ ] WebSocket 서버 → `scripts/detection_server.py`
+- [x] 서버 어시스트 모드 구현 완료 (2026-05-28) → `src/pipeline/app.py`
+  - WS /ws/stream + POST /api/qa + StaticFiles 서빙
 - [ ] 최종 시연 준비
-  - [ ] AI Hub 도로 영상 클립 (val 분할에서 선별) + 실시간 웹캠 데모
+  - [ ] AI Hub 도로 영상 클립 (val 분할에서 선별) 재생 확인
   - [ ] Pareto 차트 대시보드
 
 **완료 기준:** AI Hub 도로 영상 + 웹캠에서 간판+표지판 실시간 검출+추적+인식 동작
 
 ---
 
+## Phase 7: 주행 Q&A 결론 데모 (결론 섹션용)
+**목표:** "엣지 압축 인식 + 클라우드 언어 지능" 하이브리드 시연
+
+### 연구 스토리
+> 엣지 디바이스(`<15MB` 모델)가 실시간으로 표지판/간판 인식 → 구조화 JSON 생성 →
+> Claude API가 컨텍스트를 받아 운전자 질문에 자연어 답변.
+
+### 구현 항목
+- [x] E2E 파이프라인 ONNX 추론 + ByteTrack 통합 (2026-05-28) → `src/pipeline/e2e_pipeline.py`
+- [x] Claude API Q&A 브리지 (2026-05-28) → `src/pipeline/qa_bridge.py`
+  - `build_context(tracks)` + `ask_stream()` (claude-haiku-4-5-20251001, SSE 스트리밍)
+- [x] FastAPI 백엔드 (2026-05-28) → `src/pipeline/app.py`
+- [x] 웹 데모 UI (2026-05-28) → `web/detection/index.html` + `app.js`
+- [x] `.env.example` 생성 (2026-05-28)
+- [ ] 실제 동작 검증 (YOLOv8n ONNX 변환 + ANTHROPIC_API_KEY 설정 후)
+  ```bash
+  cp .env.example .env          # API 키 입력
+  python src/detect/export_yolo_onnx.py --weights runs/detect/edge_sign_v2_e0/weights/best.pt
+  uvicorn src.pipeline.app:app --port 8000
+  ```
+
+**완료 기준:** AI Hub 도로 영상 재생 → 표지판/간판 인식 → 질문 입력 → Claude 답변 시연
+
+---
+
 ## 최종 산출물 체크리스트
 - [ ] 연구 보고서 (실험 결과 + 분석)
-- [ ] 시연 시스템 (웹 앱)
+- [ ] 시연 시스템 (웹 앱 — Phase 7 기반)
 - [ ] 코드 정리 + 문서 최종 업데이트
