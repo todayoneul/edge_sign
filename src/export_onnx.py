@@ -3,10 +3,10 @@ import torch
 import timm
 import torch.nn as nn
 
-# 경로 및 환경 설정
-MODEL_PATH = "./checkpoints/w8a8_ksl_best.pth"
-OUTPUT_ONNX_PATH = "./model_space/convnextv2_ksl_fp32.onnx"
-NUM_CLASSES = 1404
+# 경로 및 환경 설정 (Phase 1 분류 모델 기준 — 필요 시 경로 수정)
+MODEL_PATH = "./checkpoints/w8a8_best.pth"
+OUTPUT_ONNX_PATH = "./model_space/convnextv2_fp32.onnx"
+NUM_CLASSES = 1000  # ImageNet 기본값; 파인튜닝 체크포인트 사용 시 수정
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 if __name__ == '__main__':

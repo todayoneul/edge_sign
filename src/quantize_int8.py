@@ -1,9 +1,9 @@
 import os
 from onnxruntime.quantization import quantize_dynamic, QuantType
 
-# 경로 세팅
-FP32_ONNX_PATH = "./model_space/convnextv2_ksl_fp32.onnx"
-INT8_ONNX_PATH = "./model_space/convnextv2_ksl_int8.onnx"
+# 경로 세팅 (export_onnx.py 실행 후 생성된 FP32 파일 경로와 맞춰서 사용)
+FP32_ONNX_PATH = "./model_space/convnextv2_fp32.onnx"
+INT8_ONNX_PATH = "./model_space/convnextv2_int8.onnx"
 
 if __name__ == '__main__':
     print("Real INT8 Quantization 프로세스")

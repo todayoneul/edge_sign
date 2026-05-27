@@ -1,0 +1,46 @@
+[IN ] 입력: AIhub\신호등-도로표지판 인지 영상(수도권)\Validation
+[OUT] 출력: data\aihub_traffic
+[N  ] 서브샘플 비율: 1/6 (=> 5fps 시뮬레이션)
+
+[OK ] 발견된 시퀀스: 9개
+  d_validation_1920_1080_daylight_2                   8.14 GB
+  d_validation_1920_1080_daylight_1                   8.09 GB
+  c_validation_1920_1200_daylight_1                   7.93 GB
+  c_validation_1280_720_daylight_2                    6.63 GB
+  c_validation_1280_720_daylight_1                    6.62 GB
+  c_validation_1280_720_daylight_3                    1.49 GB
+  d_validation_1920_1080_night_1                      0.52 GB
+  c_validation_1280_720_night_1                       0.15 GB
+  c_validation_1920_1200_night_1                      0.03 GB
+
+[PLAN] 시퀀스 분할 계획 (시퀀스 단위 = 리크 없음):
+  train: 6개 시퀀스 (38.9 GB)
+    - c_validation_1280_720_daylight_1
+    - c_validation_1280_720_daylight_2
+    - c_validation_1280_720_daylight_3
+    - c_validation_1920_1200_daylight_1
+    - d_validation_1920_1080_daylight_1
+    - d_validation_1920_1080_daylight_2
+  val  : 1개 시퀀스 (0.5 GB)
+    - d_validation_1920_1080_night_1
+  test : 2개 시퀀스 (0.2 GB)
+    - c_validation_1280_720_night_1
+    - c_validation_1920_1200_night_1
+
+[START] TAR 해제 시작 (시간이 소요됩니다)...
+  [OK]  [train] c_validation_1280_720_daylight_1: 5,000 frames
+  [OK]  [train] c_validation_1280_720_daylight_2: 5,000 frames
+  [OK]  [train] c_validation_1280_720_daylight_3: 1,093 frames
+  [OK]  [test ] c_validation_1280_720_night_1: 142 frames
+  [OK]  [train] c_validation_1920_1200_daylight_1: 2,152 frames
+  [OK]  [test ] c_validation_1920_1200_night_1: 16 frames
+  [OK]  [train] d_validation_1920_1080_daylight_1: 2,500 frames
+  [OK]  [train] d_validation_1920_1080_daylight_2: 2,401 frames
+  [OK]  [val  ] d_validation_1920_1080_night_1: 184 frames
+
+[DONE] 추출 완료!
+   총 프레임: 18,488개
+   출력 위치: data\aihub_traffic/
+
+[NEXT] 다음 단계: YOLO 포맷 변환
+   python src/detect/prepare_dataset.py --source aihub_traffic
