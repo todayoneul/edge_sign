@@ -38,8 +38,10 @@
   - [x] 야외 한글 이미지 → YOLO 포맷 변환 완료 (2026-05-27) — 12,303장 (train 8,000 / val 4,303)
   - ✅ **최종 yolo_signs**: train 26,866장 / val 4,667장 (GTSDB + 신호등 + 간판 통합)
 - [ ] YOLOv8n 학습
-  - [ ] GTSDB only 기준선 학습 (AI Hub 도착 전 선행) → `src/detect/yolo_train.py`
-  - [ ] GTSDB + AI Hub 합산 학습 → `--source all`
+  - [x] GTSDB + AI Hub 합산 학습 시작 (2026-05-28) — `runs/detect/edge_sign_v2_e0/`
+    - ⏳ **현재 진행 중**: epoch 84/100, mAP@0.5=0.572 (목표 0.70 향해 상승 중)
+    - 설정: batch=32, imgsz=640, cos_lr, patience=20, RTX 5070, ~2h/100ep
+    - `weights/best.pt` 체크포인트 저장됨 (epoch 84 기준)
   - [ ] FP16 기준선 mAP 측정 및 기록 → `docs/EXPERIMENTS.md` E0 행
 - [ ] ONNX 내보내기
   - [ ] PyTorch → ONNX 변환 → `src/detect/export_yolo_onnx.py`
@@ -53,7 +55,8 @@
 **목표:** ByteTrack으로 프레임 간 객체 추적, MOT 메트릭 기준선 확립
 
 - [ ] ByteTrack 구현
-  - [ ] Kalman Filter + IoU 매칭 구현 → `src/track/bytetrack.py`
+  - [x] Kalman Filter + IoU 매칭 구현 완료 (2026-05-28) → `src/track/bytetrack.py` (616줄)
+    - 8-dim constant-velocity Kalman Filter, 2단계 매칭(BYTE 전략), Hungarian + greedy fallback
   - [ ] AI Hub test 시퀀스 (연속 프레임) 에서 동작 확인
 - [ ] BoT-SORT 통합 (ablation용)
   - [ ] 경량 ReID 백본 선택 (OSNet-x0.25 ~0.5M params)
@@ -82,6 +85,36 @@
 - [ ] FP16 기준선 E2E 메트릭 기록 → `docs/EXPERIMENTS.md` E0 행 완성
 
 **완료 기준:** 영상 입력 → 검출+추적+인식 결과 출력 파이프라인 동작
+
+---
+
+## Phase 7: 주행 Q&A 결론 데모 (결론 섹션용)
+**목표:** "엣지 압축 인식 + 클라우드 언어 지능" 하이브리드 시연
+
+### 연구 스토리
+> 엣지 디바이스(`<15MB` 모델)가 실시간으로 표지판/간판 인식 → 구조화 JSON 생성 →
+> Claude API가 컨텍스트를 받아 운전자 질문에 자연어 답변.
+
+### 구현 항목
+- [ ] E2E 파이프라인 ONNX 추론 + ByteTrack 통합 → `src/pipeline/e2e_pipeline.py`
+  - YOLOv8n-ONNX 검출 → ByteTracker 추적 → ROI 크롭 → OCR/분류 인식
+  - track별 결과 누적 (temporal buffer, deque maxlen=8)
+  - 출력: `{"frame_id": ..., "tracks": [{id, class, text/category, conf, bbox}]}`
+- [ ] Claude API Q&A 브리지 → `src/pipeline/qa_bridge.py`
+  - `build_context(tracks)` → 자연어 컨텍스트 문자열
+  - `ask_stream(context, question)` → AsyncIterator (claude-haiku-4-5-20251001)
+  - `ANTHROPIC_API_KEY` → `.env` (python-dotenv)
+- [ ] FastAPI 백엔드 → `src/pipeline/app.py`
+  - `WS /ws/stream`: 프레임 수신 → 파이프라인 → JSON 전송
+  - `POST /api/qa` (SSE): context + question → 스트리밍 답변
+  - `GET /detection/`: 웹 데모 UI 서빙
+- [ ] 웹 데모 UI → `web/detection/`
+  - 좌측: 실시간 프레임 + bbox 오버레이 + track ID
+  - 우측: 인식 결과 목록 + 채팅 Q&A UI (스트리밍 답변)
+  - 동영상 파일 업로드 or 웹캠 입력
+- [ ] `.env.example` 생성 (ANTHROPIC_API_KEY 템플릿)
+
+**완료 기준:** AI Hub 도로 영상 재생 → 표지판/간판 인식 → 질문 입력 → Claude 답변 시연
 
 ---
 
