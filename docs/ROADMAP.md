@@ -29,15 +29,14 @@
     - 카테고리: 가로형간판(18,841), 실내간판(6,574), 세로형간판(363) 등
   - [ ] AI Hub 다양한 형태의 한글 문자 OCR 데이터 ZIP 해제 (선택사항, 39.6GB)
     - 인쇄체+필기체 한글 문자 인식용 — OCR 인식기 개선에 활용 예정
-  - [ ] 신호등-도로표지판 TAR 해제 + 시퀀스 분할 → `scripts/extract_frames.py`
-    - `--sample_rate 6` (30fps→5fps 서브샘플링, 시각적 중복 제거)
-    - **시퀀스 단위 분할**: 9개 TAR → train 6개 / val 1~2개 / test 1~2개
-    - test 시퀀스는 연속 프레임 보존 → ByteTrack 추적 평가 및 웹 시연에 사용
-  - [ ] GTSDB → YOLO 포맷 변환 → `src/detect/prepare_dataset.py --source gtsdb`
-  - [ ] 신호등-도로표지판 프레임 → YOLO 포맷 변환 → `--source aihub_traffic`
-    - JSON xyxy bbox → YOLO 정규화 cx cy w h (구현 완료)
-  - [ ] 야외 한글 이미지 → YOLO 포맷 변환 → `--source aihub_signboard`
-    - JSON COCO-style xywh bbox → YOLO 정규화 cx cy w h (구현 완료)
+  - [x] 신호등-도로표지판 TAR 해제 + 시퀀스 분할 완료 (2026-05-27)
+    - `--sample_rate 6` → 18,488프레임 추출 (train 18,146 / val 184 / test 158)
+    - train: 주간 6시퀀스 / val: d_1920_1080_night_1 / test: c_1280_720_night_1 + c_1920_1200_night_1
+    - 출력: `data/aihub_traffic/{train,val,test}/{images,labels}/{seq_name}/`
+  - [x] GTSDB → YOLO 포맷 변환 완료 (2026-05-27) — 900장 (train 720 / val 180)
+  - [x] 신호등-도로표지판 → YOLO 포맷 변환 완료 (2026-05-27) — 18,330장
+  - [x] 야외 한글 이미지 → YOLO 포맷 변환 완료 (2026-05-27) — 12,303장 (train 8,000 / val 4,303)
+  - ✅ **최종 yolo_signs**: train 26,866장 / val 4,667장 (GTSDB + 신호등 + 간판 통합)
 - [ ] YOLOv8n 학습
   - [ ] GTSDB only 기준선 학습 (AI Hub 도착 전 선행) → `src/detect/yolo_train.py`
   - [ ] GTSDB + AI Hub 합산 학습 → `--source all`
