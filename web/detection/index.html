@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edge-Sign v2 — 주행 Q&A 데모</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 12px 20px;
+      background: #1a1d27;
+      border-bottom: 1px solid #2d3748;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    header h1 { font-size: 1.1rem; font-weight: 700; color: #63b3ed; }
+    header .badge {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: #2d3748;
+      color: #a0aec0;
+    }
+    #status-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #fc8181;
+      margin-left: auto;
+    }
+    #status-dot.connected { background: #68d391; }
+
+    main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ── 좌측: 영상 패널 ────────────────────────────────────── */
+    #video-panel {
+      flex: 1.4;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .video-wrapper {
+      position: relative;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      aspect-ratio: 16/9;
+    }
+    #video-el {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: none;
+    }
+    #overlay-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    #no-video-msg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #4a5568;
+      font-size: 0.9rem;
+      gap: 8px;
+    }
+    #no-video-msg svg { opacity: 0.4; }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary  { background: #3182ce; color: #fff; }
+    .btn-secondary { background: #2d3748; color: #cbd5e0; }
+    .btn-danger   { background: #e53e3e; color: #fff; }
+    .btn:hover:not(:disabled) { opacity: 0.85; }
+
+    #fps-info {
+      font-size: 0.75rem;
+      color: #718096;
+      padding: 4px 0;
+    }
+
+    /* 파일 업로드 드롭존 */
+    #dropzone {
+      border: 2px dashed #4a5568;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      color: #718096;
+      font-size: 0.82rem;
+    }
+    #dropzone:hover, #dropzone.dragover { border-color: #63b3ed; color: #63b3ed; }
+    #file-input { display: none; }
+
+    /* ── 우측: 인식결과 + Q&A 패널 ─────────────────────────── */
+    #right-panel {
+      width: 340px;
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid #2d3748;
+      background: #12151f;
+    }
+
+    .panel-header {
+      padding: 10px 14px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #a0aec0;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid #2d3748;
+    }
+
+    /* 인식 결과 목록 */
+    #track-list {
+      overflow-y: auto;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 120px;
+      max-height: 220px;
+    }
+    .track-item {
+      background: #1a1d27;
+      border-radius: 6px;
+      padding: 8px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 3px solid #2d3748;
+    }
+    .track-item.traffic_sign { border-left-color: #48bb78; }
+    .track-item.signboard    { border-left-color: #ed8936; }
+    .track-info { display: flex; flex-direction: column; gap: 2px; }
+    .track-id   { font-size: 0.7rem; color: #718096; }
+    .track-label{ font-size: 0.88rem; font-weight: 600; }
+    .track-conf { font-size: 0.75rem; color: #a0aec0; text-align: right; }
+    #no-tracks  { color: #4a5568; font-size: 0.82rem; text-align: center; padding: 12px 0; }
+
+    /* Q&A 채팅 */
+    #qa-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #chat-log {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .chat-msg {
+      max-width: 90%;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    .chat-msg.user {
+      align-self: flex-end;
+      background: #2b4c7e;
+      color: #e2e8f0;
+    }
+    .chat-msg.assistant {
+      align-self: flex-start;
+      background: #1a1d27;
+      color: #e2e8f0;
+      border: 1px solid #2d3748;
+      white-space: pre-wrap;
+    }
+    .chat-msg.assistant .typing::after {
+      content: '▍';
+      animation: blink 0.7s step-end infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .chat-empty {
+      color: #4a5568;
+      font-size: 0.82rem;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    #chat-input-area {
+      padding: 10px 14px;
+      border-top: 1px solid #2d3748;
+      display: flex;
+      gap: 8px;
+    }
+    #chat-input {
+      flex: 1;
+      background: #1a1d27;
+      border: 1px solid #2d3748;
+      border-radius: 6px;
+      padding: 8px 10px;
+      color: #e2e8f0;
+      font-size: 0.85rem;
+      outline: none;
+      resize: none;
+      height: 38px;
+    }
+    #chat-input:focus { border-color: #63b3ed; }
+    #chat-input::placeholder { color: #4a5568; }
+    #send-btn { padding: 0 14px; }
+
+    /* 하단 정보 바 */
+    #info-bar {
+      padding: 5px 14px;
+      background: #1a1d27;
+      border-top: 1px solid #2d3748;
+      font-size: 0.72rem;
+      color: #4a5568;
+      display: flex;
+      gap: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🚗 Edge-Sign v2</h1>
+  <span class="badge">주행 Q&amp;A 데모</span>
+  <div id="status-dot" title="서버 연결 상태"></div>
+</header>
+
+<main>
+  <!-- 좌측: 영상 -->
+  <div id="video-panel">
+    <div class="video-wrapper" id="video-wrapper">
+      <video id="video-el" autoplay muted playsinline></video>
+      <canvas id="overlay-canvas"></canvas>
+      <div id="no-video-msg">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="6" width="15" height="12" rx="2"/><path d="M17 9l5-3v12l-5-3"/>
+        </svg>
+        영상을 업로드하거나 웹캠을 시작하세요
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-primary" id="webcam-btn">웹캠 시작</button>
+      <button class="btn btn-secondary" id="file-btn">📂 동영상 열기</button>
+      <button class="btn btn-danger"   id="stop-btn" disabled>정지</button>
+      <input type="file" id="file-input" accept="video/*,image/*" />
+    </div>
+
+    <div id="fps-info">연결 대기 중...</div>
+
+    <div id="dropzone">
+      영상 파일을 여기에 드래그하거나 클릭하여 업로드
+    </div>
+  </div>
+
+  <!-- 우측 -->
+  <div id="right-panel">
+    <div class="panel-header">🔍 실시간 인식 결과</div>
+    <div id="track-list">
+      <div id="no-tracks">인식된 객체 없음</div>
+    </div>
+
+    <div id="qa-section">
+      <div class="panel-header">💬 Q&amp;A</div>
+      <div id="chat-log">
+        <div class="chat-empty">인식된 객체에 대해 무엇이든 질문하세요</div>
+      </div>
+      <div id="chat-input-area">
+        <textarea id="chat-input" placeholder="예: 저 표지판이 뭐야?" rows="1"></textarea>
+        <button class="btn btn-primary" id="send-btn">전송</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="info-bar">
+  <span id="frame-info">frame: -</span>
+  <span id="time-info">추론: - ms</span>
+  <span id="track-count">tracks: 0</span>
+  <span id="ws-info">WS: 미연결</span>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
