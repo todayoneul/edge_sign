@@ -68,13 +68,13 @@ def pareto_step(ids, y_key, x_max):
 # 레이아웃 상수
 # ─────────────────────────────────────────────────────────────────────────────
 XMAX      = 27.0   # MB  (E2=21.8, E0=24.3 포함)
-MS_PARETO = 240    # 마커 크기 (Pareto 최적)
-MS_NORMAL = 100    # 마커 크기 (일반)
+MS_PARETO = 95     # 마커 크기 (Pareto 최적)
+MS_NORMAL = 50     # 마커 크기 (일반)
 FS_TITLE  = 12
 FS_AXIS   = 10
 FS_TICK   = 9
-FS_ANNOT  = 8.5
-FS_LEGEND = 8.5
+FS_ANNOT  = 8.0
+FS_LEGEND = 7.5
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 레이블 오프셋 (x_offset, y_offset) — 겹침 수동 조정
@@ -137,7 +137,7 @@ for eid, d in EXPERIMENTS.items():
         marker  = d["marker"],
         zorder  = 5 if is_p else 4,
         edgecolors = "black" if is_p else "#555555",
-        linewidths = 1.6 if is_p else 0.6,
+        linewidths = 1.0 if is_p else 0.5,
     )
     dx, dy = OFFSET_MOTA[eid]
     ax.annotate(
@@ -163,21 +163,15 @@ ax.grid(True, alpha=0.25, linestyle="--")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
-# 범례 (마커 모양)
-legend_handles = [
-    plt.scatter([], [], s=MS_PARETO, c=EXPERIMENTS[e]["color"],
-                marker=EXPERIMENTS[e]["marker"],
-                edgecolors="black", linewidths=1.6,
-                label=f"{e}: {EXPERIMENTS[e]['desc']} ({EXPERIMENTS[e]['size']} MB)")
-    for e in EXPERIMENTS
-]
-legend_handles += [
-    mpatches.Patch(color="none"),
-    plt.Line2D([0],[0], color="crimson", ls="--", lw=1.8, label="Pareto frontier"),
-    plt.Line2D([0],[0], color="#888888", ls=":", lw=1.2, label="15 MB target"),
-]
-ax.legend(handles=legend_handles, fontsize=FS_LEGEND - 1, loc="lower right",
-          framealpha=0.85, edgecolor="#CCCCCC", ncol=1)
+# Panel (a)에는 Pareto/target 라인만 간단히 표시
+ax.legend(
+    handles=[
+        plt.Line2D([0],[0], color="crimson", ls="--", lw=1.8, label="Pareto frontier"),
+        plt.Line2D([0],[0], color="#888888", ls=":",  lw=1.2, label="15 MB target"),
+    ],
+    fontsize=FS_LEGEND, loc="lower right",
+    framealpha=0.9, edgecolor="#CCCCCC",
+)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Panel (b): Model Size vs. OCR Accuracy
@@ -205,7 +199,7 @@ for eid, d in EXPERIMENTS.items():
         marker  = d["marker"],
         zorder  = 5 if is_p else 4,
         edgecolors = "black" if is_p else "#555555",
-        linewidths = 1.6 if is_p else 0.6,
+        linewidths = 1.0 if is_p else 0.5,
     )
     dx, dy = OFFSET_OCR[eid]
     ax.annotate(
@@ -231,33 +225,39 @@ ax.grid(True, alpha=0.25, linestyle="--")
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
-# 보조 주석: Pareto 최적 설명
-ax.annotate(
-    "E5 (SQ+W8A8, 11.4 MB)\nBest overall: MOTA & OCR\nboth Pareto-optimal",
-    xy=(11.4, 98.5), xytext=(14.5, 80),
-    fontsize=FS_ANNOT, color="crimson",
-    arrowprops=dict(arrowstyle="->", color="crimson", lw=1.2),
-    ha="left",
+# Panel (b)에도 Pareto/threshold만 표시
+ax.legend(
+    handles=[
+        plt.Line2D([0],[0], color="crimson",  ls="--", lw=1.8, label="Pareto frontier"),
+        plt.Line2D([0],[0], color="steelblue",ls=":",  lw=1.2, label="95% threshold"),
+    ],
+    fontsize=FS_LEGEND, loc="center right",
+    framealpha=0.9, edgecolor="#CCCCCC",
 )
 
-legend_handles2 = [
+# ─────────────────────────────────────────────────────────────────────────────
+# Figure 하단 통합 범례 (실험 ID + 설명)
+# ─────────────────────────────────────────────────────────────────────────────
+shared_handles = [
     plt.scatter([], [], s=MS_PARETO, c=EXPERIMENTS[e]["color"],
                 marker=EXPERIMENTS[e]["marker"],
-                edgecolors="black", linewidths=1.6,
-                label=f"{e}: {EXPERIMENTS[e]['desc']}")
+                edgecolors="black", linewidths=1.0,
+                label=f"{e}: {EXPERIMENTS[e]['desc']} ({EXPERIMENTS[e]['size']} MB)")
     for e in EXPERIMENTS
-] + [
-    mpatches.Patch(color="none"),
-    plt.Line2D([0],[0], color="crimson", ls="--", lw=1.8, label="Pareto frontier"),
-    plt.Line2D([0],[0], color="steelblue", ls=":", lw=1.2, label="95% threshold"),
 ]
-ax.legend(handles=legend_handles2, fontsize=FS_LEGEND - 1, loc="lower right",
-          framealpha=0.85, edgecolor="#CCCCCC")
+fig.legend(
+    handles=shared_handles,
+    loc="lower center",
+    bbox_to_anchor=(0.5, -0.05),
+    ncol=4,
+    fontsize=FS_LEGEND + 0.5,
+    frameon=True, framealpha=0.95, edgecolor="#CCCCCC",
+)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 저장
 # ─────────────────────────────────────────────────────────────────────────────
-plt.tight_layout(rect=[0, 0, 1, 0.97])
+plt.tight_layout(rect=[0, 0.03, 1, 0.96])
 
 out = ASSETS / "pareto_frontier.png"
 fig.savefig(out, dpi=150, bbox_inches="tight", facecolor="white")

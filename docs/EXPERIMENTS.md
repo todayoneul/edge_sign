@@ -252,3 +252,12 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
 - **2026-05-29**: **단계별 민감도 분석 그래프 생성 완료** → `scripts/plot_sensitivity.py`
   - 4종 그래프: 절대 성능 비교, 상대 변화율, 민감도 히트맵, 병목 요약 수평 막대
   - 출력: `assets/sensitivity_*.png` (4개 파일, 각 50~72 KB)
+- **2026-05-29**: **데이터 분할 stratified v2 도입** → `scripts/extract_frames.py`
+  - 기존 v1 (크기 내림차순): train 6(주간 전부) / val 1(야간) / test 2(야간) — 주간 도메인 검증 누락
+  - 신규 v2 (도메인 stratified): train 5(주간 4+야간 1) / val 2(주간 1+야간 1) / test 2(주간 1+야간 1)
+  - 야간이 3개뿐인 희소 도메인이므로 train/val/test에 1개씩 균등 보장하도록 분할 로직 개선
+  - **본 문서의 E0~E7 결과는 모두 v1 분할 기준**이며, v2는 차기 재학습 시 적용 예정
+- **2026-05-29**: **Pareto frontier 차트 마커 크기 축소 + 그래프-수치 정합 검증**
+  - 기존: MS_PARETO=240, MS_NORMAL=100 (figure 대비 도형이 과대)
+  - 변경: MS_PARETO=95, MS_NORMAL=50, linewidths=1.0/0.5로 축소
+  - README ↔ EXPERIMENTS.md 19개 수치 교차 검증: 전체 OK

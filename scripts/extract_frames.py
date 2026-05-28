@@ -147,28 +147,73 @@ def find_sequence_pairs(input_dir: Path) -> dict:
 
 def plan_split(sequences: dict, train_ratio: float, val_ratio: float) -> dict:
     """
-    시퀀스를 train / val / test 로 배정.
-    크기 내림차순 정렬 후:
-      - 큰 시퀀스(주간 + 고해상도) → train
-      - 중간 → val
-      - 작은 시퀀스(야간 등) → test (ByteTrack 평가용)
+    시퀀스를 train / val / test 로 stratified 배정 (주간/야간 균형).
+
+    이전 (크기 기준) 방식의 문제:
+      train(주간 6) / val(야간 1) / test(야간 2) → val·test가 모두 야간.
+      → 주간 도메인에 대한 검증 불가, 야간 일반화 평가만 가능.
+
+    개선 (주간/야간 stratified) 방식:
+      각 도메인(daylight / night)을 따로 정렬한 뒤 분할 비율에 맞춰 배분.
+      → val·test 모두 주간 + 야간 시퀀스를 포함하여 도메인 균형 확보.
+
+    Heuristic:
+      train ≈ 5~6 시퀀스, val ≈ 2 시퀀스, test ≈ 2 시퀀스.
+      각 시퀀스의 도메인(daylight / night)을 파일명 substring으로 식별.
     """
-    n = len(sequences)
-    n_train = max(1, round(n * train_ratio))
-    n_val   = max(1, round(n * val_ratio))
-    n_test  = n - n_train - n_val
 
-    # 크기 내림차순으로 정렬
-    by_size = sorted(sequences.keys(), key=lambda s: sequences[s]["size_gb"], reverse=True)
+    def domain_of(seq_name: str) -> str:
+        return "night" if "night" in seq_name else "daylight"
 
-    split_map = {}
-    for i, seq in enumerate(by_size):
-        if i < n_train:
-            split_map[seq] = "train"
-        elif i < n_train + n_val:
-            split_map[seq] = "val"
-        else:
-            split_map[seq] = "test"
+    # 도메인별 그룹화 + 크기 내림차순 정렬
+    groups: dict[str, list[str]] = {"daylight": [], "night": []}
+    for s in sequences:
+        groups[domain_of(s)].append(s)
+    for d in groups:
+        groups[d].sort(key=lambda s: sequences[s]["size_gb"], reverse=True)
+
+    n_total = len(sequences)
+    n_train = max(1, round(n_total * train_ratio))
+    n_val   = max(1, round(n_total * val_ratio))
+    n_test  = max(1, n_total - n_train - n_val)
+
+    split_map: dict[str, str] = {}
+
+    # 각 도메인을 train/val/test 비율로 stratified 배분
+    # 희소 도메인(n_d < 4)은 val/test 1개씩을 우선 보장
+    n_test = n_total - n_train - n_val
+    test_ratio = n_test / n_total
+    val_ratio_norm = n_val / n_total
+
+    for domain, seqs in groups.items():
+        n_d = len(seqs)
+        if n_d == 0:
+            continue
+
+        if n_d >= 3:
+            # val/test 각 최소 1개 보장 → 나머지를 train
+            n_d_val   = max(1, round(n_d * val_ratio_norm))
+            n_d_test  = max(1, round(n_d * test_ratio))
+            n_d_train = n_d - n_d_val - n_d_test
+            if n_d_train < 1:  # train도 최소 1개 보장
+                n_d_train = 1
+                # val/test 중 큰 쪽에서 1개 빼기
+                if n_d_val >= n_d_test:
+                    n_d_val = n_d - n_d_train - n_d_test
+                else:
+                    n_d_test = n_d - n_d_train - n_d_val
+        elif n_d == 2:
+            n_d_train, n_d_val, n_d_test = 1, 1, 0  # val 우선
+        else:  # n_d == 1
+            n_d_train, n_d_val, n_d_test = 1, 0, 0
+
+        for i, seq in enumerate(seqs):
+            if i < n_d_train:
+                split_map[seq] = "train"
+            elif i < n_d_train + n_d_val:
+                split_map[seq] = "val"
+            else:
+                split_map[seq] = "test"
 
     return split_map
 

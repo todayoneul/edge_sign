@@ -236,19 +236,31 @@ AI Hub 신호등·도로표지판 데이터는 동영상 파일이 아닌 이미
 | 프레임 단위 무작위 분할 | 발생 | 동일 장면의 인접 프레임이 train/val에 동시 존재 |
 | **시퀀스(TAR) 단위 분할 (채택)** | 없음 | train/val/test 시퀀스가 완전히 분리됨 |
 
-#### 시퀀스 배정 결과
+#### 시퀀스 배정 (도메인 stratified)
 
-| 시퀀스 | 해상도 | 주야간 | 분할 |
-| :--- | :---: | :---: | :---: |
-| c_validation_1280_720_daylight_1,2,3 | 1280x720 | 주간 | train |
-| c_validation_1920_1200_daylight_1 | 1920x1200 | 주간 | train |
-| d_validation_1920_1080_daylight_1,2 | 1920x1080 | 주간 | train |
-| d_validation_1920_1080_night_1 | 1920x1080 | 야간 | val |
-| c_validation_1280_720_night_1 | 1280x720 | 야간 | test |
-| c_validation_1920_1200_night_1 | 1920x1200 | 야간 | test |
+분할 시 주간(daylight) / 야간(night) 두 도메인을 각각 stratified 비율로 배분하여
+val·test 모두 두 도메인을 포함하도록 한다.
+기존 (크기 내림차순) 방식은 train(주간 6)/val(야간 1)/test(야간 2) 구성이 되어
+주간 도메인에 대한 검증이 누락되는 문제가 있어 v2 분할로 개선하였다.
 
-train 6개 / val 1개 / test 2개 — 크기 내림차순 배정.
+| 시퀀스 | 해상도 | 주야간 | 분할 (v2 stratified) | 분할 (v1 size-desc, deprecated) |
+| :--- | :---: | :---: | :---: | :---: |
+| c_validation_1280_720_daylight_1 | 1280x720 | 주간 | train | train |
+| c_validation_1280_720_daylight_2 | 1280x720 | 주간 | train | train |
+| c_validation_1280_720_daylight_3 | 1280x720 | 주간 | train | train |
+| c_validation_1920_1200_daylight_1 | 1920x1200 | 주간 | train | train |
+| d_validation_1920_1080_daylight_1 | 1920x1080 | 주간 | val | train |
+| d_validation_1920_1080_daylight_2 | 1920x1080 | 주간 | test | train |
+| c_validation_1280_720_night_1 | 1280x720 | 야간 | train | test |
+| d_validation_1920_1080_night_1 | 1920x1080 | 야간 | val | val |
+| c_validation_1920_1200_night_1 | 1920x1200 | 야간 | test | test |
+
+**v2 분할 구성:** train 5(주간 4 + 야간 1) / val 2(주간 1 + 야간 1) / test 2(주간 1 + 야간 1).
 test 시퀀스는 연속 프레임을 보존하여 ByteTrack 추적 평가(MOTA/IDF1/HOTA) 및 웹 시연에 활용한다.
+
+> 본 README에 보고된 E0~E7 정량 결과는 **v1 분할 기준**으로 학습·평가되었다(2026-05-28 시점).
+> v2 stratified 분할은 `scripts/extract_frames.py`에 반영되었으며, 차기 재학습 시 적용된다.
+> v1 결과 해석 시 val·test의 야간 편향(주간 도메인 미검증)을 고려할 것.
 
 #### 처리 파이프라인
 
