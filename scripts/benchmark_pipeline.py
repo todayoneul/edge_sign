@@ -134,31 +134,38 @@ def benchmark_pipeline_fps(warmup: int, runs: int):
 
     pipeline_configs = [
         {
-            "name": "E0  FP32 All",
+            "name": "E0  FP32 All (fake)",
             "yolo":  MODEL_DIR / "yolov8s_signs_fp32.onnx",
             "ocr":   MODEL_DIR / "korean_ocr_net_fp32.onnx",
             "tsign": MODEL_DIR / "traffic_sign_net_fp32.onnx",
         },
         {
-            "name": "E1  W8A8 Detector",
+            "name": "E1  W8A8 Det (fake)",
             "yolo":  MODEL_DIR / "yolov8s_signs_w8a8.onnx",
             "ocr":   MODEL_DIR / "korean_ocr_net_fp32.onnx",
             "tsign": MODEL_DIR / "traffic_sign_net_fp32.onnx",
         },
         {
-            "name": "E3  W8A8 All",
+            "name": "E3  W8A8 All (fake)",
             "yolo":  MODEL_DIR / "yolov8s_signs_w8a8.onnx",
             "ocr":   MODEL_DIR / "korean_ocr_net_w8a8.onnx",
             "tsign": MODEL_DIR / "traffic_sign_net_w8a8.onnx",
         },
+        # ── Real INT8 Static QDQ ──────────────────────────────────────────────
         {
-            "name": "E4  W4A16 All",
-            "yolo":  MODEL_DIR / "yolov8s_signs_w4a16.onnx",
-            "ocr":   MODEL_DIR / "korean_ocr_net_w4a16.onnx",
-            "tsign": MODEL_DIR / "traffic_sign_net_w4a16.onnx",
+            "name": "E0  FP32→INT8 Static (real)",
+            "yolo":  MODEL_DIR / "yolov8s_signs_int8_static.onnx",
+            "ocr":   MODEL_DIR / "korean_ocr_net_fp32.onnx",
+            "tsign": MODEL_DIR / "traffic_sign_net_fp32.onnx",
         },
         {
-            "name": "E5  SmoothQuant+W8A8",
+            "name": "E3  INT8 Static All (real)",
+            "yolo":  MODEL_DIR / "yolov8s_signs_int8_static.onnx",
+            "ocr":   MODEL_DIR / "korean_ocr_net_int8_static.onnx",
+            "tsign": MODEL_DIR / "traffic_sign_net_int8_static.onnx",
+        },
+        {
+            "name": "E5  SQ+W8A8 (fake)",
             "yolo":  MODEL_DIR / "yolov8s_signs_smoothquant.onnx",
             "ocr":   MODEL_DIR / "korean_ocr_net_w8a8.onnx",
             "tsign": MODEL_DIR / "traffic_sign_net_w8a8.onnx",

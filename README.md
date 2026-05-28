@@ -380,38 +380,35 @@ TrafficSignNet: GTSDB 1,213 크롭(train 971 / val 242)으로 학습, 50 epoch, 
 
 ## 7.6. Phase 5 — CPU ONNX Runtime 벤치마크
 
-> `scripts/benchmark_pipeline.py` 실행 결과.  
-> ⚠️ fake-quant ONNX = FP32 가중치 저장 → 실제 INT8 런타임 가속 없음. 아래는 **연산 구조 기준** 레이턴시.
+> `scripts/quantize_onnx_real.py` (Static QDQ INT8 생성) + `scripts/benchmark_pipeline.py` 실행 결과.  
+> **fake-quant**: FP32 가중치 저장(기존 실험 형식), 실제 INT8 연산 없음  
+> **Static INT8 QDQ**: `onnxruntime.quantization.quantize_static()` — 진짜 INT8 Conv 커널 사용
 
-### 컴포넌트 단위 레이턴시 (CPU, 30 runs)
+### 컴포넌트 단위 레이턴시 비교 (CPU, 50 runs)
 
-| 모델 | Mean (ms) | 비고 |
-| :--- | :---: | :--- |
-| **YOLOv8s FP32** | 34.1 | 파이프라인 병목 |
-| **YOLOv8s W8A8** | 34.6 | FP32와 동등 (fake-quant) |
-| **YOLOv8s W4A16** | 37.0 | — |
-| **YOLOv8s SmoothQuant** | 46.3 | 래퍼 오버헤드 |
-| KoreanOCRNet FP32 | 0.07 | 무시 가능 |
-| KoreanOCRNet W8A8 | 0.08 | — |
-| TrafficSignNet FP32/W8A8 | 0.03 | 극소 |
-| ReID (SimpleReIDNet W8A8) | 0.09 | — |
+| 모델 | FP32 | Static INT8 | 가속비 | 파일 크기 |
+| :--- | :---: | :---: | :---: | :---: |
+| **YOLOv8s (검출기)** | 32.4 ms | **14.6 ms** | **2.22×** | 44.8 → 11.7 MB |
+| KoreanOCRNet | 0.05 ms | 0.08 ms | 0.58× | 2.9 → 0.8 MB |
+| TrafficSignNet | 0.03 ms | 0.03 ms | 0.92× | 0.13 → 0.04 MB |
 
-**병목 분석:** YOLOv8s가 전체 파이프라인 레이턴시의 **~82%** 차지. OCR/분류는 합산 < 0.2 ms.
+> OCR/분류 모델은 너무 작아 INT8 오버헤드가 절감을 초과 — 검출기만 정량화 이득 발생.
 
 ### 전체 파이프라인 FPS (야간 AI Hub 시퀀스, CPU)
 
-| 구성 | Latency/frame | FPS | 30 FPS 달성 |
+| 구성 | Latency/frame | FPS | 30 FPS |
 | :--- | :---: | :---: | :---: |
-| E0 FP32 All | 51.5 ms | 19.4 | ❌ |
-| E1 W8A8 Detector | 42.0 ms | **23.8** | ❌ |
-| E3 W8A8 All | 42.4 ms | 23.6 | ❌ |
-| E4 W4A16 All | 43.1 ms | 23.2 | ❌ |
-| E5 SmoothQuant+W8A8 | 50.7 ms | 19.7 | ❌ |
+| E0 FP32 (fake) | 44.7 ms | 22.4 | ❌ |
+| E1 W8A8 Det (fake) | 39.4 ms | 25.4 | ❌ |
+| E3 W8A8 All (fake) | 40.0 ms | 25.0 | ❌ |
+| **E0 → INT8 Static (real)** | **17.9 ms** | **55.7** | ✅ |
+| **E3 INT8 Static All (real)** | **17.3 ms** | **57.7** | ✅ |
 
-**30+ FPS 미달성 원인 및 전망:**
-- `fake-quant ONNX` = FP32 가중치 저장 → CPU ORT에서 실제 INT8 커널 호출 없음
-- 실제 배포 경로: `onnxruntime.quantization.quantize_dynamic()` → 진정한 INT8 ONNX → 예상 ~3-4× 가속 → **60+ FPS 예측**
-- 또는 TensorRT INT8 엔진 (GPU): 검출기 단독 < 5 ms → 전체 파이프라인 100+ FPS 가능
+**핵심 결론:**
+- Static INT8 QDQ로 YOLOv8s **2.22×** 가속 → 파이프라인 **57.7 FPS** 달성, **목표 30+ FPS 초과**
+- 검출기(YOLOv8s)가 병목 (~82%): INT8 검출기 하나로 전체 FPS 2.3× 개선
+- OCR·분류기는 < 0.1 ms 로 미미 — INT8 오버헤드 역효과, FP32 유지 권장
+- `yolov8s_signs_int8_static.onnx` (11.7 MB) = 최적 배포 파일
 
 ---
 

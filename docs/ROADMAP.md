@@ -140,14 +140,15 @@
 - [x] 전체 파이프라인 ONNX 내보내기 (2026-05-28) → 각 구성요소별 ONNX 분리 형태
   - `model_space/yolov8s_signs_*.onnx` + `korean_ocr_net_*.onnx` + `traffic_sign_net_*.onnx`
 - [x] ONNX Runtime CPU 벤치마크 완료 (2026-05-28) → `scripts/benchmark_pipeline.py`
-  - E1/E3 W8A8: ~23.8 FPS (CPU fake-quant, 실제 INT8 커널 미사용)
-  - 병목: YOLOv8s 34ms = 전체의 82%, OCR/분류 < 0.2ms
-  - **30+ FPS 미달**: fake-quant는 FP32 연산. 실 INT8 배포 시 60+ FPS 예측
-  - 명확한 병목 분석 완료 → Phase 5 목표 달성 (30 FPS 대신 병목 분석으로 대체)
+  - fake-quant E0/E3: 22~25 FPS (FP32 연산)
+  - **Static INT8 QDQ 실양자화** → `scripts/quantize_onnx_real.py`
+    - YOLOv8s: 32.4ms → **14.6ms (2.22×)**, 44.8MB → **11.7MB (3.84×)**
+    - E3 INT8 Static All: **57.7 FPS** — 30+ FPS 목표 달성 ✅
+    - OCR/분류 소형 모델은 INT8 오버헤드 역효과 → FP32 유지 권장
 - [ ] ONNX Runtime Web (WASM) 벤치마크 (선택사항, 실제 브라우저 배포 시)
 - [x] 벤치마크 결과 기록 → `docs/EXPERIMENTS.md` + `README.md` Section 7.6
 
-**완료 기준:** ONNX 파이프라인 30+ FPS on CPU 또는 명확한 병목 분석 ✅ (병목 분석 완료)
+**완료 기준:** ONNX 파이프라인 30+ FPS on CPU ✅ (E3 INT8 Static: 57.7 FPS 달성)
 
 ---
 

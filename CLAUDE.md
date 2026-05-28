@@ -83,7 +83,8 @@ CNN_Quant/
 ├── scripts/                     # 데이터 수집/전처리 + 분석 스크립트
 │   ├── extract_frames.py        # [Phase 2] AI Hub TAR 해제 + 시퀀스 분할 + 서브샘플링
 │   ├── plot_pareto.py           # [Phase 5] Pareto frontier 차트 생성 → assets/pareto_frontier.png
-│   └── benchmark_pipeline.py   # [Phase 5] E2E 파이프라인 CPU 벤치마크 (레이턴시/FPS)
+│   ├── benchmark_pipeline.py   # [Phase 5] E2E 파이프라인 CPU 벤치마크 (레이턴시/FPS)
+│   └── quantize_onnx_real.py   # [Phase 5] Static INT8 QDQ 실양자화 (ORT quantize_static)
 ├── checkpoints/                 # 학습 체크포인트 (.pth)
 ├── models/                      # 내보낸 모델 (safetensors, ONNX)
 ├── logs/                        # 학습 로그 (CSV)

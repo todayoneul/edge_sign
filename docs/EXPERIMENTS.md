@@ -225,11 +225,16 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
   - vs E1 ByteTrack W8A8: MOTA −0.113(−51%), IDF1 −0.089(−23%), HOTA −0.071(−15%)
   - **원인 분석**: SimpleReIDNet은 무작위 초기화(학습 데이터 없음) → 임베딩이 의미 없는 유사도 산출 → FP 6→21로 폭증. CMC 단독으로는 도움되나 untrained ReID가 역효과. ReID 학습이 전제되어야 BoT-SORT가 ByteTrack을 능가함을 실증
 - **2026-05-28**: **Phase 5 CPU ONNX Runtime 벤치마크 완료** → `scripts/benchmark_pipeline.py`
-  - 컴포넌트: YOLOv8s ~34ms (fake-quant=FP32 동등), OCR 0.07ms, TrafficSignNet 0.03ms, ReID 0.09ms
-  - 파이프라인: E1/E3 W8A8 최고 ~23.8 FPS (CPU, fake-quant)
-  - **30+ FPS 미달**: fake-quant ONNX = FP32 연산. ORT quantize_dynamic() 적용 시 3-4× 가속 → 60+ FPS 예측
-  - **병목 확인**: YOLOv8s가 전체 레이턴시 82%. OCR/분류 합산 < 0.2ms → 검출기 최적화 최우선
+  - fake-quant 파이프라인: E0 22.4 FPS / E1/E3 W8A8 ~25 FPS (FP32 연산이므로 실가속 없음)
+  - **병목 확인**: YOLOv8s가 전체 레이턴시 ~80%. OCR/분류 합산 < 0.1ms → 검출기 최적화 최우선
   - Pareto 차트 생성: `assets/pareto_frontier.png` (E5가 MOTA·OCR 모두 Pareto 최적, 11.4 MB)
+- **2026-05-28**: **Static INT8 QDQ 양자화 완료** → `scripts/quantize_onnx_real.py`
+  - ORT `quantize_static()` + `quant_pre_process()` + GTSDB/AI Hub 캘리브레이션 데이터 사용
+  - YOLOv8s: FP32 32.4ms → **INT8 14.6ms (2.22× 가속)**, 44.8MB → 11.7MB (3.84×) — 진짜 INT8 Conv 커널
+  - KoreanOCRNet: 0.05→0.08ms (역효과) — 소형 모델은 INT8 오버헤드가 절감 초과, FP32 유지 권장
+  - TrafficSignNet: 0.03ms→0.03ms (변화 없음) — 극소형, INT8 이득 없음
+  - **파이프라인 최종**: E3 INT8 Static All → **57.7 FPS** (목표 30+ FPS 달성 ✅)
+  - 최적 배포 파일: `model_space/yolov8s_signs_int8_static.onnx` (11.7 MB)
 - **2026-05-28**: **E2E 파이프라인 TrafficSignNet 연결 완료** → `src/pipeline/e2e_pipeline.py`
   - traffic_sign 클래스 → TrafficSignNet W8A8 ONNX로 43클래스 GTSDB 분류
   - dry_run 검증: 3모델 모두 정상 로드 (YOLOv8s W8A8 + OCR W8A8 + TrafficSignNet W8A8)
