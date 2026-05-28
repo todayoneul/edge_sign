@@ -100,16 +100,20 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
 
 ### End-to-End 종합
 
-| ID | 총 모델 크기 | FPS (CPU) | FPS (WASM) | 인식률 | Final Score |
-|----|-------------|-----------|------------|--------|-------------|
-| E0 | — | — | — | — | — |
-| E1 | — | — | — | — | — |
-| E2 | — | — | — | — | — |
-| E3 | — | — | — | — | — |
-| E4 | — | — | — | — | — |
-| E5 | — | — | — | — | — |
-| E6 | — | — | — | — | — |
-| E7 | — | — | — | — | — |
+> 모델 크기: 이론적 INT 배포 크기 (fake-quant ONNX 파일 크기 아님).  
+> FPS: CPU ONNX Runtime fake-quant 측정값. 실제 INT8 배포 시 3-4× 개선 예상.  
+> 인식률: OCR Top-1 기준.
+
+| ID | 총 크기(이론) | FPS (CPU) | OCR 인식률 | Pareto 최적 |
+|----|--------------|-----------|-----------|-------------|
+| E0 | 45.5 MB | 19.4 | 98.5% | — |
+| E1 | 13.5 MB | 23.8 | 98.5% | — |
+| E2 | 43.4 MB | ~19.4 | 98.4% | — |
+| E3 | 11.4 MB | 23.6 | 98.4% | — |
+| E4 | 5.7 MB | 23.2 | 54.6% | OCR Pareto |
+| E5 | **11.4 MB** | **19.7** | **98.5%** | ⭐ MOTA+OCR 양쪽 Pareto |
+| E6 | 11.5 MB | 20.4 | 98.4% | — (E5에 지배) |
+| E7 | **5.4 MB** | ~23.2 | 0.3% | MOTA Pareto (실용 불가) |
 
 > **Final Score 공식:** `0.6 × PerfNorm + 0.2 × SpeedNorm + 0.2 × MemNorm`
 > - PerfNorm = (해당 모델 인식률) / (E0 인식률)
@@ -220,3 +224,12 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
   - **평균**: MOTA=0.108, IDF1=0.295, HOTA=0.416, IDSW=0, FPS=20.4
   - vs E1 ByteTrack W8A8: MOTA −0.113(−51%), IDF1 −0.089(−23%), HOTA −0.071(−15%)
   - **원인 분석**: SimpleReIDNet은 무작위 초기화(학습 데이터 없음) → 임베딩이 의미 없는 유사도 산출 → FP 6→21로 폭증. CMC 단독으로는 도움되나 untrained ReID가 역효과. ReID 학습이 전제되어야 BoT-SORT가 ByteTrack을 능가함을 실증
+- **2026-05-28**: **Phase 5 CPU ONNX Runtime 벤치마크 완료** → `scripts/benchmark_pipeline.py`
+  - 컴포넌트: YOLOv8s ~34ms (fake-quant=FP32 동등), OCR 0.07ms, TrafficSignNet 0.03ms, ReID 0.09ms
+  - 파이프라인: E1/E3 W8A8 최고 ~23.8 FPS (CPU, fake-quant)
+  - **30+ FPS 미달**: fake-quant ONNX = FP32 연산. ORT quantize_dynamic() 적용 시 3-4× 가속 → 60+ FPS 예측
+  - **병목 확인**: YOLOv8s가 전체 레이턴시 82%. OCR/분류 합산 < 0.2ms → 검출기 최적화 최우선
+  - Pareto 차트 생성: `assets/pareto_frontier.png` (E5가 MOTA·OCR 모두 Pareto 최적, 11.4 MB)
+- **2026-05-28**: **E2E 파이프라인 TrafficSignNet 연결 완료** → `src/pipeline/e2e_pipeline.py`
+  - traffic_sign 클래스 → TrafficSignNet W8A8 ONNX로 43클래스 GTSDB 분류
+  - dry_run 검증: 3모델 모두 정상 로드 (YOLOv8s W8A8 + OCR W8A8 + TrafficSignNet W8A8)

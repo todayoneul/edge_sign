@@ -202,13 +202,29 @@ def softmax(x: np.ndarray) -> np.ndarray:
 # E2E 파이프라인 클래스
 # ─────────────────────────────────────────────────────────────────────────────
 
+GTSDB_CLASSES = [
+    "Speed limit 20", "Speed limit 30", "Speed limit 50", "Speed limit 60",
+    "Speed limit 70", "Speed limit 80", "End speed limit 80", "Speed limit 100",
+    "Speed limit 120", "No passing", "No passing >3.5t", "Right-of-way junction",
+    "Priority road", "Yield", "Stop", "No vehicles",
+    "No trucks", "No entry", "General caution", "Dangerous left curve",
+    "Dangerous right curve", "Double curve", "Bumpy road", "Slippery road",
+    "Narrow right", "Road works", "Traffic signals", "Pedestrians",
+    "Children crossing", "Bicycles", "Beware ice/snow", "Wild animals",
+    "End restrictions", "Turn right", "Turn left", "Go straight",
+    "Go straight or right", "Go straight or left", "Keep right", "Keep left",
+    "Roundabout", "End no passing", "End no passing >3.5t",
+]
+
+
 class EdgeSignPipeline:
     """
-    검출(YOLOv8n) + 추적(ByteTrack) + 인식(OCR/분류) 통합 파이프라인.
+    검출(YOLOv8s) + 추적(ByteTrack) + 인식(OCR/분류) 통합 파이프라인.
 
     Args:
-        yolo_onnx: YOLOv8n ONNX 모델 경로
-        ocr_onnx:  KoreanOCRNet ONNX 모델 경로 (signboard 인식용)
+        yolo_onnx:  YOLOv8s ONNX 모델 경로
+        ocr_onnx:   KoreanOCRNet ONNX 모델 경로 (signboard 인식용)
+        tsign_onnx: TrafficSignNet ONNX 모델 경로 (traffic_sign 분류용)
         conf_thres: 검출 신뢰도 임계값
         iou_thres:  NMS IoU 임계값
         track_thresh: ByteTrack 고신뢰 임계값
@@ -216,8 +232,9 @@ class EdgeSignPipeline:
 
     def __init__(
         self,
-        yolo_onnx: Optional[str] = None,
-        ocr_onnx:  Optional[str] = None,
+        yolo_onnx:  Optional[str] = None,
+        ocr_onnx:   Optional[str] = None,
+        tsign_onnx: Optional[str] = None,
         conf_thres: float = 0.25,
         iou_thres: float = 0.45,
         track_thresh: float = 0.5,
@@ -231,7 +248,7 @@ class EdgeSignPipeline:
         self.iou_thres  = iou_thres
         self._frame_id  = 0
 
-        # YOLOv8n 세션
+        # YOLOv8s 세션
         self.yolo_session = None
         if yolo_onnx and Path(yolo_onnx).exists():
             self.yolo_session = ort.InferenceSession(
@@ -241,9 +258,9 @@ class EdgeSignPipeline:
             self._yolo_input_name = inp.name
             self._yolo_h = inp.shape[2] if isinstance(inp.shape[2], int) else 640
             self._yolo_w = inp.shape[3] if isinstance(inp.shape[3], int) else 640
-            print(f"[Pipeline] YOLOv8n 로드: {yolo_onnx}")
+            print(f"[Pipeline] YOLOv8s loaded: {Path(yolo_onnx).name}")
         else:
-            print(f"[Pipeline] ⚠️  YOLOv8n ONNX 없음 — 검출 비활성화")
+            print(f"[Pipeline] WARNING: YOLOv8s ONNX not found -- detection disabled")
 
         # KoreanOCRNet 세션
         self.ocr_session = None
@@ -252,9 +269,20 @@ class EdgeSignPipeline:
                 str(ocr_onnx), providers=["CPUExecutionProvider"]
             )
             self._ocr_input_name = self.ocr_session.get_inputs()[0].name
-            print(f"[Pipeline] KoreanOCRNet 로드: {ocr_onnx}")
+            print(f"[Pipeline] KoreanOCRNet loaded: {Path(ocr_onnx).name}")
         else:
-            print(f"[Pipeline] ⚠️  OCR ONNX 없음 — 문자 인식 비활성화")
+            print(f"[Pipeline] WARNING: OCR ONNX not found -- signboard OCR disabled")
+
+        # TrafficSignNet 세션 (traffic_sign 43-class 분류)
+        self.tsign_session = None
+        if tsign_onnx and Path(tsign_onnx).exists():
+            self.tsign_session = ort.InferenceSession(
+                str(tsign_onnx), providers=["CPUExecutionProvider"]
+            )
+            self._tsign_input_name = self.tsign_session.get_inputs()[0].name
+            print(f"[Pipeline] TrafficSignNet loaded: {Path(tsign_onnx).name}")
+        else:
+            print(f"[Pipeline] INFO: TrafficSignNet ONNX not found -- sign class = 'traffic_sign'")
 
         # ByteTracker
         self.tracker = ByteTracker(
@@ -302,6 +330,25 @@ class EdgeSignPipeline:
             return []
         out = self.ocr_session.run(None, {self._ocr_input_name: inp})
         return decode_ocr_output(out[0])
+
+    def _run_tsign(self, frame: np.ndarray, bbox: np.ndarray) -> list[tuple[str, float]]:
+        """traffic_sign ROI → Top-3 GTSDB 클래스 리스트."""
+        if self.tsign_session is None:
+            return [("traffic_sign", 1.0)]
+        x1, y1, x2, y2 = bbox[:4].astype(int)
+        x1, y1 = max(0, x1), max(0, y1)
+        x2, y2 = min(frame.shape[1], x2), min(frame.shape[0], y2)
+        if x2 <= x1 or y2 <= y1:
+            return [("traffic_sign", 1.0)]
+        roi = frame[y1:y2, x1:x2]
+        # TrafficSignNet: 3×32×32 RGB, Normalize mean=(0.5,0.5,0.5) std=(0.5,0.5,0.5)
+        rgb = cv2.cvtColor(cv2.resize(roi, (32, 32)), cv2.COLOR_BGR2RGB)
+        tensor = (rgb.astype(np.float32) / 255.0 - 0.5) / 0.5
+        inp = np.transpose(tensor, (2, 0, 1))[np.newaxis]   # [1, 3, 32, 32]
+        out = self.tsign_session.run(None, {self._tsign_input_name: inp})
+        probs = softmax(out[0][0])
+        top3 = probs.argsort()[::-1][:3]
+        return [(GTSDB_CLASSES[int(i)], float(probs[i])) for i in top3]
 
     def _stable_recognition(self, track_id: int) -> str:
         """temporal buffer에서 최빈 레이블(신뢰도 누적 기준) 반환."""
@@ -355,15 +402,15 @@ class EdgeSignPipeline:
             cls = int(track.cls)
             bbox = np.array([x1, y1, x2, y2])
 
-            # signboard → OCR, traffic_sign → 라벨 그대로 (TrafficSignNet 미구현)
+            # signboard → KoreanOCRNet, traffic_sign → TrafficSignNet
             if cls == 1:
                 top_labels = self._run_ocr(frame, bbox)
                 label_cur = top_labels[0][0] if top_labels else ""
                 conf_cur  = top_labels[0][1] if top_labels else 0.0
             else:
-                top_labels = [("traffic_sign", float(track.score))]
-                label_cur  = "traffic_sign"
-                conf_cur   = float(track.score)
+                top_labels = self._run_tsign(frame, bbox)
+                label_cur  = top_labels[0][0] if top_labels else "traffic_sign"
+                conf_cur   = top_labels[0][1] if top_labels else float(track.score)
 
             self._track_buffers[track.track_id].append((label_cur, conf_cur))
             stable = self._stable_recognition(track.track_id)
@@ -420,14 +467,19 @@ class EdgeSignPipeline:
 
 def main():
     parser = argparse.ArgumentParser(description="Edge-Sign E2E 파이프라인 테스트")
-    parser.add_argument("--yolo",  default=str(ROOT / "model_space" / "yolov8n_signs_fp32.onnx"))
-    parser.add_argument("--ocr",   default=str(ROOT / "web" / "korean_ocr_quant.onnx"))
-    parser.add_argument("--input", default=None, help="이미지 디렉토리 또는 영상 파일")
-    parser.add_argument("--show",  action="store_true", help="결과 시각화 표시")
+    parser.add_argument("--yolo",   default=str(ROOT / "model_space" / "yolov8s_signs_w8a8.onnx"))
+    parser.add_argument("--ocr",    default=str(ROOT / "model_space" / "korean_ocr_net_w8a8.onnx"))
+    parser.add_argument("--tsign",  default=str(ROOT / "model_space" / "traffic_sign_net_w8a8.onnx"))
+    parser.add_argument("--input",  default=None, help="이미지 디렉토리 또는 영상 파일")
+    parser.add_argument("--show",   action="store_true", help="결과 시각화 표시")
     parser.add_argument("--dry_run", action="store_true", help="더미 프레임으로 초기화 테스트")
     args = parser.parse_args()
 
-    pipeline = EdgeSignPipeline(yolo_onnx=args.yolo, ocr_onnx=args.ocr)
+    pipeline = EdgeSignPipeline(
+        yolo_onnx=args.yolo,
+        ocr_onnx=args.ocr,
+        tsign_onnx=args.tsign,
+    )
 
     if args.dry_run:
         print("[DryRun] 640×480 더미 프레임으로 파이프라인 테스트...")

@@ -21,7 +21,7 @@
 - [5. 종합 평가 및 최적 모델 선정 (Final Score)](#5-종합-평가-및-최적-모델-선정-final-score)
 - [6. Phase 2 — 검출+추적+인식 파이프라인 설계](#6-phase-2--검출추적인식-파이프라인-설계)
 - [7. Phase 2 양자화 실험 매트릭스](#7-phase-2-양자화-실험-매트릭스)
-  - [7.1 평가 지표 (MOTA/IDF1/HOTA 수식)](#71-평가-지표) · [7.2 검출 결과](#72-검출기-양자화-실험-결과-완료) · [7.3 추적 결과](#73-추적기-양자화-영향-분석-e0--e1e4e5) · [7.4 인식기 모델](#74-인식기-모델-trafficsignnet--koreanoccurnet)
+  - [7.1 평가 지표](#71-평가-지표) · [7.2 검출 결과](#72-검출기-양자화-실험-결과-완료) · [7.3 추적 결과](#73-추적기-양자화-영향-분석-e0e6-전체) · [7.4 인식기 모델](#74-인식기-모델-trafficsignnet--koreanoccurnet) · [7.5 Pareto Frontier](#75-pareto-frontier--모델-크기-vs-파이프라인-성능) · [7.6 벤치마크](#76-phase-5--cpu-onnx-runtime-벤치마크)
 - [8. 웹 배포 아키텍처](#8-웹-배포-아키텍처)
 - [9. 재현 가이드 (Reproduction Guide)](#9-재현-가이드-reproduction-guide)
 
@@ -353,6 +353,65 @@ TrafficSignNet: GTSDB 1,213 크롭(train 971 / val 242)으로 학습, 50 epoch, 
 전체 파이프라인 총 모델 크기 (E0 FP32): YOLOv8s(21.5) + KoreanOCRNet(2.7) + TrafficSignNet(0.12) ≈ **24.3 MB**
 
 실험 결과 전체는 `docs/EXPERIMENTS.md`에 기록됩니다.
+
+### 7.5. Pareto Frontier — 모델 크기 vs. 파이프라인 성능
+
+![Pareto Frontier](assets/pareto_frontier.png)
+
+> 모델 크기는 실제 INT 배포 시 이론적 크기 기준 (fake-quant ONNX 저장 크기 아님).  
+> 좌: Size vs MOTA (추적) · 우: Size vs OCR Top-1
+
+**Pareto 최적점 분석:**
+
+| 실험 | 총 크기 | MOTA | OCR | Pareto MOTA | Pareto OCR | 추천 |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **E5** SQ+W8A8 | 11.4 MB | **0.225** | **98.5%** | ✅ 최적 | ✅ 최적 | ⭐ **전체 최선** |
+| **E7** 1-Bit Rec | 5.4 MB | 0.105 | 0.3% | ✅ 최소 | ✅ 최소 | (최소 크기 한계) |
+| **E4** W4A16 | 5.7 MB | 0.105 | 54.6% | ❌ E7에 지배 | ✅ OCR 중간 | 중간 크기 OCR |
+| E3 W8A8 All | 11.4 MB | 0.221 | 98.4% | ❌ E5에 지배 | ❌ E5에 지배 | — |
+
+**핵심 결론:**
+- **E5 (SmoothQuant+W8A8, 11.4 MB)** 이 MOTA·OCR 양쪽 Pareto 최적 — **목표 15 MB 이내 달성**
+- E3 (W8A8 All) 와 E5 는 동일 크기지만 E5 가 두 지표 모두 우위 → SmoothQuant의 미세한 이득
+- E6 (BoT-SORT) 는 E5 에 완전 지배 — 미학습 ReID가 유일한 원인
+- E7 (1-Bit) 은 크기만 작고 OCR=0.3% 로 실사용 불가
+
+---
+
+## 7.6. Phase 5 — CPU ONNX Runtime 벤치마크
+
+> `scripts/benchmark_pipeline.py` 실행 결과.  
+> ⚠️ fake-quant ONNX = FP32 가중치 저장 → 실제 INT8 런타임 가속 없음. 아래는 **연산 구조 기준** 레이턴시.
+
+### 컴포넌트 단위 레이턴시 (CPU, 30 runs)
+
+| 모델 | Mean (ms) | 비고 |
+| :--- | :---: | :--- |
+| **YOLOv8s FP32** | 34.1 | 파이프라인 병목 |
+| **YOLOv8s W8A8** | 34.6 | FP32와 동등 (fake-quant) |
+| **YOLOv8s W4A16** | 37.0 | — |
+| **YOLOv8s SmoothQuant** | 46.3 | 래퍼 오버헤드 |
+| KoreanOCRNet FP32 | 0.07 | 무시 가능 |
+| KoreanOCRNet W8A8 | 0.08 | — |
+| TrafficSignNet FP32/W8A8 | 0.03 | 극소 |
+| ReID (SimpleReIDNet W8A8) | 0.09 | — |
+
+**병목 분석:** YOLOv8s가 전체 파이프라인 레이턴시의 **~82%** 차지. OCR/분류는 합산 < 0.2 ms.
+
+### 전체 파이프라인 FPS (야간 AI Hub 시퀀스, CPU)
+
+| 구성 | Latency/frame | FPS | 30 FPS 달성 |
+| :--- | :---: | :---: | :---: |
+| E0 FP32 All | 51.5 ms | 19.4 | ❌ |
+| E1 W8A8 Detector | 42.0 ms | **23.8** | ❌ |
+| E3 W8A8 All | 42.4 ms | 23.6 | ❌ |
+| E4 W4A16 All | 43.1 ms | 23.2 | ❌ |
+| E5 SmoothQuant+W8A8 | 50.7 ms | 19.7 | ❌ |
+
+**30+ FPS 미달성 원인 및 전망:**
+- `fake-quant ONNX` = FP32 가중치 저장 → CPU ORT에서 실제 INT8 커널 호출 없음
+- 실제 배포 경로: `onnxruntime.quantization.quantize_dynamic()` → 진정한 INT8 ONNX → 예상 ~3-4× 가속 → **60+ FPS 예측**
+- 또는 TensorRT INT8 엔진 (GPU): 검출기 단독 < 5 ms → 전체 파이프라인 100+ FPS 가능
 
 ---
 
