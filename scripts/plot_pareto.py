@@ -1,7 +1,9 @@
 """
-Edge-Sign Phase 2 Pareto Frontier 시각화.
+Edge-Sign Phase 2  Pareto Frontier Visualization.
 
-실험 E0-E7 결과 기반 Pareto 차트 생성.
+실험 E0-E7 결과 기반으로 Model Size vs Pipeline Performance Pareto 차트를 생성한다.
+크기값은 docs/EXPERIMENTS.md의 이론적 INT 배포 크기 기준.
+
 출력: assets/pareto_frontier.png
 
 사용법:
@@ -17,209 +19,254 @@ import matplotlib.patches as mpatches
 import numpy as np
 
 ROOT = Path(__file__).parent.parent
-sys.path.insert(0, str(ROOT))
+ASSETS = ROOT / "assets"
+ASSETS.mkdir(exist_ok=True)
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 실험 데이터
-# 모델 크기: 이론적 INT 배포 크기 (fake-quant ONNX 파일 크기 아님)
-#   YOLOv8s FP32=42.67 MB / W8A8=10.67 MB / W4A16=5.33 MB
-#   KoreanOCRNet FP32=2.75 MB / W8A8=0.69 MB / W4A16=0.34 MB / 1-Bit=0.09 MB
-#   TrafficSignNet FP32=0.12 MB / W8A8=0.03 MB / W4A16=0.015 MB / 1-Bit=0.004 MB
-#   SimpleReIDNet W8A8=0.06 MB (theoretical)
-# ──────────────────────────────────────────────────────────────────────────────
-
+# ─────────────────────────────────────────────────────────────────────────────
+# 실험 데이터  (docs/EXPERIMENTS.md 이론적 INT 배포 크기 기준)
+# ─────────────────────────────────────────────────────────────────────────────
 EXPERIMENTS = {
-    "E0": {
-        "size": 42.67 + 2.75 + 0.12,          # 45.54 MB
-        "mota": 0.219, "ocr": 98.5, "ts": 62.8, "fps": 21.6,
-        "tracker": "ByteTrack",
-        "label": "E0\nFP32 All",
-        "color": "#4C72B0", "marker": "o",
-    },
-    "E1": {
-        "size": 10.67 + 2.75 + 0.12,          # 13.54 MB
-        "mota": 0.221, "ocr": 98.5, "ts": 62.8, "fps": 24.8,
-        "tracker": "ByteTrack",
-        "label": "E1\nW8A8 Det",
-        "color": "#55A868", "marker": "s",
-    },
-    "E2": {
-        "size": 42.67 + 0.69 + 0.03,          # 43.39 MB
-        "mota": 0.219, "ocr": 98.4, "ts": 63.2, "fps": 21.6,
-        "tracker": "ByteTrack",
-        "label": "E2\nW8A8 Rec",
-        "color": "#8172B2", "marker": "p",
-    },
-    "E3": {
-        "size": 10.67 + 0.69 + 0.03,          # 11.39 MB
-        "mota": 0.221, "ocr": 98.4, "ts": 63.2, "fps": 24.8,
-        "tracker": "ByteTrack",
-        "label": "E3\nW8A8 All",
-        "color": "#55A868", "marker": "D",
-    },
-    "E4": {
-        "size": 5.33 + 0.34 + 0.015,          # 5.69 MB
-        "mota": 0.105, "ocr": 54.6, "ts": 49.2, "fps": 25.7,
-        "tracker": "ByteTrack",
-        "label": "E4\nW4A16 All",
-        "color": "#C44E52", "marker": "^",
-    },
-    "E5": {
-        "size": 10.67 + 0.69 + 0.03,          # 11.39 MB
-        "mota": 0.225, "ocr": 98.5, "ts": 62.8, "fps": 20.8,
-        "tracker": "ByteTrack",
-        "label": "E5\nSQ+W8A8",
-        "color": "#CCB974", "marker": "P",
-    },
-    "E6": {
-        "size": 10.67 + 0.06 + 0.69 + 0.03,  # 11.45 MB
-        "mota": 0.108, "ocr": 98.4, "ts": 63.2, "fps": 20.4,
-        "tracker": "BoT-SORT",
-        "label": "E6\nBoT-SORT",
-        "color": "#DD8452", "marker": "X",
-    },
-    "E7": {
-        "size": 5.33 + 0.09 + 0.004,          # 5.42 MB
-        "mota": 0.105, "ocr": 0.3,  "ts": 12.8, "fps": 25.7,
-        "tracker": "ByteTrack",
-        "label": "E7\n1-Bit Rec",
-        "color": "#937860", "marker": "v",
-    },
+    "E0": {"size": 24.3, "mota": 0.219, "ocr": 98.5, "fps": 21.2,
+           "label": "E0", "desc": "FP32 All",        "color": "#4878CF", "marker": "o"},
+    "E1": {"size": 13.5, "mota": 0.221, "ocr": 98.5, "fps": 24.7,
+           "label": "E1", "desc": "W8A8 Det",         "color": "#6ACC65", "marker": "s"},
+    "E2": {"size": 21.8, "mota": 0.219, "ocr": 98.4, "fps": 23.3,
+           "label": "E2", "desc": "FP32 Det+W8A8 Rec","color": "#B47CC7", "marker": "p"},
+    "E3": {"size": 11.4, "mota": 0.221, "ocr": 98.4, "fps": 24.3,
+           "label": "E3", "desc": "W8A8 All",         "color": "#56A0C0", "marker": "D"},
+    "E4": {"size":  5.7, "mota": 0.105, "ocr": 54.6, "fps": 25.2,
+           "label": "E4", "desc": "W4A16 All",        "color": "#D65F5F", "marker": "^"},
+    "E5": {"size": 11.4, "mota": 0.225, "ocr": 98.5, "fps": 20.5,
+           "label": "E5", "desc": "SQ+W8A8",          "color": "#EE854A", "marker": "P"},
+    "E6": {"size": 11.5, "mota": 0.108, "ocr": 98.4, "fps": 20.4,
+           "label": "E6", "desc": "BoT-SORT",         "color": "#A9A9A9", "marker": "X"},
+    "E7": {"size":  5.4, "mota": 0.105, "ocr":  0.3, "fps": 25.1,
+           "label": "E7", "desc": "W4A16+1-Bit",      "color": "#8B6914", "marker": "v"},
 }
 
-# Pareto-optimal 집합 (minimize size, maximize metric)
-# MOTA Pareto: E7(5.42, 0.105), E5(11.39, 0.225)
+# Pareto 최적 집합 (size 최소화 & metric 최대화 기준)
+# MOTA: E7(5.4, 0.105), E5(11.4, 0.225)
+# OCR:  E7(5.4, 0.3%), E4(5.7, 54.6%), E5(11.4, 98.5%)
 PARETO_MOTA = {"E7", "E5"}
-# OCR Pareto: E7(5.42, 0.3%), E4(5.69, 54.6%), E5(11.39, 98.5%)
 PARETO_OCR  = {"E7", "E4", "E5"}
 
-
-def _pareto_step_line(ids, x_key, y_key):
-    """Pareto 계단 라인용 좌표 계산."""
-    pts = sorted([(EXPERIMENTS[e][x_key], EXPERIMENTS[e][y_key]) for e in ids])
-    xs = [p[0] for p in pts]
-    ys = [p[1] for p in pts]
-    # step 라인: 각 점에서 다음 x까지 수평 → 수직
-    sx, sy = [], []
-    for i, (x, y) in enumerate(zip(xs, ys)):
-        sx.append(x)
-        sy.append(y)
-        if i < len(xs) - 1:
-            sx.append(xs[i + 1])
-            sy.append(y)
-    # 끝을 x축 최대까지 연장
-    sx.append(50)
-    sy.append(ys[-1])
-    return sx, sy
+# ─────────────────────────────────────────────────────────────────────────────
+# 헬퍼: Pareto 계단선 좌표
+# ─────────────────────────────────────────────────────────────────────────────
+def pareto_step(ids, y_key, x_max):
+    pts = sorted([(EXPERIMENTS[e]["size"], EXPERIMENTS[e][y_key]) for e in ids])
+    xs, ys = [], []
+    for i, (x, y) in enumerate(pts):
+        xs.append(x); ys.append(y)
+        if i < len(pts) - 1:
+            xs.append(pts[i+1][0]); ys.append(y)
+    xs.append(x_max); ys.append(ys[-1])
+    return xs, ys
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 그래프 그리기
-# ──────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# 레이아웃 상수
+# ─────────────────────────────────────────────────────────────────────────────
+XMAX      = 27.0   # MB  (E2=21.8, E0=24.3 포함)
+MS_PARETO = 240    # 마커 크기 (Pareto 최적)
+MS_NORMAL = 100    # 마커 크기 (일반)
+FS_TITLE  = 12
+FS_AXIS   = 10
+FS_TICK   = 9
+FS_ANNOT  = 8.5
+FS_LEGEND = 8.5
 
-fig, axes = plt.subplots(1, 2, figsize=(15, 6.5))
+# ─────────────────────────────────────────────────────────────────────────────
+# 레이블 오프셋 (x_offset, y_offset) — 겹침 수동 조정
+# ─────────────────────────────────────────────────────────────────────────────
+# Panel (a): MOTA (y 범위 0.05 ~ 0.27)
+OFFSET_MOTA = {
+    "E0": ( 0.5, -0.020),   # 오른쪽 아래
+    "E1": ( 0.5,  0.005),   # 오른쪽 위
+    "E2": (-7.0,  0.005),   # 왼쪽 위
+    "E3": (-3.5, -0.020),   # 왼쪽 아래  (E5와 겹침 방지)
+    "E4": ( 0.3,  0.006),   # 오른쪽 위
+    "E5": ( 0.4,  0.006),   # 오른쪽 위  (Pareto → 강조)
+    "E6": ( 0.4, -0.016),   # 오른쪽 아래
+    "E7": (-3.2,  0.006),   # 왼쪽 위
+}
+# Panel (b): OCR (y 범위 -5 ~ 107)
+OFFSET_OCR = {
+    "E0": ( 0.5, -7.0),     # 오른쪽 아래
+    "E1": ( 0.5,  3.0),     # 오른쪽 위
+    "E2": (-7.5,  3.0),     # 왼쪽 위
+    "E3": (-4.0, -8.0),     # 왼쪽 아래  (E5 아래)
+    "E4": ( 0.3,  3.0),     # 오른쪽 위
+    "E5": ( 0.4,  3.0),     # 오른쪽 위  (Pareto)
+    "E6": ( 0.4, -8.0),     # 오른쪽 아래
+    "E7": ( 0.3, -8.0),     # 오른쪽 아래 (낮은 OCR이라 겹침 없음)
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Figure 생성
+# ─────────────────────────────────────────────────────────────────────────────
+fig, axes = plt.subplots(1, 2, figsize=(13, 5.5))
 fig.suptitle(
-    "Edge-Sign: Pareto Frontier — Model Size vs. Pipeline Performance\n"
-    "(Phase 2 Quantization Experiments E0-E7, CPU ONNX Runtime, Night Sequences)",
-    fontsize=13, fontweight="bold", y=1.01,
+    "Edge-Sign v2: Pareto Frontier — Model Size vs. Pipeline Performance\n"
+    "E0-E7 Quantization Experiments  |  CPU ONNX Runtime  |  Night Test Sequences",
+    fontsize=FS_TITLE, fontweight="bold", y=1.02,
 )
 
-ANNOT_OFFSET = {  # (dx, dy) 텍스트 위치 조정
-    "E0": ( 0.6,  0.004),
-    "E1": ( 0.6,  0.004),
-    "E2": (-9.0,  0.004),
-    "E3": ( 0.6, -0.016),
-    "E4": ( 0.3,  0.004),
-    "E5": ( 0.6,  0.005),
-    "E6": ( 0.6, -0.012),
-    "E7": ( 0.3, -0.016),
-}
-ANNOT_OFFSET_OCR = {
-    "E0": ( 0.6,  2.5),
-    "E1": ( 0.6,  2.5),
-    "E2": (-9.0,  2.5),
-    "E3": ( 0.6, -5.0),
-    "E4": ( 0.3, -8.0),
-    "E5": ( 0.6,  2.5),
-    "E6": ( 0.6, -5.0),
-    "E7": ( 0.3,  2.5),
-}
-
-# ── (a) Size vs MOTA ──────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# Panel (a): Model Size vs. MOTA
+# ─────────────────────────────────────────────────────────────────────────────
 ax = axes[0]
 
 # Pareto 계단선
-sx, sy = _pareto_step_line(PARETO_MOTA, "size", "mota")
-ax.plot(sx, sy, color="crimson", linestyle="--", linewidth=1.8,
-        alpha=0.75, zorder=2, label="Pareto Frontier")
+sx, sy = pareto_step(PARETO_MOTA, "mota", XMAX)
+ax.plot(sx, sy, color="crimson", ls="--", lw=1.8, alpha=0.7,
+        zorder=2, label="Pareto frontier")
 
 # 15 MB 목표선
-ax.axvline(15, color="gray", linestyle=":", linewidth=1.2, alpha=0.6)
-ax.text(15.4, 0.005, "15 MB\ntarget", fontsize=8, color="gray", va="bottom")
+ax.axvline(15, color="#888888", ls=":", lw=1.2, alpha=0.7)
+ax.text(15.2, 0.245, "15 MB\ntarget", fontsize=FS_ANNOT - 0.5,
+        color="#666666", va="top", ha="left")
 
+# 데이터 포인트
 for eid, d in EXPERIMENTS.items():
     is_p = eid in PARETO_MOTA
-    ax.scatter(d["size"], d["mota"],
-               s=260 if is_p else 130,
-               c=d["color"], marker=d["marker"],
-               zorder=5 if is_p else 4,
-               edgecolors="black" if is_p else "none",
-               linewidths=1.8)
-    dx, dy = ANNOT_OFFSET.get(eid, (0.6, 0.004))
-    ax.annotate(d["label"],
-                xy=(d["size"], d["mota"]),
-                xytext=(d["size"] + dx, d["mota"] + dy),
-                fontsize=8, ha="left", va="center",
-                fontweight="bold" if is_p else "normal")
+    ax.scatter(
+        d["size"], d["mota"],
+        s       = MS_PARETO if is_p else MS_NORMAL,
+        c       = d["color"],
+        marker  = d["marker"],
+        zorder  = 5 if is_p else 4,
+        edgecolors = "black" if is_p else "#555555",
+        linewidths = 1.6 if is_p else 0.6,
+    )
+    dx, dy = OFFSET_MOTA[eid]
+    ax.annotate(
+        f"{d['label']}\n{d['desc']}",
+        xy     = (d["size"], d["mota"]),
+        xytext = (d["size"] + dx, d["mota"] + dy),
+        fontsize   = FS_ANNOT,
+        ha         = "left" if dx >= 0 else "right",
+        va         = "center",
+        fontweight = "bold" if is_p else "normal",
+        color      = "black",
+        arrowprops = dict(arrowstyle="-", color="#AAAAAA", lw=0.8)
+                    if abs(dx) > 1.5 else None,
+    )
 
-ax.set_xlabel("Total Model Size (MB)  [theoretical INT deployment]", fontsize=10)
-ax.set_ylabel("Tracking MOTA  (higher is better)", fontsize=10)
-ax.set_title("(a) Model Size vs. Tracking MOTA", fontsize=11)
-ax.set_xlim(-1, 50)
-ax.set_ylim(0.0, 0.27)
-ax.grid(True, alpha=0.3)
-ax.legend(fontsize=9, loc="lower right")
+ax.set_xlabel("Total Model Size (MB)  [theoretical INT deployment]", fontsize=FS_AXIS)
+ax.set_ylabel("Tracking MOTA  (higher is better)", fontsize=FS_AXIS)
+ax.set_title("(a)  Model Size  vs.  Tracking MOTA", fontsize=FS_AXIS + 1, pad=8)
+ax.set_xlim(-0.5, XMAX)
+ax.set_ylim(0.05, 0.27)
+ax.tick_params(labelsize=FS_TICK)
+ax.grid(True, alpha=0.25, linestyle="--")
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
 
-# ── (b) Size vs OCR Accuracy ──────────────────────────────────────────────────
+# 범례 (마커 모양)
+legend_handles = [
+    plt.scatter([], [], s=MS_PARETO, c=EXPERIMENTS[e]["color"],
+                marker=EXPERIMENTS[e]["marker"],
+                edgecolors="black", linewidths=1.6,
+                label=f"{e}: {EXPERIMENTS[e]['desc']} ({EXPERIMENTS[e]['size']} MB)")
+    for e in EXPERIMENTS
+]
+legend_handles += [
+    mpatches.Patch(color="none"),
+    plt.Line2D([0],[0], color="crimson", ls="--", lw=1.8, label="Pareto frontier"),
+    plt.Line2D([0],[0], color="#888888", ls=":", lw=1.2, label="15 MB target"),
+]
+ax.legend(handles=legend_handles, fontsize=FS_LEGEND - 1, loc="lower right",
+          framealpha=0.85, edgecolor="#CCCCCC", ncol=1)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Panel (b): Model Size vs. OCR Accuracy
+# ─────────────────────────────────────────────────────────────────────────────
 ax = axes[1]
 
-sx, sy = _pareto_step_line(PARETO_OCR, "size", "ocr")
-ax.plot(sx, sy, color="crimson", linestyle="--", linewidth=1.8,
-        alpha=0.75, zorder=2, label="Pareto Frontier")
+sx, sy = pareto_step(PARETO_OCR, "ocr", XMAX)
+ax.plot(sx, sy, color="crimson", ls="--", lw=1.8, alpha=0.7,
+        zorder=2, label="Pareto frontier")
 
-ax.axvline(15, color="gray", linestyle=":", linewidth=1.2, alpha=0.6)
-ax.text(15.4, 2, "15 MB\ntarget", fontsize=8, color="gray", va="bottom")
-ax.axhline(95, color="steelblue", linestyle=":", linewidth=1.2, alpha=0.5)
-ax.text(0.5, 95.8, "95% threshold", fontsize=8, color="steelblue")
+ax.axvline(15, color="#888888", ls=":", lw=1.2, alpha=0.7)
+ax.text(15.2, 3, "15 MB\ntarget", fontsize=FS_ANNOT - 0.5,
+        color="#666666", va="bottom", ha="left")
+
+ax.axhline(95, color="steelblue", ls=":", lw=1.2, alpha=0.5)
+ax.text(0.3, 96, "95% usable threshold", fontsize=FS_ANNOT - 0.5,
+        color="steelblue", va="bottom")
 
 for eid, d in EXPERIMENTS.items():
     is_p = eid in PARETO_OCR
-    ax.scatter(d["size"], d["ocr"],
-               s=260 if is_p else 130,
-               c=d["color"], marker=d["marker"],
-               zorder=5 if is_p else 4,
-               edgecolors="black" if is_p else "none",
-               linewidths=1.8,
-               label=f"{eid}: {d['label'].split(chr(10))[1]}")
-    dx, dy = ANNOT_OFFSET_OCR.get(eid, (0.6, 2.5))
-    ax.annotate(d["label"],
-                xy=(d["size"], d["ocr"]),
-                xytext=(d["size"] + dx, d["ocr"] + dy),
-                fontsize=8, ha="left", va="center",
-                fontweight="bold" if is_p else "normal")
+    ax.scatter(
+        d["size"], d["ocr"],
+        s       = MS_PARETO if is_p else MS_NORMAL,
+        c       = d["color"],
+        marker  = d["marker"],
+        zorder  = 5 if is_p else 4,
+        edgecolors = "black" if is_p else "#555555",
+        linewidths = 1.6 if is_p else 0.6,
+    )
+    dx, dy = OFFSET_OCR[eid]
+    ax.annotate(
+        f"{d['label']}\n{d['desc']}",
+        xy     = (d["size"], d["ocr"]),
+        xytext = (d["size"] + dx, d["ocr"] + dy),
+        fontsize   = FS_ANNOT,
+        ha         = "left" if dx >= 0 else "right",
+        va         = "center",
+        fontweight = "bold" if is_p else "normal",
+        color      = "black",
+        arrowprops = dict(arrowstyle="-", color="#AAAAAA", lw=0.8)
+                    if abs(dx) > 1.5 else None,
+    )
 
-ax.set_xlabel("Total Model Size (MB)  [theoretical INT deployment]", fontsize=10)
-ax.set_ylabel("OCR Top-1 Accuracy %  (higher is better)", fontsize=10)
-ax.set_title("(b) Model Size vs. OCR Accuracy", fontsize=11)
-ax.set_xlim(-1, 50)
-ax.set_ylim(-5, 107)
-ax.grid(True, alpha=0.3)
-ax.legend(fontsize=7.5, loc="lower right", ncol=2)
+ax.set_xlabel("Total Model Size (MB)  [theoretical INT deployment]", fontsize=FS_AXIS)
+ax.set_ylabel("OCR Top-1 Accuracy (%)  (higher is better)", fontsize=FS_AXIS)
+ax.set_title("(b)  Model Size  vs.  OCR Top-1 Accuracy", fontsize=FS_AXIS + 1, pad=8)
+ax.set_xlim(-0.5, XMAX)
+ax.set_ylim(-5, 108)
+ax.tick_params(labelsize=FS_TICK)
+ax.grid(True, alpha=0.25, linestyle="--")
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
 
-plt.tight_layout()
+# 보조 주석: Pareto 최적 설명
+ax.annotate(
+    "E5 (SQ+W8A8, 11.4 MB)\nBest overall: MOTA & OCR\nboth Pareto-optimal",
+    xy=(11.4, 98.5), xytext=(14.5, 80),
+    fontsize=FS_ANNOT, color="crimson",
+    arrowprops=dict(arrowstyle="->", color="crimson", lw=1.2),
+    ha="left",
+)
 
+legend_handles2 = [
+    plt.scatter([], [], s=MS_PARETO, c=EXPERIMENTS[e]["color"],
+                marker=EXPERIMENTS[e]["marker"],
+                edgecolors="black", linewidths=1.6,
+                label=f"{e}: {EXPERIMENTS[e]['desc']}")
+    for e in EXPERIMENTS
+] + [
+    mpatches.Patch(color="none"),
+    plt.Line2D([0],[0], color="crimson", ls="--", lw=1.8, label="Pareto frontier"),
+    plt.Line2D([0],[0], color="steelblue", ls=":", lw=1.2, label="95% threshold"),
+]
+ax.legend(handles=legend_handles2, fontsize=FS_LEGEND - 1, loc="lower right",
+          framealpha=0.85, edgecolor="#CCCCCC")
+
+# ─────────────────────────────────────────────────────────────────────────────
 # 저장
-out = ROOT / "assets" / "pareto_frontier.png"
-out.parent.mkdir(parents=True, exist_ok=True)
-plt.savefig(out, dpi=150, bbox_inches="tight")
+# ─────────────────────────────────────────────────────────────────────────────
+plt.tight_layout(rect=[0, 0, 1, 0.97])
+
+out = ASSETS / "pareto_frontier.png"
+fig.savefig(out, dpi=150, bbox_inches="tight", facecolor="white")
+plt.close(fig)
 print(f"[OK] Saved: {out}  ({out.stat().st_size / 1024:.1f} KB)")
+
+# 검증: 저장된 파일 정보 출력
+print(f"     Size: {out.stat().st_size / 1024:.1f} KB")
+print(f"     Pareto MOTA: {PARETO_MOTA}")
+print(f"     Pareto OCR:  {PARETO_OCR}")
+print(f"     X range: 0 ~ {XMAX} MB  (E0=24.3, E2=21.8, others ≤ 13.5)")
+print(f"     All experiments plotted: {list(EXPERIMENTS.keys())}")
