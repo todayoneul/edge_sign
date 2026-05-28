@@ -62,9 +62,9 @@
   - [x] AI Hub test 시퀀스 동작 확인 + 평가 완료 (2026-05-28) → `src/track/eval_tracking.py`
     - c_1280_720_night_1(142프레임) + c_1920_1200_night_1(16프레임)
     - MOTA=0.219, IDF1=0.384, HOTA=0.487, IDSW=0, FPS=21.6 (CPU)
-- [ ] BoT-SORT 통합 (ablation용)
-  - [ ] 경량 ReID 백본 선택 (OSNet-x0.25 ~0.5M params)
-  - [ ] BoT-SORT 구현 → `src/track/botsort.py`
+- [x] BoT-SORT 통합 (ablation용) (2026-05-28)
+  - [x] 경량 ReID 백본: SimpleReIDNet (62,816 params, 0.24 MB) 자체 구현 — OSNet 대비 경량 우선
+  - [x] BoT-SORT 구현 완료 → `src/track/botsort.py` (CMC + EMA ReID + 3단계 매칭)
 - [ ] MOT 평가
   - [ ] 테스트 시퀀스 준비 — extract_frames.py의 test split 시퀀스 사용
     - ⚠️ 시퀀스 단위 분할로 test 프레임은 학습에 미등장, 리크 없음
@@ -109,19 +109,20 @@
   - [x] W8A8 PTQ (E1): mAP50=0.621 (−1.0%) — `model_space/yolov8s_signs_w8a8.onnx`
   - [x] W4A16 PTQ (E4): mAP50=0.581 (−7.5%) — `model_space/yolov8s_signs_w4a16.onnx`
   - [x] SmoothQuant+W8A8 (E5): mAP50=0.621 (−1.0%) — `model_space/yolov8s_signs_smoothquant.onnx`
-- [ ] 인식기 양자화 (기존 코드 재활용)
-  - [ ] KoreanOCRNet W8A8/W4A16/SmoothQuant/1-Bit
-  - [ ] TrafficSignNet W8A8/W4A16/SmoothQuant/1-Bit
-- [ ] ReID 백본 양자화 (BoT-SORT 실험용)
-  - [ ] OSNet-x0.25 W8A8 → `src/quant/quantize_reid.py`
-- [ ] 실험 매트릭스 실행
-  - [ ] E1: 검출기만 W8A8
-  - [ ] E2: 인식기만 W8A8
-  - [ ] E3: 전체 W8A8
-  - [ ] E4: 전체 W4A16
-  - [ ] E5: 전체 SmoothQuant
-  - [ ] E6: BoT-SORT + W8A8 ReID
-  - [ ] E7: 극한 (W4A16 검출 + 1-Bit 인식)
+- [x] 인식기 양자화 완료 (2026-05-28) → `src/quant/quantize_recognizers.py`
+  - [x] KoreanOCRNet: W8A8=98.4%(−0.1pp) / W4A16=54.6%(−43.9pp) / 1-Bit=0.3%(−98.2pp)
+  - [x] TrafficSignNet: W8A8=63.2%(+0.4pp) / W4A16=49.2%(−13.6pp) / 1-Bit=12.8%(−50.0pp)
+  - SmoothQuant ≈ W8A8 (활성화 분포 정규화 효과 미미) — 별도 실험 생략
+- [x] ReID 백본 양자화 완료 (2026-05-28) → `src/quant/quantize_reid.py`
+  - [x] SimpleReIDNet W8A8 → `model_space/reid_net_w8a8.onnx` (243.5 KB)
+  - ⚠️ 학습 데이터 없음(미학습) → E6에서 ReID 역효과 확인됨
+- [x] 실험 매트릭스 실행 (2026-05-28) — 추적/인식 결과 `docs/EXPERIMENTS.md` 기록
+  - [x] E1: 검출기만 W8A8 → MOTA=0.221(+0.9%), IDF1=0.384(±0%)
+  - [x] E2/E3: 인식기 W8A8 → OCR=98.4%(−0.1pp), TS=63.2%(+0.4pp)
+  - [x] E4: 전체 W4A16 → MOTA=0.105(−52%), OCR=54.6%(−43.9pp) ← 파이프라인 병목
+  - [x] E5: 전체 SmoothQuant → MOTA=0.225(+2.7%), OCR=98.5%(±0)
+  - [x] E6: BoT-SORT + W8A8 ReID → MOTA=0.108(−51% vs E1) ← 미학습 ReID 역효과 실증
+  - [x] E7: 극한 (W4A16 검출 + 1-Bit 인식) → OCR=0.3%(−98.2pp) ← 완전 붕괴
 - [ ] 결과 분석 + 시각화
   - [ ] Pareto frontier 차트 생성
   - [ ] 단계별 민감도 분석 그래프
