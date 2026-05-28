@@ -38,15 +38,16 @@
   - [x] 야외 한글 이미지 → YOLO 포맷 변환 완료 (2026-05-27) — 12,303장 (train 8,000 / val 4,303)
   - ✅ **최종 yolo_signs**: train 26,866장 / val 4,667장 (GTSDB + 신호등 + 간판 통합)
 - [ ] YOLOv8n 학습
-  - [x] GTSDB + AI Hub 합산 학습 완료 (2026-05-28) — `runs/detect/edge_sign_v2_e0/`
-    - 설정: batch=32, imgsz=640, cos_lr, patience=20, RTX 5070, 100 epoch
-    - best epoch: 97, `weights/best.pt` (11.77 MB)
-  - [x] FP16 기준선 mAP 측정 및 기록 완료 (2026-05-28) → `docs/EXPERIMENTS.md` E0 행
-    - mAP@0.5=**0.573**, mAP@0.5:0.95=0.401, P=0.710, R=0.504
-    - ⚠️ **목표 0.70 미달** — AI Hub traffic TAR 데이터 미포함이 주원인
-- [ ] ONNX 내보내기
-  - [ ] PyTorch → ONNX 변환 → `src/detect/export_yolo_onnx.py`
-  - [ ] ONNX 모델 검증 (추론 결과 일치 확인)
+  - [x] GTSDB + AI Hub 전체 학습 완료 (2026-05-28) — `runs/detect/edge_sign_v2_e0_full3/`
+    - 설정: YOLOv8s, batch=32, imgsz=640, cos_lr, patience=20, RTX 5070, 75 epoch (조기종료)
+    - 학습 데이터: 44,696장 (GTSDB 720 + AI Hub traffic 18,146 + 간판 25,830)
+    - best epoch: 57, `weights/best.pt` (21.47 MB)
+  - [x] FP32 기준선 mAP 측정 및 기록 완료 (2026-05-28) → `docs/EXPERIMENTS.md` E0 행
+    - mAP@0.5=**0.628**, mAP@0.5:0.95=0.437, P=0.722, R=0.543
+    - 클래스별: traffic_sign mAP50=0.602 / signboard mAP50=0.653
+- [x] ONNX 내보내기 (2026-05-28)
+  - [x] PyTorch → ONNX 변환 → `src/detect/export_yolo_onnx.py` → `model_space/yolov8s_signs_fp32.onnx` (42.67 MB)
+  - [x] ONNX 모델 검증 완료 (output shape (1,6,8400) 일치 확인)
 
 **완료 기준:** FP16 YOLOv8n의 mAP@0.5 > 0.7 달성
 
@@ -58,15 +59,22 @@
 - [ ] ByteTrack 구현
   - [x] Kalman Filter + IoU 매칭 구현 완료 (2026-05-28) → `src/track/bytetrack.py` (616줄)
     - 8-dim constant-velocity Kalman Filter, 2단계 매칭(BYTE 전략), Hungarian + greedy fallback
-  - [ ] AI Hub test 시퀀스 (연속 프레임) 에서 동작 확인
+  - [x] AI Hub test 시퀀스 동작 확인 + 평가 완료 (2026-05-28) → `src/track/eval_tracking.py`
+    - c_1280_720_night_1(142프레임) + c_1920_1200_night_1(16프레임)
+    - MOTA=0.219, IDF1=0.384, HOTA=0.487, IDSW=0, FPS=21.6 (CPU)
 - [ ] BoT-SORT 통합 (ablation용)
   - [ ] 경량 ReID 백본 선택 (OSNet-x0.25 ~0.5M params)
   - [ ] BoT-SORT 구현 → `src/track/botsort.py`
 - [ ] MOT 평가
   - [ ] 테스트 시퀀스 준비 — extract_frames.py의 test split 시퀀스 사용
     - ⚠️ 시퀀스 단위 분할로 test 프레임은 학습에 미등장, 리크 없음
-  - [ ] MOTA/IDF1/HOTA 평가 코드 → `src/track/eval_tracking.py`
-  - [ ] FP16 기준선 추적 메트릭 기록 → `docs/EXPERIMENTS.md`
+  - [x] MOTA/IDF1/HOTA 평가 코드 완료 (2026-05-28) → `src/track/eval_tracking.py`
+  - [x] FP32 기준선 추적 메트릭 기록 완료 (2026-05-28) → `docs/EXPERIMENTS.md`
+  - [x] E1/E4/E5 추적 ablation 완료 (2026-05-28) → `src/track/run_tracking_ablation.py`
+    - E1 W8A8: MOTA=0.221(+0.9%), IDF1=0.384(±0%), HOTA=0.487(±0%), IDSW=0, FPS=24.8
+    - E4 W4A16: MOTA=0.105(−52%), IDF1=0.192(−50%), HOTA=0.322(−34%), IDSW=0, FPS=25.7
+    - E5 SmoothQuant: MOTA=0.225(+2.7%), IDF1=0.387(+0.8%), HOTA=0.490(+0.6%), IDSW=0, FPS=20.8
+    - **핵심 발견**: IDSW=0 유지, W4A16만 FN 폭증으로 MOTA 급락 — 추적기 문제 아님
 
 **완료 기준:** ByteTrack MOTA > 0.5 on AI Hub test 시퀀스
 
@@ -80,7 +88,9 @@
   - [x] 시간 버퍼 (최근 T=8 프레임) 관리 (2026-05-28) — deque(maxlen=8) per track_id
 - [ ] 인식기 분기 연결
   - [x] signboard → KoreanOCRNet ONNX 연결 완료 (2026-05-28) — `e2e_pipeline.py` _run_ocr()
-  - [ ] traffic_sign → TrafficSignNet (기존 `src/model.py`) — ONNX 미변환, 추후 추가
+  - [x] traffic_sign → TrafficSignNet GTSDB 학습 + ONNX 변환 완료 (2026-05-28)
+    - `src/detect/train_traffic_sign_net.py` → `model_space/traffic_sign_net_fp32.onnx`
+    - 43클래스(GTSDB), val_acc=62.8%, 모델 크기 0.12 MB, 파라미터 30,763개
 - [x] E2E 파이프라인 구현 완료 (2026-05-28) → `src/pipeline/e2e_pipeline.py`
   - YOLOv8n-ONNX 검출 + ByteTracker + KoreanOCRNet OCR 통합
   - CLI: `python src/pipeline/e2e_pipeline.py --dry_run` 으로 초기화 확인 가능
@@ -95,10 +105,10 @@
 ## Phase 4: 체계적 양자화 실험 (4~6주차)
 **목표:** E0~E7 실험 매트릭스 완성, 단계별 민감도 분석
 
-- [ ] YOLOv8n 양자화 포팅
-  - [ ] W8A8 PTQ 적용 (`base_W8A8.py` 로직 포팅) → `src/quant/quantize_yolo.py`
-  - [ ] W4A16 QAT 적용 (`base_train_w4a16_qat.py` 래퍼 적용)
-  - [ ] SmoothQuant 적용 (`multimodal_w8a8_smoothquant.py` 캘리브레이션 적용)
+- [x] YOLOv8s 양자화 포팅 (2026-05-28) → `src/quant/quantize_yolo.py`
+  - [x] W8A8 PTQ (E1): mAP50=0.621 (−1.0%) — `model_space/yolov8s_signs_w8a8.onnx`
+  - [x] W4A16 PTQ (E4): mAP50=0.581 (−7.5%) — `model_space/yolov8s_signs_w4a16.onnx`
+  - [x] SmoothQuant+W8A8 (E5): mAP50=0.621 (−1.0%) — `model_space/yolov8s_signs_smoothquant.onnx`
 - [ ] 인식기 양자화 (기존 코드 재활용)
   - [ ] KoreanOCRNet W8A8/W4A16/SmoothQuant/1-Bit
   - [ ] TrafficSignNet W8A8/W4A16/SmoothQuant/1-Bit

@@ -52,14 +52,19 @@ CNN_Quant/
 │   ├── detect/                  # [Phase 2] 검출 모듈
 │   │   ├── prepare_dataset.py   # GTSDB/AI Hub 프레임 → YOLO 포맷 변환
 │   │   ├── yolo_train.py        # YOLOv8n 학습/평가/추론
-│   │   └── export_yolo_onnx.py  # ONNX 내보내기 + INT8 양자화
+│   │   ├── export_yolo_onnx.py  # ONNX 내보내기 + INT8 양자화
+│   │   └── train_traffic_sign_net.py  # TrafficSignNet GTSDB 학습 + ONNX 내보내기
 │   ├── track/                   # [Phase 2] 추적 모듈
-│   │   └── bytetrack.py         # ByteTrack (Kalman+IoU, 8-dim) — 구현 완료
+│   │   ├── bytetrack.py         # ByteTrack (Kalman+IoU, 8-dim) — 구현 완료
+│   │   ├── eval_tracking.py     # MOT 평가 (MOTA/IDF1/HOTA)
+│   │   └── run_tracking_ablation.py  # E1/E4/E5 추적 ablation 일괄 실행
 │   ├── pipeline/                # [Phase 2] E2E 파이프라인
 │   │   ├── e2e_pipeline.py      # 검출+추적+인식 통합 파이프라인
 │   │   ├── qa_bridge.py         # LLM 컨텍스트 빌더 + Claude API 래퍼
 │   │   └── app.py               # FastAPI 백엔드 서버 (WebSocket + SSE)
 │   └── quant/                   # [Phase 2] 파이프라인 양자화
+│       ├── quantize_yolo.py     # W8A8/W4A16/SmoothQuant PTQ 구현
+│       ├── run_experiments.py   # E1/E4/E5 검출기 양자화 실험 일괄 실행
 │
 ├── web/                         # 웹 프론트엔드
 │   ├── index.html               # 한글 OCR 캔버스 데모

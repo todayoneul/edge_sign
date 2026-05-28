@@ -44,12 +44,13 @@ def train(args):
         print("Run: python src/detect/prepare_dataset.py --source gtsdb")
         sys.exit(1)
 
-    model = YOLO("yolov8n.pt")
+    model = YOLO(args.model)
+    print(f"  모델: {args.model}  imgsz: {args.imgsz}  batch: {args.batch_size}")
 
     results = model.train(
         data=str(YOLO_DATASET),
         epochs=args.epochs,
-        imgsz=640,
+        imgsz=args.imgsz,
         batch=args.batch_size,
         device=args.device,
         project=str(RUNS_DIR),
@@ -65,6 +66,10 @@ def train(args):
         warmup_epochs=3,
         cos_lr=True,
         close_mosaic=10,
+        # 소형 표지판 검출 개선
+        copy_paste=args.copy_paste,   # 표지판 합성 증강 (기본 0.5)
+        fliplr=args.fliplr,           # 한글/표지판 좌우반전 비활성 (기본 0.0)
+        multi_scale=False,            # imgsz 고정 (True 시 VRAM 초과 위험)
     )
 
     print(f"\nTraining complete. Results saved to: {RUNS_DIR / args.run_name}")
@@ -132,7 +137,7 @@ def predict(args):
 
 def info(args):
     YOLO = check_ultralytics()
-    model = YOLO("yolov8n.pt")
+    model = YOLO(args.model)
     model.info(verbose=True)
 
     total_params = sum(p.numel() for p in model.model.parameters())
@@ -156,7 +161,11 @@ def main():
     parser = argparse.ArgumentParser(description="Edge-Sign YOLOv8n 학습/평가")
     parser.add_argument("--mode", choices=["train", "val", "predict", "info"], default="train")
     parser.add_argument("--epochs", type=int, default=100, help="학습 에포크 수")
-    parser.add_argument("--batch_size", type=int, default=16, help="배치 크기")
+    parser.add_argument("--batch_size", type=int, default=8, help="배치 크기")
+    parser.add_argument("--imgsz", type=int, default=1280, help="입력 이미지 크기")
+    parser.add_argument("--model", type=str, default="yolov8s.pt", help="YOLO 모델 (yolov8n.pt / yolov8s.pt 등)")
+    parser.add_argument("--copy_paste", type=float, default=0.5, help="Copy-Paste 증강 확률 (소형 객체 검출 개선)")
+    parser.add_argument("--fliplr", type=float, default=0.0, help="좌우반전 확률 (한글/표지판은 0.0 권장)")
     parser.add_argument("--device", type=str, default="0", help="GPU 디바이스 (0, cpu 등)")
     parser.add_argument("--run_name", type=str, default="edge_sign_v2", help="실험 이름")
     parser.add_argument("--weights", type=str, default=None, help="모델 가중치 경로 (val/predict)")

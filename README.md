@@ -14,12 +14,14 @@
 
 ## 목차 (Table of Contents)
 - [1. 핵심 방법론: 신경망 압축](#1-핵심-방법론-신경망-압축-core-compression-methodology)
+  - [1.1 W8A8 PTQ](#11-8-bit-ptq-post-training-quantization-w8a8) · [1.2 W4A16 QAT+STE](#12-4-bit-qat--custom-ste) · [1.3 SmoothQuant](#13-smoothquant-활성화-분포-평탄화) · [1.4 1-Bit](#14-1-bit-binarization--bit-packing) · [1.5 KD](#15-knowledge-distillation-kd)
 - [2. 실험 환경 및 데이터셋](#2-실험-환경-및-데이터셋-experimental-setup--dataset)
 - [3. Phase 1 — 압축 성능 평가 및 파레토 프론티어](#3-phase-1--압축-성능-평가-및-파레토-프론티어)
 - [4. Phase 1 — 옴니모달(VLM) 한계 검증](#4-phase-1--옴니모달vlm-한계-검증)
 - [5. 종합 평가 및 최적 모델 선정 (Final Score)](#5-종합-평가-및-최적-모델-선정-final-score)
 - [6. Phase 2 — 검출+추적+인식 파이프라인 설계](#6-phase-2--검출추적인식-파이프라인-설계)
 - [7. Phase 2 양자화 실험 매트릭스](#7-phase-2-양자화-실험-매트릭스)
+  - [7.1 평가 지표 (MOTA/IDF1/HOTA 수식)](#71-평가-지표) · [7.2 검출 결과](#72-검출기-양자화-실험-결과-완료) · [7.3 추적 결과](#73-추적기-양자화-영향-분석-e0--e1e4e5) · [7.4 인식기 모델](#74-인식기-모델-trafficsignnet--koreanoccurnet)
 - [8. 웹 배포 아키텍처](#8-웹-배포-아키텍처)
 - [9. 재현 가이드 (Reproduction Guide)](#9-재현-가이드-reproduction-guide)
 
@@ -27,26 +29,40 @@
 
 ## 1. 핵심 방법론: 신경망 압축 (Core Compression Methodology)
 
-### 1.1. 8-Bit PTQ (Post-Training Quantization)
-학습이 완료된 모델의 가중치를 256개의 구간(-128 ~ 127)으로 선형 맵핑합니다.  
-재학습 없이 즉각적인 메모리 절감(14.9 MB)이 가능하며, FP16 대비 **0.64%p 미만의 성능 하락**을 보였습니다.
+### 1.1. 8-Bit PTQ (Post-Training Quantization, W8A8)
+학습이 완료된 모델의 가중치를 256개의 구간으로 선형 맵핑합니다.  
+재학습 없이 즉각적인 메모리 절감(~4× 압축)이 가능하며, Phase 2 검출기 실험에서 mAP 대비 **−1.0%p 미만**을 기록했습니다.
+
+$$\Delta_c = \frac{\max|W_c|}{127}, \quad W_q = \text{Clamp}\!\left(\text{Round}\!\left(\frac{W}{\Delta_c}\right), -128, 127\right) \times \Delta_c$$
+
+> 채널 $c$ 단위로 스케일 $\Delta_c$를 독립 계산(per-output-channel)하여 채널 간 값 범위 불균형을 방지합니다.
 
 ### 1.2. 4-Bit QAT & Custom STE
 가중치를 16개의 구간(-8 ~ 7)으로 압축할 때 발생하는 Weight Collapse를 극복하기 위해 **QAT(양자화 인지 학습)** 를 도입했습니다.  
 미분 불가능한 양자화 함수의 그레디언트를 통과시키기 위해 **Straight-Through Estimator (STE)** 를 직접 설계했습니다.
 
-$$\text{Forward: } W_q = \text{Clamp}(\text{Round}(W / \Delta), -8, 7) \times \Delta$$
+$$\text{Forward: } W_q = \text{Clamp}\!\left(\text{Round}\!\left(\frac{W}{\Delta}\right), -8,\ 7\right) \times \Delta$$
 
-$$\text{Backward: } \frac{\partial L}{\partial W} \approx \frac{\partial L}{\partial W_q} \quad (\text{if } W \in [-8, 7] \text{ else } 0)$$
+$$\text{Backward: } \frac{\partial L}{\partial W} \approx \frac{\partial L}{\partial W_q} \cdot \mathbf{1}_{W \in [-8\Delta,\ 7\Delta]}$$
 
-### 1.3. 1-Bit Binarization & Bit-Packing
+### 1.3. SmoothQuant (활성화 분포 평탄화)
+활성화 이상치(outlier)를 제거하기 위해 입력 채널별 스케일 $s_j$를 가중치에 흡수시킵니다.
+
+$$s_j = \frac{\max|X_j|^{\alpha}}{\max|W_j|^{1-\alpha}}, \quad \hat{W}_j = W_j \cdot s_j, \quad \hat{X}_j = \frac{X_j}{s_j}$$
+
+> $\alpha = 0.5$로 설정 시 활성화·가중치 이상치가 균등하게 분산되어 W8A8 정밀도를 유지합니다.  
+> Phase 2 검출기 실험 결과 W8A8 단순 PTQ와 동등한 mAP −1.0%p를 달성했습니다.
+
+### 1.4. 1-Bit Binarization & Bit-Packing
 모든 CNN 필터 가중치를 +1과 -1로 이진화하며, **채널별 L1 Norm**을 스케일 팩터로 활용합니다.  
 `numpy.packbits`로 8개의 이진 가중치를 1개의 `uint8`에 패킹하여 **1.99 MB 달성**했습니다.
 
-### 1.4. Knowledge Distillation (KD)
+$$\hat{W} = \alpha \cdot \text{sign}(W), \quad \alpha_c = \frac{\|W_c\|_1}{n_c} \quad \text{(채널별 L1 평균)}$$
+
+### 1.5. Knowledge Distillation (KD)
 1-Bit 환경의 정보 병목을 극복하기 위해 FP16 교사 모델의 소프트 라벨(KL Divergence)을 혼합합니다.
 
-$$L_{KD} = \alpha \cdot T^2 \cdot D_{KL}\!\left( \sigma\!\left(\frac{Z_S}{T}\right) \| \sigma\!\left(\frac{Z_T}{T}\right) \right) + (1-\alpha) \cdot CE(Z_S, y)$$
+$$L_{KD} = \alpha \cdot T^2 \cdot D_{KL}\!\left( \sigma\!\left(\frac{Z_S}{T}\right) \,\Big\|\, \sigma\!\left(\frac{Z_T}{T}\right) \right) + (1-\alpha) \cdot CE(Z_S,\ y)$$
 
 ---
 
@@ -275,16 +291,65 @@ YOLOv8n 학습  →  src/detect/yolo_train.py
 | **E6** | W8A8 | BoT-SORT (W8A8 ReID) | W8A8 | W8A8 | ~7 MB |
 | **E7** | W4A16 | ByteTrack | 1-Bit | 1-Bit | ~2 MB |
 
-### 평가 지표
+### 7.1. 평가 지표
 
-- **검출:** mAP@0.5, mAP@0.5:0.95, Precision, Recall
-- **추적:** MOTA, IDF1, HOTA, ID Switches
-- **인식:** OCR 문자/단어 정확도, 표지판 Top-1/Top-5
-- **종합:** 총 모델 크기, FPS (CPU), FPS (ONNX Runtime Web), Final Score
+#### 검출 (Detection)
+mAP@0.5, mAP@0.5:0.95, Precision, Recall — Ultralytics 공식 평가 사용.
 
-$$\text{Final Score} = 0.6 \times \frac{\text{인식률}_i}{\text{인식률}_{E0}} + 0.2 \times \frac{\text{Latency}_{E0}}{\text{Latency}_i} + 0.2 \times \min\!\left(1, \frac{\text{크기}_{E0}}{\text{크기}_i}\right)$$
+#### 추적 (MOT Metrics)
 
-실험 결과는 `docs/EXPERIMENTS.md`에 기록하며, 완료 후 Pareto Frontier 차트를 생성합니다.
+$$\text{MOTA} = 1 - \frac{FP + FN + IDSW}{GT}$$
+
+$$\text{IDF1} = \frac{2 \cdot IDTP}{2 \cdot IDTP + IDFP + IDFN}$$
+
+$$\text{HOTA} = \sqrt{DetA \times AssA}, \quad DetA = \frac{IDTP}{IDTP + FP + FN}, \quad AssA = \frac{IDTP}{IDTP + IDSW}$$
+
+> - $IDSW$: 동일 GT 객체가 서로 다른 Pred ID로 바뀌는 횟수 (추적 연속성 지표)
+> - 평가 시퀀스: AI Hub test split (야간 2개 시퀀스, 158 프레임)
+
+#### 종합 (Final Score)
+
+$$\text{Final Score} = 0.6 \times \frac{\text{인식률}_i}{\text{인식률}_{E0}} + 0.2 \times \frac{\text{Latency}_{E0}}{\text{Latency}_i} + 0.2 \times \min\!\left(1,\ \frac{\text{크기}_{E0}}{\text{크기}_i}\right)$$
+
+### 7.2. 검출기 양자화 실험 결과 (완료)
+
+| ID | 양자화 | mAP@0.5 | mAP@0.5:0.95 | Precision | Recall | 크기 |
+| :---: | :--- | :---: | :---: | :---: | :---: | :---: |
+| **E0** | FP32 기준선 | **0.628** | 0.437 | 0.722 | 0.543 | 21.5 MB |
+| **E1** | W8A8 PTQ | **0.621** (−1.0%) | 0.433 | 0.717 | 0.541 | ~10.7 MB* |
+| **E4** | W4A16 PTQ | **0.581** (−7.5%) | 0.376 | 0.697 | 0.512 | ~5.4 MB* |
+| **E5** | SmoothQuant+W8A8 | **0.621** (−1.0%) | 0.434 | 0.718 | 0.539 | ~10.7 MB* |
+
+*fake-quant ONNX 저장 크기는 FP32와 동일(42.7 MB). 실제 INT8 런타임 배포 시 위 이론치 적용.
+
+### 7.3. 추적기 양자화 영향 분석 (E0 → E1/E4/E5)
+
+> ByteTrack 자체는 파라미터가 없으므로, 검출기 양자화가 추적 메트릭에 미치는 **간접 영향**을 측정합니다.  
+> 평가 시퀀스: 야간 2개 (주간 학습 → 야간 테스트 도메인 갭으로 FN 높음)
+
+| ID | MOTA | IDF1 | HOTA | IDSW | FPS (CPU) |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| **E0** FP32 | 0.219 | 0.384 | 0.487 | **0** | 21.6 |
+| **E1** W8A8 | 0.221 **(+0.9%)** | 0.384 **(±0%)** | 0.487 **(±0%)** | **0** | **24.8** |
+| **E4** W4A16 | 0.105 **(−52%)** | 0.192 **(−50%)** | 0.322 **(−34%)** | **0** | 25.7 |
+| **E5** SmoothQuant | 0.225 **(+2.7%)** | 0.387 **(+0.8%)** | 0.490 **(+0.6%)** | **0** | 20.8 |
+
+**핵심 발견:**
+- **W8A8 / SmoothQuant**: 검출 −1%p에 불과 → 추적 MOTA 실질적 변화 없음
+- **W4A16**: 검출 Recall 급락(0.543→0.512) → FN 폭증 → MOTA −52%, IDF1 −50%
+- **IDSW 모든 실험에서 0**: ByteTrack 추적기 자체 품질 완벽 — 성능 저하는 100% 검출기 탓
+
+### 7.4. 인식기 모델 (TrafficSignNet + KoreanOCRNet)
+
+| 모델 | 역할 | 입력 | 클래스 | 파라미터 | 크기 | Top-1 (val) |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+| **KoreanOCRNet** | 간판 문자 OCR | 1×64×64 gray | 2,350 한글 | ~700K | 2.7 MB | — |
+| **TrafficSignNet** | 교통표지판 분류 | 3×32×32 RGB | 43 (GTSDB) | 30,763 | **0.12 MB** | **62.8%** |
+
+TrafficSignNet: GTSDB 1,213 크롭(train 971 / val 242)으로 학습, 50 epoch, AdamW + Cosine LR.  
+전체 파이프라인 총 모델 크기 (E0 FP32): YOLOv8s(21.5) + KoreanOCRNet(2.7) + TrafficSignNet(0.12) ≈ **24.3 MB**
+
+실험 결과 전체는 `docs/EXPERIMENTS.md`에 기록됩니다.
 
 ---
 
@@ -376,7 +441,27 @@ python src/detect/yolo_train.py --mode val
 python src/detect/export_yolo_onnx.py --weights best.pt
 ```
 
-### Phase 2 — E2E 파이프라인 및 양자화 실험 (진행 예정)
+### Phase 2 — 인식기 학습
+
+```bash
+# TrafficSignNet (GTSDB 43-class, 50 epoch)
+python src/detect/train_traffic_sign_net.py --epochs 50  # 학습 + ONNX 내보내기
+python src/detect/train_traffic_sign_net.py --export_only # 기존 체크포인트로 ONNX만
+# 출력: model_space/traffic_sign_net_fp32.onnx (0.12 MB), val_acc=62.8%
+```
+
+### Phase 2 — 양자화 실험
+
+```bash
+# 검출기 양자화 (E1/E4/E5) — 완료
+python src/quant/run_experiments.py    # E1 W8A8 / E4 W4A16 / E5 SmoothQuant
+
+# 추적 ablation (검출기 양자화 → 추적 MOTA 영향)
+python src/track/run_tracking_ablation.py             # E1/E4/E5 순차 실행
+python src/track/eval_tracking.py --onnx <path.onnx> # 단일 모델 평가
+```
+
+### Phase 2 — E2E 파이프라인
 
 ```bash
 python src/pipeline/e2e_pipeline.py    # 전체 파이프라인 추론

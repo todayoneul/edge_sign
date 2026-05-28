@@ -11,3 +11,5 @@
 /dataset
 model_space/
 *.pt
+.claude
+/runs
