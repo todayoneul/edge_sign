@@ -7,8 +7,15 @@
 극한의 신경망 양자화(W8A8, W4A16, SmoothQuant, 1-Bit)를 파이프라인 각 단계에 적용하여,  
 **< 15 MB 총 모델 크기**로 **30+ FPS 실시간 추론**을 목표로 합니다.
 
+> **✅ 목표 달성:** Static INT8 QDQ (ORT `quantize_static`) 적용 시 **57.7 FPS @ CPU** 달성 — 목표 30+ FPS 대비 **1.9× 초과**  
+> 최적 구성: `yolov8s_signs_int8_static.onnx` (11.7 MB) + ByteTrack + KoreanOCRNet FP32 + TrafficSignNet FP32
+
 ### 연구 질문
 > 검출+추적+인식 파이프라인에 단계별 양자화를 적용했을 때, **어떤 단계가 가장 민감**하며, 엣지에서 실시간 구동이 가능한가?
+
+**A:** 단계별 민감도: **인식기 W4A16/1-Bit > 검출기 W4A16 > 검출기 W8A8 ≈ 무손실**.  
+가장 민감한 단계는 인식기(OCR: W4A16에서 −43.9pp 붕괴)이며, 검출기 W8A8은 추적 MOTA 변화 없음.  
+실시간 구동: **57.7 FPS (CPU, Static INT8)** — 검출기 INT8이 파이프라인 병목을 2.22× 해소.
 
 ---
 
