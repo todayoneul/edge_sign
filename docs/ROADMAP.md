@@ -94,9 +94,12 @@
 - [x] E2E 파이프라인 구현 완료 (2026-05-28) → `src/pipeline/e2e_pipeline.py`
   - YOLOv8n-ONNX 검출 + ByteTracker + KoreanOCRNet OCR 통합
   - CLI: `python src/pipeline/e2e_pipeline.py --dry_run` 으로 초기화 확인 가능
-- [ ] E2E 평가 → `src/pipeline/eval_e2e.py`
-- [ ] FP16 기준선 E2E 메트릭 기록 → `docs/EXPERIMENTS.md` E0 행 완성
-  - ⚠️ YOLOv8n ONNX 변환 선행 필요 (`export_yolo_onnx.py`)
+- [x] E2E 평가 완료 (2026-05-29) → `src/pipeline/eval_e2e.py`
+  - E0~E7 전체 파이프라인 FPS 측정 (50프레임, CPU, AI Hub test 시퀀스)
+  - E0=21.2 / E1=24.7 / E2=23.3 / E3=24.3 / E4=25.2 / E5=20.5 / E6=20.4 / E7=25.1 FPS
+  - Final Score: E1(1.0335) > E3(1.0294) > E2(1.0198) > E5(0.9938) > E6(0.9922) 순
+- [x] E2E 메트릭 기록 완료 (2026-05-29) → `docs/EXPERIMENTS.md` 전체 행 완성
+  - E2/E3/E6/E7 검출+추적 결과 파생 기입, Pareto 표 완성, Final Score 열 추가
 
 **완료 기준:** 영상 입력 → 검출+추적+인식 결과 출력 파이프라인 동작
 
@@ -123,10 +126,15 @@
   - [x] E5: 전체 SmoothQuant → MOTA=0.225(+2.7%), OCR=98.5%(±0)
   - [x] E6: BoT-SORT + W8A8 ReID → MOTA=0.108(−51% vs E1) ← 미학습 ReID 역효과 실증
   - [x] E7: 극한 (W4A16 검출 + 1-Bit 인식) → OCR=0.3%(−98.2pp) ← 완전 붕괴
-- [ ] 결과 분석 + 시각화
-  - [ ] Pareto frontier 차트 생성
-  - [ ] 단계별 민감도 분석 그래프
-  - [ ] `docs/EXPERIMENTS.md` 전체 결과 기록
+- [x] 결과 분석 + 시각화 완료 (2026-05-29)
+  - [x] Pareto frontier 차트 생성 완료 (2026-05-28) → `assets/pareto_frontier.png`
+  - [x] 단계별 민감도 분석 그래프 완료 (2026-05-29) → `scripts/plot_sensitivity.py`
+    - `assets/sensitivity_absolute_performance.png`
+    - `assets/sensitivity_relative_change.png`
+    - `assets/sensitivity_sensitivity_heatmap.png`
+    - `assets/sensitivity_bottleneck_summary.png`
+  - [x] `docs/EXPERIMENTS.md` 전체 결과 기록 완료 (2026-05-29)
+    - E2/E3/E6/E7 검출·추적 빈 셀 채움, Pareto 데이터 표 완성
 
 **완료 기준:** 8개 실험 전체 결과 + Pareto 차트 완성
 

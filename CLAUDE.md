@@ -60,6 +60,7 @@ CNN_Quant/
 │   │   └── run_tracking_ablation.py  # E1/E4/E5 추적 ablation 일괄 실행
 │   ├── pipeline/                # [Phase 2] E2E 파이프라인
 │   │   ├── e2e_pipeline.py      # 검출+추적+인식 통합 파이프라인
+│   │   ├── eval_e2e.py          # E0~E7 전체 구성 종합 평가 (FPS + Final Score)
 │   │   ├── qa_bridge.py         # LLM 컨텍스트 빌더 + Claude API 래퍼
 │   │   └── app.py               # FastAPI 백엔드 서버 (WebSocket + SSE)
 │   └── quant/                   # [Phase 2] 파이프라인 양자화
@@ -83,6 +84,7 @@ CNN_Quant/
 ├── scripts/                     # 데이터 수집/전처리 + 분석 스크립트
 │   ├── extract_frames.py        # [Phase 2] AI Hub TAR 해제 + 시퀀스 분할 + 서브샘플링
 │   ├── plot_pareto.py           # [Phase 5] Pareto frontier 차트 생성 → assets/pareto_frontier.png
+│   ├── plot_sensitivity.py     # [Phase 4] 단계별 양자화 민감도 분석 그래프 (4종) → assets/sensitivity_*.png
 │   ├── benchmark_pipeline.py   # [Phase 5] E2E 파이프라인 CPU 벤치마크 (레이턴시/FPS)
 │   └── quantize_onnx_real.py   # [Phase 5] Static INT8 QDQ 실양자화 (ORT quantize_static)
 ├── checkpoints/                 # 학습 체크포인트 (.pth)
