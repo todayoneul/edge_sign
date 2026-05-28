@@ -17,9 +17,10 @@ from pathlib import Path
 ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-WEIGHTS     = ROOT / "runs" / "detect" / "edge_sign_v2_e0_full3" / "weights" / "best.pt"
-MODEL_SPACE = ROOT / "model_space"
-YOLO_YAML   = ROOT / "data" / "yolo_signs" / "dataset.yaml"
+DEFAULT_WEIGHTS = ROOT / "runs" / "detect" / "edge_sign_v2_e0_full3" / "weights" / "best.pt"
+WEIGHTS         = DEFAULT_WEIGHTS  # 호환성을 위해 모듈 전역 유지 — main()에서 override
+MODEL_SPACE     = ROOT / "model_space"
+YOLO_YAML       = ROOT / "data" / "yolo_signs" / "dataset.yaml"
 
 
 # ────────────────────────────────────────────
@@ -130,7 +131,15 @@ def main():
     parser.add_argument("--device", type=str, default="0", help="GPU 디바이스")
     parser.add_argument("--calib_batches", type=int, default=10,
                         help="SmoothQuant 캘리브레이션 배치 수")
+    parser.add_argument("--weights", type=str, default=None,
+                        help="검출기 가중치 (.pt) — 미지정 시 기본 v1 경로 사용")
     args = parser.parse_args()
+
+    # 가중치 전역 override
+    if args.weights:
+        global WEIGHTS
+        WEIGHTS = Path(args.weights)
+        print(f"[INFO] 가중치 override: {WEIGHTS}")
 
     targets = list(EXPERIMENT_MAP.keys()) if args.exp == "all" else [args.exp]
     results = []

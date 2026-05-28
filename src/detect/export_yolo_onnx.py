@@ -26,7 +26,7 @@ ROOT = Path(__file__).parent.parent.parent
 MODEL_SPACE = ROOT / "model_space"
 
 
-def export_onnx(weights, half=False, simplify=True):
+def export_onnx(weights, half=False, simplify=True, output_name=None):
     from ultralytics import YOLO
 
     MODEL_SPACE.mkdir(parents=True, exist_ok=True)
@@ -44,7 +44,10 @@ def export_onnx(weights, half=False, simplify=True):
     )
 
     src_path = Path(result)
-    dst_path = MODEL_SPACE / f"yolov8n_signs_{precision}.onnx"
+    if output_name:
+        dst_path = MODEL_SPACE / output_name
+    else:
+        dst_path = MODEL_SPACE / f"yolov8n_signs_{precision}.onnx"
     if src_path.exists():
         import shutil
         shutil.copy2(src_path, dst_path)
@@ -106,9 +109,11 @@ def main():
     parser.add_argument("--half", action="store_true", help="FP16으로 내보내기")
     parser.add_argument("--quantize", choices=["none", "int8"], default="none", help="양자화 방법")
     parser.add_argument("--verify", action="store_true", default=True, help="내보내기 후 검증")
+    parser.add_argument("--output", type=str, default=None,
+                        help="출력 파일명 (model_space/ 기준, 미지정 시 기본명)")
     args = parser.parse_args()
 
-    onnx_path = export_onnx(args.weights, half=args.half)
+    onnx_path = export_onnx(args.weights, half=args.half, output_name=args.output)
 
     if args.quantize == "int8":
         onnx_path = quantize_int8(onnx_path)
