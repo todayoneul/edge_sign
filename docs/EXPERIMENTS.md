@@ -105,24 +105,24 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
 
 ### End-to-End 종합
 
-> **v2 결과 기준.** 모델 크기: 이론적 INT 배포 크기 (YOLO+OCR+TS 합산).  
-> FPS: eval_e2e.py 재측정 예정 (현재 tracking eval throughput 기반 근사치).  
-> 인식률: OCR Top-1 기준. Final Score = `0.6×Perf + 0.2×Speed + 0.2×Mem`.
+> **v2 최종 결과 (2026-05-30, 깨끗한 CPU 환경 재측정).**  
+> 모델 크기: 이론적 INT 배포 크기. FPS: `src/pipeline/eval_e2e.py` 50프레임 실측.  
+> Static INT8 (v2 best.pt 재양자화): `scripts/benchmark_pipeline.py --pipe_only` 결과 56.3 FPS.
 
-| ID | 총 크기(이론) | FPS (근사) | OCR 인식률 | Final Score | Pareto 최적 |
-|----|--------------|-----------|-----------|-------------|-------------|
-| E0 | 22.3 MB | ~21 | 98.5% | **1.0000** | 기준선 |
-| E1 | 6.2 MB | ~21 | 98.5% | **1.0000** | — |
-| E2 | 21.7 MB | ~21 | 98.4% | 0.9994 | — |
-| E3 | **5.6 MB** | ~21 | 98.4% | 0.9994 | Pareto 최적 (크기·OCR) |
-| E4 | 2.8 MB | ~21 | 54.6% | 0.5474 | 최소 크기 (OCR 손실) |
-| E5 | **5.6 MB** | ~21 | **98.5%** | 1.0000 | Pareto 최적 (크기·OCR) |
-| E6 | 5.8 MB | ~21 | 98.4% | 0.9994 | — (E5에 지배) |
-| E7 | **2.7 MB** | ~21 | 0.3% | 0.4061 | 최소 크기 (실용 불가) |
+| ID | 총 크기(이론) | FPS (fake-quant) | FPS (INT8 Static) | OCR 인식률 | Final Score | Pareto 최적 |
+|----|--------------|------------------|-------------------|-----------|-------------|-------------|
+| E0 | 22.3 MB | 23.3 | **56.3** | 98.5% | 1.0000 | 기준선 |
+| E1 |  6.2 MB | 24.6 | — | 98.5% | **1.0111** | Final Score 최우수 |
+| E2 | 21.7 MB | 24.2 | — | 98.4% | 1.0073 | MOTA Pareto (=E0 size↓) |
+| E3 | **5.6 MB** | 24.1 | **56.3** | 98.4% | 1.0062 | **MOTA Pareto (5.6 MB)** |
+| E4 |  2.8 MB | 24.7 | — | 54.6% | 0.7453 | OCR 중간 Pareto |
+| E5 | **5.6 MB** | 20.1 | — | **98.5%** | 0.9728 | **OCR Pareto (5.6 MB)** |
+| E6 |  5.8 MB | 20.4 | — | 98.4% | 0.9748 | E3에 지배됨 |
+| E7 | **2.7 MB** | 25.9 | — | 0.3% | 0.4249 | 최소 크기 (실용 불가) |
 
-> ⚠️ v2에서 FPS는 fake-quant로 모든 실험이 동등 (~21 FPS CPU). SpeedNorm≈1.0.  
-> Final Score 차이는 PerfNorm(OCR)과 MemNorm에서 발생.  
-> MemNorm = min(1.0, E0_size/model_size) — E0보다 작은 모델은 모두 1.0으로 cap.
+> **Static INT8 QDQ v2 재측정**: YOLOv8s 44.75 MB → 11.66 MB (3.84× 압축, CosSim 0.9996).  
+> E0/E3 INT8 Static 모두 56.3 FPS → **30 FPS 목표 1.87× 초과 달성**.  
+> Final Score 1위는 E1(검출기만 W8A8, 인식기 FP32) — 양자화 손실 없이 크기 −72%.
 
 > **Final Score 공식:** `0.6 × PerfNorm + 0.2 × SpeedNorm + 0.2 × MemNorm`
 > - PerfNorm = (해당 모델 인식률) / (E0 인식률)

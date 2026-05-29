@@ -27,21 +27,21 @@ ASSETS.mkdir(exist_ok=True)
 # 모델 크기: 이론적 INT 배포 크기 (YOLOv8s INT8≈5.4 MB / KoreanOCRNet+TS 합산)
 # ─────────────────────────────────────────────────────────────────────────────
 EXPERIMENTS = {
-    "E0": {"size": 22.3, "mota": 0.295, "ocr": 98.5, "fps":  8.6,
+    "E0": {"size": 22.3, "mota": 0.295, "ocr": 98.5, "fps": 23.3,
            "label": "E0", "desc": "FP32 All",         "color": "#4878CF", "marker": "o"},
-    "E1": {"size":  6.2, "mota": 0.291, "ocr": 98.5, "fps":  6.9,
+    "E1": {"size":  6.2, "mota": 0.291, "ocr": 98.5, "fps": 24.6,
            "label": "E1", "desc": "W8A8 Det",         "color": "#6ACC65", "marker": "s"},
-    "E2": {"size": 21.7, "mota": 0.295, "ocr": 98.4, "fps":  7.7,
+    "E2": {"size": 21.7, "mota": 0.295, "ocr": 98.4, "fps": 24.2,
            "label": "E2", "desc": "FP32 Det+W8A8 Rec","color": "#B47CC7", "marker": "p"},
-    "E3": {"size":  5.6, "mota": 0.291, "ocr": 98.4, "fps":  7.0,
+    "E3": {"size":  5.6, "mota": 0.291, "ocr": 98.4, "fps": 24.1,
            "label": "E3", "desc": "W8A8 All",         "color": "#56A0C0", "marker": "D"},
-    "E4": {"size":  2.8, "mota": 0.176, "ocr": 54.6, "fps":  8.2,
+    "E4": {"size":  2.8, "mota": 0.176, "ocr": 54.6, "fps": 24.7,
            "label": "E4", "desc": "W4A16 All",        "color": "#D65F5F", "marker": "^"},
-    "E5": {"size":  5.6, "mota": 0.280, "ocr": 98.5, "fps":  6.0,
+    "E5": {"size":  5.6, "mota": 0.280, "ocr": 98.5, "fps": 20.1,
            "label": "E5", "desc": "SQ+W8A8",          "color": "#EE854A", "marker": "P"},
     "E6": {"size":  5.8, "mota": 0.068, "ocr": 98.4, "fps": 20.4,
            "label": "E6", "desc": "BoT-SORT",         "color": "#A9A9A9", "marker": "X"},
-    "E7": {"size":  2.7, "mota": 0.176, "ocr":  0.3, "fps":  8.0,
+    "E7": {"size":  2.7, "mota": 0.176, "ocr":  0.3, "fps": 25.9,
            "label": "E7", "desc": "W4A16+1-Bit",      "color": "#8B6914", "marker": "v"},
 }
 

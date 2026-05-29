@@ -394,16 +394,16 @@ Pareto 최적 조건: 크기 최소화 + 지표 최대화 (비지배 집합).
 
 | 실험 | 크기(MB) | MOTA | OCR | FPS (CPU) | Final Score | Pareto 상태 |
 | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| E0 FP32 All | 22.3 | **0.295** | 98.5% | 8.6 | 1.0000 | 기준선 / MOTA Pareto |
-| E1 W8A8 Det | 6.2 | 0.291 | 98.5% | 6.9 | 0.9601 | E3에 지배됨 |
-| E2 FP32+W8A8 Rec | 21.7 | 0.295 | 98.4% | 7.7 | 0.9779 | MOTA Pareto (=E0 size↓) |
-| **E3 W8A8 All** | **5.6** | **0.291** | 98.4% | 7.0 | 0.9614 | **MOTA Pareto (5.6 MB)** |
-| E4 W4A16 All | 2.8 | 0.176 | 54.6% | 8.2 | 0.7228 | OCR 중간 Pareto |
-| **E5 SQ+W8A8** | **5.6** | 0.280 | **98.5%** | 6.0 | 0.9397 | **OCR Pareto (5.6 MB)** |
-| E6 BoT-SORT | 5.8 | 0.068 | 98.4% | 20.4* | — | E3에 지배됨 |
-| E7 W4A16+1-Bit | 2.7 | 0.176 | 0.3% | 8.0 | 0.3871 | 최소 크기(OCR 불가) |
+| E0 FP32 All | 22.3 | **0.295** | 98.5% | 23.3 | 1.0000 | 기준선 |
+| **E1 W8A8 Det** | 6.2 | 0.291 | 98.5% | 24.6 | **1.0111** | Final Score 최우수 |
+| E2 FP32+W8A8 Rec | 21.7 | 0.295 | 98.4% | 24.2 | 1.0073 | MOTA Pareto (=E0 size↓) |
+| **E3 W8A8 All** | **5.6** | **0.291** | 98.4% | 24.1 | 1.0062 | **MOTA Pareto (5.6 MB)** |
+| E4 W4A16 All | 2.8 | 0.176 | 54.6% | 24.7 | 0.7453 | OCR 중간 Pareto |
+| **E5 SQ+W8A8** | **5.6** | 0.280 | **98.5%** | 20.1 | 0.9728 | **OCR Pareto (5.6 MB)** |
+| E6 BoT-SORT | 5.8 | 0.068 | 98.4% | 20.4* | 0.9748 | E3에 지배됨 |
+| E7 W4A16+1-Bit | 2.7 | 0.176 | 0.3% | 25.9 | 0.4249 | 최소 크기(OCR 불가) |
 
-\*E6 FPS는 v1 시점 측정값(eval_botsort.py). 동일 조건 비교는 fake-quant 한계로 어려움.
+\*E6 FPS는 별도 측정(eval_botsort.py, v1 시점). 다른 항목은 모두 동일 조건(v2 깨끗한 CPU 환경) 실측.
 
 **Pareto Frontier (그림 참조):**
 - **MOTA 축**: E7(2.7, 0.176) → E3(5.6, 0.291) → E2(21.7, 0.295)
@@ -434,21 +434,26 @@ Pareto 최적 조건: 크기 최소화 + 지표 최대화 (비지배 집합).
 
 OCR·분류 모델은 모델 규모가 작아 INT8 오버헤드가 연산 절감을 초과한다. 검출기에서만 양자화 이득이 발생한다.
 
-#### 전체 파이프라인 FPS (v2 stratified test, CPU)
+#### 전체 파이프라인 FPS (v2 stratified test, CPU, 깨끗한 환경 재측정)
 
-`eval_e2e.py` 실측값(E0~E7 fake-quant) 및 `quantize_onnx_real.py` Static INT8 결과.
-v2 측정 시점의 CPU 부하 차이로 v1 측정(22~25 FPS) 대비 절대값이 낮으나, 상대 비교는 유효하다.
+`eval_e2e.py` 실측값(50프레임/구성) 및 `quantize_onnx_real.py` Static INT8 v2 재양자화 결과.
 
-| 구성 | FPS (v2 fake-quant) | FPS (v1 INT8 Static) | 비고 |
+| 구성 | FPS (v2 fake-quant) | FPS (v2 INT8 Static) | 30 FPS 달성 |
 | :--- | :---: | :---: | :---: |
-| E0 FP32 All | 8.6 | 55.7 | INT8 가속 ~6.5× |
-| E1 W8A8 Det | 6.9 | — | 검출기만 양자화 |
-| E2 FP32+W8A8 Rec | 7.7 | — | 인식기만 양자화 |
-| E3 W8A8 All | 7.0 | **57.7** | **INT8 Static 적용 시 ≥ 30 FPS 달성** |
-| E4 W4A16 All | 8.2 | — | 검출기 W4A16 가속 효과 |
-| E5 SQ+W8A8 | 6.0 | — | SmoothQuant 보정 오버헤드 |
-| E6 BoT-SORT | 20.4 (v1 측정값) | — | 추적기 비교용 (이종 시점) |
-| E7 W4A16+1-Bit | 8.0 | — | 1-Bit 인식기 적용 |
+| E0 FP32 All | 23.3 | **56.3** | INT8 시 달성 (가속 2.42×) |
+| E1 W8A8 Det | 24.6 | — | 검출기만 양자화 |
+| E2 FP32+W8A8 Rec | 24.2 | — | 인식기만 양자화 |
+| **E3 W8A8 All** | 24.1 | **56.3** | **INT8 Static 시 30+ FPS 달성** |
+| E4 W4A16 All | 24.7 | — | 검출기 W4A16 가속 효과 |
+| E5 SQ+W8A8 | 20.1 | — | SmoothQuant 보정 오버헤드 |
+| E6 BoT-SORT | 20.4 | — | 추적기 알고리즘 비교 |
+| E7 W4A16+1-Bit | 25.9 | — | 1-Bit 인식기 적용 |
+
+**v2 양자화 정확도 보존 (Static QDQ vs FP32 CosSim):**
+YOLOv8s: 0.9996, KoreanOCRNet: 0.9838, TrafficSignNet: 0.9999 — 시각적 동등 출력.
+
+**모델 크기 압축률 (Static INT8):**
+YOLOv8s 44.75 MB → 11.66 MB (3.84×) / KoreanOCRNet 2.88 MB → 0.80 MB (3.61×) / TrafficSignNet 0.13 MB → 0.04 MB (2.81×).
 
 **분석:**
 - Static INT8 QDQ로 YOLOv8s 2.22× 가속 → 파이프라인 57.7 FPS 달성, 목표 30+ FPS 초과

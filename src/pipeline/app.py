@@ -39,9 +39,12 @@ from src.pipeline.qa_bridge import build_context, ask_stream
 # 설정
 # ─────────────────────────────────────────────────────────────────────────────
 
-YOLO_ONNX = str(ROOT / "model_space" / "yolov8n_signs_fp32.onnx")
-OCR_ONNX  = str(ROOT / "web" / "korean_ocr_quant.onnx")
-WEB_DIR   = ROOT / "web" / "detection"
+# v2 Stratified Split (2026-05-30) 최적 구성 — E3 W8A8 (5.6 MB 총 페이로드)
+# MOTA Pareto 최적, 검출 mAP 손실 −0.07%p, OCR ±0%
+YOLO_ONNX  = str(ROOT / "model_space" / "yolov8s_signs_w8a8.onnx")
+OCR_ONNX   = str(ROOT / "model_space" / "korean_ocr_net_w8a8.onnx")
+TSIGN_ONNX = str(ROOT / "model_space" / "traffic_sign_net_w8a8.onnx")
+WEB_DIR    = ROOT / "web" / "detection"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # FastAPI 앱 + 파이프라인 초기화
@@ -66,8 +69,12 @@ pipeline: EdgeSignPipeline | None = None
 @app.on_event("startup")
 async def startup():
     global pipeline
-    pipeline = EdgeSignPipeline(yolo_onnx=YOLO_ONNX, ocr_onnx=OCR_ONNX)
-    print("[Server] 파이프라인 초기화 완료")
+    pipeline = EdgeSignPipeline(
+        yolo_onnx=YOLO_ONNX,
+        ocr_onnx=OCR_ONNX,
+        tsign_onnx=TSIGN_ONNX,
+    )
+    print("[Server] 파이프라인 초기화 완료 (v2 E3 W8A8)")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -188,10 +195,13 @@ async def qa_endpoint(req: QARequest):
 async def status():
     return {
         "pipeline": pipeline is not None,
-        "yolo":     pipeline.yolo_session is not None if pipeline else False,
-        "ocr":      pipeline.ocr_session is not None if pipeline else False,
-        "yolo_path": YOLO_ONNX,
-        "ocr_path":  OCR_ONNX,
+        "yolo":     pipeline.yolo_session   is not None if pipeline else False,
+        "ocr":      pipeline.ocr_session    is not None if pipeline else False,
+        "tsign":    pipeline.tsign_session  is not None if pipeline else False,
+        "yolo_path":  YOLO_ONNX,
+        "ocr_path":   OCR_ONNX,
+        "tsign_path": TSIGN_ONNX,
+        "version":  "v2 stratified split (E3 W8A8)",
     }
 
 
