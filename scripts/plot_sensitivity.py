@@ -30,15 +30,16 @@ ASSETS.mkdir(exist_ok=True)
 # 실험 결과 데이터
 # ─────────────────────────────────────────────────────────────────────────────
 
+# v2 Stratified Split 기준 (2026-05-30 재측정)
 # 각 단계별 양자화 적용 시 성능 변화 (베이스라인 대비 절대 변화값)
 SENSITIVITY_DATA = {
     "Detector\n(mAP@0.5)": {
-        "baseline": 0.628,
-        "W8A8":     0.621,
-        "W4A16":    0.581,
-        "1-Bit":    None,   # 미실험
+        "baseline": 0.587,   # v2: 0.587 (v1: 0.628)
+        "W8A8":     0.587,
+        "W4A16":    0.523,
+        "1-Bit":    None,    # 미실험
         "unit":     "%",
-        "scale":    100,    # 0~1 → %
+        "scale":    100,
     },
     "OCR\n(Top-1 Acc)": {
         "baseline": 98.5,
@@ -57,9 +58,9 @@ SENSITIVITY_DATA = {
         "scale":    1,
     },
     "Tracking\n(MOTA)": {
-        "baseline": 0.219,
-        "W8A8":     0.221,
-        "W4A16":    0.105,
+        "baseline": 0.295,   # v2: 0.295 (v1: 0.219)
+        "W8A8":     0.291,
+        "W4A16":    0.176,
         "1-Bit":    None,
         "unit":     "",
         "scale":    1,

@@ -136,6 +136,12 @@
   - [x] `docs/EXPERIMENTS.md` 전체 결과 기록 완료 (2026-05-29)
     - E2/E3/E6/E7 검출·추적 빈 셀 채움, Pareto 데이터 표 완성
 
+- [x] **v2 Stratified Split 재학습 + 전체 재측정 완료 (2026-05-30)**
+  - v2 best.pt (ep56, mAP50=0.587) → fp32.onnx 교체
+  - E1 W8A8 / E4 W4A16 / E5 SmoothQuant 재양자화 + CPU val 재측정
+  - E0~E7 추적 ablation + E6 BoT-SORT 재실행 (v2 test: 주간+야간 2시퀀스)
+  - EXPERIMENTS.md 전체 v2 수치로 갱신
+
 **완료 기준:** 8개 실험 전체 결과 + Pareto 차트 완성
 
 ---
