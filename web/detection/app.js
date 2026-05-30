@@ -419,7 +419,7 @@ function startServerStream(label) {
   videoEl.style.display = 'none';
   streamImg.style.display = 'block';
   viewport.classList.add('playing');
-  ctx.clearRect(0, 0, overlay.width, overlay.height);  // 서버가 박스를 그려 보내므로 클라 오버레이 비움
+  ctx.clearRect(0, 0, overlay.width, overlay.height);  // 초기 클리어 (이후 매 프레임 drawOverlay)
   _geo = null; state.hoverId = null;
   $('stop-btn').disabled = false;
   resetPipeline();
@@ -468,6 +468,7 @@ function handleServerFrame(msg) {
   const tracks = msg.tracks || [];
   state.lastResult = { tracks };
   state.serverFrameId = msg.frame_id || 0;
+  if (msg.w && msg.h) { state.sentW = msg.w; state.sentH = msg.h; }  // bbox 좌표 기준 프레임 크기
   _sFpsCount++;
   const now = performance.now();
   if (now - _sFpsTs > 1000) {
@@ -487,6 +488,7 @@ function handleServerFrame(msg) {
   trackCount.textContent = `tracks ${tracks.length}`;
   trackTally.textContent = tracks.length;
   updateTrackList(tracks);
+  drawOverlay(tracks);   // 클라가 직접 박스/라벨 렌더 — 클라 모드와 동일 스타일(한글 라벨 포함)
 }
 
 function stopMedia(opts = {}) {

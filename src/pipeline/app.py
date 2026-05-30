@@ -275,13 +275,16 @@ async def ws_session(websocket: WebSocket):
                     continue
             miss = 0
             result = pipeline.process_frame(frame)
-            vis = pipeline.draw(frame, result)
-            ok, buf = cv2.imencode(".jpg", vis, [cv2.IMWRITE_JPEG_QUALITY, 75])
+            # 원본 프레임 + 좌표 JSON만 전송 → 박스/라벨은 클라이언트가 그림(클라 모드와 동일,
+            # 한글 라벨·둥근 박스·pill 렌더링 일치). cv2 putText는 한글 미지원이라 서버 draw 미사용.
+            h, w = frame.shape[:2]
+            ok, buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
             if not ok:
                 continue
             await websocket.send_json({
                 "type": "frame", "frame_id": result["frame_id"],
                 "inference_ms": result["inference_ms"], "tracks": result["tracks"],
+                "w": w, "h": h,
             })
             await websocket.send_bytes(buf.tobytes())
             elapsed = time.perf_counter() - t0
