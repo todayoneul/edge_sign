@@ -45,3 +45,25 @@ class ImageSource(FrameSource):
 
     def read(self) -> Optional[np.ndarray]:
         return self._frame.copy()
+
+
+class VideoFileSource(FrameSource):
+    """동영상 파일 — OpenCV(ffmpeg 백엔드)로 디코딩, 모든 코덱."""
+
+    def __init__(self, path: str):
+        self._cap = cv2.VideoCapture(path)
+        if not self._cap.isOpened():
+            raise ValueError(f"동영상 열기 실패: {path}")
+        self.is_seekable = True
+        self.fps = self._cap.get(cv2.CAP_PROP_FPS) or 30.0
+        self.frame_count = int(self._cap.get(cv2.CAP_PROP_FRAME_COUNT)) or 0
+
+    def read(self) -> Optional[np.ndarray]:
+        ok, frame = self._cap.read()
+        return frame if ok else None
+
+    def seek(self, frame_idx: int) -> None:
+        self._cap.set(cv2.CAP_PROP_POS_FRAMES, max(0, frame_idx))
+
+    def release(self) -> None:
+        self._cap.release()
