@@ -67,3 +67,39 @@ class VideoFileSource(FrameSource):
 
     def release(self) -> None:
         self._cap.release()
+
+
+def _resolve_stream_url(url: str) -> str:
+    """YouTube 등 페이지 URL → 직접 스트림 URL (yt-dlp). 미설치 시 안내."""
+    try:
+        from yt_dlp import YoutubeDL
+    except ImportError as e:
+        raise RuntimeError("yt-dlp 미설치 — pip install yt-dlp") from e
+    with YoutubeDL({"quiet": True, "format": "best[ext=mp4]/best"}) as ydl:
+        info = ydl.extract_info(url, download=False)
+        return info["url"]
+
+
+_PAGE_HOSTS = ("youtube.com", "youtu.be")
+
+
+class UrlStreamSource(FrameSource):
+    """직접 영상 URL·RTSP. YouTube 등 페이지 URL은 yt-dlp로 해석."""
+
+    def __init__(self, url: str):
+        open_url = url
+        if url.startswith(("http://", "https://")) and any(h in url for h in _PAGE_HOSTS):
+            open_url = _resolve_stream_url(url)
+        self._cap = cv2.VideoCapture(open_url)
+        if not self._cap.isOpened():
+            raise ValueError(f"스트림 열기 실패: {url}")
+        self.is_seekable = False           # 라이브/스트림은 seek 불가로 단순화
+        self.fps = self._cap.get(cv2.CAP_PROP_FPS) or 30.0
+        self.frame_count = 0
+
+    def read(self) -> Optional[np.ndarray]:
+        ok, frame = self._cap.read()
+        return frame if ok else None
+
+    def release(self) -> None:
+        self._cap.release()

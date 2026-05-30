@@ -143,3 +143,4 @@ win32_setctime==1.2.0
 xxhash==3.7.0
 yarl==1.23.0
 pytest
+yt-dlp
