@@ -39,11 +39,24 @@ from src.pipeline.qa_bridge import build_context, ask_stream
 # 설정
 # ─────────────────────────────────────────────────────────────────────────────
 
-# v2 Stratified Split (2026-05-30) 최적 구성 — E3 W8A8 (5.6 MB 총 페이로드)
-# MOTA Pareto 최적, 검출 mAP 손실 −0.07%p, OCR ±0%
-YOLO_ONNX  = str(ROOT / "model_space" / "yolov8s_signs_w8a8.onnx")
+# v3 (2026-05-30) — 신호등 분리 검출기 + 한국 표지판/신호등 분류기
+#   검출기: 0=traffic_sign, 1=traffic_light (data/yolo_signs_v2 학습)
+#   분류기: korean_sign_net 14클래스 (속도제한/규제/지시/주의 + 신호등 색상)
+# 검출기 v3 ONNX(fp32/w8a8)가 있으면 우선 사용, 없으면 v2(w8a8)로 폴백.
+# 택소노미는 로드된 검출기에 맞춰야 라우팅이 정확하다 (v2 간판↔v3 신호등 혼동 방지).
+_YOLO_V3 = next((p for p in [
+    ROOT / "model_space" / "yolov8s_signs_v3_w8a8.onnx",
+    ROOT / "model_space" / "yolov8s_signs_v3_fp32.onnx",
+] if p.exists()), None)
+if _YOLO_V3 is not None:
+    YOLO_ONNX = str(_YOLO_V3)
+    DET_TAXONOMY = "v3"   # 0=sign, 1=light, 2=signboard
+else:
+    YOLO_ONNX = str(ROOT / "model_space" / "yolov8s_signs_w8a8.onnx")
+    DET_TAXONOMY = "v2"   # 0=sign, 1=signboard (신호등 미분리)
 OCR_ONNX   = str(ROOT / "model_space" / "korean_ocr_net_w8a8.onnx")
-TSIGN_ONNX = str(ROOT / "model_space" / "traffic_sign_net_w8a8.onnx")
+# 분류기는 FP32 사용 (114KB로 작음 + 동적 INT8은 CPU EP ConvInteger 미지원)
+TSIGN_ONNX = str(ROOT / "model_space" / "korean_sign_net_fp32.onnx")
 WEB_DIR    = ROOT / "web" / "detection"
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -73,8 +86,10 @@ async def startup():
         yolo_onnx=YOLO_ONNX,
         ocr_onnx=OCR_ONNX,
         tsign_onnx=TSIGN_ONNX,
+        conf_thres=0.15,
+        det_taxonomy=DET_TAXONOMY,
     )
-    print("[Server] 파이프라인 초기화 완료 (v2 E3 W8A8)")
+    print(f"[Server] 파이프라인 초기화 완료 (검출기 택소노미={DET_TAXONOMY})")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -201,7 +216,9 @@ async def status():
         "yolo_path":  YOLO_ONNX,
         "ocr_path":   OCR_ONNX,
         "tsign_path": TSIGN_ONNX,
-        "version":  "v2 stratified split (E3 W8A8)",
+        "taxonomy": DET_TAXONOMY,
+        "version":  ("v3 (신호등 분리 + 한국 분류기 14클래스)" if DET_TAXONOMY == "v3"
+                     else "v2 검출기 + 한국 분류기 (신호등 미분리 — v3 학습 대기)"),
     }
 
 

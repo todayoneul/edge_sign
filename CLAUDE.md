@@ -83,6 +83,7 @@ CNN_Quant/
 │
 ├── scripts/                     # 데이터 수집/전처리 + 분석 스크립트
 │   ├── extract_frames.py        # [Phase 2] AI Hub TAR 해제 + 시퀀스 분할 + 서브샘플링
+│   ├── build_demo_video.py      # [Phase 7] test JPG 시퀀스 → H.264 mp4 합성 (검증/시연용) → data/demo_videos/
 │   ├── plot_pareto.py           # [Phase 5] Pareto frontier 차트 생성 → assets/pareto_frontier.png
 │   ├── plot_sensitivity.py     # [Phase 4] 단계별 양자화 민감도 분석 그래프 (4종) → assets/sensitivity_*.png
 │   ├── plot_v2_extras.py       # [Phase 5 v2] E0~E7 비교 / 압축률 / FPS 비교 (3종) → assets/v2/*.png
@@ -140,8 +141,19 @@ python src/quant/run_experiments.py   # 양자화 실험 실행
 
 # Phase 3 - 주행 Q&A 데모 서버
 cp .env.example .env                  # GROQ_API_KEY 설정
+
+# 시연/검증용 동영상 합성 (학습 미사용 test 시퀀스 → H.264 mp4)
+# test 시퀀스는 여러 위치 스냅샷의 몽타주라, 기본 모드는 '같은 위치' 연속 구간을
+# 개별 짧은 클립으로 분할 (각 ~3초, 박스 안정적, 일시정지하며 Q&A).
+python scripts/build_demo_video.py --list                  # 사용 가능한 test 시퀀스 나열
+python scripts/build_demo_video.py --fps 5 --top_n 12       # 위치별 클립 분할(기본)
+# → data/demo_videos/<seq>_clips/clip_01.mp4 ... (검출 품질 확인 후 선별 사용)
+python scripts/build_demo_video.py --full --fps 15         # (옵션) 시퀀스 전체 단일 영상
+
 uvicorn src.pipeline.app:app --reload --port 8000
-# 브라우저 → http://localhost:8000/detection/
+# 브라우저 → http://localhost:8000/detection/  → "📂 동영상 열기"로 클립 업로드
+# 영상 종료 후 다른 클립 업로드 시 추적기 자동 리셋. 재생속도/5초 점프 지원.
+# 주의: 서버 실행 env(convnext_env 등)에 groq 설치 필요 — pip install groq
 ```
 
 ---

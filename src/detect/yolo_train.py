@@ -39,16 +39,17 @@ def check_ultralytics():
 def train(args):
     YOLO = check_ultralytics()
 
-    if not YOLO_DATASET.exists():
-        print(f"Dataset YAML not found: {YOLO_DATASET}")
+    data_yaml = Path(args.data) if args.data else YOLO_DATASET
+    if not data_yaml.exists():
+        print(f"Dataset YAML not found: {data_yaml}")
         print("Run: python src/detect/prepare_dataset.py --source gtsdb")
         sys.exit(1)
 
     model = YOLO(args.model)
-    print(f"  모델: {args.model}  imgsz: {args.imgsz}  batch: {args.batch_size}")
+    print(f"  모델: {args.model}  데이터: {data_yaml}  imgsz: {args.imgsz}  batch: {args.batch_size}")
 
     results = model.train(
-        data=str(YOLO_DATASET),
+        data=str(data_yaml),
         epochs=args.epochs,
         imgsz=args.imgsz,
         batch=args.batch_size,
@@ -60,6 +61,8 @@ def train(args):
         save_period=10,
         plots=True,
         verbose=True,
+        workers=args.workers,   # Windows 워커 크래시 방지 (0=메인프로세스)
+        cache=False,
         # 경량화 목적 하이퍼파라미터
         lr0=0.01,
         lrf=0.01,
@@ -170,6 +173,8 @@ def main():
     parser.add_argument("--run_name", type=str, default="edge_sign_v2", help="실험 이름")
     parser.add_argument("--weights", type=str, default=None, help="모델 가중치 경로 (val/predict)")
     parser.add_argument("--source", type=str, default=None, help="추론 입력 (이미지/영상 경로)")
+    parser.add_argument("--data", type=str, default=None, help="dataset.yaml 경로 (기본 data/yolo_signs)")
+    parser.add_argument("--workers", type=int, default=4, help="DataLoader 워커 수 (Windows 크래시 시 0)")
     args = parser.parse_args()
 
     if args.mode == "train":

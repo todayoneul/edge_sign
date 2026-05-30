@@ -39,8 +39,22 @@ from src.track.bytetrack import ByteTracker, STrack
 # 상수
 # ─────────────────────────────────────────────────────────────────────────────
 
-CLASS_NAMES = {0: "traffic_sign", 1: "signboard"}
+# 검출기 클래스 (v3: 신호등 분리). signboard는 이 데모에선 미사용.
+CLASS_NAMES = {0: "traffic_sign", 1: "traffic_light", 2: "signboard"}
 TEMPORAL_BUFFER_LEN = 8  # 트랙별 인식 결과 누적 프레임 수
+
+# 한국 표지판/신호등 분류기 14클래스 (data/roi_cls/classes.json)
+_KCLS = None  # {"names": [...], "sign_ids": [...], "light_ids": [...]}
+
+def _load_kcls() -> dict:
+    global _KCLS
+    if _KCLS is None:
+        p = ROOT / "data" / "roi_cls" / "classes.json"
+        if p.exists():
+            _KCLS = json.loads(p.read_text(encoding="utf-8"))
+        else:
+            _KCLS = {"names": [], "sign_ids": [], "light_ids": []}
+    return _KCLS
 
 # OCR 인덱스→문자 매핑 (web/idx_to_char.json)
 _IDX_TO_CHAR: dict[int, str] | None = None
@@ -238,6 +252,7 @@ class EdgeSignPipeline:
         conf_thres: float = 0.25,
         iou_thres: float = 0.45,
         track_thresh: float = 0.5,
+        det_taxonomy: str = "v3",
     ):
         try:
             import onnxruntime as ort
@@ -247,6 +262,18 @@ class EdgeSignPipeline:
         self.conf_thres = conf_thres
         self.iou_thres  = iou_thres
         self._frame_id  = 0
+
+        # 검출기 클래스 택소노미 — 로드된 검출기 모델에 맞춰야 라우팅이 정확.
+        #   v3: 0=traffic_sign, 1=traffic_light, 2=signboard (신호등 분리 모델)
+        #   v2: 0=traffic_sign, 1=signboard            (구 모델, 신호등 미분리)
+        # 잘못 지정하면 v2 간판이 신호등 색상으로 오분류되므로 app.py에서 명시 전달.
+        self.det_taxonomy = det_taxonomy
+        if det_taxonomy == "v2":
+            self.class_names = {0: "traffic_sign", 1: "signboard"}
+            self._ocr_cls = 1
+        else:
+            self.class_names = {0: "traffic_sign", 1: "traffic_light", 2: "signboard"}
+            self._ocr_cls = 2
 
         # YOLOv8s 세션
         self.yolo_session = None
@@ -273,16 +300,19 @@ class EdgeSignPipeline:
         else:
             print(f"[Pipeline] WARNING: OCR ONNX not found -- signboard OCR disabled")
 
-        # TrafficSignNet 세션 (traffic_sign 43-class 분류)
+        # 한국 표지판/신호등 분류기 세션 (korean_sign_net 14클래스)
+        # 기존 tsign_onnx 인자 재사용 — 한국 분류기 ONNX 경로를 받음.
         self.tsign_session = None
+        self._kcls = _load_kcls()
         if tsign_onnx and Path(tsign_onnx).exists():
             self.tsign_session = ort.InferenceSession(
                 str(tsign_onnx), providers=["CPUExecutionProvider"]
             )
             self._tsign_input_name = self.tsign_session.get_inputs()[0].name
-            print(f"[Pipeline] TrafficSignNet loaded: {Path(tsign_onnx).name}")
+            print(f"[Pipeline] Korean classifier loaded: {Path(tsign_onnx).name} "
+                  f"({len(self._kcls['names'])} classes)")
         else:
-            print(f"[Pipeline] INFO: TrafficSignNet ONNX not found -- sign class = 'traffic_sign'")
+            print(f"[Pipeline] INFO: 분류기 ONNX 없음 -- 라벨 = class_name")
 
         # ByteTracker
         self.tracker = ByteTracker(
@@ -331,24 +361,37 @@ class EdgeSignPipeline:
         out = self.ocr_session.run(None, {self._ocr_input_name: inp})
         return decode_ocr_output(out[0])
 
-    def _run_tsign(self, frame: np.ndarray, bbox: np.ndarray) -> list[tuple[str, float]]:
-        """traffic_sign ROI → Top-3 GTSDB 클래스 리스트."""
-        if self.tsign_session is None:
-            return [("traffic_sign", 1.0)]
+    def _run_tsign(self, frame: np.ndarray, bbox: np.ndarray,
+                   det_cls: int = 0) -> list[tuple[str, float]]:
+        """ROI → 한국 분류기 Top-3 (det_cls로 표지판/신호등 후보 제한).
+
+        det_cls 0(traffic_sign) → sign_ids 서브셋, 1(traffic_light) → light_ids.
+        학습과 동일 전처리: (rgb/255 - 0.5)/0.5, 3×32×32.
+        """
+        # fallback 신뢰도는 낮게 — temporal buffer 점수를 왜곡하지 않도록 (미인식 표시)
+        fallback = self.class_names.get(det_cls, "traffic_sign")
+        if self.tsign_session is None or not self._kcls["names"]:
+            return [(fallback, 0.0)]
         x1, y1, x2, y2 = bbox[:4].astype(int)
         x1, y1 = max(0, x1), max(0, y1)
         x2, y2 = min(frame.shape[1], x2), min(frame.shape[0], y2)
         if x2 <= x1 or y2 <= y1:
-            return [("traffic_sign", 1.0)]
+            return [(fallback, 0.0)]
         roi = frame[y1:y2, x1:x2]
-        # TrafficSignNet: 3×32×32 RGB, Normalize mean=(0.5,0.5,0.5) std=(0.5,0.5,0.5)
         rgb = cv2.cvtColor(cv2.resize(roi, (32, 32)), cv2.COLOR_BGR2RGB)
         tensor = (rgb.astype(np.float32) / 255.0 - 0.5) / 0.5
         inp = np.transpose(tensor, (2, 0, 1))[np.newaxis]   # [1, 3, 32, 32]
         out = self.tsign_session.run(None, {self._tsign_input_name: inp})
         probs = softmax(out[0][0])
-        top3 = probs.argsort()[::-1][:3]
-        return [(GTSDB_CLASSES[int(i)], float(probs[i])) for i in top3]
+
+        # 검출 클래스에 맞는 후보만 남김 (신호등↔표지판 혼동 방지)
+        names = self._kcls["names"]
+        cand = self._kcls["light_ids"] if det_cls == 1 else self._kcls["sign_ids"]
+        cand = [i for i in cand if i < len(probs)]
+        if not cand:
+            cand = list(range(len(probs)))
+        cand.sort(key=lambda i: probs[i], reverse=True)
+        return [(names[i], float(probs[i])) for i in cand[:3]]
 
     def _stable_recognition(self, track_id: int) -> str:
         """temporal buffer에서 최빈 레이블(신뢰도 누적 기준) 반환."""
@@ -376,7 +419,7 @@ class EdgeSignPipeline:
               "tracks": [
                 {
                   "id": int,
-                  "class": int,       # 0=traffic_sign, 1=signboard
+                  "class": int,       # v3: 0=traffic_sign 1=traffic_light 2=signboard
                   "class_name": str,
                   "bbox": [x1,y1,x2,y2],
                   "conf": float,
@@ -402,14 +445,15 @@ class EdgeSignPipeline:
             cls = int(track.cls)
             bbox = np.array([x1, y1, x2, y2])
 
-            # signboard → KoreanOCRNet, traffic_sign → TrafficSignNet
-            if cls == 1:
+            # 라우팅 (택소노미별): signboard(=self._ocr_cls) → OCR,
+            #   그 외(표지판/신호등) → 한국 분류기(검출 클래스로 후보 서브셋 제한).
+            if cls == self._ocr_cls:
                 top_labels = self._run_ocr(frame, bbox)
                 label_cur = top_labels[0][0] if top_labels else ""
                 conf_cur  = top_labels[0][1] if top_labels else 0.0
             else:
-                top_labels = self._run_tsign(frame, bbox)
-                label_cur  = top_labels[0][0] if top_labels else "traffic_sign"
+                top_labels = self._run_tsign(frame, bbox, det_cls=cls)
+                label_cur  = top_labels[0][0] if top_labels else self.class_names.get(cls, "")
                 conf_cur   = top_labels[0][1] if top_labels else float(track.score)
 
             self._track_buffers[track.track_id].append((label_cur, conf_cur))
@@ -418,7 +462,7 @@ class EdgeSignPipeline:
             result_tracks.append({
                 "id":         track.track_id,
                 "class":      cls,
-                "class_name": CLASS_NAMES.get(cls, str(cls)),
+                "class_name": self.class_names.get(cls, str(cls)),
                 "bbox":       [round(float(x1)), round(float(y1)),
                                round(float(x2)), round(float(y2))],
                 "conf":       round(float(track.score), 3),

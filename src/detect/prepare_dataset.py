@@ -48,19 +48,19 @@ ROOT     = Path(__file__).parent.parent.parent
 DATA_DIR = ROOT / "data"
 YOLO_DIR = DATA_DIR / "yolo_signs"
 
-CLASS_NAMES = ["traffic_sign", "signboard"]  # class 0, 1
+CLASS_NAMES = ["traffic_sign", "traffic_light", "signboard"]  # class 0, 1, 2
 
 # GTSDB: 모든 클래스를 traffic_sign (0) 으로 통합
 GTSDB_TO_YOLO_CLASS = 0
 
-# AI Hub 신호등-도로표지판 클래스 매핑
+# AI Hub 신호등-도로표지판 클래스 매핑 (신호등 분리: 2026-05-30)
 AIHUB_TRAFFIC_CLASS_MAP = {
     "traffic_sign":  0,
-    "traffic_light": 0,  # 신호등도 traffic_sign(0)으로 통합
+    "traffic_light": 1,  # 신호등을 별도 클래스로 분리 (색상 분류 위함)
 }
 
 # AI Hub 030 간판 클래스
-AIHUB_SIGNBOARD_CLASS = 1
+AIHUB_SIGNBOARD_CLASS = 2
 
 
 # ─────────────────────────────────────────────
@@ -81,7 +81,8 @@ val: images/val
 nc: {len(CLASS_NAMES)}
 names:
   0: traffic_sign
-  1: signboard
+  1: traffic_light
+  2: signboard
 """
     yaml_path = YOLO_DIR / "dataset.yaml"
     yaml_path.write_text(yaml_content, encoding="utf-8")

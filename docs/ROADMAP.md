@@ -199,14 +199,17 @@
 - [x] FastAPI 백엔드 (2026-05-28) → `src/pipeline/app.py`
 - [x] 웹 데모 UI (2026-05-28) → `web/detection/index.html` + `app.js`
 - [x] `.env.example` 생성 (2026-05-28)
-- [ ] 실제 동작 검증 (YOLOv8n ONNX 변환 + GROQ_API_KEY 설정 후)
+- [x] 시연/검증용 동영상 합성 (2026-05-30) → `scripts/build_demo_video.py`
+  - 학습 미사용 test 시퀀스 → H.264 mp4 (`data/demo_videos/`). 학습과 동일 도메인 보장.
+- [x] **실제 동작 E2E 검증 완료 (2026-05-30)** — 서버 WebSocket → 검출 50%+ → 추적 → 분류 → Groq Q&A 한국어 응답까지 전 구간 정상 (`docs/EXPERIMENTS.md` 2026-05-30 참조).
   ```bash
-  cp .env.example .env          # API 키 입력
-  python src/detect/export_yolo_onnx.py --weights runs/detect/edge_sign_v2_e0/weights/best.pt
-  uvicorn src.pipeline.app:app --port 8000
+  cp .env.example .env          # GROQ_API_KEY 입력
+  python scripts/build_demo_video.py --seq d_validation_1920_1080_daylight_2
+  uvicorn src.pipeline.app:app --port 8000   # 브라우저에서 합성 mp4 업로드
   ```
+- [!] **OOD 주의**: 외부 블랙박스 영상은 도메인 갭으로 검출 거의 0 + 코덱 비호환. 시연은 학습 동일 도메인(AI Hub 수도권) 영상 사용 필수.
 
-**완료 기준:** AI Hub 도로 영상 재생 → 표지판/간판 인식 → 질문 입력 → Groq LLM 답변 시연
+**완료 기준:** AI Hub 도로 영상 재생 → 표지판/간판 인식 → 질문 입력 → Groq LLM 답변 시연 ✅ 달성
 
 ---
 

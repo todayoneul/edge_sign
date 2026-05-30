@@ -13,8 +13,9 @@ const QA_URL    = `/api/qa`;
 const FRAME_FPS = 10;   // 서버로 전송할 프레임레이트 (처리 속도 기준)
 
 const COLORS = {
-  traffic_sign: '#48bb78',
-  signboard:    '#ed8936',
+  traffic_sign:  '#48bb78',  // 초록
+  traffic_light: '#f56565',  // 빨강 (신호등)
+  signboard:     '#ed8936',  // 주황
 };
 
 // ── 상태 ──────────────────────────────────────────────────────────────────────
@@ -26,6 +27,9 @@ const state = {
   lastResult:   null,       // 최신 파이프라인 결과
   sendTimer:    null,
   isPlaying:    false,
+  sentW:        0,          // 마지막으로 서버에 보낸 프레임 너비 (bbox 좌표 기준)
+  sentH:        0,
+  playbackRate: 1.0,        // 사용자가 설정한 재생 속도 (metadata 로드 시 리셋 방지용)
 };
 
 // ── DOM 참조 ──────────────────────────────────────────────────────────────────
@@ -48,6 +52,11 @@ const trackList     = document.getElementById('track-list');
 const chatLog       = document.getElementById('chat-log');
 const chatInput     = document.getElementById('chat-input');
 const sendBtn       = document.getElementById('send-btn');
+const speedRange    = document.getElementById('speed-range');
+const speedVal      = document.getElementById('speed-val');
+const stepBackBtn   = document.getElementById('step-back-btn');
+const stepFwdBtn    = document.getElementById('step-fwd-btn');
+const videoWrapper  = document.getElementById('video-wrapper');
 
 // ── WebSocket ─────────────────────────────────────────────────────────────────
 function connectWS() {
@@ -106,12 +115,15 @@ function sendFrame() {
 
   const vw = videoEl.videoWidth  || 640;
   const vh = videoEl.videoHeight || 480;
-  _capCanvas.width  = Math.min(vw, 640);
-  _capCanvas.height = Math.round(Math.min(vw, 640) * vh / vw);
+  const targetW = Math.min(vw, 1280);
+  _capCanvas.width  = targetW;
+  _capCanvas.height = Math.round(targetW * vh / vw);
 
   _capCtx.drawImage(videoEl, 0, 0, _capCanvas.width, _capCanvas.height);
-  const b64 = _capCanvas.toDataURL('image/jpeg', 0.7);
+  const b64 = _capCanvas.toDataURL('image/jpeg', 0.8);
 
+  state.sentW = _capCanvas.width;
+  state.sentH = _capCanvas.height;
   state.ws.send(JSON.stringify({ type: 'frame', data: b64 }));
 }
 
@@ -145,24 +157,37 @@ function handleResult(result) {
 }
 
 function drawOverlay(tracks) {
-  const vw = videoEl.videoWidth  || overlayCanvas.width;
-  const vh = videoEl.videoHeight || overlayCanvas.height;
+  // bbox 좌표 기준 = 서버에 전송한 프레임 크기 (state.sentW × sentH)
+  const refW = state.sentW || videoEl.videoWidth  || 1280;
+  const refH = state.sentH || videoEl.videoHeight || 720;
 
-  // 캔버스를 비디오 실제 크기에 맞춤
-  if (overlayCanvas.width  !== videoEl.offsetWidth  ||
-      overlayCanvas.height !== videoEl.offsetHeight) {
-    overlayCanvas.width  = videoEl.offsetWidth;
-    overlayCanvas.height = videoEl.offsetHeight;
+  // 캔버스 내부 해상도 = 캔버스가 화면에 차지하는 실제 픽셀(clientWidth/Height).
+  // 내부 해상도와 표시 크기를 일치시켜야 박스가 찌그러지지 않는다.
+  const cw = overlayCanvas.clientWidth;
+  const ch = overlayCanvas.clientHeight;
+  if (overlayCanvas.width !== cw || overlayCanvas.height !== ch) {
+    overlayCanvas.width  = cw;
+    overlayCanvas.height = ch;
   }
 
-  const scaleX = overlayCanvas.width  / (videoEl.videoWidth  || 640);
-  const scaleY = overlayCanvas.height / (videoEl.videoHeight || 480);
+  // video는 object-fit:contain → 캔버스 영역 내에서 레터박스 계산
+  const videoAR = refW / refH;
+  const canvasAR = cw / ch;
+  let dispW, dispH, offsetX, offsetY;
+  if (videoAR > canvasAR) {
+    dispW = cw;  dispH = cw / videoAR;  offsetX = 0;  offsetY = (ch - dispH) / 2;
+  } else {
+    dispH = ch;  dispW = ch * videoAR;  offsetY = 0;  offsetX = (cw - dispW) / 2;
+  }
+
+  const scaleX = dispW / refW;
+  const scaleY = dispH / refH;
 
   ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 
   for (const t of tracks) {
     const [x1, y1, x2, y2] = t.bbox;
-    const sx1 = x1 * scaleX, sy1 = y1 * scaleY;
+    const sx1 = offsetX + x1 * scaleX, sy1 = offsetY + y1 * scaleY;
     const sw  = (x2 - x1) * scaleX, sh = (y2 - y1) * scaleY;
 
     const color = COLORS[t.class_name] || '#63b3ed';
@@ -172,10 +197,10 @@ function drawOverlay(tracks) {
     ctx.lineWidth   = 2;
     ctx.strokeRect(sx1, sy1, sw, sh);
 
-    // 레이블 배경
+    // 레이블 배경 (한글 지원 폰트)
     const label = t.label || t.class_name;
     const text  = `#${t.id} ${label} ${(t.conf * 100).toFixed(0)}%`;
-    ctx.font = '12px monospace';
+    ctx.font = "13px 'Malgun Gothic','Apple SD Gothic Neo',sans-serif";
     const tw = ctx.measureText(text).width;
     ctx.fillStyle = color;
     ctx.fillRect(sx1 - 1, sy1 - 18, tw + 6, 18);
@@ -192,9 +217,10 @@ function updateTrackList(tracks) {
     return;
   }
 
+  const KIND = { 0: '교통표지판', 1: '신호등', 2: '간판' };
   trackList.innerHTML = tracks.map(t => {
     const label = t.label || t.class_name;
-    const clsKr = t.class === 0 ? '교통표지판' : '간판';
+    const clsKr = KIND[t.class] || '객체';
     const confPct = (t.conf * 100).toFixed(0);
     return `
       <div class="track-item ${t.class_name}">
@@ -249,24 +275,29 @@ dropzone.addEventListener('drop', (e) => {
 });
 
 function loadVideoFile(file) {
-  stopMedia();
+  stopMedia({ keepFileInput: true });
   if (state.videoSrc) URL.revokeObjectURL(state.videoSrc);
   state.videoSrc = URL.createObjectURL(file);
   videoEl.srcObject = null;
   videoEl.src       = state.videoSrc;
   videoEl.style.display = 'block';
+  videoEl.playbackRate = state.playbackRate;
   noVideoMsg.style.display = 'none';
-  videoEl.play();
+  videoWrapper.classList.add('has-controls');
+  videoEl.play().catch((e) => console.warn('[video] play() 거부:', e));
   state.isPlaying = true;
   stopBtn.disabled = false;
+  fpsInfo.textContent = `재생 중: ${file.name}`;
+  // 파일 input 재선택 가능하도록 value 초기화 (같은 파일 다시 올리기 허용)
+  fileInput.value = '';
   if (state.ws?.readyState === WebSocket.OPEN) {
     state.ws.send(JSON.stringify({ type: 'reset' }));
   }
 }
 
-stopBtn.addEventListener('click', stopMedia);
+stopBtn.addEventListener('click', () => stopMedia());
 
-function stopMedia() {
+function stopMedia(opts = {}) {
   state.isPlaying = false;
   if (state.stream) {
     state.stream.getTracks().forEach(t => t.stop());
@@ -276,16 +307,62 @@ function stopMedia() {
   videoEl.srcObject = null;
   videoEl.src = '';
   videoEl.style.display = 'none';
+  videoWrapper.classList.remove('has-controls');
   noVideoMsg.style.display = 'flex';
   stopBtn.disabled = true;
   ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
   updateTrackList([]);
+  if (!opts.keepFileInput) fileInput.value = '';
 }
 
-// 비디오 종료 시 처리
+// 비디오 종료 시: 프레임 전송 중단, 새 영상 안내
 videoEl.addEventListener('ended', () => {
   state.isPlaying = false;
-  fpsInfo.textContent = '동영상 재생 완료';
+  fpsInfo.textContent = '재생 완료 — 다른 동영상을 올려 계속 테스트하세요';
+});
+
+// 일시정지/재생 토글에 따라 isPlaying 동기화 (네이티브 컨트롤 대응)
+videoEl.addEventListener('pause', () => { state.isPlaying = false; });
+videoEl.addEventListener('play',  () => {
+  if (videoEl.src) state.isPlaying = true;
+});
+// seek 시 추적기 리셋 (시간 점프하면 ID 연속성 깨짐)
+videoEl.addEventListener('seeked', () => {
+  if (state.ws?.readyState === WebSocket.OPEN) {
+    state.ws.send(JSON.stringify({ type: 'reset' }));
+  }
+});
+
+// 재생 속도 슬라이더 — 원하는 속도를 state에 저장하고 즉시 적용
+speedRange.addEventListener('input', () => {
+  const v = parseFloat(speedRange.value) || 1.0;
+  state.playbackRate = v;
+  videoEl.playbackRate = v;
+  speedVal.textContent = `${v.toFixed(2)}×`;
+});
+
+// 브라우저는 새 소스/메타데이터 로드 시 playbackRate를 1로 리셋 → 저장값 재적용
+videoEl.addEventListener('loadedmetadata', () => {
+  videoEl.playbackRate = state.playbackRate;
+});
+videoEl.addEventListener('ratechange', () => {
+  // 네이티브 컨트롤 등으로 바뀐 실제 속도를 슬라이더/표시에 동기화
+  const v = videoEl.playbackRate;
+  if (Math.abs(v - state.playbackRate) > 0.001) {
+    state.playbackRate = v;
+    speedRange.value = v;
+    speedVal.textContent = `${v.toFixed(2)}×`;
+  }
+});
+
+// 5초 앞/뒤 이동
+stepBackBtn.addEventListener('click', () => {
+  if (videoEl.src) videoEl.currentTime = Math.max(0, videoEl.currentTime - 5);
+});
+stepFwdBtn.addEventListener('click', () => {
+  if (videoEl.src && isFinite(videoEl.duration)) {
+    videoEl.currentTime = Math.min(videoEl.duration, videoEl.currentTime + 5);
+  }
 });
 
 // ── Q&A ───────────────────────────────────────────────────────────────────────

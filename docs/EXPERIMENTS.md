@@ -200,6 +200,14 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
 - **2026-05-27**: 다양한 형태의 한글 문자 OCR (ZIP, 39.6GB) → Phase 2 초기에는 불필요. OCR 인식기 개선 필요 시 추후 처리.
 - **2026-05-28**: 주행 Q&A 데모 아키텍처 결정: 엣지 파이프라인(YOLOv8n-INT8 + OCR-INT8) → 구조화 JSON → Claude Haiku API → 자연어 답변. 연구 결론부 시연용.
 - **2026-05-30**: Q&A LLM을 Claude Haiku → Groq Llama 3.3 70B (무료 티어)로 교체. `src/pipeline/qa_bridge.py` Groq AsyncGroq SDK 사용, OpenAI 호환 인터페이스. `.env`의 `ANTHROPIC_API_KEY` → `GROQ_API_KEY` 변경. SSE 스트리밍 인터페이스(`app.py`)는 변경 없음.
+- **2026-05-30**: **웹 시연 E2E 전체 검증 완료** (서버 WebSocket → 검출+추적+분류 → Q&A SSE).
+  - 시연 영상: 학습 미사용 test 시퀀스 `d_validation_1920_1080_daylight_2` (2401프레임)을 `scripts/build_demo_video.py`로 H.264 mp4 합성 (data/demo_videos/, 학습 데이터와 동일 분포).
+  - **검출률**: 주간 시퀀스 60프레임 샘플 전송 → 30프레임(50%)에서 트랙 검출, 동시 최대 5개, 분류 라벨 정상(Speed limit 30, Yield 등).
+  - **Q&A**: Groq Llama 3.3 70B 한국어 응답 정상 (속도제한 안내 + 불확실성 고지).
+  - **중요 발견 (도메인 갭/OOD)**: `AIhub/교통사고 블랙박스` MPEG-4 영상은 (1) 브라우저 비호환 코덱으로 검은 화면, (2) 학습 분포 밖(다른 카메라/구도)이라 검출 거의 0. 반면 동일 분포 test 시퀀스는 검출 50%+. → **시연/검증은 반드시 학습과 동일 도메인(AI Hub 수도권 도로) 영상 사용**. 외부 블랙박스 영상 일반화는 별도 도메인 적응 필요.
+  - 웹 클라이언트 버그 수정: (1) 오버레이 캔버스 내부 해상도와 표시 크기 불일치(컨트롤바 여백 CSS)로 박스가 세로 찌그러짐/오프셋 → 캔버스 해상도를 clientWidth/Height에 일치 + 레터박스 보정. (2) 재생속도가 metadata 로드 시 1.0으로 리셋되던 문제 → 사용자 설정 속도를 state에 저장 후 loadedmetadata/play 시 재적용.
+  - **데이터 특성 발견 (몽타주)**: `d_validation_1920_1080_daylight_2`(2353프레임)는 한 위치당 연속 6~16프레임뿐인 다(多)위치 스냅샷 몽타주. 전체를 한 영상으로 합치면 위치가 끊임없이 점프해 시연 부적합 → `build_demo_video.py` 기본 모드를 **연속 구간(같은 위치)별 개별 클립 분할**로 변경. 검출 품질 상위 클립(clip_06 15/15, clip_04 15/16 등)을 선별해 `Desktop/demo_clips/demo_01~08.mp4`로 정리.
+  - 서버 실행 env에 groq 미설치 시 Q&A `ImportError` → 해당 conda env(convnext_env)에 `pip install groq` 필요.
 - **2026-05-28**: **E0 ByteTrack 추적 평가 완료** — `src/track/eval_tracking.py`, CPU ONNX Runtime.
   - 평가 시퀀스: c_1280_720_night_1 (142프레임) + c_1920_1200_night_1 (16프레임)
   - MOTA=**0.219**, IDF1=**0.384**, HOTA=**0.487**, IDSW=**0**, FPS=**21.6** (CPU)

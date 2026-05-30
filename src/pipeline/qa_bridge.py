@@ -72,17 +72,18 @@ def build_context(tracks: list[dict]) -> str:
     if not tracks:
         return "현재 카메라에서 인식된 객체가 없습니다."
 
+    _KIND = {0: "교통표지판", 1: "신호등", 2: "간판"}
     lines = [f"현재 인식된 객체 (총 {len(tracks)}개):"]
     for t in tracks:
-        cls_name = "교통표지판" if t["class"] == 0 else "간판"
+        cls_name = _KIND.get(t["class"], "객체")
         label = t.get("label") or t.get("class_name", "")
         conf_pct = int(t["conf"] * 100)
 
-        # label이 없거나 'traffic_sign' 기본값인 경우
-        if label and label not in ("traffic_sign", "signboard"):
+        # label이 분류 결과(한국어)면 표시, 검출 기본값(영문 class명)이면 미인식
+        if label and label not in ("traffic_sign", "traffic_light", "signboard"):
             label_str = f"'{label}'"
         else:
-            label_str = f"(미인식)"
+            label_str = "(세부 미인식)"
 
         lines.append(f"  [Track #{t['id']}] {cls_name} - {label_str} (신뢰도 {conf_pct}%)")
 
@@ -161,10 +162,10 @@ async def ask_once(context: str, question: str, **kwargs) -> str:
 async def _test():
     """더미 컨텍스트로 Groq API 연결 테스트."""
     dummy_tracks = [
-        {"id": 1, "class": 0, "class_name": "traffic_sign", "conf": 0.92,
-         "label": "traffic_sign", "bbox": [100, 100, 200, 200]},
-        {"id": 2, "class": 1, "class_name": "signboard",    "conf": 0.85,
-         "label": "카페",       "bbox": [300, 150, 500, 280]},
+        {"id": 1, "class": 0, "class_name": "traffic_sign",  "conf": 0.92,
+         "label": "속도제한50",   "bbox": [100, 100, 200, 200]},
+        {"id": 2, "class": 1, "class_name": "traffic_light", "conf": 0.85,
+         "label": "신호등_빨강",  "bbox": [300, 150, 360, 260]},
     ]
     context = build_context(dummy_tracks)
     print("=== 컨텍스트 ===")
