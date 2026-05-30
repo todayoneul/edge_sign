@@ -1,0 +1,21 @@
+﻿Ultralytics 8.3.241  Python-3.13.11 torch-2.9.1+cu130 CPU (AMD Ryzen 5 9600X 6-Core Processor)
+Model summary (fused): 72 layers, 11,126,358 parameters, 0 gradients, 28.4 GFLOPs
+
+[34m[1mPyTorch:[0m starting from 'runs\detect\edge_sign_v2_v2split\weights\best.pt' with input shape (1, 3, 640, 640) BCHW and output shape(s) (1, 6, 8400) (21.5 MB)
+
+[34m[1mONNX:[0m starting export with onnx 1.21.0 opset 14...
+[34m[1mONNX:[0m slimming with onnxslim 0.1.94...
+[34m[1mONNX:[0m export success  1.1s, saved as 'runs\detect\edge_sign_v2_v2split\weights\best.onnx' (42.7 MB)
+
+Export complete (1.3s)
+Results saved to [1mC:\Users\leegy\Desktop\CNN_Quant\runs\detect\edge_sign_v2_v2split\weights[0m
+Predict:         yolo predict task=detect model=runs\detect\edge_sign_v2_v2split\weights\best.onnx imgsz=640  
+Validate:        yolo val task=detect model=runs\detect\edge_sign_v2_v2split\weights\best.onnx imgsz=640 data=C:\Users\leegy\Desktop\CNN_Quant\data\yolo_signs\dataset.yaml  
+Visualize:       https://netron.app
+
+Exported: C:\Users\leegy\Desktop\CNN_Quant\model_space\yolov8s_signs_fp32.onnx (42.67 MB)
+
+Model verification: yolov8s_signs_fp32.onnx
+  Input:  images [1, 3, 640, 640] tensor(float)
+  Output: output0 [1, 6, 8400] tensor(float)
+  Inference OK: output shape = (1, 6, 8400)

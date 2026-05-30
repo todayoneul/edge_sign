@@ -5,7 +5,7 @@ Edge-Sign v2 FastAPI 백엔드 서버
   GET  /                  → web/detection/index.html 서빙
   GET  /detection/{file}  → web/detection/ 정적 파일
   WS   /ws/stream         → 프레임 수신 → 파이프라인 → JSON 전송
-  POST /api/qa            → context + question → Claude 스트리밍 답변 (SSE)
+  POST /api/qa            → context + question → Groq 스트리밍 답변 (SSE)
   GET  /api/status        → 파이프라인 상태
 
 실행:
@@ -152,7 +152,7 @@ async def ws_stream(websocket: WebSocket):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# POST /api/qa — Claude 스트리밍 Q&A (SSE)
+# POST /api/qa — Groq 스트리밍 Q&A (SSE)
 # ─────────────────────────────────────────────────────────────────────────────
 
 class QARequest(BaseModel):
@@ -163,7 +163,7 @@ class QARequest(BaseModel):
 @app.post("/api/qa")
 async def qa_endpoint(req: QARequest):
     """
-    인식된 tracks + 사용자 질문 → Claude Haiku 스트리밍 답변 (SSE).
+    인식된 tracks + 사용자 질문 → Groq LLM 스트리밍 답변 (SSE).
 
     클라이언트:
       const evtSrc = new EventSource(URL) — fetch + SSE 방식 사용

@@ -190,23 +190,23 @@
 
 ### 연구 스토리
 > 엣지 디바이스(`<15MB` 모델)가 실시간으로 표지판/간판 인식 → 구조화 JSON 생성 →
-> Claude API가 컨텍스트를 받아 운전자 질문에 자연어 답변.
+> Groq LLM API가 컨텍스트를 받아 운전자 질문에 자연어 답변.
 
 ### 구현 항목
 - [x] E2E 파이프라인 ONNX 추론 + ByteTrack 통합 (2026-05-28) → `src/pipeline/e2e_pipeline.py`
-- [x] Claude API Q&A 브리지 (2026-05-28) → `src/pipeline/qa_bridge.py`
-  - `build_context(tracks)` + `ask_stream()` (claude-haiku-4-5-20251001, SSE 스트리밍)
+- [x] LLM Q&A 브리지 (2026-05-28, 2026-05-30 Groq 이관) → `src/pipeline/qa_bridge.py`
+  - `build_context(tracks)` + `ask_stream()` (Groq `llama-3.3-70b-versatile`, SSE 스트리밍)
 - [x] FastAPI 백엔드 (2026-05-28) → `src/pipeline/app.py`
 - [x] 웹 데모 UI (2026-05-28) → `web/detection/index.html` + `app.js`
 - [x] `.env.example` 생성 (2026-05-28)
-- [ ] 실제 동작 검증 (YOLOv8n ONNX 변환 + ANTHROPIC_API_KEY 설정 후)
+- [ ] 실제 동작 검증 (YOLOv8n ONNX 변환 + GROQ_API_KEY 설정 후)
   ```bash
   cp .env.example .env          # API 키 입력
   python src/detect/export_yolo_onnx.py --weights runs/detect/edge_sign_v2_e0/weights/best.pt
   uvicorn src.pipeline.app:app --port 8000
   ```
 
-**완료 기준:** AI Hub 도로 영상 재생 → 표지판/간판 인식 → 질문 입력 → Claude 답변 시연
+**완료 기준:** AI Hub 도로 영상 재생 → 표지판/간판 인식 → 질문 입력 → Groq LLM 답변 시연
 
 ---
 

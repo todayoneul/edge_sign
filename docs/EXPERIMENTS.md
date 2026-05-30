@@ -199,6 +199,7 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
   - `runs/detect/edge_sign_v2_e0_full3/weights/best.pt`
 - **2026-05-27**: 다양한 형태의 한글 문자 OCR (ZIP, 39.6GB) → Phase 2 초기에는 불필요. OCR 인식기 개선 필요 시 추후 처리.
 - **2026-05-28**: 주행 Q&A 데모 아키텍처 결정: 엣지 파이프라인(YOLOv8n-INT8 + OCR-INT8) → 구조화 JSON → Claude Haiku API → 자연어 답변. 연구 결론부 시연용.
+- **2026-05-30**: Q&A LLM을 Claude Haiku → Groq Llama 3.3 70B (무료 티어)로 교체. `src/pipeline/qa_bridge.py` Groq AsyncGroq SDK 사용, OpenAI 호환 인터페이스. `.env`의 `ANTHROPIC_API_KEY` → `GROQ_API_KEY` 변경. SSE 스트리밍 인터페이스(`app.py`)는 변경 없음.
 - **2026-05-28**: **E0 ByteTrack 추적 평가 완료** — `src/track/eval_tracking.py`, CPU ONNX Runtime.
   - 평가 시퀀스: c_1280_720_night_1 (142프레임) + c_1920_1200_night_1 (16프레임)
   - MOTA=**0.219**, IDF1=**0.384**, HOTA=**0.487**, IDSW=**0**, FPS=**21.6** (CPU)

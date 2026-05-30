@@ -1,0 +1,7 @@
+At C:\Users\leegy\Desktop\CNN_Quant\scripts\_v2_finalize_wrapper.ps1:82 char:5
++ Log "git log -1 ?쇰줈 而ㅻ컠 ?뺤씤 媛??
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : TerminatorExpectedAtEndOfString
+ 

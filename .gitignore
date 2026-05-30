@@ -2,6 +2,7 @@
 *.md
 /checkpoints
 */__pycache__
+**/__pycache__
 !README.md
 !CLAUDE.md
 !docs/*.md
