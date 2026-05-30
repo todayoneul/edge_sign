@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import tempfile
-import threading
 from pathlib import Path
 from typing import Optional
 
@@ -19,7 +18,6 @@ class Session:
         self.temp_path = temp_path
         self.playing = True
         self.speed = 1.0
-        self.lock = threading.Lock()
 
     def control(self, action: str, value=None):
         if action == "play":

@@ -14,10 +14,12 @@ Edge-Sign v2 FastAPI 백엔드 서버
 """
 from __future__ import annotations
 
+import asyncio
 import base64
 import json
 import os
 import sys
+import time
 from pathlib import Path
 
 import cv2
@@ -95,6 +97,11 @@ async def startup():
     print(f"[Server] 파이프라인 초기화 완료 (검출기 택소노미={DET_TAXONOMY})")
 
 
+@app.on_event("shutdown")
+async def _shutdown():
+    session_mgr.close()
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # 정적 UI 서빙
 # ─────────────────────────────────────────────────────────────────────────────
@@ -131,7 +138,13 @@ async def ingest(kind: str = Form(...),
             data = await file.read()
             suffix = Path(file.filename or "").suffix or (".jpg" if kind == "image" else ".mp4")
             path = save_upload(data, suffix)
-            sid = session_mgr.from_image(path) if kind == "image" else session_mgr.from_video(path)
+            try:
+                sid = (session_mgr.from_image(path) if kind == "image"
+                       else session_mgr.from_video(path))
+            except Exception:
+                # 디코딩 실패 등으로 세션 생성이 실패하면 임시파일 누수 방지
+                path.unlink(missing_ok=True)
+                raise
         else:
             return JSONResponse({"error": f"알 수 없는 kind: {kind}"}, status_code=400)
         return {"session_id": sid}
@@ -198,6 +211,78 @@ async def ws_stream(websocket: WebSocket):
         print("[WS] 클라이언트 연결 해제")
     except Exception as e:
         print(f"[WS] 오류: {e}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# WebSocket: 서버 스트림 (세션 디코딩 → 파이프라인 → 주석 JPEG + JSON 푸시)
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.websocket("/ws/session")
+async def ws_session(websocket: WebSocket):
+    """서버 스트림: 세션 소스 디코딩 → 파이프라인 → 주석 JPEG + JSON 푸시.
+    수신: {type:"control", action:"play|pause|seek|speed|stop", value:?}"""
+    await websocket.accept()
+    sess = session_mgr.get()
+    if sess is None or pipeline is None:
+        await websocket.send_json({"type": "error", "message": "세션 없음"})
+        await websocket.close()
+        return
+
+    async def handle_controls():
+        try:
+            while True:
+                msg = await websocket.receive_json()
+                if msg.get("type") == "control":
+                    act = msg.get("action")
+                    if act == "stop":
+                        break
+                    sess.control(act, msg.get("value"))
+        except Exception:
+            pass
+
+    ctrl_task = asyncio.create_task(handle_controls())
+    target_dt = 1.0 / 30.0
+    miss = 0                                   # 연속 read 실패 카운트 (라이브 글리치 흡수)
+    try:
+        while not ctrl_task.done():
+            t0 = time.perf_counter()
+            if not sess.playing:
+                await asyncio.sleep(0.03)
+                continue
+            frame = sess.source.read()
+            if frame is None:
+                if sess.source.is_seekable:        # 영상 끝 → 정지
+                    sess.playing = False
+                    await websocket.send_json({"type": "ended"})
+                    continue
+                else:                              # 라이브 스트림: 일시적 글리치 재시도
+                    miss += 1
+                    if miss >= 30:                 # 약 1초 연속 실패 → 종료
+                        await websocket.send_json({"type": "ended"})
+                        break
+                    await asyncio.sleep(0.03)
+                    continue
+            miss = 0
+            result = pipeline.process_frame(frame)
+            vis = pipeline.draw(frame, result)
+            ok, buf = cv2.imencode(".jpg", vis, [cv2.IMWRITE_JPEG_QUALITY, 75])
+            if not ok:
+                continue
+            await websocket.send_json({
+                "type": "frame", "frame_id": result["frame_id"],
+                "inference_ms": result["inference_ms"], "tracks": result["tracks"],
+            })
+            await websocket.send_bytes(buf.tobytes())
+            elapsed = time.perf_counter() - t0
+            await asyncio.sleep(max(0, target_dt / max(sess.speed, 0.1) - elapsed))
+    except WebSocketDisconnect:
+        pass
+    finally:
+        ctrl_task.cancel()
+        # 연결 종료 시 세션 정리 — 단, 그 사이 새 ingest로 교체됐다면 그 새 세션은 닫지 않음
+        if session_mgr.get() is sess:
+            sess.close()
+            session_mgr._current = None
 
 
 # ─────────────────────────────────────────────────────────────────────────────
