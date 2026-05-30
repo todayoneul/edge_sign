@@ -1,0 +1,47 @@
+"""범용 프레임 소스 추상화 — 입력 종류와 무관하게 BGR 프레임을 산출.
+
+ImageSource    : 정지 이미지 (동일 프레임 반복)
+VideoFileSource: 모든 코덱 동영상 (cv2/ffmpeg)
+UrlStreamSource: 직접 URL·RTSP (+ YouTube는 yt-dlp 옵션)
+웹캠은 클라이언트 캡처이므로 여기 없음.
+"""
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from typing import Optional
+
+import cv2
+import numpy as np
+
+
+class FrameSource(ABC):
+    is_seekable: bool = False
+    fps: float = 0.0
+    frame_count: int = 0
+
+    @abstractmethod
+    def read(self) -> Optional[np.ndarray]:
+        """다음 BGR 프레임 또는 None(끝/실패)."""
+
+    def seek(self, frame_idx: int) -> None:
+        """seekable 소스만 의미 있음 (기본 no-op)."""
+
+    def release(self) -> None:
+        pass
+
+
+class ImageSource(FrameSource):
+    """정지 이미지: read()가 항상 같은 프레임을 반환."""
+
+    def __init__(self, path: str):
+        # 한글 경로 대비: np.fromfile + imdecode
+        data = np.fromfile(path, dtype=np.uint8)
+        self._frame = cv2.imdecode(data, cv2.IMREAD_COLOR)
+        if self._frame is None:
+            raise ValueError(f"이미지 디코딩 실패: {path}")
+        self.is_seekable = False
+        self.fps = 1.0
+        self.frame_count = 1
+
+    def read(self) -> Optional[np.ndarray]:
+        return self._frame.copy()
