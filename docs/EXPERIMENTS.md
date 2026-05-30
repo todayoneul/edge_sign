@@ -292,3 +292,9 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
   - **E1/E4/E5/E6 추적**: 위 추적 결과 표 참조
   - 주요 차이: v2 test가 주간+야간 혼재 → GT 수 급증(3,386 avg vs v1 ~170), IDSW 비로소 발생
   - **결론 불변**: W8A8≈FP32(무손실), W4A16=중간 하락, 인식기 W4A16/1-Bit=치명적 병목
+- **2026-05-31**: **v3 검출기(신호등 분리) 학습 — 조기종료(EARLY-STOPPED)** → `runs/detect/edge_sign_v3_lights-4/`
+  - 설정: YOLOv8s · imgsz 1280 · batch 8 · 계획 40 epoch · `close_mosaic=10` · `patience=20` · 데이터 `data/yolo_signs_v2/dataset.yaml`(신호등 별도 클래스로 분리)
+  - **채택 체크포인트**: `weights/best.pt` = **epoch 29**, mAP50=**0.7761**, mAP50-95=**0.4457** (training val 기준). `last.pt`(ep34)는 더 낮으므로 사용 금지.
+  - **조기종료(00:27 KST)**: best(ep29) 이후 5 epoch 연속 하락(mAP50-95 0.4457→0.4330). `close_mosaic`로 mosaic가 꺼진 ep31~34 구간에서도 **회복 없이 단조 하락** → 증강전환 아티팩트가 아닌 실제 정체/과적합으로 확정. 남은 6 epoch가 ep29를 넘길 가능성 희박 → 종료(약 70분 절약). 핸드오프: `docs/TRAINING_STATUS.md`.
+  - **비교 주의**: v3는 신호등 분리로 클래스 구성이 v2(v2split)와 달라 mAP **직접 비교 불가** (클래스 추가 시 mAP 하락은 자연스러움).
+  - **다운스트림**: v3 검출기 관련 작업(ONNX export·INT8 양자화·E2E 평가)은 위 best.pt(ep29) 기준으로 진행. "40 epoch 완주본"은 존재하지 않음.
