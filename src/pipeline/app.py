@@ -26,14 +26,17 @@ import numpy as np
 ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, File, Form, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
+from fastapi.responses import (
+    FileResponse, HTMLResponse, JSONResponse, StreamingResponse,
+)
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from src.pipeline.e2e_pipeline import EdgeSignPipeline
 from src.pipeline.qa_bridge import build_context, ask_stream
+from src.pipeline.session import SessionManager, save_upload
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 설정
@@ -103,6 +106,37 @@ async def root():
         '<meta http-equiv="refresh" content="0; url=/detection/">',
         status_code=200,
     )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# POST /api/ingest — 파일/URL/이미지 → 서버 스트림 세션 발급
+# ─────────────────────────────────────────────────────────────────────────────
+
+session_mgr = SessionManager()
+
+
+@app.post("/api/ingest")
+async def ingest(kind: str = Form(...),
+                 url: str = Form(None),
+                 file: UploadFile = File(None)):
+    """파일/URL/이미지 → 서버 스트림 세션 발급. 실패 시 400 + error JSON."""
+    try:
+        if kind == "url":
+            if not url:
+                return JSONResponse({"error": "url 누락"}, status_code=400)
+            sid = session_mgr.from_url(url)
+        elif kind in ("video", "image"):
+            if file is None:
+                return JSONResponse({"error": "file 누락"}, status_code=400)
+            data = await file.read()
+            suffix = Path(file.filename or "").suffix or (".jpg" if kind == "image" else ".mp4")
+            path = save_upload(data, suffix)
+            sid = session_mgr.from_image(path) if kind == "image" else session_mgr.from_video(path)
+        else:
+            return JSONResponse({"error": f"알 수 없는 kind: {kind}"}, status_code=400)
+        return {"session_id": sid}
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=400)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
