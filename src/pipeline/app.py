@@ -36,6 +36,17 @@ from fastapi.responses import (
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+# onnxruntime-gpu가 torch cu128 동봉 CUDA/cuDNN DLL을 찾도록 등록 (GPU 추론)
+import os as _os
+from pathlib import Path as _Path
+try:
+    import torch as _torch
+    _tlib = _Path(_torch.__file__).parent / "lib"
+    if _tlib.exists():
+        _os.add_dll_directory(str(_tlib))
+except Exception:
+    pass  # torch 없거나 CPU 환경이면 CPU 폴백
+
 from src.pipeline.e2e_pipeline import EdgeSignPipeline
 from src.pipeline.qa_bridge import build_context, ask_stream
 from src.pipeline.session import SessionManager, save_upload

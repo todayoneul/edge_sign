@@ -76,7 +76,7 @@ numpy==2.2.5
 nvidia-ml-py==13.590.44
 onnx==1.21.0
 onnx-ir==0.2.1
-onnxruntime==1.23.2
+onnxruntime-gpu==1.23.2
 onnxscript==0.7.0
 opencv-python==4.13.0.92
 optree
