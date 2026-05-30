@@ -85,6 +85,8 @@ CNN_Quant/
 │   ├── extract_frames.py        # [Phase 2] AI Hub TAR 해제 + 시퀀스 분할 + 서브샘플링
 │   ├── plot_pareto.py           # [Phase 5] Pareto frontier 차트 생성 → assets/pareto_frontier.png
 │   ├── plot_sensitivity.py     # [Phase 4] 단계별 양자화 민감도 분석 그래프 (4종) → assets/sensitivity_*.png
+│   ├── plot_v2_extras.py       # [Phase 5 v2] E0~E7 비교 / 압축률 / FPS 비교 (3종) → assets/v2/*.png
+│   ├── plot_detection_samples.py  # [Phase 5 v2] 실제 추론 bbox 오버레이 → assets/v2/detection_samples.png
 │   ├── benchmark_pipeline.py   # [Phase 5] E2E 파이프라인 CPU 벤치마크 (레이턴시/FPS)
 │   └── quantize_onnx_real.py   # [Phase 5] Static INT8 QDQ 실양자화 (ORT quantize_static)
 ├── checkpoints/                 # 학습 체크포인트 (.pth)
