@@ -275,14 +275,14 @@ async def ws_session(websocket: WebSocket):
             await websocket.send_bytes(buf.tobytes())
             elapsed = time.perf_counter() - t0
             await asyncio.sleep(max(0, target_dt / max(sess.speed, 0.1) - elapsed))
-    except WebSocketDisconnect:
+    except Exception:
+        # disconnect(WebSocketDisconnect) 외에 죽은 소켓 send 예외(RuntimeError 등)도 흡수
         pass
     finally:
         ctrl_task.cancel()
         # 연결 종료 시 세션 정리 — 단, 그 사이 새 ingest로 교체됐다면 그 새 세션은 닫지 않음
         if session_mgr.get() is sess:
-            sess.close()
-            session_mgr._current = None
+            session_mgr.close()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
