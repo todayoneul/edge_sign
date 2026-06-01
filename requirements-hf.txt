@@ -1,0 +1,12 @@
+# HF Spaces (Docker, CPU 전용) 슬림 의존성
+# 학습/양자화 의존성(torch·ultralytics·timm·llmcompressor 등) 제외 → 경량 이미지.
+# 추론은 onnxruntime(CPU)만 사용. EDGE_SIGN_CPU_ONLY=1로 CUDA EP 미시도.
+fastapi==0.136.1
+uvicorn[standard]==0.46.0
+onnxruntime==1.23.2           # GPU 아님 — CPU EP. INT8 static(QDQ) 실행
+numpy==2.2.5
+opencv-python-headless==4.13.0.92
+python-multipart==0.0.27      # /api/ingest 폼 업로드
+websockets==16.0
+groq>=1.0                     # Q&A (BYOK — 방문자 키)
+yt-dlp>=2025.0.0              # URL/유튜브 스트림 입력

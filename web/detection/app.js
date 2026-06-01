@@ -10,7 +10,9 @@
  */
 
 // ── 설정 ──────────────────────────────────────────────────────────────────────
-const WS_URL    = `ws://${location.host}/ws/stream`;
+// HTTPS(HF Space 등)에서는 wss, HTTP 로컬에서는 ws 자동 선택.
+const WS_PROTO  = location.protocol === 'https:' ? 'wss' : 'ws';
+const WS_URL    = `${WS_PROTO}://${location.host}/ws/stream`;
 const QA_URL    = `/api/qa`;
 const FRAME_FPS = 10;            // 서버 전송 프레임레이트
 const REDUCED   = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -377,6 +379,7 @@ function loadVideoFile(file) {
   if (state.videoSrc) URL.revokeObjectURL(state.videoSrc);
   state.videoSrc = URL.createObjectURL(file);
   videoEl.srcObject = null;
+  videoEl.loop = false;
   videoEl.src = state.videoSrc;
   videoEl.setAttribute('controls', '');
   videoEl.playbackRate = state.playbackRate;
@@ -435,7 +438,7 @@ function startServerStream(label) {
   stageStatus.classList.add('live');
   toast(`서버 디코딩 시작: ${label}`, 'ok');
 
-  state.sessionWS = new WebSocket(`ws://${location.host}/ws/session`);
+  state.sessionWS = new WebSocket(`${WS_PROTO}://${location.host}/ws/session`);
   state.sessionWS.binaryType = 'arraybuffer';
   state.sessionWS.onmessage = (e) => {
     if (typeof e.data === 'string') {
@@ -517,6 +520,28 @@ function stopMedia(opts = {}) {
   if (!opts.keepInput) fileInput.value = '';
 }
 
+// 샘플 영상(번들 H.264 클립) — 클라 모드 루프 재생으로 양자화 A/B 토글 시연에 적합.
+const SAMPLES = ['samples/clip_01.mp4', 'samples/clip_02.mp4'];
+let _sampleIdx = 0;
+function loadSample() {
+  const url = SAMPLES[_sampleIdx % SAMPLES.length]; _sampleIdx++;
+  stopMedia({ keepInput: true });
+  videoEl.srcObject = null;
+  videoEl.loop = true;                       // 짧은 클립 → 반복 재생(토글 비교 지속)
+  videoEl.src = url;
+  videoEl.setAttribute('controls', '');
+  videoEl.playbackRate = state.playbackRate;
+  viewport.classList.add('playing');
+  state.mode = 'client';
+  videoEl.onerror = () => { videoEl.onerror = null; toast('샘플 재생 실패 — 서버 디코딩 시도', 'warn'); ingest('url', url, '샘플'); };
+  videoEl.play().catch(() => {});
+  state.isPlaying = true; $('stop-btn').disabled = false;
+  stageStatus.textContent = '샘플 영상 — FP32⇄INT8 토글을 바꿔보세요';
+  resetPipeline();
+  toast('샘플 영상을 재생합니다 · 본인 영상도 올려보세요', 'ok');
+}
+$('sample-btn').addEventListener('click', loadSample);
+$('hero-sample').addEventListener('click', loadSample);
 $('webcam-btn').addEventListener('click', startWebcam);
 $('hero-webcam').addEventListener('click', startWebcam);
 $('file-btn').addEventListener('click', () => fileInput.click());
