@@ -614,19 +614,31 @@ Phase 2 검출기는 신호등을 `traffic_sign`에 통합하여, 신호등이 "
 - **라벨링 통일**: 서버는 원본 프레임 + 좌표 JSON만 전송하고, 박스/라벨은 **클라이언트가 동일 코드로 렌더**하여 두 모드의 라벨링이 완전히 일치한다(한글 폰트 포함).
 - **코덱 검증**: H.264 / MPEG-4 Part2 서버 디코딩 자동 검증 통과 (`scripts/check_codec_matrix.py`).
 
+```mermaid
+flowchart LR
+    subgraph BR["브라우저 (클라이언트)"]
+        direction TB
+        IN1["① 웹캠 / 호환영상 H.264"]
+        IN2["② 비호환코덱 / URL / 이미지"]
+        OUT["결과 오버레이 + Q&A<br/>(클라이언트가 박스·라벨 렌더)"]
+    end
+
+    subgraph SV["FastAPI 서버 (GPU 추론)"]
+        direction TB
+        STREAM["WS /ws/stream"]
+        INGEST["POST /api/ingest<br/>FrameSource · OpenCV 전 코덱 디코딩"]
+        SESSION["WS /ws/session"]
+        PIPE["파이프라인<br/>YOLOv8s-v3 GPU/INT8 + ByteTrack<br/>+ 한국 분류기 + KoreanOCRNet"]
+        QA["POST /api/qa → Groq LLM"]
+    end
+
+    IN1 -- "프레임" --> STREAM --> PIPE
+    IN2 -- "파일 / URL" --> INGEST --> SESSION --> PIPE
+    PIPE -- "좌표 JSON (+ 원본 JPEG)" --> OUT
+    OUT -- "질문 · SSE" --> QA -- "스트리밍 답변" --> OUT
 ```
-                          ┌──────────────── FastAPI 서버 (GPU) ────────────────┐
- 브라우저                  │                                                      │
- ┌──────────────┐  ①프레임 │  WS /ws/stream    → 파이프라인 → 좌표 JSON           │
- │ 웹캠/호환영상  │ ───────▶│                     (클라가 박스 렌더)               │
- │              │          │                                                      │
- │ 비호환코덱/   │  ②파일/  │  POST /api/ingest → FrameSource(OpenCV, 모든코덱)    │
- │ URL/이미지    │ ─URL───▶ │  WS /ws/session   → 파이프라인 → 원본JPEG + 좌표JSON │
- │              │ ◀───────│                     (클라가 동일 스타일로 박스 렌더)  │
- │ 결과+Q&A      │  SSE     │  POST /api/qa     → Groq LLM 스트리밍 답변           │
- └──────────────┘          └──────────────────────────────────────────────────────┘
-   검출기 YOLOv8s-v3 (GPU/INT8) + ByteTrack + 한국 분류기 + KoreanOCRNet
-```
+
+> 모드 ①(웹캠·호환영상)은 브라우저가 디코딩 후 좌표만 받아 렌더하고, 모드 ②(비호환 코덱·URL·이미지)는 서버가 디코딩·추론한 뒤 원본 JPEG와 좌표를 보내 **클라이언트가 동일 스타일로 렌더**한다.
 
 - **장기 목표**: ONNX Runtime Web(WASM/WebGPU) 전체 클라이언트 추론 (모델 < 15 MB → 서버리스 배포).
 
