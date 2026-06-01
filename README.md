@@ -215,38 +215,14 @@ W8A8 SmoothQuant를 Phase 2 파이프라인의 인식 백본으로 채택한다.
 
 ### 6.1. 전체 파이프라인 구조
 
-```
-영상 입력 (대시캠 / 거리 영상 / 웹캠, 640x480)
-         |
-         v
-+-----------------------------+
-| 1단계: YOLOv8-Nano 검출기   |  3.2M params, FP16 ~6.3 MB
-| 클래스: signboard           |  입력: 640x640 RGB
-|         traffic_sign        |  출력: bbox, confidence, class
-+-----------------------------+
-         |
-         v
-+-----------------------------+
-| 2단계: ByteTrack 추적기      |  모델 파라미터 없음 (Kalman + IoU)
-| ablation: BoT-SORT + ReID   |  (E6 실험: OSNet-x0.25 ReID 양자화)
-+-----------------------------+
-         |
-         v
-+-----------------------------+
-| 3단계: 클래스별 분기 인식기  |
-|  signboard  -> KoreanOCRNet |  700K params, 2350 한글 문자 클래스
-|    ROI 크롭: 64x64 gray     |
-|  traffic_sign -> TrafficNet |  65K params, 43 교통표지판 클래스
-|    ROI 크롭: 32x32 RGB      |
-+-----------------------------+
-         |
-         v
-+-----------------------------+
-| 결과 조합 + 오버레이 출력    |
-| Track ID + bbox             |
-| 간판: OCR 텍스트            |
-| 표지판: 분류 레이블          |
-+-----------------------------+
+```mermaid
+flowchart TB
+    IN["영상 입력 — 대시캠 / 거리 영상 / 웹캠 (640×480)"]
+    DET["<b>1단계 · YOLOv8-Nano 검출기</b> — 3.2M params, FP16 ~6.3 MB<br/>클래스: signboard / traffic_sign<br/>입력 640×640 RGB → 출력 bbox · confidence · class"]
+    TRK["<b>2단계 · ByteTrack 추적기</b> — 모델 파라미터 없음 (Kalman + IoU)<br/>ablation: BoT-SORT + ReID (E6: OSNet-x0.25 ReID 양자화)"]
+    REC["<b>3단계 · 클래스별 분기 인식기</b><br/>signboard → KoreanOCRNet (700K, 2350 한글, ROI 64×64 gray)<br/>traffic_sign → TrafficSignNet (65K, 43 교통표지판, ROI 32×32 RGB)"]
+    OUT["<b>결과 조합 + 오버레이 출력</b><br/>Track ID + bbox · 간판 OCR 텍스트 · 표지판 분류 레이블"]
+    IN --> DET --> TRK --> REC --> OUT
 ```
 
 ### 6.2. 모델 선택 근거
