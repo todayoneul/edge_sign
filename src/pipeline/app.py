@@ -305,6 +305,11 @@ async def ws_session(websocket: WebSocket):
                 "variant": result.get("variant"), "model_mb": result.get("model_mb"),
                 "stage_ms": result.get("stage_ms"),
                 "w": w, "h": h,
+                # 통합 seek 바용: 소스 실제 위치 + 총 프레임 + fps + seek 가능 여부
+                "pos": sess.source.position(),
+                "total": getattr(sess.source, "frame_count", 0),
+                "fps": getattr(sess.source, "fps", 30.0),
+                "seekable": getattr(sess.source, "is_seekable", False),
             })
             await websocket.send_bytes(buf.tobytes())
             elapsed = time.perf_counter() - t0

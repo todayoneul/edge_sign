@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" data-theme="dark">
+<html lang="ko" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -59,28 +59,30 @@
       --spark:     #52525b;
     }
 
-    /* ── 라이트 ──────────────────────────────────────────────────── */
+    /* ── 라이트 (기본) — 프리미엄 중립 팔레트, WCAG AA 대비 ──────────── */
     html[data-theme="light"] {
-      --bg:        #ffffff;
-      --surface:   #ffffff;
-      --surface-2: #f4f4f5;
-      --surface-3: #ececee;
-      --ink:       #09090b;
-      --ink-2:     #52525b;
-      --ink-3:     #71717a;
-      --ink-4:     #a1a1aa;
-      --line:      #e4e4e7;
-      --line-2:    #d4d4d8;
-      --invert-bg: #18181b;
-      --invert-ink:#fafafa;
-      --viewport:  #0a0a0b;
-      --scrim:     rgba(9,9,11,0.45);
-      --focus:     rgba(9,9,11,0.45);
-      --shadow:    0 1px 2px rgba(9,9,11,0.04), 0 16px 36px -22px rgba(9,9,11,0.28);
-      --spark:     #a1a1aa;
+      --bg:        #f5f6f8;   /* 부드러운 오프화이트 캔버스 */
+      --surface:   #ffffff;   /* 카드/패널 */
+      --surface-2: #f1f3f5;
+      --surface-3: #e7eaee;
+      --ink:       #16181d;   /* 본문 — #fff 대비 ~15:1 */
+      --ink-2:     #485161;
+      --ink-3:     #6b7280;
+      --ink-4:     #9aa3af;
+      --line:      #e6e8ec;
+      --line-2:    #d3d8df;
+      --invert-bg: #16181d;
+      --invert-ink:#ffffff;
+      --viewport:  #0d0f13;   /* 영상 영역은 어둡게(대비) */
+      --scrim:     rgba(16,18,24,0.5);
+      --focus:     rgba(37,99,235,0.55);
+      --shadow:    0 1px 2px rgba(16,18,24,0.05), 0 12px 28px -16px rgba(16,18,24,0.22);
+      --spark:     #9aa3af;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* 전역 글자 스케일 업 — 모든 rem 1.125× (가독성). 콘솔 정보밀도 유지하며 크게. */
+    html { font-size: 18px; }
     html, body { height: 100%; }
 
     body {
@@ -141,7 +143,7 @@
       100% { transform: translateX(360%); }
     }
     .splash-status {
-      font-family: var(--f-mono); font-size: 0.66rem;
+      font-family: var(--f-mono); font-size: 0.78rem;
       letter-spacing: 0.1em; color: var(--ink-3);
     }
 
@@ -164,7 +166,7 @@
       font-size: 1.04rem; font-weight: 700; letter-spacing: -0.01em; color: var(--ink);
     }
     .brand-text .sub {
-      font-family: var(--f-mono); font-size: 0.58rem;
+      font-family: var(--f-mono); font-size: 0.72rem;
       letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-3);
     }
 
@@ -184,22 +186,22 @@
       min-width: 78px;
     }
     .kpi-label {
-      font-family: var(--f-mono); font-size: 0.56rem;
+      font-family: var(--f-mono); font-size: 0.72rem;
       letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3);
     }
     .kpi-row { display: flex; align-items: baseline; gap: 5px; }
     .kpi-val {
       font-family: var(--f-mono); font-variant-numeric: tabular-nums;
-      font-size: 1.04rem; font-weight: 600; color: var(--ink); line-height: 1;
+      font-size: 1.32rem; font-weight: 600; color: var(--ink); line-height: 1;
     }
-    .kpi-unit { font-family: var(--f-mono); font-size: 0.6rem; color: var(--ink-3); }
+    .kpi-unit { font-family: var(--f-mono); font-size: 0.74rem; color: var(--ink-3); }
     #fps-spark { width: 40px; height: 16px; display: block; opacity: 0.85; }
 
     .header-right { margin-left: auto; display: flex; align-items: center; gap: var(--sp-3); }
 
     .status-pill {
       display: inline-flex; align-items: center; gap: var(--sp-2);
-      font-family: var(--f-mono); font-size: 0.64rem; font-weight: 500;
+      font-family: var(--f-mono); font-size: 0.76rem; font-weight: 500;
       letter-spacing: 0.08em;
       padding: 6px 11px; border: 1px solid var(--line-2); border-radius: var(--r-pill);
       color: var(--ink-2);
@@ -216,7 +218,7 @@
     }
 
     .icon-btn {
-      width: 38px; height: 38px; flex-shrink: 0;
+      width: 44px; height: 44px; flex-shrink: 0;
       display: grid; place-items: center;
       background: var(--surface-2); color: var(--ink);
       border: 1px solid var(--line); border-radius: var(--r-sm);
@@ -225,7 +227,7 @@
     }
     .icon-btn:hover { background: var(--surface-3); border-color: var(--line-2); }
     .icon-btn:active { transform: scale(0.94); }
-    .icon-btn svg { width: 18px; height: 18px; }
+    .icon-btn svg { width: 20px; height: 20px; }
     .icon-btn .moon { display: none; }
     html[data-theme="dark"] .icon-btn .sun  { display: none; }
     html[data-theme="dark"] .icon-btn .moon { display: block; }
@@ -291,17 +293,17 @@
     }
     .hero-stat { display: flex; flex-direction: column; gap: 3px; }
     .hero-stat b { font-size: 1.15rem; font-weight: 600; color: #fafafa; letter-spacing: -0.01em; }
-    .hero-stat span { font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
+    .hero-stat span { font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
     .hero-cta { display: flex; gap: var(--sp-3); flex-wrap: wrap; justify-content: center; margin-top: var(--sp-2); }
     .hero-hint {
-      font-family: var(--f-mono); font-size: 0.66rem; letter-spacing: 0.06em;
+      font-family: var(--f-mono); font-size: 0.78rem; letter-spacing: 0.06em;
       color: rgba(255,255,255,0.32);
     }
 
     /* ── 버튼 ── */
     .btn {
       font-family: var(--f-sans); font-size: 0.84rem; font-weight: 500;
-      min-height: 40px; padding: 0 var(--sp-4);
+      min-height: 46px; padding: 0 var(--sp-4);
       display: inline-flex; align-items: center; gap: var(--sp-2);
       border-radius: var(--r-sm); border: 1px solid transparent; cursor: pointer;
       white-space: nowrap;
@@ -328,7 +330,7 @@
 
     .playback {
       display: flex; align-items: center; gap: var(--sp-4); flex-wrap: wrap;
-      font-family: var(--f-mono); font-size: 0.68rem; color: var(--ink-3);
+      font-family: var(--f-mono); font-size: 0.8rem; color: var(--ink-3);
     }
     .playback label { display: inline-flex; align-items: center; gap: var(--sp-2); text-transform: uppercase; letter-spacing: 0.08em; }
     .playback input[type=range] {
@@ -346,8 +348,8 @@
     }
     .speed-val { color: var(--ink); font-weight: 500; min-width: 38px; }
     .pc-btn {
-      font-family: var(--f-mono); font-size: 0.66rem; font-weight: 500;
-      min-height: 32px; padding: 0 var(--sp-3);
+      font-family: var(--f-mono); font-size: 0.78rem; font-weight: 500;
+      min-height: 40px; padding: 0 var(--sp-3);
       background: var(--surface-2); color: var(--ink-2);
       border: 1px solid var(--line); border-radius: var(--r-sm); cursor: pointer;
       transition: color var(--dur), border-color var(--dur), background var(--dur);
@@ -358,7 +360,7 @@
     #dropzone {
       border: 1.5px dashed var(--line-2); border-radius: var(--r);
       padding: var(--sp-3); text-align: center; cursor: pointer;
-      color: var(--ink-3); font-family: var(--f-mono); font-size: 0.68rem;
+      color: var(--ink-3); font-family: var(--f-mono); font-size: 0.8rem;
       letter-spacing: 0.02em;
       transition: border-color var(--dur), color var(--dur), background var(--dur);
     }
@@ -369,7 +371,7 @@
     #file-input { display: none; }
 
     .stage-status {
-      font-family: var(--f-mono); font-size: 0.68rem; color: var(--ink-3);
+      font-family: var(--f-mono); font-size: 0.8rem; color: var(--ink-3);
       display: inline-flex; align-items: center; gap: var(--sp-2);
     }
     .stage-status::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--ink-4); }
@@ -386,7 +388,7 @@
     }
     .seg-btn {
       flex: 1; font-family: var(--f-sans); font-size: 0.78rem; font-weight: 500;
-      min-height: 38px; padding: 0 var(--sp-3);
+      min-height: 44px; padding: 0 var(--sp-3);
       display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2);
       background: transparent; color: var(--ink-3);
       border: 1px solid transparent; border-radius: var(--r-sm); cursor: pointer;
@@ -395,7 +397,7 @@
     .seg-btn:hover { color: var(--ink-2); }
     .seg-btn[aria-selected="true"] { background: var(--surface-3); color: var(--ink); }
     .seg-btn .badge {
-      font-family: var(--f-mono); font-size: 0.6rem; min-width: 18px; height: 18px;
+      font-family: var(--f-mono); font-size: 0.74rem; min-width: 18px; height: 18px;
       padding: 0 5px; display: inline-grid; place-items: center;
       background: var(--invert-bg); color: var(--invert-ink); border-radius: var(--r-pill);
     }
@@ -430,7 +432,7 @@
     .track-item.signboard     .track-dot { background: var(--c-board); }
     .track-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
     .track-id {
-      font-family: var(--f-mono); font-size: 0.6rem; letter-spacing: 0.04em;
+      font-family: var(--f-mono); font-size: 0.74rem; letter-spacing: 0.04em;
       color: var(--ink-3); text-transform: uppercase;
     }
     .track-label { font-size: 0.9rem; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -480,7 +482,7 @@
     }
     .chip {
       font-family: var(--f-sans); font-size: 0.72rem; color: var(--ink-2);
-      min-height: 30px; padding: 0 var(--sp-3);
+      min-height: 36px; padding: 0 var(--sp-3);
       background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-pill);
       cursor: pointer; transition: color var(--dur), border-color var(--dur), background var(--dur);
     }
@@ -501,6 +503,38 @@
     #chat-input::placeholder { color: var(--ink-4); }
     #send-btn { min-height: 44px; }
 
+    /* ════════════════ 통합 재생 탐색 바 (모든 입력 공통) ════════════════ */
+    .seekbar {
+      display: flex; align-items: center; gap: var(--sp-3);
+      padding: var(--sp-2) var(--sp-3);
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+    }
+    .seekbar.hidden { display: none; }
+    #play-toggle {
+      width: 44px; height: 44px; flex-shrink: 0; padding: 0;
+      display: grid; place-items: center;
+    }
+    #play-toggle svg { width: 20px; height: 20px; }
+    .seek-time {
+      font-family: var(--f-mono); font-variant-numeric: tabular-nums;
+      font-size: 0.8rem; color: var(--ink-2); min-width: 50px; text-align: center;
+    }
+    #seek-range {
+      -webkit-appearance: none; appearance: none; flex: 1; min-width: 80px;
+      height: 6px; border-radius: var(--r-pill); background: var(--line-2); cursor: pointer;
+    }
+    #seek-range::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+      background: var(--ink); border: 3px solid var(--surface); cursor: grab;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.28);
+    }
+    #seek-range::-webkit-slider-thumb:active { cursor: grabbing; }
+    #seek-range::-moz-range-thumb {
+      width: 18px; height: 18px; border-radius: 50%; background: var(--ink);
+      border: 3px solid var(--surface); cursor: grab;
+    }
+    #seek-range:disabled { opacity: 0.45; cursor: not-allowed; }
+
     /* ════════════════ 성능 스트립 (양자화 토글 + 단계 플로우) ════════════════ */
     .perf-strip {
       display: flex; align-items: stretch; gap: var(--sp-4); flex-wrap: wrap;
@@ -510,7 +544,7 @@
     }
     .perf-block { display: flex; flex-direction: column; gap: 7px; justify-content: center; }
     .perf-tag {
-      font-family: var(--f-mono); font-size: 0.56rem; letter-spacing: 0.16em;
+      font-family: var(--f-mono); font-size: 0.72rem; letter-spacing: 0.16em;
       text-transform: uppercase; color: var(--ink-3);
     }
 
@@ -522,21 +556,21 @@
     }
     .seg-toggle button {
       font-family: var(--f-mono); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.03em;
-      min-height: 30px; padding: 0 var(--sp-3);
+      min-height: 36px; padding: 0 var(--sp-3);
       display: inline-flex; align-items: center; gap: 6px;
       background: transparent; color: var(--ink-3);
       border: 0; border-radius: 6px; cursor: pointer;
       transition: background var(--dur) var(--ease), color var(--dur);
     }
     .seg-toggle button .vmb {
-      font-size: 0.58rem; color: var(--ink-4);
+      font-size: 0.72rem; color: var(--ink-4);
       font-variant-numeric: tabular-nums;
     }
     .seg-toggle button[aria-pressed="true"] { background: var(--invert-bg); color: var(--invert-ink); }
     .seg-toggle button[aria-pressed="true"] .vmb { color: var(--invert-ink); opacity: 0.7; }
     .var-delta {
       font-family: var(--f-mono); font-variant-numeric: tabular-nums;
-      font-size: 0.66rem; color: var(--ink-2); white-space: nowrap;
+      font-size: 0.78rem; color: var(--ink-2); white-space: nowrap;
       display: inline-flex; align-items: center; gap: 6px;
     }
     .var-delta b { font-weight: 600; color: var(--ink); }
@@ -551,7 +585,7 @@
     }
     .pstage-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-2); }
     .pstage-name {
-      font-family: var(--f-mono); font-size: 0.58rem; letter-spacing: 0.1em;
+      font-family: var(--f-mono); font-size: 0.72rem; letter-spacing: 0.1em;
       text-transform: uppercase; color: var(--ink-3);
       display: inline-flex; align-items: center; gap: 5px;
     }
@@ -580,21 +614,21 @@
     }
     .byok-label {
       display: flex; align-items: center; justify-content: space-between;
-      font-family: var(--f-mono); font-size: 0.56rem; letter-spacing: 0.12em;
+      font-family: var(--f-mono); font-size: 0.72rem; letter-spacing: 0.12em;
       text-transform: uppercase; color: var(--ink-3);
     }
-    .byok-state { font-family: var(--f-mono); font-size: 0.56rem; letter-spacing: 0.06em; }
+    .byok-state { font-family: var(--f-mono); font-size: 0.72rem; letter-spacing: 0.06em; }
     .byok-state.ok  { color: var(--c-sign); }
     .byok-state.off { color: var(--ink-4); }
     .byok-field { display: flex; gap: var(--sp-2); align-items: center; }
     .byok-field input {
       flex: 1; min-width: 0; font-family: var(--f-mono); font-size: 0.72rem; color: var(--ink);
       background: var(--surface-2); border: 1px solid var(--line-2); border-radius: var(--r-sm);
-      padding: 8px 10px; outline: none; min-height: 36px;
+      padding: 10px 12px; outline: none; min-height: 42px;
       transition: border-color var(--dur);
     }
     .byok-field input:focus { border-color: var(--ink-3); }
-    .byok-help { font-family: var(--f-sans); font-size: 0.64rem; color: var(--ink-4); line-height: 1.5; }
+    .byok-help { font-family: var(--f-sans); font-size: 0.76rem; color: var(--ink-4); line-height: 1.5; }
     .byok-help a { color: var(--ink-2); }
 
     /* ════════════════ 푸터 텔레메트리 ════════════════ */
@@ -603,14 +637,14 @@
       padding: var(--sp-2) var(--sp-5);
       background: var(--surface); border-top: 1px solid var(--line);
       font-family: var(--f-mono); font-variant-numeric: tabular-nums;
-      font-size: 0.66rem; letter-spacing: 0.04em; color: var(--ink-3);
+      font-size: 0.78rem; letter-spacing: 0.04em; color: var(--ink-3);
     }
     #footer span { display: inline-flex; align-items: center; gap: var(--sp-2); }
     #footer span::before { content: ''; width: 4px; height: 4px; border-radius: 1px; background: var(--ink-4); }
     #footer .ftr-model { margin-left: auto; color: var(--ink-4); }
     #footer .ftr-model::before { display: none; }
     .kbd {
-      font-family: var(--f-mono); font-size: 0.6rem; color: var(--ink-3);
+      font-family: var(--f-mono); font-size: 0.74rem; color: var(--ink-3);
       padding: 1px 5px; border: 1px solid var(--line-2); border-radius: 5px;
       background: var(--surface-2);
     }
@@ -667,7 +701,7 @@
     .panel-head {
       display: flex; align-items: center; gap: var(--sp-2);
       padding: var(--sp-3) var(--sp-4);
-      font-family: var(--f-mono); font-size: 0.62rem; font-weight: 500;
+      font-family: var(--f-mono); font-size: 0.74rem; font-weight: 500;
       color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.16em;
       border-bottom: 1px solid var(--line);
     }
@@ -773,7 +807,7 @@
   <!-- 좌: 스테이지 -->
   <section id="stage" aria-label="영상 뷰포트">
     <div class="viewport" id="viewport">
-      <video id="video-el" muted playsinline controls></video>
+      <video id="video-el" muted playsinline></video>
       <!-- 서버 스트림 모드(비호환 코덱/URL/이미지): 서버가 주석 그린 JPEG를 표시 -->
       <img id="stream-img" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none;background:var(--viewport);" />
       <canvas id="overlay-canvas"></canvas>
@@ -808,6 +842,17 @@
         </div>
         <p class="hero-hint">샘플로 바로 체험하거나, 본인 영상을 드래그·업로드하세요</p>
       </div>
+    </div>
+
+    <!-- 통합 재생 탐색 바: 모든 입력(클라/서버)에서 드래그로 위치 이동 -->
+    <div class="seekbar hidden" id="seekbar">
+      <button class="pc-btn" id="play-toggle" type="button" aria-label="재생 / 일시정지" title="재생 / 일시정지 (Space)">
+        <svg class="ic-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        <svg class="ic-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M7 5h3v14H7zM14 5h3v14h-3z"/></svg>
+      </button>
+      <span class="seek-time" id="seek-cur">0:00</span>
+      <input type="range" id="seek-range" min="0" max="1000" value="0" step="1" aria-label="재생 위치" />
+      <span class="seek-time" id="seek-dur">0:00</span>
     </div>
 
     <!-- 성능 스트립: 양자화 A/B 토글 + 단계별 레이턴시 플로우 -->
@@ -970,9 +1015,9 @@
   (function () {
     var KEY = 'edge-sign-theme';
     var saved = localStorage.getItem(KEY);
-    if (saved === 'light' || saved === 'dark') {
-      document.documentElement.setAttribute('data-theme', saved);
-    }
+    // 기본 라이트. 저장된 선택이 있으면 그것을 우선.
+    document.documentElement.setAttribute('data-theme',
+      (saved === 'light' || saved === 'dark') ? saved : 'light');
   })();
 </script>
 <script src="app.js"></script>

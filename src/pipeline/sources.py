@@ -26,6 +26,10 @@ class FrameSource(ABC):
     def seek(self, frame_idx: int) -> None:
         """seekable 소스만 의미 있음 (기본 no-op)."""
 
+    def position(self) -> int:
+        """현재 소스 프레임 위치(0-based). seek 바 진행 표시용 (기본 0)."""
+        return 0
+
     def release(self) -> None:
         pass
 
@@ -64,6 +68,9 @@ class VideoFileSource(FrameSource):
 
     def seek(self, frame_idx: int) -> None:
         self._cap.set(cv2.CAP_PROP_POS_FRAMES, max(0, frame_idx))
+
+    def position(self) -> int:
+        return int(self._cap.get(cv2.CAP_PROP_POS_FRAMES))
 
     def release(self) -> None:
         self._cap.release()

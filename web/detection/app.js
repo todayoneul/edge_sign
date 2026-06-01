@@ -43,6 +43,9 @@ const state = {
   fpsByVariant: {},         // name -> 최근 FPS (A/B Δ 비교용)
   curFps: 0,                // 최근 FPS (variant별 기록 갱신용)
   byokKey: '',              // Groq BYOK 키 (localStorage)
+  // 통합 seek 바
+  seeking: false,           // 사용자가 탐색 핸들을 드래그 중
+  serverTotal: 0, serverFps: 30, serverSeekable: false, serverPlaying: false,
 };
 
 // ── DOM ───────────────────────────────────────────────────────────────────────
@@ -363,6 +366,7 @@ async function startWebcam() {
     viewport.classList.add('playing');
     state.isPlaying = true; $('stop-btn').disabled = false;
     resetPipeline();
+    showSeekbar(true); setPlayIcon(true); setSeekEnabled(false); seekDur.textContent = 'LIVE';
     toast('웹캠을 시작했습니다', 'ok');
   } catch (e) { toast('웹캠 접근 실패: ' + e.message, 'err'); }
 }
@@ -381,7 +385,7 @@ function loadVideoFile(file) {
   videoEl.srcObject = null;
   videoEl.loop = false;
   videoEl.src = state.videoSrc;
-  videoEl.setAttribute('controls', '');
+  videoEl.removeAttribute('controls');   // 커스텀 seekbar 사용 (네이티브 컨트롤 비표시)
   videoEl.playbackRate = state.playbackRate;
   viewport.classList.add('playing');
 
@@ -402,6 +406,7 @@ function loadVideoFile(file) {
   state.isPlaying = true; $('stop-btn').disabled = false;
   stageStatus.textContent = `재생 중 · ${file.name}`;
   fileInput.value = '';
+  showSeekbar(true); setPlayIcon(true); resetSeekbar();
   resetPipeline();
 }
 
@@ -427,9 +432,11 @@ async function ingest(kind, fileOrUrl, label) {
 function startServerStream(label) {
   state.mode = 'server';
   state.isPlaying = true;
+  state.serverPlaying = true;
   videoEl.style.display = 'none';
   streamImg.style.display = 'block';
   viewport.classList.add('playing');
+  showSeekbar(true); setPlayIcon(true); resetSeekbar();
   ctx.clearRect(0, 0, overlay.width, overlay.height);  // 초기 클리어 (이후 매 프레임 drawOverlay)
   _geo = null; state.hoverId = null;
   $('stop-btn').disabled = false;
@@ -480,6 +487,20 @@ function handleServerFrame(msg) {
   state.lastResult = { tracks };
   state.serverFrameId = msg.frame_id || 0;
   if (msg.w && msg.h) { state.sentW = msg.w; state.sentH = msg.h; }  // bbox 좌표 기준 프레임 크기
+
+  // 통합 seek 바 (서버 모드) — 드래그 중이 아니면 진행 위치 반영
+  state.serverTotal = msg.total || 0;
+  state.serverFps = msg.fps || 30;
+  state.serverSeekable = !!msg.seekable;
+  if (!state.seeking) {
+    const pos = (msg.pos != null) ? msg.pos : state.serverFrameId;   // 소스 실제 위치
+    if (state.serverSeekable && state.serverTotal > 0) {
+      seekRange.value = Math.round(Math.min(1, pos / state.serverTotal) * 1000);
+      seekCur.textContent = fmtTime(pos / state.serverFps);
+      seekDur.textContent = fmtTime(state.serverTotal / state.serverFps);
+      setSeekEnabled(true);
+    } else { setSeekEnabled(false); seekDur.textContent = 'LIVE'; }
+  }
   _sFpsCount++;
   const now = performance.now();
   if (now - _sFpsTs > 1000) {
@@ -515,6 +536,7 @@ function stopMedia(opts = {}) {
   ctx.clearRect(0, 0, overlay.width, overlay.height);
   _geo = null; state.hoverId = null; state.lastResult = null;
   updateTrackList([]); trackTally.textContent = '0';
+  showSeekbar(false);
   stageStatus.textContent = '정지됨 — 영상을 시작하세요';
   stageStatus.classList.remove('live');
   if (!opts.keepInput) fileInput.value = '';
@@ -529,7 +551,7 @@ function loadSample() {
   videoEl.srcObject = null;
   videoEl.loop = true;                       // 짧은 클립 → 반복 재생(토글 비교 지속)
   videoEl.src = url;
-  videoEl.setAttribute('controls', '');
+  videoEl.removeAttribute('controls');   // 커스텀 seekbar 사용 (네이티브 컨트롤 비표시)
   videoEl.playbackRate = state.playbackRate;
   viewport.classList.add('playing');
   state.mode = 'client';
@@ -537,6 +559,7 @@ function loadSample() {
   videoEl.play().catch(() => {});
   state.isPlaying = true; $('stop-btn').disabled = false;
   stageStatus.textContent = '샘플 영상 — FP32⇄INT8 토글을 바꿔보세요';
+  showSeekbar(true); setPlayIcon(true); resetSeekbar();
   resetPipeline();
   toast('샘플 영상을 재생합니다 · 본인 영상도 올려보세요', 'ok');
 }
@@ -583,6 +606,81 @@ $('step-fwd-btn').addEventListener('click', () => {
   if (state.mode === 'server') sessionControl('seek', (state.serverFrameId || 0) + 75);
   else if (videoEl.src && isFinite(videoEl.duration)) videoEl.currentTime = Math.min(videoEl.duration, videoEl.currentTime + 5);
 });
+
+// ════════════════════════════════════════════════════════════════════════════
+//  통합 재생 탐색 바 (클라 video / 서버 세션 공통) — 모든 입력에서 드래그 이동
+// ════════════════════════════════════════════════════════════════════════════
+const seekbar = $('seekbar'), seekRange = $('seek-range');
+const seekCur = $('seek-cur'), seekDur = $('seek-dur'), playToggle = $('play-toggle');
+const icPlay = playToggle.querySelector('.ic-play'), icPause = playToggle.querySelector('.ic-pause');
+
+function fmtTime(s) {
+  if (!isFinite(s) || s < 0) return '--:--';
+  const m = Math.floor(s / 60), ss = Math.floor(s % 60);
+  return `${m}:${ss < 10 ? '0' : ''}${ss}`;
+}
+function showSeekbar(on) { seekbar.classList.toggle('hidden', !on); }
+function setPlayIcon(playing) {
+  icPlay.style.display  = playing ? 'none' : 'block';
+  icPause.style.display = playing ? 'block' : 'none';
+}
+function setSeekEnabled(on) { seekRange.disabled = !on; }
+function resetSeekbar() {
+  seekRange.value = 0; seekCur.textContent = '0:00'; seekDur.textContent = '0:00';
+  state.seeking = false; setSeekEnabled(true);
+}
+
+// 클라 모드: video 엘리먼트가 탐색바를 구동
+videoEl.addEventListener('timeupdate', () => {
+  if (state.mode !== 'client' || state.seeking) return;
+  const d = videoEl.duration;
+  if (isFinite(d) && d > 0) {
+    seekRange.value = Math.round(videoEl.currentTime / d * 1000);
+    seekCur.textContent = fmtTime(videoEl.currentTime);
+    seekDur.textContent = fmtTime(d);
+    setSeekEnabled(true);
+  } else {                              // 웹캠 등 길이 불명 → LIVE
+    setSeekEnabled(false);
+    seekDur.textContent = 'LIVE';
+    seekCur.textContent = fmtTime(videoEl.currentTime);
+  }
+});
+videoEl.addEventListener('play',  () => { if (state.mode === 'client') setPlayIcon(true); });
+videoEl.addEventListener('pause', () => { if (state.mode === 'client') setPlayIcon(false); });
+
+// 탐색 드래그: input 동안 미리보기, change에서 확정 (서버는 프레임 seek 전송)
+seekRange.addEventListener('input', () => {
+  state.seeking = true;
+  const frac = seekRange.value / 1000;
+  if (state.mode === 'server') {
+    const sec = state.serverFps > 0 ? frac * state.serverTotal / state.serverFps : 0;
+    seekCur.textContent = fmtTime(sec);
+  } else {
+    const d = videoEl.duration;
+    if (isFinite(d) && d > 0) { videoEl.currentTime = frac * d; seekCur.textContent = fmtTime(frac * d); }
+  }
+});
+seekRange.addEventListener('change', () => {
+  const frac = seekRange.value / 1000;
+  if (state.mode === 'server' && state.serverSeekable) {
+    sessionControl('seek', Math.round(frac * state.serverTotal));
+  } else if (state.mode === 'client') {
+    const d = videoEl.duration; if (isFinite(d) && d > 0) videoEl.currentTime = frac * d;
+  }
+  state.seeking = false;
+});
+
+// 재생/일시정지 — 두 모드 공통
+function togglePlay() {
+  if (state.mode === 'server') {
+    state.serverPlaying = !state.serverPlaying;
+    sessionControl(state.serverPlaying ? 'play' : 'pause');
+    setPlayIcon(state.serverPlaying);
+  } else if (videoEl.src || videoEl.srcObject) {
+    videoEl.paused ? videoEl.play() : videoEl.pause();
+  }
+}
+playToggle.addEventListener('click', togglePlay);
 
 // URL 입력 → 서버 인제스트
 function submitUrl() { const u = urlInput.value.trim(); if (u) ingest('url', u, u); }
@@ -712,11 +810,9 @@ document.addEventListener('keydown', (e) => {
 
   if (e.key === '?' || (e.shiftKey && e.key === '/')) { e.preventDefault(); toggleShortcuts(); }
   else if (e.key === '/') { e.preventDefault(); showTab('tab-qa'); chatInput.focus(); }
-  else if (e.key === ' ') {
-    if (videoEl.src || videoEl.srcObject) { e.preventDefault(); videoEl.paused ? videoEl.play() : videoEl.pause(); }
-  }
-  else if (e.key === 'ArrowLeft' && videoEl.src) { videoEl.currentTime = Math.max(0, videoEl.currentTime - 5); }
-  else if (e.key === 'ArrowRight' && videoEl.src && isFinite(videoEl.duration)) { videoEl.currentTime = Math.min(videoEl.duration, videoEl.currentTime + 5); }
+  else if (e.key === ' ') { e.preventDefault(); togglePlay(); }   // 두 모드 공통
+  else if (e.key === 'ArrowLeft')  { $('step-back-btn').click(); } // 클라/서버 5초 뒤로
+  else if (e.key === 'ArrowRight') { $('step-fwd-btn').click(); }  // 클라/서버 5초 앞으로
   else if (e.key.toLowerCase() === 't') { toggleTheme(); }
 });
 
