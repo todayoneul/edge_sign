@@ -14,6 +14,7 @@ data/roi_cls (prepare_korean_traffic.py 출력)에서 학습.
   model_space/korean_sign_net_fp32.onnx
   model_space/korean_sign_net_best.pth
 """
+
 import argparse
 import json
 import sys
@@ -29,10 +30,10 @@ ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 from src.model import TrafficSignNet
 
-ROI_DIR   = ROOT / "data" / "roi_cls"
-CKPT_OUT  = ROOT / "model_space" / "korean_sign_net_best.pth"
-ONNX_OUT  = ROOT / "model_space" / "korean_sign_net_fp32.onnx"
-IMG_SIZE  = 32
+ROI_DIR = ROOT / "data" / "roi_cls"
+CKPT_OUT = ROOT / "model_space" / "korean_sign_net_best.pth"
+ONNX_OUT = ROOT / "model_space" / "korean_sign_net_fp32.onnx"
+IMG_SIZE = 32
 
 CLASSES = json.loads((ROI_DIR / "classes.json").read_text(encoding="utf-8"))["names"]
 NUM_CLASSES = len(CLASSES)
@@ -72,16 +73,19 @@ class ROIDataset(Dataset):
 def evaluate(model, loader, device):
     model.eval()
     correct = total = 0
-    per_cls_c = np.zeros(NUM_CLASSES); per_cls_t = np.zeros(NUM_CLASSES)
+    per_cls_c = np.zeros(NUM_CLASSES)
+    per_cls_t = np.zeros(NUM_CLASSES)
     with torch.no_grad():
         for x, y in loader:
             x = x.to(device)
             pred = model(x).argmax(1).cpu().numpy()
             y = y.numpy()
-            correct += (pred == y).sum(); total += len(y)
+            correct += (pred == y).sum()
+            total += len(y)
             for yi, pi in zip(y, pred):
                 per_cls_t[yi] += 1
-                if yi == pi: per_cls_c[yi] += 1
+                if yi == pi:
+                    per_cls_c[yi] += 1
     acc = correct / max(1, total)
     per = per_cls_c / np.maximum(1, per_cls_t)
     return acc, per
@@ -90,12 +94,12 @@ def evaluate(model, loader, device):
 def train(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     train_ds = ROIDataset("train", augment=True)
-    val_ds   = ROIDataset("val", augment=False)
+    val_ds = ROIDataset("val", augment=False)
     print(f"클래스 {NUM_CLASSES}, Train {len(train_ds):,}  Val {len(val_ds):,}  device={device}")
     print("train 클래스 분포:", dict(zip(CLASSES, train_ds.counts.tolist())))
 
     train_loader = DataLoader(train_ds, batch_size=args.batch, shuffle=True, num_workers=0)
-    val_loader   = DataLoader(val_ds, batch_size=args.batch, shuffle=False, num_workers=0)
+    val_loader = DataLoader(val_ds, batch_size=args.batch, shuffle=False, num_workers=0)
 
     model = TrafficSignNet(num_classes=NUM_CLASSES).to(device)
     nparam = sum(p.numel() for p in model.parameters())
@@ -117,20 +121,29 @@ def train(args):
             x, y = x.to(device), y.to(device)
             opt.zero_grad()
             loss = crit(model(x), y)
-            loss.backward(); opt.step()
+            loss.backward()
+            opt.step()
             tot_loss += loss.item() * len(y)
         sched.step()
         acc, per = evaluate(model, val_loader, device)
         if acc > best:
             best = acc
             CKPT_OUT.parent.mkdir(parents=True, exist_ok=True)
-            torch.save({"model_state": model.state_dict(),
-                        "num_classes": NUM_CLASSES, "classes": CLASSES,
-                        "val_acc": acc}, str(CKPT_OUT))
+            torch.save(
+                {
+                    "model_state": model.state_dict(),
+                    "num_classes": NUM_CLASSES,
+                    "classes": CLASSES,
+                    "val_acc": acc,
+                },
+                str(CKPT_OUT),
+            )
         if ep % 2 == 0 or ep == 1:
             worst = sorted(zip(CLASSES, per), key=lambda t: t[1])[:3]
-            print(f"ep{ep:2d} loss={tot_loss/len(train_ds):.3f} "
-                  f"val_acc={acc:.4f} best={best:.4f}  약점:{[(c,round(float(p),2)) for c,p in worst]}")
+            print(
+                f"ep{ep:2d} loss={tot_loss / len(train_ds):.3f} "
+                f"val_acc={acc:.4f} best={best:.4f}  약점:{[(c, round(float(p), 2)) for c, p in worst]}"
+            )
     print(f"\n[완료] best_val_acc={best:.4f}  저장: {CKPT_OUT}")
     return best
 
@@ -138,27 +151,38 @@ def train(args):
 def export_onnx():
     ckpt = torch.load(str(CKPT_OUT), map_location="cpu", weights_only=False)
     model = TrafficSignNet(num_classes=ckpt["num_classes"])
-    model.load_state_dict(ckpt["model_state"]); model.eval()
+    model.load_state_dict(ckpt["model_state"])
+    model.eval()
     print(f"체크포인트 로드 val_acc={ckpt.get('val_acc'):.4f}")
     dummy = torch.zeros(1, 3, IMG_SIZE, IMG_SIZE)
     ONNX_OUT.parent.mkdir(parents=True, exist_ok=True)
 
     import tempfile
+
     tmp = Path(tempfile.mktemp(suffix=".onnx"))
-    torch.onnx.export(model, dummy, str(tmp), opset_version=14,
-                      input_names=["images"], output_names=["logits"],
-                      dynamic_axes={"images": {0: "batch"}, "logits": {0: "batch"}},
-                      do_constant_folding=True, dynamo=False)
+    torch.onnx.export(
+        model,
+        dummy,
+        str(tmp),
+        opset_version=14,
+        input_names=["images"],
+        output_names=["logits"],
+        dynamic_axes={"images": {0: "batch"}, "logits": {0: "batch"}},
+        do_constant_folding=True,
+        dynamo=False,
+    )
     # onnxslim 있으면 슬림, 없으면 그대로 사용 (선택적 최적화)
     try:
         import onnxslim
+
         onnxslim.slim(str(tmp), str(ONNX_OUT))
         tmp.unlink(missing_ok=True)
     except ImportError:
         import shutil
+
         shutil.move(str(tmp), str(ONNX_OUT))
         print("  (onnxslim 미설치 — 슬림 생략)")
-    print(f"[OK] ONNX: {ONNX_OUT} ({ONNX_OUT.stat().st_size/1024:.0f} KB)")
+    print(f"[OK] ONNX: {ONNX_OUT} ({ONNX_OUT.stat().st_size / 1024:.0f} KB)")
 
 
 if __name__ == "__main__":

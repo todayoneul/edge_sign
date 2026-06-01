@@ -5,6 +5,7 @@ VideoFileSource: 모든 코덱 동영상 (cv2/ffmpeg)
 UrlStreamSource: 직접 URL·RTSP (+ YouTube는 yt-dlp 옵션)
 웹캠은 클라이언트 캡처이므로 여기 없음.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -100,7 +101,7 @@ class UrlStreamSource(FrameSource):
         self._cap = cv2.VideoCapture(open_url)
         if not self._cap.isOpened():
             raise ValueError(f"스트림 열기 실패: {url}")
-        self.is_seekable = False           # 라이브/스트림은 seek 불가로 단순화
+        self.is_seekable = False  # 라이브/스트림은 seek 불가로 단순화
         self.fps = self._cap.get(cv2.CAP_PROP_FPS) or 30.0
         self.frame_count = 0
 

@@ -11,6 +11,7 @@ VideoFileSource(OpenCV ffmpeg 백엔드)가 각각 프레임을 디코딩하는�
 사용법:
   python scripts/check_codec_matrix.py
 """
+
 import subprocess
 import sys
 import tempfile
@@ -26,9 +27,9 @@ print(f"기준 영상: {base.name}")
 
 tmp = Path(tempfile.mkdtemp())
 CODECS = [
-    ("h264",  ["-c:v", "libx264"],  "브라우저 호환"),
-    ("mpeg4", ["-c:v", "mpeg4"],    "브라우저 비호환(서버 모드)"),
-    ("hevc",  ["-c:v", "libx265"],  "부분 호환"),
+    ("h264", ["-c:v", "libx264"], "브라우저 호환"),
+    ("mpeg4", ["-c:v", "mpeg4"], "브라우저 비호환(서버 모드)"),
+    ("hevc", ["-c:v", "libx265"], "부분 호환"),
 ]
 
 failures = 0
@@ -36,7 +37,10 @@ for codec, args, note in CODECS:
     out = tmp / f"{codec}.mp4"
     r = subprocess.run(
         ["ffmpeg", "-y", "-i", str(base), *args, "-t", "2", "-an", str(out)],
-        capture_output=True, text=True, encoding="utf-8", errors="replace",
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     if not out.exists() or out.stat().st_size == 0:
         print(f"  {codec:6s}: 트랜스코딩 실패 (인코더 미지원?) — 스킵\n{r.stderr[-300:]}")

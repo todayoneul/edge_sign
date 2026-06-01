@@ -9,6 +9,7 @@ ByteTrack E1 결과와 비교.
   python src/track/eval_botsort.py --no_reid   # CMC만, ReID 없음
   python src/track/eval_botsort.py --no_cmc    # ReID만, CMC 없음
 """
+
 import argparse
 import sys
 import time
@@ -25,27 +26,30 @@ if sys.platform.startswith("win"):
 ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-DEFAULT_DET_ONNX  = ROOT / "model_space" / "yolov8s_signs_w8a8.onnx"
+DEFAULT_DET_ONNX = ROOT / "model_space" / "yolov8s_signs_w8a8.onnx"
 DEFAULT_REID_ONNX = ROOT / "model_space" / "reid_net_w8a8.onnx"
-TEST_BASE         = ROOT / "data" / "aihub_traffic" / "test"
+TEST_BASE = ROOT / "data" / "aihub_traffic" / "test"
 
 DET_CONF = 0.25
-NMS_IOU  = 0.45
+NMS_IOU = 0.45
 
 from src.track.eval_tracking import (
-    OnnxDetector, load_gt_sequence, assign_gt_track_ids, compute_mot_metrics
+    OnnxDetector,
+    load_gt_sequence,
+    assign_gt_track_ids,
+    compute_mot_metrics,
 )
 from src.track.botsort import BoTSORTTracker, OnnxReIDNet
 
 
-def evaluate_sequence_botsort(seq_dir: Path, detector: OnnxDetector,
-                               tracker: BoTSORTTracker,
-                               verbose: bool = True) -> tuple:
+def evaluate_sequence_botsort(
+    seq_dir: Path, detector: OnnxDetector, tracker: BoTSORTTracker, verbose: bool = True
+) -> tuple:
     img_paths, gt_raw = load_gt_sequence(seq_dir)
     gt_tracks = assign_gt_track_ids(gt_raw)
 
     pred_tracks = {}
-    total_time  = 0.0
+    total_time = 0.0
 
     for fidx, img_path in enumerate(img_paths):
         img = cv2.imread(str(img_path))
@@ -53,8 +57,8 @@ def evaluate_sequence_botsort(seq_dir: Path, detector: OnnxDetector,
             continue
 
         t0 = time.perf_counter()
-        dets   = detector.detect(img)
-        tracks = tracker.update(dets, img)   # BoTSORTTracker
+        dets = detector.detect(img)
+        tracks = tracker.update(dets, img)  # BoTSORTTracker
         total_time += time.perf_counter() - t0
 
         frame_preds = []
@@ -64,17 +68,18 @@ def evaluate_sequence_botsort(seq_dir: Path, detector: OnnxDetector,
         pred_tracks[fidx] = frame_preds
 
         if verbose and fidx % 20 == 0:
-            gt_n   = len(gt_tracks.get(fidx, []))
+            gt_n = len(gt_tracks.get(fidx, []))
             pred_n = len(frame_preds)
             print(f"    frame {fidx:4d}: GT={gt_n}, Pred={pred_n}, tracks={len(tracks)}")
 
-    fps     = len(img_paths) / max(total_time, 1e-6)
+    fps = len(img_paths) / max(total_time, 1e-6)
     metrics = compute_mot_metrics(gt_tracks, pred_tracks)
     return metrics, fps
 
 
-def run_all_sequences(det_onnx: Path, reid_onnx: Path | None,
-                      use_cmc: bool = True, verbose: bool = True):
+def run_all_sequences(
+    det_onnx: Path, reid_onnx: Path | None, use_cmc: bool = True, verbose: bool = True
+):
     print(f"\n[BoT-SORT E6]")
     print(f"  Detector : {det_onnx.name}")
     print(f"  ReID     : {reid_onnx.name if reid_onnx else 'None'}")
@@ -94,39 +99,43 @@ def run_all_sequences(det_onnx: Path, reid_onnx: Path | None,
     print(f"  Sequences: {[d.name for d in test_seq_dirs]}")
 
     all_metrics = []
-    all_fps     = []
+    all_fps = []
 
     for seq_dir in test_seq_dirs:
         n_frames = len(list(seq_dir.glob("*.jpg")))
         print(f"\n  [SEQ] {seq_dir.name} ({n_frames} frames)")
 
         tracker = BoTSORTTracker(
-            reid_net    = reid_model,
-            track_thresh= 0.5,
-            match_thresh= 0.8,
-            track_buffer= 30,
-            frame_rate  = 5,
-            lam         = 0.5 if reid_model else 1.0,  # ReID 없으면 IoU만 사용
-            alpha       = 0.95,
-            use_cmc     = use_cmc,
+            reid_net=reid_model,
+            track_thresh=0.5,
+            match_thresh=0.8,
+            track_buffer=30,
+            frame_rate=5,
+            lam=0.5 if reid_model else 1.0,  # ReID 없으면 IoU만 사용
+            alpha=0.95,
+            use_cmc=use_cmc,
         )
 
-        metrics, fps = evaluate_sequence_botsort(
-            seq_dir, detector, tracker, verbose=verbose)
+        metrics, fps = evaluate_sequence_botsort(seq_dir, detector, tracker, verbose=verbose)
         all_metrics.append(metrics)
         all_fps.append(fps)
 
-        print(f"  MOTA={metrics['MOTA']:.4f}  IDF1={metrics['IDF1']:.4f}  "
-              f"HOTA={metrics['HOTA']:.4f}  FPS={fps:.1f}")
-        print(f"  GT={metrics['GT']}  FP={metrics['FP']}  "
-              f"FN={metrics['FN']}  IDSW={metrics['IDSW']}")
+        print(
+            f"  MOTA={metrics['MOTA']:.4f}  IDF1={metrics['IDF1']:.4f}  "
+            f"HOTA={metrics['HOTA']:.4f}  FPS={fps:.1f}"
+        )
+        print(
+            f"  GT={metrics['GT']}  FP={metrics['FP']}  FN={metrics['FN']}  IDSW={metrics['IDSW']}"
+        )
 
     # 전체 평균
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"BoT-SORT E6 전체 평균 결과")
-    print(f"{'='*60}")
-    avg = {k: round(sum(m[k] for m in all_metrics) / len(all_metrics), 4)
-           for k in ("MOTA", "IDF1", "HOTA", "DetA", "GT", "FP", "FN", "IDSW")}
+    print(f"{'=' * 60}")
+    avg = {
+        k: round(sum(m[k] for m in all_metrics) / len(all_metrics), 4)
+        for k in ("MOTA", "IDF1", "HOTA", "DetA", "GT", "FP", "FN", "IDSW")
+    }
     avg_fps = sum(all_fps) / len(all_fps)
 
     print(f"  MOTA:  {avg['MOTA']}")
@@ -134,8 +143,7 @@ def run_all_sequences(det_onnx: Path, reid_onnx: Path | None,
     print(f"  HOTA:  {avg['HOTA']}")
     print(f"  DetA:  {avg['DetA']}")
     print(f"  FPS:   {avg_fps:.1f}")
-    print(f"  GT:    {avg['GT']}  FP: {avg['FP']}  "
-          f"FN: {avg['FN']}  IDSW: {avg['IDSW']}")
+    print(f"  GT:    {avg['GT']}  FP: {avg['FP']}  FN: {avg['FN']}  IDSW: {avg['IDSW']}")
 
     # ByteTrack E1과 비교
     print(f"\n[E6 vs E1 ByteTrack 비교]")
@@ -149,19 +157,17 @@ def run_all_sequences(det_onnx: Path, reid_onnx: Path | None,
 
 def main():
     parser = argparse.ArgumentParser(description="E6 BoT-SORT 추적 평가")
-    parser.add_argument("--det_onnx",  default=str(DEFAULT_DET_ONNX))
+    parser.add_argument("--det_onnx", default=str(DEFAULT_DET_ONNX))
     parser.add_argument("--reid_onnx", default=str(DEFAULT_REID_ONNX))
-    parser.add_argument("--no_reid",   action="store_true")
-    parser.add_argument("--no_cmc",    action="store_true")
-    parser.add_argument("--quiet",     action="store_true")
+    parser.add_argument("--no_reid", action="store_true")
+    parser.add_argument("--no_cmc", action="store_true")
+    parser.add_argument("--quiet", action="store_true")
     args = parser.parse_args()
 
-    det_onnx  = Path(args.det_onnx)
+    det_onnx = Path(args.det_onnx)
     reid_onnx = None if args.no_reid else Path(args.reid_onnx)
 
-    run_all_sequences(det_onnx, reid_onnx,
-                      use_cmc=not args.no_cmc,
-                      verbose=not args.quiet)
+    run_all_sequences(det_onnx, reid_onnx, use_cmc=not args.no_cmc, verbose=not args.quiet)
 
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ SimpleReIDNet W8A8 양자화 + ONNX 내보내기 (E6 실험용).
   python src/quant/quantize_reid.py            # W8A8 ONNX 내보내기
   python src/quant/quantize_reid.py --mode fp32 # FP32 ONNX 내보내기
 """
+
 import argparse
 import sys
 import io
@@ -28,6 +29,7 @@ from src.quant.quantize_recognizers import apply_w8a8_ptq, export_to_onnx
 
 def build_reid(embed_dim: int = 128) -> nn.Module:
     from src.track.botsort import SimpleReIDNet
+
     return SimpleReIDNet(embed_dim=embed_dim).eval()
 
 
@@ -46,8 +48,7 @@ def quantize_reid(mode: str = "w8a8", embed_dim: int = 128) -> Path:
     else:
         out = MODEL_SPACE / "reid_net_fp32.onnx"
 
-    export_to_onnx(model, dummy, out,
-                   input_names=["image"], output_names=["embedding"])
+    export_to_onnx(model, dummy, out, input_names=["image"], output_names=["embedding"])
 
     size_kb = out.stat().st_size / 1024
     print(f"  -> {out.name}  ({size_kb:.1f} KB)")

@@ -44,7 +44,7 @@ from pathlib import Path
 
 from PIL import Image
 
-ROOT     = Path(__file__).parent.parent.parent
+ROOT = Path(__file__).parent.parent.parent
 DATA_DIR = ROOT / "data"
 YOLO_DIR = DATA_DIR / "yolo_signs"
 
@@ -55,7 +55,7 @@ GTSDB_TO_YOLO_CLASS = 0
 
 # AI Hub 신호등-도로표지판 클래스 매핑 (신호등 분리: 2026-05-30)
 AIHUB_TRAFFIC_CLASS_MAP = {
-    "traffic_sign":  0,
+    "traffic_sign": 0,
     "traffic_light": 1,  # 신호등을 별도 클래스로 분리 (색상 분류 위함)
 }
 
@@ -66,6 +66,7 @@ AIHUB_SIGNBOARD_CLASS = 2
 # ─────────────────────────────────────────────
 # 공통 유틸
 # ─────────────────────────────────────────────
+
 
 def setup_yolo_dirs():
     for split in ["train", "val"]:
@@ -123,10 +124,11 @@ def write_yolo_label(label_path: Path, entries: list):
 # 1. GTSDB
 # ─────────────────────────────────────────────
 
+
 def convert_gtsdb(val_ratio=0.2):
     """GTSDB PPM + gt.txt → YOLO 포맷."""
     gtsdb_dir = DATA_DIR / "GTSDB" / "FullIJCNN2013"
-    gt_file   = gtsdb_dir / "gt.txt"
+    gt_file = gtsdb_dir / "gt.txt"
 
     if not gt_file.exists():
         print(f"  ⚠️  GTSDB gt.txt 없음: {gt_file}")
@@ -183,6 +185,7 @@ def convert_gtsdb(val_ratio=0.2):
 #    (extract_frames.py 출력 기반)
 # ─────────────────────────────────────────────
 
+
 def convert_aihub_traffic(aihub_dir=None, max_images=None):
     """
     data/aihub_traffic/ (extract_frames.py 출력) → YOLO 포맷
@@ -237,7 +240,7 @@ def convert_aihub_traffic(aihub_dir=None, max_images=None):
                 continue
 
             img_info = data.get("image", {})
-            imsize   = img_info.get("imsize", [])
+            imsize = img_info.get("imsize", [])
             if len(imsize) < 2:
                 # imsize 없는 경우 이미지에서 직접 읽기
                 try:
@@ -252,15 +255,15 @@ def convert_aihub_traffic(aihub_dir=None, max_images=None):
             entries = []
             for ann in annotations:
                 cls_name = ann.get("class", "traffic_sign")
-                cls_id   = AIHUB_TRAFFIC_CLASS_MAP.get(cls_name, 0)
-                box      = ann.get("box", [])
+                cls_id = AIHUB_TRAFFIC_CLASS_MAP.get(cls_name, 0)
+                box = ann.get("box", [])
                 if len(box) < 4:
                     continue
                 x1, y1, x2, y2 = box[0], box[1], box[2], box[3]
                 entries.append((cls_id, *xyxy_to_yolo(x1, y1, x2, y2, W, H)))
 
             # YOLO 디렉토리에 플랫 구조로 저장 (시퀀스명__프레임명)
-            seq_name    = jpg_path.parent.name
+            seq_name = jpg_path.parent.name
             unique_stem = f"{seq_name}__{jpg_path.stem}"
 
             out_jpg = YOLO_DIR / "images" / split / (unique_stem + ".jpg")
@@ -281,6 +284,7 @@ def convert_aihub_traffic(aihub_dir=None, max_images=None):
 #    (이미 압축 해제된 상태)
 # ─────────────────────────────────────────────
 
+
 def convert_aihub_signboard(aihub_dir=None, max_images=None):
     """
     AIhub/030.야외 실제 촬영 한글 이미지/01.데이터/ → YOLO 포맷
@@ -300,9 +304,7 @@ def convert_aihub_signboard(aihub_dir=None, max_images=None):
     bbox 포맷: [x_topleft, y_topleft, width, height] (COCO 스타일)
     class 매핑: 모두 signboard (1)
     """
-    base = Path(aihub_dir) if aihub_dir else (
-        ROOT / "AIhub" / "030.야외 실제 촬영 한글 이미지"
-    )
+    base = Path(aihub_dir) if aihub_dir else (ROOT / "AIhub" / "030.야외 실제 촬영 한글 이미지")
     data_root = base / "01.데이터"
 
     if not data_root.exists():
@@ -310,7 +312,7 @@ def convert_aihub_signboard(aihub_dir=None, max_images=None):
         return 0
 
     split_map = {
-        "1.Training":  "train",
+        "1.Training": "train",
         "2.Validation": "val",
     }
 
@@ -371,12 +373,10 @@ def convert_aihub_signboard(aihub_dir=None, max_images=None):
                     continue
                 x, y, w, h = bbox[0], bbox[1], bbox[2], bbox[3]
                 # "xxx" 텍스트는 가림막(occluded) → 학습 데이터에 포함
-                entries.append(
-                    (AIHUB_SIGNBOARD_CLASS, *xywh_to_yolo(x, y, w, h, W, H))
-                )
+                entries.append((AIHUB_SIGNBOARD_CLASS, *xywh_to_yolo(x, y, w, h, W, H)))
 
             # YOLO 디렉토리에 저장 (서브클래스명__파일명 형식)
-            subclass    = jpg_path.parent.name
+            subclass = jpg_path.parent.name
             unique_stem = f"sign_{subclass}__{jpg_path.stem}"
 
             out_jpg = YOLO_DIR / "images" / yolo_split / (unique_stem + ".jpg")
@@ -395,6 +395,7 @@ def convert_aihub_signboard(aihub_dir=None, max_images=None):
 # ─────────────────────────────────────────────
 # 메인
 # ─────────────────────────────────────────────
+
 
 def main():
     parser = argparse.ArgumentParser(description="데이터셋 → YOLO 포맷 변환")

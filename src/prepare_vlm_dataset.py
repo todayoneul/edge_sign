@@ -17,12 +17,9 @@ MAX_LENGTH = 128
 SAVE_DIR = "./data/vlm_cache"
 os.makedirs(SAVE_DIR, exist_ok=True)
 
-DEFAULT_SOURCES = [
-    "conceptual_captions",
-    "coco_captions",
-    "flickr30k"
-]
+DEFAULT_SOURCES = ["conceptual_captions", "coco_captions", "flickr30k"]
 DEFAULT_SOURCE_WEIGHTS = [0.6, 0.25, 0.15]
+
 
 class OmniModalIterableDataset(IterableDataset):
     def __init__(
@@ -35,7 +32,7 @@ class OmniModalIterableDataset(IterableDataset):
         cache_dir=SAVE_DIR,
         seed=42,
         caption_prompt="<image>\n이 이미지를 자세히 설명해 주십시오:\n",
-        vqa_prompt_template="<image>\n질문: {question}\n답변:"
+        vqa_prompt_template="<image>\n질문: {question}\n답변:",
     ):
         print("데이터셋 로드 시작: 멀티 소스 스트리밍 모드")
         self.max_samples = max_samples
@@ -211,7 +208,7 @@ class OmniModalIterableDataset(IterableDataset):
                 max_length=MAX_LENGTH,
                 padding="max_length",
                 truncation=True,
-                return_tensors="pt"
+                return_tensors="pt",
             )
 
             input_ids = encoded["input_ids"].squeeze(0)
@@ -228,14 +225,15 @@ class OmniModalIterableDataset(IterableDataset):
                 "pixel_values": pixel_values,
                 "input_ids": input_ids,
                 "attention_mask": attention_mask,
-                "labels": labels
+                "labels": labels,
             }
+
 
 def prepare_and_test_dataloader():
     print("VLM 데이터 로더 테스트를 시작합니다.")
     dataset = OmniModalIterableDataset(split="train", max_samples=5)
     dataloader = DataLoader(dataset, batch_size=2, num_workers=0)
-    
+
     for batch in dataloader:
         print("--- 배치 데이터 구조 확인 ---")
         print(f"이미지 텐서 형태: {batch['pixel_values'].shape}")
@@ -243,8 +241,9 @@ def prepare_and_test_dataloader():
         print(f"어텐션 마스크 형태: {batch['attention_mask'].shape}")
         print(f"정답 레이블 형태: {batch['labels'].shape}")
         break
-    
+
     print("VLM 전처리 스크립트 작성 및 구조 검증이 완료되었습니다.")
+
 
 if __name__ == "__main__":
     prepare_and_test_dataloader()

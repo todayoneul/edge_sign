@@ -1,4 +1,5 @@
 """단일 서버 스트림 세션 — FrameSource + 재생 제어 상태."""
+
 from __future__ import annotations
 
 import tempfile
@@ -6,7 +7,10 @@ from pathlib import Path
 from typing import Optional
 
 from src.pipeline.sources import (
-    FrameSource, ImageSource, VideoFileSource, UrlStreamSource,
+    FrameSource,
+    ImageSource,
+    VideoFileSource,
+    UrlStreamSource,
 )
 
 MAX_UPLOAD_BYTES = 500 * 1024 * 1024  # 500MB
@@ -69,7 +73,7 @@ class SessionManager:
 
 def save_upload(data: bytes, suffix: str) -> Path:
     if len(data) > MAX_UPLOAD_BYTES:
-        raise ValueError(f"업로드 크기 초과 (> {MAX_UPLOAD_BYTES // (1024*1024)}MB)")
+        raise ValueError(f"업로드 크기 초과 (> {MAX_UPLOAD_BYTES // (1024 * 1024)}MB)")
     fd = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
     fd.write(data)
     fd.close()

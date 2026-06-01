@@ -16,6 +16,7 @@ Edge-Sign v2 검출기: 교통표지판(traffic_sign) + 간판(signboard) 2-클�
   # 모델 정보 확인
   python src/detect/yolo_train.py --mode info
 """
+
 import argparse
 import sys
 from pathlib import Path
@@ -29,6 +30,7 @@ RUNS_DIR = ROOT / "runs" / "detect"
 def check_ultralytics():
     try:
         from ultralytics import YOLO
+
         return YOLO
     except ImportError:
         print("Ultralytics not installed. Run:")
@@ -46,7 +48,9 @@ def train(args):
         sys.exit(1)
 
     model = YOLO(args.model)
-    print(f"  모델: {args.model}  데이터: {data_yaml}  imgsz: {args.imgsz}  batch: {args.batch_size}")
+    print(
+        f"  모델: {args.model}  데이터: {data_yaml}  imgsz: {args.imgsz}  batch: {args.batch_size}"
+    )
 
     results = model.train(
         data=str(data_yaml),
@@ -61,7 +65,7 @@ def train(args):
         save_period=10,
         plots=True,
         verbose=True,
-        workers=args.workers,   # Windows 워커 크래시 방지 (0=메인프로세스)
+        workers=args.workers,  # Windows 워커 크래시 방지 (0=메인프로세스)
         cache=False,
         # 경량화 목적 하이퍼파라미터
         lr0=0.01,
@@ -70,9 +74,9 @@ def train(args):
         cos_lr=True,
         close_mosaic=10,
         # 소형 표지판 검출 개선
-        copy_paste=args.copy_paste,   # 표지판 합성 증강 (기본 0.5)
-        fliplr=args.fliplr,           # 한글/표지판 좌우반전 비활성 (기본 0.0)
-        multi_scale=False,            # imgsz 고정 (True 시 VRAM 초과 위험)
+        copy_paste=args.copy_paste,  # 표지판 합성 증강 (기본 0.5)
+        fliplr=args.fliplr,  # 한글/표지판 좌우반전 비활성 (기본 0.0)
+        multi_scale=False,  # imgsz 고정 (True 시 VRAM 초과 위험)
     )
 
     print(f"\nTraining complete. Results saved to: {RUNS_DIR / args.run_name}")
@@ -149,6 +153,7 @@ def info(args):
     print(f"  Trainable params: {trainable:,}")
 
     import torch
+
     dummy = torch.randn(1, 3, 640, 640)
     torch.onnx.export(
         model.model,
@@ -166,15 +171,25 @@ def main():
     parser.add_argument("--epochs", type=int, default=100, help="학습 에포크 수")
     parser.add_argument("--batch_size", type=int, default=8, help="배치 크기")
     parser.add_argument("--imgsz", type=int, default=1280, help="입력 이미지 크기")
-    parser.add_argument("--model", type=str, default="yolov8s.pt", help="YOLO 모델 (yolov8n.pt / yolov8s.pt 등)")
-    parser.add_argument("--copy_paste", type=float, default=0.5, help="Copy-Paste 증강 확률 (소형 객체 검출 개선)")
-    parser.add_argument("--fliplr", type=float, default=0.0, help="좌우반전 확률 (한글/표지판은 0.0 권장)")
+    parser.add_argument(
+        "--model", type=str, default="yolov8s.pt", help="YOLO 모델 (yolov8n.pt / yolov8s.pt 등)"
+    )
+    parser.add_argument(
+        "--copy_paste", type=float, default=0.5, help="Copy-Paste 증강 확률 (소형 객체 검출 개선)"
+    )
+    parser.add_argument(
+        "--fliplr", type=float, default=0.0, help="좌우반전 확률 (한글/표지판은 0.0 권장)"
+    )
     parser.add_argument("--device", type=str, default="0", help="GPU 디바이스 (0, cpu 등)")
     parser.add_argument("--run_name", type=str, default="edge_sign_v2", help="실험 이름")
     parser.add_argument("--weights", type=str, default=None, help="모델 가중치 경로 (val/predict)")
     parser.add_argument("--source", type=str, default=None, help="추론 입력 (이미지/영상 경로)")
-    parser.add_argument("--data", type=str, default=None, help="dataset.yaml 경로 (기본 data/yolo_signs)")
-    parser.add_argument("--workers", type=int, default=4, help="DataLoader 워커 수 (Windows 크래시 시 0)")
+    parser.add_argument(
+        "--data", type=str, default=None, help="dataset.yaml 경로 (기본 data/yolo_signs)"
+    )
+    parser.add_argument(
+        "--workers", type=int, default=4, help="DataLoader 워커 수 (Windows 크래시 시 0)"
+    )
     args = parser.parse_args()
 
     if args.mode == "train":

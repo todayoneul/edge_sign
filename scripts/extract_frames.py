@@ -1,4 +1,4 @@
-﻿"""
+"""
 AIhub 신호등-도로표지판 인지 영상(수도권) TAR 아카이브 처리 스크립트
 
 원천 데이터: AIhub/신호등-도로표지판 인지 영상(수도권)/Validation/
@@ -112,6 +112,7 @@ def parse_args():
 # 1. 시퀀스 탐색
 # ──────────────────────────────────────────────
 
+
 def find_sequence_pairs(input_dir: Path) -> dict:
     """
     [원천]*.tar 와 [라벨]*.tar 쌍을 탐색하여 시퀀스 딕셔너리 반환.
@@ -125,7 +126,7 @@ def find_sequence_pairs(input_dir: Path) -> dict:
             continue
 
         # "[원천]c_validation_1280_720_daylight_1.tar" → "c_validation_1280_720_daylight_1"
-        seq_name = tar_file.stem[len("[원천]"):]
+        seq_name = tar_file.stem[len("[원천]") :]
 
         label_tar = input_dir / f"[라벨]{seq_name}.tar"
         if not label_tar.exists():
@@ -144,6 +145,7 @@ def find_sequence_pairs(input_dir: Path) -> dict:
 # ──────────────────────────────────────────────
 # 2. 시퀀스 분할 계획
 # ──────────────────────────────────────────────
+
 
 def plan_split(sequences: dict, train_ratio: float, val_ratio: float) -> dict:
     """
@@ -174,8 +176,8 @@ def plan_split(sequences: dict, train_ratio: float, val_ratio: float) -> dict:
 
     n_total = len(sequences)
     n_train = max(1, round(n_total * train_ratio))
-    n_val   = max(1, round(n_total * val_ratio))
-    n_test  = max(1, n_total - n_train - n_val)
+    n_val = max(1, round(n_total * val_ratio))
+    n_test = max(1, n_total - n_train - n_val)
 
     split_map: dict[str, str] = {}
 
@@ -192,8 +194,8 @@ def plan_split(sequences: dict, train_ratio: float, val_ratio: float) -> dict:
 
         if n_d >= 3:
             # val/test 각 최소 1개 보장 → 나머지를 train
-            n_d_val   = max(1, round(n_d * val_ratio_norm))
-            n_d_test  = max(1, round(n_d * test_ratio))
+            n_d_val = max(1, round(n_d * val_ratio_norm))
+            n_d_test = max(1, round(n_d * test_ratio))
             n_d_train = n_d - n_d_val - n_d_test
             if n_d_train < 1:  # train도 최소 1개 보장
                 n_d_train = 1
@@ -222,6 +224,7 @@ def plan_split(sequences: dict, train_ratio: float, val_ratio: float) -> dict:
 # 3. 단일 시퀀스 추출
 # ──────────────────────────────────────────────
 
+
 def extract_sequence(
     seq_name: str,
     source_tar: Path,
@@ -249,9 +252,9 @@ def extract_sequence(
 
         selected_stems: set = set()
         for member in selected:
-            fname = Path(member.name).name          # 파일명만 (경로 제거)
+            fname = Path(member.name).name  # 파일명만 (경로 제거)
             out_path = img_out / fname
-            if not out_path.exists():               # 이미 추출된 경우 건너뜀
+            if not out_path.exists():  # 이미 추출된 경우 건너뜀
                 f = tf.extractfile(member)
                 if f:
                     out_path.write_bytes(f.read())
@@ -279,10 +282,11 @@ def extract_sequence(
 # 4. 메인
 # ──────────────────────────────────────────────
 
+
 def main():
     args = parse_args()
 
-    input_dir  = Path(args.input)
+    input_dir = Path(args.input)
     output_dir = Path(args.output)
 
     if not input_dir.exists():
@@ -292,8 +296,7 @@ def main():
 
     print(f"[IN ] 입력: {input_dir}")
     print(f"[OUT] 출력: {output_dir}")
-    print(f"[N  ] 서브샘플 비율: 1/{args.sample_rate} "
-          f"(=> {30 // args.sample_rate}fps 시뮬레이션)")
+    print(f"[N  ] 서브샘플 비율: 1/{args.sample_rate} (=> {30 // args.sample_rate}fps 시뮬레이션)")
     print()
 
     # 시퀀스 쌍 탐색

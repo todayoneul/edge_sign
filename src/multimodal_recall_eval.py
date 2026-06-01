@@ -8,12 +8,13 @@ from datasets import load_dataset
 from transformers import CLIPTokenizer, CLIPTextModelWithProjection
 
 # 1. Configuration
-MODEL_NAME = 'convnextv2_nano.fcmae_ft_in1k'
-DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+MODEL_NAME = "convnextv2_nano.fcmae_ft_in1k"
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 CHECKPOINT_PATH = "./checkpoints/checkpoints_mm_1bit/mm_1bit_epoch_15.pth"
 CLIP_MODEL_ID = "openai/clip-vit-base-patch32"
 EVAL_SIZE = 1000  # Number of samples for Recall calculation
 K_LIST = [1, 5, 10]
+
 
 # --- 1-Bit Layers ---
 class BinarySTE(torch.autograd.Function):
@@ -21,84 +22,109 @@ class BinarySTE(torch.autograd.Function):
     def forward(ctx, weight):
         ctx.save_for_backward(weight)
         return torch.where(weight == 0, torch.ones_like(weight), torch.sign(weight))
+
     @staticmethod
     def backward(ctx, grad_output):
-        weight, = ctx.saved_tensors
+        (weight,) = ctx.saved_tensors
         grad_input = grad_output.clone()
         grad_input[weight.abs() > 1.0] = 0
         return grad_input
 
+
 def binarize_weight(weight):
-    if weight.dim() == 4: scale = weight.abs().mean(dim=(1, 2, 3), keepdim=True)
-    elif weight.dim() == 2: scale = weight.abs().mean(dim=1, keepdim=True)
-    else: scale = weight.abs().mean()
+    if weight.dim() == 4:
+        scale = weight.abs().mean(dim=(1, 2, 3), keepdim=True)
+    elif weight.dim() == 2:
+        scale = weight.abs().mean(dim=1, keepdim=True)
+    else:
+        scale = weight.abs().mean()
     return BinarySTE.apply(weight) * scale
+
 
 class BinaryConv2d(nn.Conv2d):
     def forward(self, input):
         bw = binarize_weight(self.weight).to(input.dtype)
         return F.conv2d(input, bw, self.bias, self.stride, self.padding, self.dilation, self.groups)
 
+
 class BinaryLinear(nn.Linear):
     def forward(self, input):
         bw = binarize_weight(self.weight).to(input.dtype)
         return F.linear(input, bw, self.bias)
 
+
 def replace_layers_with_1bit(model):
     for name, module in model.named_children():
         if isinstance(module, nn.Conv2d) and "stem" not in name and "head" not in name:
-            bin_conv = BinaryConv2d(module.in_channels, module.out_channels, module.kernel_size, 
-                                    module.stride, module.padding, module.dilation, module.groups, module.bias is not None)
+            bin_conv = BinaryConv2d(
+                module.in_channels,
+                module.out_channels,
+                module.kernel_size,
+                module.stride,
+                module.padding,
+                module.dilation,
+                module.groups,
+                module.bias is not None,
+            )
             bin_conv.weight.data.copy_(module.weight.data)
-            if module.bias is not None: bin_conv.bias.data.copy_(module.bias.data)
+            if module.bias is not None:
+                bin_conv.bias.data.copy_(module.bias.data)
             setattr(model, name, bin_conv)
         elif isinstance(module, nn.Linear) and "head" not in name and "classifier" not in name:
-            bin_linear = BinaryLinear(module.in_features, module.out_features, module.bias is not None)
+            bin_linear = BinaryLinear(
+                module.in_features, module.out_features, module.bias is not None
+            )
             bin_linear.weight.data.copy_(module.weight.data)
-            if module.bias is not None: bin_linear.bias.data.copy_(module.bias.data)
+            if module.bias is not None:
+                bin_linear.bias.data.copy_(module.bias.data)
             setattr(model, name, bin_linear)
-        else: replace_layers_with_1bit(module)
+        else:
+            replace_layers_with_1bit(module)
+
 
 def evaluate_recall():
     print("Initializing Evaluation Engine...")
     tokenizer = CLIPTokenizer.from_pretrained(CLIP_MODEL_ID)
-    text_model = CLIPTextModelWithProjection.from_pretrained(CLIP_MODEL_ID).bfloat16().to(DEVICE).eval()
-    
+    text_model = (
+        CLIPTextModelWithProjection.from_pretrained(CLIP_MODEL_ID).bfloat16().to(DEVICE).eval()
+    )
+
     student = timm.create_model(MODEL_NAME, pretrained=False)
     replace_layers_with_1bit(student)
     student.head.fc = nn.Linear(student.head.fc.in_features, 512)
-    
+
     ckpt = torch.load(CHECKPOINT_PATH, map_location=DEVICE)
-    student.load_state_dict(ckpt['model_state_dict'] if 'model_state_dict' in ckpt else ckpt)
+    student.load_state_dict(ckpt["model_state_dict"] if "model_state_dict" in ckpt else ckpt)
     student = student.bfloat16().to(DEVICE).eval()
-    
+
     data_config = timm.data.resolve_model_data_config(student)
     transform = timm.data.create_transform(**data_config, is_training=False)
-    
+
     print(f"Loading {EVAL_SIZE} samples from ImageNet validation...")
     ds = load_dataset("ILSVRC/imagenet-1k", split="validation", streaming=True)
-    
+
     image_features = []
     text_queries = []
-    
+
     # In ImageNet, we use the class name as the text query for each image
     # Note: Using class labels as queries is a standard zero-shot evaluation
-    class_labels = ds.features['label'].names
-    
+    class_labels = ds.features["label"].names
+
     for i, item in enumerate(tqdm(ds, total=EVAL_SIZE)):
-        if i >= EVAL_SIZE: break
-        img = item['image'].convert("RGB")
+        if i >= EVAL_SIZE:
+            break
+        img = item["image"].convert("RGB")
         img_tensor = transform(img).unsqueeze(0).to(DEVICE).bfloat16()
-        
+
         with torch.no_grad():
             feat = F.normalize(student(img_tensor), p=2, dim=-1)
             image_features.append(feat.cpu())
-            
-        label_idx = item['label']
+
+        label_idx = item["label"]
         text_queries.append(f"a photo of a {class_labels[label_idx]}")
 
     image_features = torch.cat(image_features, dim=0)
-    
+
     print("Extracting Text Features...")
     text_features = []
     for query in tqdm(text_queries):
@@ -111,7 +137,7 @@ def evaluate_recall():
     # Compute Similarity Matrix (EVAL_SIZE x EVAL_SIZE)
     # Each row is a text query, each column is an image feature
     sim_matrix = torch.matmul(text_features, image_features.t())
-    
+
     print("\n--- Recall@K Results ---")
     for k in K_LIST:
         # For each query, check if the correct image (diagonal index) is in the top K
@@ -122,6 +148,7 @@ def evaluate_recall():
                 correct += 1
         recall = (correct / EVAL_SIZE) * 100
         print(f"Recall@{k}: {recall:.2f}%")
+
 
 if __name__ == "__main__":
     evaluate_recall()

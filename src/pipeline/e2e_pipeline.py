@@ -17,6 +17,7 @@ Edge-Sign v2 E2E Pipeline
   # 단일 이미지/프레임 디렉토리 테스트
   python src/pipeline/e2e_pipeline.py --dry_run
 """
+
 from __future__ import annotations
 
 import argparse
@@ -52,8 +53,10 @@ def _yolo_providers() -> list[str]:
         return ["CPUExecutionProvider"]
     return ["CUDAExecutionProvider", "CPUExecutionProvider"]
 
+
 # 한국 표지판/신호등 분류기 14클래스 (data/roi_cls/classes.json)
 _KCLS = None  # {"names": [...], "sign_ids": [...], "light_ids": [...]}
+
 
 def _load_kcls() -> dict:
     global _KCLS
@@ -65,8 +68,10 @@ def _load_kcls() -> dict:
             _KCLS = {"names": [], "sign_ids": [], "light_ids": []}
     return _KCLS
 
+
 # OCR 인덱스→문자 매핑 (web/idx_to_char.json)
 _IDX_TO_CHAR: dict[int, str] | None = None
+
 
 def _load_idx_to_char() -> dict[int, str]:
     global _IDX_TO_CHAR
@@ -86,6 +91,7 @@ def _load_idx_to_char() -> dict[int, str]:
 # ─────────────────────────────────────────────────────────────────────────────
 # YOLOv8n ONNX 후처리
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def _iou(box: np.ndarray, boxes: np.ndarray) -> np.ndarray:
     """box [4] vs boxes [N, 4] → IoU [N]."""
@@ -135,14 +141,14 @@ def postprocess_yolo(
     """
     pred = raw_output[0]  # [6, 8400] 또는 [8400, 6]
     if pred.shape[0] < pred.shape[1]:
-        pred = pred.T       # → [8400, 6]
+        pred = pred.T  # → [8400, 6]
 
     # 박스(cx,cy,w,h) + 클래스 점수
-    boxes_cxcywh = pred[:, :4]          # [N, 4]
-    class_scores = pred[:, 4:]          # [N, num_classes]
+    boxes_cxcywh = pred[:, :4]  # [N, 4]
+    class_scores = pred[:, 4:]  # [N, num_classes]
 
-    conf = class_scores.max(axis=1)     # [N]
-    cls = class_scores.argmax(axis=1)   # [N]
+    conf = class_scores.max(axis=1)  # [N]
+    cls = class_scores.argmax(axis=1)  # [N]
 
     # 신뢰도 필터
     mask = conf > conf_thres
@@ -186,6 +192,7 @@ def postprocess_yolo(
 # 인식: KoreanOCRNet (ONNX, 단일 문자 분류)
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def preprocess_ocr_roi(frame: np.ndarray, bbox: np.ndarray) -> np.ndarray:
     """
     검출 bbox ROI → KoreanOCRNet 입력 [1, 1, 64, 64].
@@ -200,7 +207,7 @@ def preprocess_ocr_roi(frame: np.ndarray, bbox: np.ndarray) -> np.ndarray:
     gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
     resized = cv2.resize(gray, (64, 64))
     normalized = resized.astype(np.float32) / 255.0
-    return normalized[np.newaxis, np.newaxis, :, :]   # [1, 1, 64, 64]
+    return normalized[np.newaxis, np.newaxis, :, :]  # [1, 1, 64, 64]
 
 
 def decode_ocr_output(logits: np.ndarray, top_k: int = 3) -> list[tuple[str, float]]:
@@ -226,17 +233,49 @@ def softmax(x: np.ndarray) -> np.ndarray:
 # ─────────────────────────────────────────────────────────────────────────────
 
 GTSDB_CLASSES = [
-    "Speed limit 20", "Speed limit 30", "Speed limit 50", "Speed limit 60",
-    "Speed limit 70", "Speed limit 80", "End speed limit 80", "Speed limit 100",
-    "Speed limit 120", "No passing", "No passing >3.5t", "Right-of-way junction",
-    "Priority road", "Yield", "Stop", "No vehicles",
-    "No trucks", "No entry", "General caution", "Dangerous left curve",
-    "Dangerous right curve", "Double curve", "Bumpy road", "Slippery road",
-    "Narrow right", "Road works", "Traffic signals", "Pedestrians",
-    "Children crossing", "Bicycles", "Beware ice/snow", "Wild animals",
-    "End restrictions", "Turn right", "Turn left", "Go straight",
-    "Go straight or right", "Go straight or left", "Keep right", "Keep left",
-    "Roundabout", "End no passing", "End no passing >3.5t",
+    "Speed limit 20",
+    "Speed limit 30",
+    "Speed limit 50",
+    "Speed limit 60",
+    "Speed limit 70",
+    "Speed limit 80",
+    "End speed limit 80",
+    "Speed limit 100",
+    "Speed limit 120",
+    "No passing",
+    "No passing >3.5t",
+    "Right-of-way junction",
+    "Priority road",
+    "Yield",
+    "Stop",
+    "No vehicles",
+    "No trucks",
+    "No entry",
+    "General caution",
+    "Dangerous left curve",
+    "Dangerous right curve",
+    "Double curve",
+    "Bumpy road",
+    "Slippery road",
+    "Narrow right",
+    "Road works",
+    "Traffic signals",
+    "Pedestrians",
+    "Children crossing",
+    "Bicycles",
+    "Beware ice/snow",
+    "Wild animals",
+    "End restrictions",
+    "Turn right",
+    "Turn left",
+    "Go straight",
+    "Go straight or right",
+    "Go straight or left",
+    "Keep right",
+    "Keep left",
+    "Roundabout",
+    "End no passing",
+    "End no passing >3.5t",
 ]
 
 
@@ -255,8 +294,8 @@ class EdgeSignPipeline:
 
     def __init__(
         self,
-        yolo_onnx:  Optional[str] = None,
-        ocr_onnx:   Optional[str] = None,
+        yolo_onnx: Optional[str] = None,
+        ocr_onnx: Optional[str] = None,
         tsign_onnx: Optional[str] = None,
         conf_thres: float = 0.25,
         iou_thres: float = 0.45,
@@ -270,8 +309,8 @@ class EdgeSignPipeline:
             raise ImportError("onnxruntime가 설치되지 않았습니다: pip install onnxruntime")
 
         self.conf_thres = conf_thres
-        self.iou_thres  = iou_thres
-        self._frame_id  = 0
+        self.iou_thres = iou_thres
+        self._frame_id = 0
 
         # 검출기 클래스 택소노미 — 로드된 검출기 모델에 맞춰야 라우팅이 정확.
         #   v3: 0=traffic_sign, 1=traffic_light, 2=signboard (신호등 분리 모델)
@@ -292,7 +331,7 @@ class EdgeSignPipeline:
         if not yolo_variants:
             yolo_variants = {"default": yolo_onnx} if yolo_onnx else {}
         self.yolo_sessions: dict[str, "ort.InferenceSession"] = {}
-        self._yolo_meta: dict[str, dict] = {}   # name -> {input_name, h, w, mb}
+        self._yolo_meta: dict[str, dict] = {}  # name -> {input_name, h, w, mb}
         for name, path in yolo_variants.items():
             if path and Path(path).exists():
                 sess = ort.InferenceSession(str(path), providers=_yolo_providers())
@@ -304,8 +343,10 @@ class EdgeSignPipeline:
                     "w": inp.shape[3] if isinstance(inp.shape[3], int) else 640,
                     "mb": round(Path(path).stat().st_size / 1e6, 2),
                 }
-                print(f"[Pipeline] YOLOv8s variant '{name}' loaded: "
-                      f"{Path(path).name} ({self._yolo_meta[name]['mb']} MB)")
+                print(
+                    f"[Pipeline] YOLOv8s variant '{name}' loaded: "
+                    f"{Path(path).name} ({self._yolo_meta[name]['mb']} MB)"
+                )
             else:
                 print(f"[Pipeline] WARNING: variant '{name}' ONNX not found: {path}")
         # 활성 variant = dict 첫 키. 하위호환용 self.yolo_session 별칭 유지.
@@ -334,8 +375,10 @@ class EdgeSignPipeline:
                 str(tsign_onnx), providers=["CPUExecutionProvider"]
             )
             self._tsign_input_name = self.tsign_session.get_inputs()[0].name
-            print(f"[Pipeline] Korean classifier loaded: {Path(tsign_onnx).name} "
-                  f"({len(self._kcls['names'])} classes)")
+            print(
+                f"[Pipeline] Korean classifier loaded: {Path(tsign_onnx).name} "
+                f"({len(self._kcls['names'])} classes)"
+            )
         else:
             print(f"[Pipeline] INFO: 분류기 ONNX 없음 -- 라벨 = class_name")
 
@@ -387,9 +430,12 @@ class EdgeSignPipeline:
         raw = sess.run(None, {meta["input_name"]: inp})
         return postprocess_yolo(
             raw[0],
-            input_w=meta["w"], input_h=meta["h"],
-            orig_w=ww, orig_h=hh,
-            conf_thres=self.conf_thres, iou_thres=self.iou_thres,
+            input_w=meta["w"],
+            input_h=meta["h"],
+            orig_w=ww,
+            orig_h=hh,
+            conf_thres=self.conf_thres,
+            iou_thres=self.iou_thres,
         )
 
     def _run_ocr(self, frame: np.ndarray, bbox: np.ndarray) -> list[tuple[str, float]]:
@@ -402,8 +448,9 @@ class EdgeSignPipeline:
         out = self.ocr_session.run(None, {self._ocr_input_name: inp})
         return decode_ocr_output(out[0])
 
-    def _run_tsign(self, frame: np.ndarray, bbox: np.ndarray,
-                   det_cls: int = 0) -> list[tuple[str, float]]:
+    def _run_tsign(
+        self, frame: np.ndarray, bbox: np.ndarray, det_cls: int = 0
+    ) -> list[tuple[str, float]]:
         """ROI → 한국 분류기 Top-3 (det_cls로 표지판/신호등 후보 제한).
 
         det_cls 0(traffic_sign) → sign_ids 서브셋, 1(traffic_light) → light_ids.
@@ -421,7 +468,7 @@ class EdgeSignPipeline:
         roi = frame[y1:y2, x1:x2]
         rgb = cv2.cvtColor(cv2.resize(roi, (32, 32)), cv2.COLOR_BGR2RGB)
         tensor = (rgb.astype(np.float32) / 255.0 - 0.5) / 0.5
-        inp = np.transpose(tensor, (2, 0, 1))[np.newaxis]   # [1, 3, 32, 32]
+        inp = np.transpose(tensor, (2, 0, 1))[np.newaxis]  # [1, 3, 32, 32]
         out = self.tsign_session.run(None, {self._tsign_input_name: inp})
         probs = softmax(out[0][0])
 
@@ -501,44 +548,50 @@ class EdgeSignPipeline:
             if cls == self._ocr_cls:
                 top_labels = self._run_ocr(frame, bbox)
                 label_cur = top_labels[0][0] if top_labels else ""
-                conf_cur  = top_labels[0][1] if top_labels else 0.0
+                conf_cur = top_labels[0][1] if top_labels else 0.0
             else:
                 top_labels = self._run_tsign(frame, bbox, det_cls=cls)
-                label_cur  = top_labels[0][0] if top_labels else self.class_names.get(cls, "")
-                conf_cur   = top_labels[0][1] if top_labels else float(track.score)
+                label_cur = top_labels[0][0] if top_labels else self.class_names.get(cls, "")
+                conf_cur = top_labels[0][1] if top_labels else float(track.score)
 
             self._track_buffers[track.track_id].append((label_cur, conf_cur))
             stable = self._stable_recognition(track.track_id)
 
-            result_tracks.append({
-                "id":         track.track_id,
-                "class":      cls,
-                "class_name": self.class_names.get(cls, str(cls)),
-                "bbox":       [round(float(x1)), round(float(y1)),
-                               round(float(x2)), round(float(y2))],
-                "conf":       round(float(track.score), 3),
-                "label":      stable,
-                "top_labels": [(lbl, round(c, 3)) for lbl, c in top_labels],
-            })
+            result_tracks.append(
+                {
+                    "id": track.track_id,
+                    "class": cls,
+                    "class_name": self.class_names.get(cls, str(cls)),
+                    "bbox": [
+                        round(float(x1)),
+                        round(float(y1)),
+                        round(float(x2)),
+                        round(float(y2)),
+                    ],
+                    "conf": round(float(track.score), 3),
+                    "label": stable,
+                    "top_labels": [(lbl, round(c, 3)) for lbl, c in top_labels],
+                }
+            )
 
         t_recognize = time.perf_counter()
         elapsed_ms = (t_recognize - t0) * 1000
 
         stage_ms = {
-            "detect":    round((t_detect - t0) * 1000, 1),
-            "track":     round((t_track - t_detect) * 1000, 1),
+            "detect": round((t_detect - t0) * 1000, 1),
+            "track": round((t_track - t_detect) * 1000, 1),
             "recognize": round((t_recognize - t_track) * 1000, 1),
         }
         mb = self._yolo_meta[used_variant]["mb"] if used_variant else 0.0
 
         return {
-            "frame_id":    self._frame_id,
-            "ts_ms":       t0 * 1000,
+            "frame_id": self._frame_id,
+            "ts_ms": t0 * 1000,
             "inference_ms": round(elapsed_ms, 1),
-            "variant":     used_variant,
-            "model_mb":    mb,
-            "stage_ms":    stage_ms,
-            "tracks":      result_tracks,
+            "variant": used_variant,
+            "model_mb": mb,
+            "stage_ms": stage_ms,
+            "tracks": result_tracks,
         }
 
     def reset(self):
@@ -562,8 +615,16 @@ class EdgeSignPipeline:
 
             label_str = t["label"] or t["class_name"]
             text = f"#{t['id']} {label_str} {t['conf']:.2f}"
-            cv2.putText(vis, text, (x1, max(y1 - 6, 10)),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1, cv2.LINE_AA)
+            cv2.putText(
+                vis,
+                text,
+                (x1, max(y1 - 6, 10)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                color,
+                1,
+                cv2.LINE_AA,
+            )
         return vis
 
 
@@ -571,13 +632,14 @@ class EdgeSignPipeline:
 # CLI
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def main():
     parser = argparse.ArgumentParser(description="Edge-Sign E2E 파이프라인 테스트")
-    parser.add_argument("--yolo",   default=str(ROOT / "model_space" / "yolov8s_signs_w8a8.onnx"))
-    parser.add_argument("--ocr",    default=str(ROOT / "model_space" / "korean_ocr_net_w8a8.onnx"))
-    parser.add_argument("--tsign",  default=str(ROOT / "model_space" / "traffic_sign_net_w8a8.onnx"))
-    parser.add_argument("--input",  default=None, help="이미지 디렉토리 또는 영상 파일")
-    parser.add_argument("--show",   action="store_true", help="결과 시각화 표시")
+    parser.add_argument("--yolo", default=str(ROOT / "model_space" / "yolov8s_signs_w8a8.onnx"))
+    parser.add_argument("--ocr", default=str(ROOT / "model_space" / "korean_ocr_net_w8a8.onnx"))
+    parser.add_argument("--tsign", default=str(ROOT / "model_space" / "traffic_sign_net_w8a8.onnx"))
+    parser.add_argument("--input", default=None, help="이미지 디렉토리 또는 영상 파일")
+    parser.add_argument("--show", action="store_true", help="결과 시각화 표시")
     parser.add_argument("--dry_run", action="store_true", help="더미 프레임으로 초기화 테스트")
     args = parser.parse_args()
 
@@ -592,7 +654,9 @@ def main():
         dummy = np.zeros((480, 640, 3), dtype=np.uint8)
         for i in range(3):
             res = pipeline.process_frame(dummy)
-            print(f"  Frame {res['frame_id']}: {res['inference_ms']:.1f}ms, {len(res['tracks'])} tracks")
+            print(
+                f"  Frame {res['frame_id']}: {res['inference_ms']:.1f}ms, {len(res['tracks'])} tracks"
+            )
         print("[DryRun] 완료")
         return
 

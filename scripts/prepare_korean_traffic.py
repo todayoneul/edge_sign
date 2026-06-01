@@ -17,6 +17,7 @@
   python scripts/prepare_korean_traffic.py            # 전체 생성
   python scripts/prepare_korean_traffic.py --max 2000 # split당 프레임 제한(빠른 테스트)
 """
+
 import argparse
 import json
 import shutil
@@ -26,7 +27,7 @@ from pathlib import Path
 import cv2
 
 ROOT = Path(__file__).parent.parent
-SRC  = ROOT / "data" / "aihub_traffic"
+SRC = ROOT / "data" / "aihub_traffic"
 YOLO_V2 = ROOT / "data" / "yolo_signs_v2"
 ROI_DIR = ROOT / "data" / "roi_cls"
 ROI_SIZE = 32
@@ -36,13 +37,24 @@ DET_SIGN, DET_LIGHT = 0, 1
 
 # 분류기 14클래스 (인덱스 고정)
 CLS_NAMES = [
-    "속도제한30", "속도제한40", "속도제한50", "속도제한60", "속도제한70", "속도제한80",  # 0-5
-    "규제표지", "지시표지", "주의표지",                                                  # 6-8
-    "신호등_빨강", "신호등_초록", "신호등_노랑", "신호등_좌회전", "신호등_기타",          # 9-13
+    "속도제한30",
+    "속도제한40",
+    "속도제한50",
+    "속도제한60",
+    "속도제한70",
+    "속도제한80",  # 0-5
+    "규제표지",
+    "지시표지",
+    "주의표지",  # 6-8
+    "신호등_빨강",
+    "신호등_초록",
+    "신호등_노랑",
+    "신호등_좌회전",
+    "신호등_기타",  # 9-13
 ]
 CLS_IDX = {n: i for i, n in enumerate(CLS_NAMES)}
 # 추론 시 검출 클래스로 후보 서브셋 제한용
-SIGN_CLS_IDS  = list(range(0, 9))
+SIGN_CLS_IDS = list(range(0, 9))
 LIGHT_CLS_IDS = list(range(9, 14))
 
 
@@ -61,7 +73,7 @@ def sign_class(ann) -> str | None:
 
 
 def light_class(ann) -> str:
-    attr_list = ann.get("attribute") or [{}]   # 빈 리스트([])도 방어
+    attr_list = ann.get("attribute") or [{}]  # 빈 리스트([])도 방어
     attr = attr_list[0] if attr_list else {}
     on = [k for k, v in attr.items() if v == "on"]
     if any("left_arrow" in o for o in on):
@@ -100,9 +112,11 @@ def write_yaml():
     )
     # 분류기 클래스 인덱스 파일 (학습/추론 공유)
     (ROI_DIR / "classes.json").write_text(
-        json.dumps({"names": CLS_NAMES,
-                    "sign_ids": SIGN_CLS_IDS, "light_ids": LIGHT_CLS_IDS},
-                   ensure_ascii=False, indent=2),
+        json.dumps(
+            {"names": CLS_NAMES, "sign_ids": SIGN_CLS_IDS, "light_ids": LIGHT_CLS_IDS},
+            ensure_ascii=False,
+            indent=2,
+        ),
         encoding="utf-8",
     )
 
@@ -184,7 +198,8 @@ def process(max_frames=None):
             # 검출기: 프레임 복사 + 라벨
             shutil.copy2(jpg, YOLO_V2 / "images" / split / f"{stem}.jpg")
             (YOLO_V2 / "labels" / split / f"{stem}.txt").write_text(
-                "\n".join(yolo_lines) + "\n", encoding="utf-8")
+                "\n".join(yolo_lines) + "\n", encoding="utf-8"
+            )
 
             # 분류기: ROI 크롭 저장
             if rois:
@@ -198,8 +213,7 @@ def process(max_frames=None):
                         crop = img[cy1:cy2, cx1:cx2]
                         if crop.size == 0:
                             continue
-                        crop = cv2.resize(crop, (ROI_SIZE, ROI_SIZE),
-                                          interpolation=cv2.INTER_AREA)
+                        crop = cv2.resize(crop, (ROI_SIZE, ROI_SIZE), interpolation=cv2.INTER_AREA)
                         out = ROI_DIR / split / f"{ci:02d}" / f"{stem}_{j}.jpg"
                         cv2.imwrite(str(out), crop)  # ASCII 경로 → 정상 동작
                         cls_count[CLS_NAMES[ci]] += 1
