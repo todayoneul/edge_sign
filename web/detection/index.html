@@ -501,6 +501,102 @@
     #chat-input::placeholder { color: var(--ink-4); }
     #send-btn { min-height: 44px; }
 
+    /* ════════════════ 성능 스트립 (양자화 토글 + 단계 플로우) ════════════════ */
+    .perf-strip {
+      display: flex; align-items: stretch; gap: var(--sp-4); flex-wrap: wrap;
+      padding: var(--sp-3) var(--sp-4);
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--r);
+    }
+    .perf-block { display: flex; flex-direction: column; gap: 7px; justify-content: center; }
+    .perf-tag {
+      font-family: var(--f-mono); font-size: 0.56rem; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--ink-3);
+    }
+
+    /* 양자화 A/B 세그먼트 토글 */
+    .var-row { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
+    .seg-toggle {
+      display: inline-flex; padding: 2px; gap: 2px;
+      background: var(--surface-2); border: 1px solid var(--line-2); border-radius: var(--r-sm);
+    }
+    .seg-toggle button {
+      font-family: var(--f-mono); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.03em;
+      min-height: 30px; padding: 0 var(--sp-3);
+      display: inline-flex; align-items: center; gap: 6px;
+      background: transparent; color: var(--ink-3);
+      border: 0; border-radius: 6px; cursor: pointer;
+      transition: background var(--dur) var(--ease), color var(--dur);
+    }
+    .seg-toggle button .vmb {
+      font-size: 0.58rem; color: var(--ink-4);
+      font-variant-numeric: tabular-nums;
+    }
+    .seg-toggle button[aria-pressed="true"] { background: var(--invert-bg); color: var(--invert-ink); }
+    .seg-toggle button[aria-pressed="true"] .vmb { color: var(--invert-ink); opacity: 0.7; }
+    .var-delta {
+      font-family: var(--f-mono); font-variant-numeric: tabular-nums;
+      font-size: 0.66rem; color: var(--ink-2); white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .var-delta b { font-weight: 600; color: var(--ink); }
+    .var-delta .good { color: var(--c-sign); }   /* 개선(작아짐/빨라짐) — 부호도 함께 표기 */
+
+    /* 검출→추적→인식 단계 레이턴시 플로우 */
+    .pipeline-flow { display: flex; align-items: stretch; gap: var(--sp-5); flex: 1; min-width: 200px; }
+    .pstage { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; position: relative; }
+    .pstage + .pstage::before {
+      content: '›'; position: absolute; left: calc(-0.5 * var(--sp-5) - 4px); top: 15px;
+      color: var(--ink-4); font-family: var(--f-mono); font-size: 0.8rem;
+    }
+    .pstage-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-2); }
+    .pstage-name {
+      font-family: var(--f-mono); font-size: 0.58rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-3);
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .pstage-name .bn {
+      font-size: 0.48rem; letter-spacing: 0.06em; color: var(--invert-ink);
+      background: var(--c-board); border-radius: var(--r-pill); padding: 1px 5px;
+      opacity: 0; transition: opacity var(--dur);
+    }
+    .pstage.bottleneck .pstage-name .bn { opacity: 1; }
+    .pstage-ms {
+      font-family: var(--f-mono); font-variant-numeric: tabular-nums;
+      font-size: 0.76rem; font-weight: 600; color: var(--ink);
+    }
+    .pstage-ms small { color: var(--ink-3); font-weight: 400; }
+    .pbar { height: 4px; border-radius: var(--r-pill); background: var(--line-2); overflow: hidden; }
+    .pbar > i {
+      display: block; height: 100%; width: 0%; border-radius: inherit;
+      background: var(--ink-3); transition: width 280ms var(--ease), background var(--dur);
+    }
+    .pstage.bottleneck .pbar > i { background: var(--ink); }
+
+    /* BYOK Groq 키 입력 (Q&A) */
+    .byok {
+      display: flex; flex-direction: column; gap: 7px;
+      padding: var(--sp-3) var(--sp-4); border-top: 1px solid var(--line); background: var(--surface);
+    }
+    .byok-label {
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: var(--f-mono); font-size: 0.56rem; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--ink-3);
+    }
+    .byok-state { font-family: var(--f-mono); font-size: 0.56rem; letter-spacing: 0.06em; }
+    .byok-state.ok  { color: var(--c-sign); }
+    .byok-state.off { color: var(--ink-4); }
+    .byok-field { display: flex; gap: var(--sp-2); align-items: center; }
+    .byok-field input {
+      flex: 1; min-width: 0; font-family: var(--f-mono); font-size: 0.72rem; color: var(--ink);
+      background: var(--surface-2); border: 1px solid var(--line-2); border-radius: var(--r-sm);
+      padding: 8px 10px; outline: none; min-height: 36px;
+      transition: border-color var(--dur);
+    }
+    .byok-field input:focus { border-color: var(--ink-3); }
+    .byok-help { font-family: var(--f-sans); font-size: 0.64rem; color: var(--ink-4); line-height: 1.5; }
+    .byok-help a { color: var(--ink-2); }
+
     /* ════════════════ 푸터 텔레메트리 ════════════════ */
     #footer {
       display: flex; gap: var(--sp-6); flex-wrap: wrap; align-items: center;
@@ -701,16 +797,52 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h5l2 3h7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg>
             동영상 열기
           </button>
+          <button class="btn btn-ghost" id="hero-sample">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5v14l11-7z"/></svg>
+            샘플 영상
+          </button>
           <button class="btn btn-ghost" id="hero-webcam">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/></svg>
             웹캠 시작
           </button>
         </div>
-        <p class="hero-hint">또는 영상 파일을 뷰포트로 드래그</p>
+        <p class="hero-hint">샘플로 바로 체험하거나, 본인 영상을 드래그·업로드하세요</p>
+      </div>
+    </div>
+
+    <!-- 성능 스트립: 양자화 A/B 토글 + 단계별 레이턴시 플로우 -->
+    <div class="perf-strip" id="perf-strip">
+      <div class="perf-block" id="variant-block" hidden>
+        <span class="perf-tag">검출기 양자화</span>
+        <div class="var-row">
+          <div class="seg-toggle" id="variant-toggle" role="group" aria-label="검출기 양자화 전환"></div>
+          <span class="var-delta" id="variant-delta"></span>
+        </div>
+      </div>
+      <div class="perf-block" style="flex:1;">
+        <span class="perf-tag">파이프라인 단계 · 프레임당 소요</span>
+        <div class="pipeline-flow" id="pipeline-flow">
+          <div class="pstage detect" data-stage="detect" title="YOLOv8s 검출">
+            <div class="pstage-head"><span class="pstage-name">검출<span class="bn">병목</span></span><span class="pstage-ms" id="ms-detect">—</span></div>
+            <div class="pbar"><i id="bar-detect"></i></div>
+          </div>
+          <div class="pstage track" data-stage="track" title="ByteTrack 추적">
+            <div class="pstage-head"><span class="pstage-name">추적<span class="bn">병목</span></span><span class="pstage-ms" id="ms-track">—</span></div>
+            <div class="pbar"><i id="bar-track"></i></div>
+          </div>
+          <div class="pstage recog" data-stage="recog" title="분류기/OCR 인식">
+            <div class="pstage-head"><span class="pstage-name">인식<span class="bn">병목</span></span><span class="pstage-ms" id="ms-recog">—</span></div>
+            <div class="pbar"><i id="bar-recog"></i></div>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="controls">
+      <button class="btn btn-ghost" id="sample-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5v14l11-7z"/></svg>
+        샘플
+      </button>
       <button class="btn btn-ghost" id="webcam-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/></svg>
         웹캠
@@ -781,6 +913,17 @@
         <button class="chip" data-q="지금 보이는 표지판은 뭐야?">표지판 뭐야?</button>
         <button class="chip" data-q="지금 멈춰야 해?">지금 멈춰야 해?</button>
         <button class="chip" data-q="현재 장면을 요약해줘.">장면 요약</button>
+      </div>
+      <div class="byok" id="byok">
+        <div class="byok-label">
+          <span>Groq API 키 · 본인 키 사용(BYOK)</span>
+          <span class="byok-state off" id="byok-state">미설정</span>
+        </div>
+        <div class="byok-field">
+          <input type="password" id="byok-input" placeholder="gsk_..." autocomplete="off" spellcheck="false" aria-label="Groq API 키" />
+          <button class="pc-btn" id="byok-show" type="button" aria-label="키 표시 전환">표시</button>
+        </div>
+        <p class="byok-help">키는 이 브라우저에만 저장되며 질문 시에만 서버로 전달됩니다. <a href="https://console.groq.com/keys" target="_blank" rel="noopener">키 발급 ↗</a></p>
       </div>
       <div id="chat-input-area">
         <textarea id="chat-input" placeholder="예: 저 신호등 무슨 색이야?" rows="1"></textarea>

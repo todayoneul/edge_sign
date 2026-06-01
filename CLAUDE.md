@@ -69,12 +69,18 @@ CNN_Quant/
 │       ├── quantize_yolo.py     # W8A8/W4A16/SmoothQuant PTQ 구현
 │       ├── run_experiments.py   # E1/E4/E5 검출기 양자화 실험 일괄 실행
 │
+├── Dockerfile                   # [Phase 11] HF Spaces (Docker, CPU) 이미지
+├── .dockerignore                # 빌드 컨텍스트 슬림화 (필요 ONNX 4개만 선별)
+├── requirements-hf.txt          # [Phase 11] HF Space 슬림 CPU 의존성
+├── spaces/README.md             # [Phase 11] HF Space YAML 헤더 + 배포 안내
+│
 ├── web/                         # 웹 프론트엔드
 │   ├── index.html               # 한글 OCR 캔버스 데모 (Phase 1, ORT-Web)
 │   ├── app.js                   # ONNX Runtime Web 추론
 │   └── detection/               # [Phase 2/3] 검출+추적+인식 + Q&A 데모 (메인 시연)
-│       ├── index.html           # 검출 뷰 + 채팅 UI
-│       └── app.js               # WebSocket 프레임 전송 + SSE Q&A
+│       ├── index.html           # 검출 뷰 + 채팅 UI + [Phase 11] 양자화 A/B 토글·단계 플로우·BYOK
+│       ├── app.js               # WS 프레임(+variant) 전송 · SSE Q&A · stage_ms 시각화
+│       └── samples/             # [Phase 11] 번들 데모 클립(H.264 720p) — '샘플 영상' 버튼
 │
 ├── AIhub/                       # AI Hub 원본 데이터 (.gitignore 제외)
 │   ├── 신호등-도로표지판 인지 영상(수도권)/  # TAR 압축 (9시퀀스, 110,900 JPG 프레임)
@@ -89,6 +95,7 @@ CNN_Quant/
 │   ├── train_korean_classifier.py # [Phase 9] 한국 표지판/신호등 14클래스 분류기 학습 → korean_sign_net
 │   ├── check_gpu_ort.py         # [Phase 10] onnxruntime-gpu CUDA EP 검증
 │   ├── check_codec_matrix.py    # [Phase 10] H.264/MPEG-4/HEVC 서버 디코딩 검증
+│   ├── quantize_v3_detector.py  # [Phase 11] v3 검출기 Static INT8(QDQ) — 헤드 제외, A/B용
 │   └── archive/                 # 종료된 Phase 1·4·5 실험·플롯·벤치마크·다운로드 스크립트 보관
 │                                #   (plot_pareto/sensitivity/v2_extras/detection_samples,
 │                                #    benchmark_pipeline, quantize_onnx_real, download_*, export_* 등)
@@ -160,9 +167,21 @@ uvicorn src.pipeline.app:app --reload --port 8000
 #   - MPEG-4 등 비호환 코덱·URL·이미지 → 서버 인제스트(/api/ingest → /ws/session),
 #     서버가 디코딩, 클라가 동일 스타일로 박스 렌더 (라벨링 두 모드 일치)
 # 검증: python scripts/check_gpu_ort.py / python scripts/check_codec_matrix.py
-# 테스트: python -m pytest tests/   (FrameSource·세션·ingest)
+# 테스트: python -m pytest tests/   (FrameSource·세션·ingest·variant·BYOK)
 # 주의: 서버는 convnext_env에서 실행 — groq·onnxruntime-gpu·yt-dlp 설치 필요.
 #   YOLO 재학습 시 KMP_DUPLICATE_LIB_OK=TRUE + --workers 0.
+#   주의: conda run이 불안정하면 env python 직접 호출
+#     ("$CONDA/envs/convnext_env/python.exe"). 셸 env는 set이 아닌 export/inline prefix.
+
+# Phase 11 — 다이나믹 시연 + HF Space
+# v3 검출기 INT8(QDQ, 헤드 제외 — 헤드 양자화 시 검출 붕괴) 생성:
+KMP_DUPLICATE_LIB_OK=TRUE python scripts/quantize_v3_detector.py --bench
+#   → model_space/yolov8s_signs_v3_int8_static.onnx (18MB, 검출 near-lossless)
+#   서버가 v3 fp32+int8_static 둘 다 로드 → 웹 FP32⇄INT8 A/B 토글 노출.
+# 양자화 A/B·단계 stage_ms·BYOK Q&A·샘플 영상은 web/detection/ 에 구현.
+# HF Spaces (Docker, CPU 전용) 로컬 빌드 검증:
+docker build -t edge-sign . && docker run --rm -p 7860:7860 edge-sign
+#   → http://localhost:7860/detection/  (EDGE_SIGN_CPU_ONLY=1, 모델 LFS 동봉은 spaces/README.md)
 ```
 
 ---
