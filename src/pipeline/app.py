@@ -326,6 +326,7 @@ async def ws_session(websocket: WebSocket):
 class QARequest(BaseModel):
     tracks: list[dict]       # process_frame()["tracks"]
     question: str
+    api_key: str | None = None   # BYOK — 방문자 본인 Groq 키 (없으면 서버 env 폴백)
 
 
 @app.post("/api/qa")
@@ -340,7 +341,7 @@ async def qa_endpoint(req: QARequest):
 
     async def event_generator():
         yield f"data: {json.dumps({'type': 'context', 'text': context}, ensure_ascii=False)}\n\n"
-        async for token in ask_stream(context, req.question):
+        async for token in ask_stream(context, req.question, api_key=req.api_key):
             payload = json.dumps({"type": "token", "text": token}, ensure_ascii=False)
             yield f"data: {payload}\n\n"
         yield f"data: {json.dumps({'type': 'done'}, ensure_ascii=False)}\n\n"

@@ -99,6 +99,7 @@ async def ask_stream(
     question: str,
     model: str = DEFAULT_MODEL,
     max_tokens: int = 300,
+    api_key: str | None = None,
 ) -> AsyncIterator[str]:
     """
     인식 컨텍스트 + 사용자 질문 → Groq 스트리밍 답변 토큰 이터레이터.
@@ -108,6 +109,8 @@ async def ask_stream(
         question:  사용자 질문
         model:     Groq 모델 ID (기본: llama-3.3-70b-versatile)
         max_tokens: 최대 응답 토큰 수
+        api_key:   방문자 본인 Groq 키(BYOK). 없으면 GROQ_API_KEY env로 폴백.
+                   공개 HF Space에서는 서버 키 노출/소진 방지를 위해 BYOK 사용.
 
     Yields:
         str: 스트리밍 텍스트 토큰
@@ -120,10 +123,12 @@ async def ask_stream(
             "설치: pip install groq"
         )
 
-    api_key = os.environ.get("GROQ_API_KEY", "")
-    if not api_key:
-        yield "⚠️ GROQ_API_KEY가 설정되지 않았습니다. .env 파일을 확인하세요."
+    # BYOK 우선 — 요청별 키가 있으면 env보다 우선 사용.
+    key = (api_key or "").strip() or os.environ.get("GROQ_API_KEY", "")
+    if not key:
+        yield "⚠️ GROQ_API_KEY가 설정되지 않았습니다. Q&A를 쓰려면 Groq 키를 입력하세요."
         return
+    api_key = key
 
     client = AsyncGroq(api_key=api_key)
 
