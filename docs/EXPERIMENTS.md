@@ -181,6 +181,49 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
 
 ---
 
+## Phase 3 결과 — 도메인 적응 (신호등 분리 · 한국어 인식)
+
+> Phase 2의 양자화 결론을 실제 한국 도로 도메인 시연으로 옮기며 수행한 재학습 결과.
+> Phase 2(v2split)와는 검출 클래스 구성이 달라 mAP를 직접 비교하지 않는다.
+
+### 신호등 분리 검출기 (v3)
+
+| 항목 | 값 |
+|------|-----|
+| 모델 | YOLOv8s, imgsz 1280, batch 8, `close_mosaic=10`, `patience=20` |
+| 데이터 | `data/yolo_signs_v2/` — train 12,375 / val 1,903 (신호등 별도 클래스 분리) |
+| 클래스 | `0=traffic_sign`, `1=traffic_light` |
+| **채택 체크포인트** | `best.pt` = **epoch 29** |
+| mAP@0.5 | **0.7761** |
+| mAP@0.5:0.95 | **0.4457** |
+| 종료 사유 | best(ep29) 이후 5 epoch 연속 하락(mosaic off 구간 회복 없음) → 조기종료 |
+| 다운스트림 | `yolov8s_signs_v3_fp32.onnx` / `_w8a8.onnx` (서버 `taxonomy=v3` 우선 로드) |
+
+### 한국 표지판/신호등 분류기 (14클래스)
+
+| 항목 | 값 |
+|------|-----|
+| 모델 | TrafficSignNet 14클래스, AI Hub ROI(`data/roi_cls/`) |
+| 클래스 구성 | 속도제한 6(30/40/50/60/70/80) + 표지 3(규제·지시·주의) + 신호등 색상 5(빨강·초록·노랑·좌회전·기타) |
+| 전처리 | 학습=추론 일치(`(rgb/255-0.5)/0.5`), 수평 플립 증강 제거 |
+| **val 정확도** | **80.3%** |
+| 출력 | `korean_sign_net_fp32.onnx`, 매핑 `data/roi_cls/classes.json` |
+| E2E 라우팅 | 검출 클래스로 후보 제한(표지판→9 / 신호등→5) → 신호등↔표지판 혼동 차단 |
+
+> **비교 (Phase 2 → Phase 3 인식기):** 독일 GTSDB 43클래스(val 62.8%)를 한국 14클래스(val 80.3%)로 교체.
+> 클래스 수·도메인이 달라 정확도 직접 비교는 불가하나, 한국 도로 시연에서 신호등 색상 및 표지 종류가
+> 한국어 라벨로 정상 인식됨을 E2E로 검증하였다(블랙박스 MPEG-4 → `신호등_초록` 검출, 2026-05-31).
+
+### 범용 입력 파이프라인 (SP1) 검증
+
+| 검증 | 도구 | 결과 |
+|------|------|------|
+| GPU 추론 (CUDA EP) | `scripts/check_gpu_ort.py` | `CUDAExecutionProvider` 활성, 1프레임 GPU 추론 OK |
+| 코덱 디코딩 | `scripts/check_codec_matrix.py` | H.264 · MPEG-4 Part2 OK |
+| FrameSource·세션·ingest E2E | `pytest tests/` | 8 passed |
+
+---
+
 ## 메모 및 관찰
 
 > 실험 중 발견한 사항, 예상치 못한 결과, 디버깅 노트 등을 여기에 기록합니다.
@@ -298,3 +341,15 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
   - **조기종료(00:27 KST)**: best(ep29) 이후 5 epoch 연속 하락(mAP50-95 0.4457→0.4330). `close_mosaic`로 mosaic가 꺼진 ep31~34 구간에서도 **회복 없이 단조 하락** → 증강전환 아티팩트가 아닌 실제 정체/과적합으로 확정. 남은 6 epoch가 ep29를 넘길 가능성 희박 → 종료(약 70분 절약). 핸드오프: `docs/TRAINING_STATUS.md`.
   - **비교 주의**: v3는 신호등 분리로 클래스 구성이 v2(v2split)와 달라 mAP **직접 비교 불가** (클래스 추가 시 mAP 하락은 자연스러움).
   - **다운스트림**: v3 검출기 관련 작업(ONNX export·INT8 양자화·E2E 평가)은 위 best.pt(ep29) 기준으로 진행. "40 epoch 완주본"은 존재하지 않음.
+- **2026-05-31**: **한국 표지판/신호등 14클래스 분류기 학습 완료** → `scripts/train_korean_classifier.py`
+  - 독일 GTSDB 43클래스 폐기 → AI Hub ROI 기반 한국 14클래스(속도제한 6 + 표지 3 + 신호등 색상 5)
+  - 전처리 학습=추론 일치(`(rgb/255-0.5)/0.5`), 수평 플립 제거 → val_acc=**80.3%**
+  - 출력 `korean_sign_net_fp32.onnx` (FP32 유지: 소형 모델 INT8 ConvInteger CPU 미지원 회피)
+  - E2E `det_taxonomy` 가드로 검출 클래스별 후보 제한 → 신호등↔표지판 혼동 차단 (코드리뷰 C1 수정)
+- **2026-05-31**: **범용 실시간 입력(SP1) 구현 완료** — TDD + 서브에이전트 2단계 리뷰
+  - `sources.py`(Image/VideoFile/UrlStream) + `session.py`(세션 매니저) + `app.py`(`/api/ingest`·`/ws/session`)
+  - 하이브리드 2-모드: 브라우저 호환은 클라 캡처, 비호환 코덱/URL/이미지는 서버 인제스트(자동 폴백)
+  - 서버는 원본 프레임 + 좌표 JSON만 전송, 클라가 동일 코드로 렌더 → 두 모드 라벨링 일치
+  - GPU 복구: `onnxruntime-gpu` + torch cu128 동봉 CUDA DLL(`os.add_dll_directory`) → CUDA EP 활성
+  - 검증: `pytest tests/` 8 passed, `check_gpu_ort.py`/`check_codec_matrix.py`(H.264·MPEG-4) 통과
+- **2026-06-01**: **문서 v3 동기화** — README를 Phase 1/2/3 단일 프로젝트 서사로 재구성(떠있던 'v3 확장' 섹션 → 본문 §8 Phase 3로 통합, §9 웹/§10 재현 재번호), ROADMAP Phase 8/9/10 추가, 본 문서 Phase 3 결과 섹션 추가.

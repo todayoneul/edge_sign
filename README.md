@@ -7,7 +7,16 @@ Edge-Sign은 엣지 디바이스에서 실시간으로 한글 간판과 교통�
 신경망 양자화(W8A8, W4A16, SmoothQuant, 1-Bit)를 파이프라인 각 단계에 적용하여,
 총 모델 크기 15 MB 이하 조건에서 30+ FPS 실시간 추론을 목표로 한다.
 
-**주요 성과 (v2 Stratified Split, 2026-05-30 재학습 · 깨끗한 환경 재측정):**
+본 프로젝트는 "어떤 단계가 양자화에 가장 민감한가"라는 질문에서 출발하여,
+실제 도로 도메인에서 동작하는 실시간 시연 시스템까지 세 단계로 진행되었다.
+
+| 단계 | 주제 | 핵심 결과 |
+| :--- | :--- | :--- |
+| **Phase 1** | 압축 방법론 확립 (분류 백본) | 6개 양자화 기법 구현·비교. W8A8 SmoothQuant Final Score **0.8068** 최고. 1-Bit(1.99 MB)에서 정보이론적 한계 정량화 |
+| **Phase 2** | 파이프라인 단계별 양자화 민감도 | YOLOv8s 검출 + ByteTrack + 분기 인식, E0~E7 8개 구성. 검출기 W8A8 **무손실** · 인식기 W4A16 **−43.9%p 붕괴** → 인식기가 최대 병목임을 규명. INT8 Static **56.3 FPS** |
+| **Phase 3** | 도메인 적응 및 실시간 시연 | 신호등 분리 검출(mAP **0.776**) + 한국어 14클래스 분류기(val **80.3%**) + 임의 입력 범용 파이프라인 + GPU 가속 + LLM 주행 Q&A |
+
+**Phase 2 정량 성과 (v2 Stratified Split, 2026-05-30 깨끗한 환경 재측정):**
 
 | 지표 | 베이스라인 (E0 FP32) | 최적 W8A8 (E3) | INT8 Static (E0) |
 | :--- | :---: | :---: | :---: |
@@ -26,7 +35,8 @@ Edge-Sign은 엣지 디바이스에서 실시간으로 한글 간판과 교통�
 최적 구성: `yolov8s_signs_w8a8.onnx`(5.4 MB) + ByteTrack + KoreanOCRNet W8A8 + TrafficSignNet W8A8.
 실시간 가속이 필요한 경우 동일 구성을 Static INT8 QDQ로 양자화하여 사용한다.
 
-> **v3 확장 (2026-05-31):** 위 양자화 연구(섹션 1~9) 이후 신호등 분리 검출, 한국어 표지·신호등 인식, 범용 실시간 입력을 추가하였다. 상세는 [v3 확장 섹션](#v3-확장-신호등-분리-한국어-인식-범용-입력-2026-05-31)을 참조한다.
+Phase 2의 양자화 결론을 실제 도로 도메인에 적용한 결과(신호등 분리 검출, 한국어 인식,
+범용 실시간 입력)는 [8. Phase 3 — 도메인 적응](#8-phase-3--도메인-적응-신호등-분리-검출-및-한국어-인식)에 정리하였다.
 
 **핵심 결과 한눈에 보기:**
 
@@ -56,69 +66,12 @@ E3(W8A8 All, 빨강)이 MOTA Pareto, E5(SmoothQuant+W8A8, 주황)가 OCR Pareto 
 - [4. Phase 1 — 옴니모달(VLM) 한계 검증](#4-phase-1--옴니모달vlm-한계-검증)
 - [5. 종합 평가 및 최적 모델 선정 (Final Score)](#5-종합-평가-및-최적-모델-선정-final-score)
 - [6. Phase 2 — 검출·추적·인식 파이프라인 설계](#6-phase-2--검출추적인식-파이프라인-설계)
-- [7. Phase 2 양자화 실험 매트릭스](#7-phase-2-양자화-실험-매트릭스)
+- [7. Phase 2 — 양자화 실험 매트릭스](#7-phase-2--양자화-실험-매트릭스)
   - [7.1 평가 지표](#71-평가-지표) · [7.2 검출 결과](#72-검출기-양자화-실험-결과) · [7.3 추적 결과](#73-추적기-양자화-영향-분석-e0e6) · [7.4 인식기 모델](#74-인식기-모델-trafficsignnet--koreanoccurnet) · [7.5 Pareto Frontier](#75-pareto-frontier--모델-크기-vs-파이프라인-성능) · [7.6 벤치마크](#76-phase-5--cpu-onnx-runtime-벤치마크)
-- [8. 웹 배포 아키텍처](#8-웹-배포-아키텍처)
-- [9. 재현 가이드 (Reproduction Guide)](#9-재현-가이드-reproduction-guide)
-- [v3 확장: 신호등 분리, 한국어 인식, 범용 입력](#v3-확장-신호등-분리-한국어-인식-범용-입력-2026-05-31)
-
----
-
-## v3 확장: 신호등 분리, 한국어 인식, 범용 입력 (2026-05-31)
-
-Phase 1·2의 양자화 연구(섹션 1~9) 위에, 실시연 품질을 향상하기 위한 v3 확장을 수행하였다.
-세 축 — (1) 검출기 신호등 분리 재학습, (2) 한국 표지판·신호등 분류기 신규 학습, (3) 임의 입력을 처리하는 범용 실시간 파이프라인 — 을 적용하여 main에 병합하였다.
-
-![v3 검출 샘플](assets/v3/v3_detection_sample.jpg)
-
-> 청량리역 사거리(주간) 단일 프레임. 녹색 박스는 교통표지판(규제·지시·주의), 빨강 박스는 신호등(빨강·노랑 색상까지 분류)이며, 라벨은 한국어로 렌더링된다. (학습에 사용하지 않은 test 시퀀스를 사용한 일반화 검증)
-
-### A. 검출기 v3 — 신호등을 별도 클래스로 분리
-
-기존 검출기는 신호등을 `traffic_sign`에 통합하여, 신호등이 "주의표지" 등으로 오인식되는 한계가 있었다. v3는 신호등을 독립 클래스로 분리 재학습하였다.
-
-| 항목 | v2 검출기 | **v3 검출기** |
-| :--- | :--- | :--- |
-| 클래스 | `0=traffic_sign`, `1=signboard` | **`0=traffic_sign`, `1=traffic_light`** |
-| 학습 데이터 | 혼합 (GTSDB+AI Hub+간판) | AI Hub 수도권 도로 (12,375 train / 1,903 val) |
-| val mAP@0.5 | 0.587 | **0.776** (ep29 조기종료 best) |
-| 신호등 처리 | 표지판과 미분리 → 색상 불가 | **별도 검출 → 색상 분류 가능** |
-
-### B. 한국 표지판/신호등 분류기 (14클래스)
-
-독일 GTSDB 43클래스 분류기를 폐기하고, AI Hub ROI로 한국 도메인 분류기를 신규 학습하였다. (전처리는 학습=추론 일치, val_acc **80.3%**)
-
-| 그룹 | 클래스 | 비고 |
-| :--- | :--- | :--- |
-| 속도제한 | 속도제한 30 / 40 / 50 / 60 / 70 / 80 | restriction + 숫자 텍스트 |
-| 표지 종류 | 규제표지 · 지시표지 · 주의표지 | restriction(기타) / instruction / caution |
-| 신호등 색상 | 신호등_빨강 · 초록 · 노랑 · 좌회전 · 기타 | 점등 상태(attribute) 기반 |
-
-> 검출 클래스로 후보를 제한(표지판→표지 9클래스 / 신호등→색상 5클래스)하여 신호등↔표지판 혼동을 차단한다.
-
-### C. 범용 실시간 입력 (SP1) — 어떤 입력이든 즉시 인식
-
-브라우저가 못 푸는 코덱(예: 블랙박스 MPEG-4)·URL·이미지까지 모두 받기 위해, **하이브리드 2-모드** 입력 파이프라인을 구축하였다.
-
-| 모드 | 입력 | 디코딩 | 박스 렌더 | 엔드포인트 |
-| :--- | :--- | :--- | :--- | :--- |
-| ① 클라이언트 캡처 | 웹캠 · 브라우저 호환 영상(H.264) | 브라우저 `<video>` | 클라이언트 캔버스 | `WS /ws/stream` (좌표 JSON) |
-| ② 서버 인제스트 | **비호환 코덱**(MPEG-4 등) · **URL/RTSP** · **이미지** | 서버 OpenCV/ffmpeg | 클라이언트 캔버스 (동일 스타일) | `POST /api/ingest` → `WS /ws/session` |
-
-- **자동 폴백**: 영상 업로드 시 브라우저 디코딩 실패(`NotSupportedError`)를 감지하면 자동으로 모드②로 전환한다. 이전에 "검은 화면"이던 블랙박스 영상이 그대로 재생·인식된다.
-- **라벨링 통일**: 서버는 원본 프레임 + 좌표 JSON만 전송하고, 박스/라벨은 **클라이언트가 동일 코드로 렌더** → 두 모드 라벨링이 완전히 일치(한글 폰트 포함).
-- **코덱 검증**: H.264 / MPEG-4 Part2 서버 디코딩 자동 검증 통과 (`scripts/check_codec_matrix.py`).
-
-### D. 추론 가속 · Q&A
-
-| 항목 | 내용 |
-| :--- | :--- |
-| **GPU 추론 복구** | `onnxruntime-gpu` + torch cu128 동봉 CUDA DLL 재활용 → `CUDAExecutionProvider`/`TensorRT` 활성 (`scripts/check_gpu_ort.py` 검증) |
-| **주행 Q&A** | Groq API(무료 티어, Llama 3.3 70B) SSE 스트리밍 — 인식 결과(JSON) → 자연어 답변 |
-| **테스트** | `pytest tests/` 8 passed (FrameSource·세션·ingest E2E) |
-
-> 신규 모듈: `src/pipeline/sources.py`(FrameSource 추상화)·`session.py`(세션 매니저), `scripts/prepare_korean_traffic.py`·`train_korean_classifier.py`·`check_codec_matrix.py`·`check_gpu_ort.py`.
-> 설계·구현 문서: `docs/superpowers/specs/`·`docs/superpowers/plans/`.
+- [8. Phase 3 — 도메인 적응: 신호등 분리 검출 및 한국어 인식](#8-phase-3--도메인-적응-신호등-분리-검출-및-한국어-인식)
+  - [8.1 신호등 분리 검출기](#81-신호등을-별도-클래스로-분리한-검출기) · [8.2 한국어 분류기](#82-한국-표지판신호등-분류기-14클래스) · [8.3 추론 가속·Q&A](#83-추론-가속-및-주행-qa)
+- [9. 실시간 시연 시스템 및 웹 배포 아키텍처](#9-실시간-시연-시스템-및-웹-배포-아키텍처)
+- [10. 재현 가이드 (Reproduction Guide)](#10-재현-가이드-reproduction-guide)
 
 ---
 
@@ -383,7 +336,7 @@ YOLOv8n 학습  ->  src/detect/yolo_train.py
 
 ---
 
-## 7. Phase 2 양자화 실험 매트릭스
+## 7. Phase 2 — 양자화 실험 매트릭스
 
 파이프라인의 각 단계를 독립적으로 양자화하여 단계별 양자화 민감도를 정량화한다.
 
@@ -598,9 +551,68 @@ CosSim은 FP32 출력 대비 코사인 유사도로, **3개 모델 모두 0.98 �
 
 ---
 
-## 8. 웹 배포 아키텍처
+## 8. Phase 3 — 도메인 적응: 신호등 분리 검출 및 한국어 인식
 
-현재 구현은 하이브리드 2-모드이다 (상단 [v3 확장 (C)](#v3-확장-신호등-분리-한국어-인식-범용-입력-2026-05-31) 참조). 입력 종류에 따라 클라이언트가 자동으로 모드를 선택한다.
+Phase 2는 양자화 민감도라는 연구 질문에 답하기 위해 학습·평가 도메인을 통제하였다.
+Phase 3는 이 결론을 **실제 한국 도로 도메인의 시연 시스템**으로 옮기는 과정에서 드러난
+세 가지 한계 — (1) 신호등이 표지판 클래스에 흡수되어 색상 인식 불가, (2) 인식기가 독일 GTSDB
+43클래스라 한국 표지·신호등과 불일치, (3) 학습 도메인 밖 입력(코덱·구도)에서 동작 불가 — 를
+순차적으로 해소한 작업이다.
+
+![v3 검출 샘플](assets/v3/v3_detection_sample.jpg)
+
+> 청량리역 사거리(주간) 단일 프레임. 녹색 박스는 교통표지판(규제·지시·주의), 빨강 박스는 신호등(빨강·노랑 색상까지 분류)이며, 라벨은 한국어로 렌더링된다. 학습에 사용하지 않은 test 시퀀스를 사용한 일반화 검증 결과이다.
+
+### 8.1. 신호등을 별도 클래스로 분리한 검출기
+
+Phase 2 검출기는 신호등을 `traffic_sign`에 통합하여, 신호등이 "주의표지" 등으로 오인식되고 점등 색상을 판별할 수 없는 한계가 있었다. 이를 해소하기 위해 신호등을 독립 클래스로 분리하여 검출기를 재학습하였다.
+
+| 항목 | Phase 2 검출기 | **Phase 3 검출기** |
+| :--- | :--- | :--- |
+| 클래스 | `0=traffic_sign`, `1=signboard` | **`0=traffic_sign`, `1=traffic_light`** |
+| 학습 데이터 | 혼합 (GTSDB + AI Hub + 간판) | AI Hub 수도권 도로 (12,375 train / 1,903 val) |
+| val mAP@0.5 | 0.587 | **0.776** (ep29 조기종료 best) |
+| 신호등 처리 | 표지판과 미분리 → 색상 불가 | **별도 검출 → 색상 분류 가능** |
+
+> 학습은 ep29에서 best(mAP@0.5=0.776) 도달 후 5 epoch 연속 하락하여 조기종료하였다(`patience=20`). 다운스트림(ONNX export · INT8 양자화 · E2E)은 모두 ep29 `best.pt`를 기준으로 한다. 신호등 분리로 클래스 구성이 Phase 2와 달라 mAP를 직접 비교하지는 않는다.
+
+### 8.2. 한국 표지판/신호등 분류기 (14클래스)
+
+독일 GTSDB 43클래스 분류기(Phase 2)를 폐기하고, AI Hub ROI로 한국 도메인 분류기를 신규 학습하였다. 전처리를 학습=추론으로 일치시켜 분포 불일치를 제거하였으며 val 정확도 **80.3%**를 달성하였다.
+
+| 그룹 | 클래스 | 비고 |
+| :--- | :--- | :--- |
+| 속도제한 | 속도제한 30 / 40 / 50 / 60 / 70 / 80 | restriction + 숫자 텍스트 |
+| 표지 종류 | 규제표지 · 지시표지 · 주의표지 | restriction(기타) / instruction / caution |
+| 신호등 색상 | 신호등_빨강 · 초록 · 노랑 · 좌회전 · 기타 | 점등 상태(attribute) 기반 |
+
+> E2E 파이프라인은 검출 클래스로 분류 후보를 제한한다(표지판→표지 9클래스 / 신호등→색상 5클래스). 이로써 신호등↔표지판 혼동을 구조적으로 차단한다.
+
+### 8.3. 추론 가속 및 주행 Q&A
+
+| 항목 | 내용 |
+| :--- | :--- |
+| **GPU 추론 복구** | `onnxruntime-gpu` + torch cu128 동봉 CUDA DLL 재활용 → `CUDAExecutionProvider`/`TensorRT` 활성 (`scripts/check_gpu_ort.py` 검증) |
+| **주행 Q&A** | Groq API(무료 티어, Llama 3.3 70B) SSE 스트리밍 — 인식 결과(JSON) → 자연어 답변 |
+| **테스트** | `pytest tests/` 8 passed (FrameSource·세션·ingest E2E) |
+
+> 신규 모듈: `src/pipeline/sources.py`(FrameSource 추상화)·`session.py`(세션 매니저), `scripts/prepare_korean_traffic.py`·`train_korean_classifier.py`·`check_codec_matrix.py`·`check_gpu_ort.py`.
+> 설계·구현 문서: `docs/superpowers/specs/`·`docs/superpowers/plans/`.
+
+---
+
+## 9. 실시간 시연 시스템 및 웹 배포 아키텍처
+
+학습 도메인 밖의 입력(브라우저 비호환 코덱·URL·정지 이미지)에서도 동작하도록, 입력 종류에 따라 클라이언트가 자동으로 모드를 선택하는 **하이브리드 2-모드** 파이프라인을 구축하였다.
+
+| 모드 | 입력 | 디코딩 | 박스 렌더 | 엔드포인트 |
+| :--- | :--- | :--- | :--- | :--- |
+| ① 클라이언트 캡처 | 웹캠 · 브라우저 호환 영상(H.264) | 브라우저 `<video>` | 클라이언트 캔버스 | `WS /ws/stream` (좌표 JSON) |
+| ② 서버 인제스트 | **비호환 코덱**(MPEG-4 등) · **URL/RTSP** · **이미지** | 서버 OpenCV/ffmpeg | 클라이언트 캔버스 (동일 스타일) | `POST /api/ingest` → `WS /ws/session` |
+
+- **자동 폴백**: 영상 업로드 시 브라우저 디코딩 실패(`NotSupportedError`)를 감지하면 자동으로 모드②로 전환한다. 이전에 "검은 화면"이던 블랙박스 MPEG-4 영상도 그대로 재생·인식된다.
+- **라벨링 통일**: 서버는 원본 프레임 + 좌표 JSON만 전송하고, 박스/라벨은 **클라이언트가 동일 코드로 렌더**하여 두 모드의 라벨링이 완전히 일치한다(한글 폰트 포함).
+- **코덱 검증**: H.264 / MPEG-4 Part2 서버 디코딩 자동 검증 통과 (`scripts/check_codec_matrix.py`).
 
 ```
                           ┌──────────────── FastAPI 서버 (GPU) ────────────────┐
@@ -616,15 +628,13 @@ CosSim은 FP32 출력 대비 코사인 유사도로, **3개 모델 모두 0.98 �
    검출기 YOLOv8s-v3 (GPU/INT8) + ByteTrack + 한국 분류기 + KoreanOCRNet
 ```
 
-- **모드 ①** (웹캠·H.264): 브라우저가 디코딩, 프레임을 서버로 보내 좌표만 받아 캔버스에 그린다.
-- **모드 ②** (MPEG-4 등 비호환·URL/RTSP·이미지): 서버가 디코딩·추론, 원본 프레임+좌표를 보내 **클라가 동일 스타일로 그린다**(라벨링 일치).
 - **장기 목표**: ONNX Runtime Web(WASM/WebGPU) 전체 클라이언트 추론 (모델 < 15 MB → 서버리스 배포).
 
 참조 구현: `web/detection/` (검출·추적·Q&A 데모, 라이트/다크 토글), `src/pipeline/{app,sources,session}.py`
 
-### 8.1. 서버 동작 검증
+### 9.1. 서버 동작 검증
 
-`src/pipeline/app.py`(FastAPI + WebSocket + SSE)가 v3 모델로 정상 동작함을 검증하였다.
+`src/pipeline/app.py`(FastAPI + WebSocket + SSE)가 Phase 3 모델로 정상 동작함을 검증하였다.
 
 | 검증 항목 | 결과 |
 | :--- | :--- |
@@ -647,7 +657,7 @@ uvicorn src.pipeline.app:app --port 8000
 
 ---
 
-## 9. 재현 가이드 (Reproduction Guide)
+## 10. 재현 가이드 (Reproduction Guide)
 
 ### 환경 설치
 
@@ -727,4 +737,26 @@ python src/track/eval_tracking.py --onnx <path.onnx> # 단일 모델 평가
 ```bash
 python src/pipeline/e2e_pipeline.py    # 전체 파이프라인 추론
 python src/quant/run_experiments.py    # E0~E7 실험 일괄 실행
+```
+
+### Phase 3 — 도메인 적응 (신호등 분리 · 한국어 분류기 · 범용 입력)
+
+```bash
+# AI Hub → 신호등 분리 검출기 데이터(yolo_signs_v2) + 분류기 ROI(roi_cls) 단일패스 생성
+python scripts/prepare_korean_traffic.py
+
+# 신호등 분리 검출기 재학습 (imgsz 1280, Windows: --workers 0)
+python src/detect/yolo_train.py --mode train --data data/yolo_signs_v2/dataset.yaml --workers 0
+
+# 한국 표지판/신호등 14클래스 분류기 학습 → korean_sign_net_fp32.onnx
+python scripts/train_korean_classifier.py
+
+# GPU / 코덱 디코딩 검증
+python scripts/check_gpu_ort.py          # onnxruntime-gpu CUDA EP 확인
+python scripts/check_codec_matrix.py     # H.264 / MPEG-4 / HEVC 서버 디코딩
+
+# 범용 실시간 데모 서버 (convnext_env에서 실행, GROQ_API_KEY 필요)
+uvicorn src.pipeline.app:app --port 8000
+#  → http://localhost:8000/detection/  (웹캠·이미지·URL·모든 코덱 영상)
+python -m pytest tests/                  # FrameSource · 세션 · ingest E2E (8 passed)
 ```

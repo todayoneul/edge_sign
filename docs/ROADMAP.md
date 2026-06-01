@@ -213,7 +213,61 @@
 
 ---
 
+## Phase 8: 신호등 분리 검출기 재학습 (도메인 적응)
+**목표:** 신호등을 표지판에서 분리하여 별도 클래스로 검출 → 점등 색상 인식의 전제 마련
+
+- [x] AI Hub → 검출기/분류기 단일패스 데이터 생성 (2026-05-31) → `scripts/prepare_korean_traffic.py`
+  - 검출기 데이터셋 `data/yolo_signs_v2/` (신호등 별도 클래스 분리) + 분류기 ROI `data/roi_cls/`
+- [x] 신호등 분리 검출기 재학습 — 조기종료 (2026-05-31) → `runs/detect/edge_sign_v3_lights-4/`
+  - YOLOv8s, imgsz 1280, batch 8, `close_mosaic=10`, `patience=20`, train 12,375 / val 1,903
+  - **채택**: `weights/best.pt` = **epoch 29**, mAP@0.5=**0.7761**, mAP@0.5:0.95=0.4457
+  - best(ep29) 이후 5 epoch 연속 하락(mosaic off 구간 포함 회복 없음) → 정체/과적합 확정 조기종료
+  - 클래스 구성이 Phase 2(v2split)와 달라 mAP 직접 비교 불가
+- [x] 다운스트림 ONNX export (2026-05-31) — `yolov8s_signs_v3_fp32.onnx` / `_w8a8.onnx`
+  - 서버 `app.py`가 v3 ONNX 우선 로드(`taxonomy=v3`), 부재 시 v2 폴백
+
+**완료 기준:** 신호등이 독립 클래스로 검출되어 색상 분류기로 라우팅됨 ✅ 달성
+
+---
+
+## Phase 9: 한국 표지판/신호등 분류기 (도메인 적응)
+**목표:** 독일 GTSDB 43클래스 → 한국 도메인 14클래스 분류기 교체
+
+- [x] 한국 14클래스 분류기 학습 (2026-05-31) → `scripts/train_korean_classifier.py`
+  - TrafficSignNet 14클래스(속도제한 6 + 표지 3 + 신호등 색상 5), AI Hub ROI
+  - 전처리 학습=추론 일치(`(rgb/255-0.5)/0.5`, 수평 플립 증강 제거), val_acc=**80.3%**
+  - 출력: `korean_sign_net_fp32.onnx`, 클래스 매핑 `data/roi_cls/classes.json`
+- [x] E2E 파이프라인 라우팅 연결 (2026-05-31) → `src/pipeline/e2e_pipeline.py`
+  - `det_taxonomy` 가드: 검출 클래스로 후보 제한(표지판→9 / 신호등→5) → 신호등↔표지판 혼동 차단
+  - 코드 리뷰 C1(검출기/분류기 분류축 불일치) 수정 반영
+
+**완료 기준:** 신호등은 색상 라벨, 표지판은 표지 라벨로 한국어 인식 ✅ 달성
+
+---
+
+## Phase 10: 범용 실시간 입력 (SP1)
+**목표:** 업로드 영상(모든 코덱)·웹캠·정지 이미지·URL/RTSP 등 임의 입력을 즉시 인식
+
+> 설계·계획: `docs/superpowers/specs/2026-05-30-universal-realtime-input-design.md`,
+> `docs/superpowers/plans/2026-05-30-universal-realtime-input.md`. TDD + 서브에이전트 2단계 리뷰로 진행.
+
+- [x] FrameSource 추상화 (2026-05-31) → `src/pipeline/sources.py`
+  - `ImageSource`(한글 경로 `np.fromfile`+`imdecode`) / `VideoFileSource`(OpenCV 전 코덱 + seek) / `UrlStreamSource`(직접 URL·RTSP + yt-dlp)
+- [x] 세션 매니저 + 서버 인제스트 (2026-05-31) → `src/pipeline/session.py`, `app.py`
+  - `POST /api/ingest`(File/URL/이미지, 500MB) → `WS /ws/session`(재생 제어 + 서버 디코딩 루프)
+  - 서버는 원본 프레임 + 좌표 JSON 전송, 클라가 동일 코드로 렌더 → 두 모드 라벨링 일치
+- [x] GPU 추론 복구 (2026-05-31) — `onnxruntime-gpu` + torch cu128 동봉 CUDA DLL 재활용
+  - `os.add_dll_directory(torch/lib)` → `CUDAExecutionProvider` 활성 (`scripts/check_gpu_ort.py`)
+- [x] 코덱 매트릭스 검증 (2026-05-31) → `scripts/check_codec_matrix.py` — H.264 / MPEG-4 Part2 OK
+- [x] 프론트 통합 + 자동 폴백 (2026-05-31) → `web/detection/{app.js,index.html}`
+  - 브라우저 디코딩 실패(`NotSupportedError`) 감지 → 서버 인제스트 모드 자동 전환
+- [x] 테스트 (2026-05-31) → `tests/` — `pytest` 8 passed (FrameSource·세션·ingest E2E)
+
+**완료 기준:** 임의 코덱 영상/웹캠/이미지/URL 입력에서 실시간 검출·추적·인식 동작 ✅ 달성
+
+---
+
 ## 최종 산출물 체크리스트
 - [ ] 연구 보고서 (실험 결과 + 분석)
-- [ ] 시연 시스템 (웹 앱 — Phase 7 기반)
-- [ ] 코드 정리 + 문서 최종 업데이트
+- [x] 시연 시스템 (웹 앱 — 범용 실시간 입력, Phase 7·10 기반) (2026-05-31)
+- [ ] 코드 정리 + 문서 최종 업데이트 (진행 중 — README/ROADMAP/EXPERIMENTS v3 동기화 2026-06-01)
