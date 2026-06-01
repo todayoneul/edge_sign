@@ -6,17 +6,21 @@
 
 **Architecture:** `pyproject.toml`로 도구 설정을 중앙화하고, 5단계 커밋(설정→포맷→린트수정→loguru→타입)으로 점진 적용한다. 각 단계는 기존 `pytest tests/` 16개 통과로 회귀를 게이트한다. 신규 `src/pipeline/logging_config.py`만 TDD로 작성하고, 나머지는 기계적 변환 + 검증 명령으로 진행한다.
 
-**Tech Stack:** ruff · mypy · loguru · pytest · FastAPI · onnxruntime · Python 3.11 (conda `convnext_env`)
+**Tech Stack:** ruff · mypy · loguru · pytest · FastAPI · onnxruntime · Python 3.10 (conda `convnext_env`)
 
 ---
 
 ## 사전 점검 (Pre-flight)
 
-- 모든 명령은 conda `convnext_env`에서 실행한다(서버 런타임 의존성이 그 env에 있음).
+- **⚠️ 인터프리터(중요):** 런타임 의존성은 conda `convnext_env`(**Python 3.10.19**)에만 있다. 셸 기본 `python`은 base(3.13)이며 deps가 없으니 **절대 사용 금지**. 이 계획의 모든 `python`/`ruff`/`mypy`/`pytest` 명령은 다음 인터프리터로 실행한다:
+  ```
+  C:\Users\leegy\miniconda3\envs\convnext_env\python.exe
+  ```
+  도구는 `<위 경로> -m ruff …`, `-m mypy …`, `-m pytest …`, `-m pip …` 형태로 호출한다(PowerShell: `& "C:\Users\leegy\miniconda3\envs\convnext_env\python.exe" -m pytest tests/ -q`). ruff·mypy도 이 env에 설치한다.
 - 현재 브랜치 `feat/code-quality-foundation` 확인: `git branch --show-current`
 - **베이스라인 확인** — 시작 전 반드시 그린이어야 한다:
-  Run: `python -m pytest tests/ -q`
-  Expected: `16 passed`
+  Run: `& "C:\Users\leegy\miniconda3\envs\convnext_env\python.exe" -m pytest tests/ -q`
+  Expected: `16 passed` (이미 확인됨 2026-06-02)
 
 ## 적용 범위 (스코프 결정 — 합의됨)
 
@@ -54,7 +58,7 @@
 # ruff(린트+포맷) · mypy(타입) · pytest. 런타임 동작에 영향 없음.
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py310"  # convnext_env = Python 3.10.19
 line-length = 100
 extend-exclude = [
     "scripts/archive",
@@ -77,7 +81,7 @@ ignore = ["E501"]  # 줄 길이는 formatter가 처리, 긴 한글 주석 보호
 "__init__.py" = ["F401"]  # 재노출(re-export) 허용
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.10"
 mypy_path = "."
 explicit_package_bases = true
 namespace_packages = true

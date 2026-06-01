@@ -49,7 +49,7 @@ SP-A는 이를 **추론·양자화 로직을 1줄도 바꾸지 않고** 해소�
     `extend-exclude=["scripts/archive","runs","data","model_space","assets","web","checkpoints","models","AIhub",".pytest_cache"]`
   - `[tool.ruff.lint]`: `select=["E","F","I","UP","B","W","C4"]`, `ignore=["E501"]`
   - `[tool.ruff.lint.per-file-ignores]`: `"__init__.py"=["F401"]` (계획된 유일 예외). 그 외는 C3에서 구체적 오탐이 나올 때만 라인 단위 `# noqa`로 처리
-  - `[tool.mypy]`: `python_version="3.11"`, `ignore_missing_imports=true`, `warn_unused_ignores=true`
+  - `[tool.mypy]`: `python_version="3.10"` (convnext_env=3.10.19), `ignore_missing_imports=true`, `warn_unused_ignores=true`
   - `[[tool.mypy.overrides]]` (`module="src.pipeline.*"`): `disallow_untyped_defs=true`,
     `disallow_incomplete_defs=true`, `no_implicit_optional=true`, `warn_return_any=true`, `check_untyped_defs=true`
   - `[tool.pytest.ini_options]`: `testpaths=["tests"]` (기존 동작 명문화)
