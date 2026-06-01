@@ -267,6 +267,21 @@
 
 ---
 
+## Phase 11 — 다이나믹 시연 + HF Space 원격 데모 (2026-06-01)
+
+- [x] 검출기 variant 다중 로드 + 단계별 `stage_ms` 계측 → `src/pipeline/e2e_pipeline.py`
+  - `process_frame(variant=)`, `set_variant`/`variant_info`, `_yolo_providers()`(EDGE_SIGN_CPU_ONLY)
+  - `tests/test_pipeline_variants.py` (6) — fp32↔int8_static 전환·stage_ms·폴백
+- [x] v3 검출기 Static INT8(QDQ) → `scripts/quantize_v3_detector.py`, `yolov8s_signs_v3_int8_static.onnx` (18MB)
+  - **교훈:** Detect 헤드(`/model.22/*`)까지 INT8화 시 검출 붕괴(CosSim 0.9995여도 검출 0). 헤드 제외 → 검출 11/12 일치
+- [x] Q&A BYOK — `ask_stream(api_key=)`, `QARequest.api_key`, `tests/test_qa_byok.py` (2)
+- [x] 프론트 다이나믹 컴포넌트 → `web/detection/` — FP32⇄INT8 토글(크기·FPS Δ), 단계 플로우(병목 강조), BYOK 키, 샘플 영상, WS https→wss 자동
+- [x] HF Spaces (Docker, CPU) 패키징 → `Dockerfile`·`requirements-hf.txt`·`.dockerignore`·`spaces/README.md`
+  - [ ] `docker build` 실측 검증 (Docker Desktop 실행 필요 — 보류) / HF Space 푸시(LFS)
+- 회귀: `pytest tests/` 16 passed · CPU 전용 부팅·샘플 서빙·WS variant 라우팅 실측 OK
+
+---
+
 ## 최종 산출물 체크리스트
 - [ ] 연구 보고서 (실험 결과 + 분석)
 - [x] 시연 시스템 (웹 앱 — 범용 실시간 입력, Phase 7·10 기반) (2026-05-31)

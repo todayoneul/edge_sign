@@ -353,3 +353,20 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
   - GPU 복구: `onnxruntime-gpu` + torch cu128 동봉 CUDA DLL(`os.add_dll_directory`) → CUDA EP 활성
   - 검증: `pytest tests/` 8 passed, `check_gpu_ort.py`/`check_codec_matrix.py`(H.264·MPEG-4) 통과
 - **2026-06-01**: **문서 v3 동기화** — README를 Phase 1/2/3 단일 프로젝트 서사로 재구성(떠있던 'v3 확장' 섹션 → 본문 §8 Phase 3로 통합, §9 웹/§10 재현 재번호), ROADMAP Phase 8/9/10 추가, 본 문서 Phase 3 결과 섹션 추가.
+
+---
+
+## Phase 11: 프로덕션 INT8(QDQ) 실측 + 양자화 A/B 토글 (2026-06-01)
+
+서버가 v3 검출기 FP32·INT8을 동시 로드해 웹에서 실시간 토글하며 비교한다.
+
+| 검출기 variant | 크기 | CPU 추론(640²) | 실프레임 검출 일치 | 출력 CosSim |
+|:---|:---:|:---:|:---:|:---:|
+| v3 FP32 | 44.8 MB | ~38 ms | (기준) | 1.000 |
+| v3 INT8 static (QDQ, 헤드 제외) | **18.0 MB** (2.49×↓) | ~34 ms (1.15×↑) | **11/12 박스 일치, conf ~0.40 동일** | 0.9995 |
+
+**핵심 교훈 — CosSim에 속지 말 것:**
+- YOLO 출력 8400 앵커는 대부분 배경 → 전체 텐서 CosSim은 검출 붕괴를 못 잡는다(0.9995여도 검출 0개).
+- Detect 헤드(`/model.22/*` cv2·cv3·dfl)까지 INT8화하면 신뢰도가 임계값 아래로 붕괴.
+- `nodes_to_exclude`로 헤드를 FP32 유지(백본만 INT8) → 검출 보존. **실프레임 검출 수/conf로 검증해야 함.**
+- 동적 INT8(ConvInteger)은 CPU EP 미지원 → A/B는 반드시 **static(QDQ)**. 생성: `scripts/quantize_v3_detector.py`.

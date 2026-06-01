@@ -34,17 +34,19 @@
       재생성: `KMP_DUPLICATE_LIB_OK=TRUE python scripts/quantize_v3_detector.py --bench`
       (모델은 model_space/ gitignore — HF Space엔 LFS로 동봉 필요.)
 
-### ⏳ 남은 작업 (우선순위 순)
-- [ ] **#4 프론트** (`web/detection/index.html`, `app.js`) — **`Skill: ui-ux-pro-max` 먼저 호출**해 설계:
-  - FP32⇄INT8 세그먼트 토글 → WS로 variant 전송(클라모드: 프레임 msg에 `variant`; 서버모드: `{type:control,action:variant,value}`)
-  - KPI에 model_mb·FPS·Δ 카운트업 (기존 `animateVal` 재사용)
-  - 우측 레일 검출→추적→인식 stage_ms 비례 플로우 애니메이션
-  - Q&A 탭 Groq 키 입력(localStorage, 마스킹) → `/api/qa` 호출 시 `api_key` 동봉, 키 없으면 입력 비활성+안내
-  - 기존 디자인 토큰/접근성/단축키 유지, 신규 컴포넌트만 추가
-- [ ] **#5 HF Docker Space** — 신규 `Dockerfile`, `spaces/README.md`(YAML `sdk:docker`,`app_port:7860`),
-      `requirements-hf.txt`(onnxruntime CPU/fastapi/uvicorn/opencv-headless/numpy/groq/yt-dlp/python-multipart), `.dockerignore`.
-      Dockerfile에서 `EDGE_SIGN_CPU_ONLY=1`, uvicorn 포트 7860. INT8 모델 3종 + 데모 클립 LFS 동봉.
-- [ ] **#6 검증/문서** — `docker build/run`, HF push, `docs/ROADMAP.md`·`EXPERIMENTS.md`·`CLAUDE.md` 갱신.
+### ✅ 완료 (추가 2)
+- [x] **#4 프론트** (`web/detection/`) — FP32⇄INT8 토글(크기·FPS Δ), 검출→추적→인식 stage_ms 플로우(병목 강조),
+      BYOK 키(password+표시토글·localStorage), 샘플 영상 버튼(번들 클립 루프), WS https→wss 자동.
+      라이브 /ws/stream variant 라우팅(fp32/int8/폴백) 실측 OK.
+- [x] **#5 HF Docker Space** — `Dockerfile`(CPU, EDGE_SIGN_CPU_ONLY=1, 7860, 비root), `requirements-hf.txt`(슬림),
+      `.dockerignore`(ONNX 4개만), `spaces/README.md`(YAML+LFS), 샘플 클립 2종 `web/detection/samples/`.
+- [x] **#6 문서** — ROADMAP/EXPERIMENTS Phase 11, CLAUDE.md 구조·명령. `pytest` 16 passed, CPU 부팅·샘플 서빙 OK.
+
+### ⏳ 남은 작업 (사용자 액션)
+- [ ] **docker build 실측** — Docker Desktop **데몬 꺼짐 → 보류**. 실행 후
+      `docker build -t edge-sign . && docker run --rm -p 7860:7860 edge-sign` → http://localhost:7860/detection/
+- [ ] **HF Space 푸시** — Space 리포 생성, `spaces/README.md`를 루트 README로, 대용량 onnx·mp4는 **git LFS**
+      (model_space는 main 리포 gitignore → Space 리포에 별도 LFS 동봉).
 
 ## 핵심 계약 (프론트/배포가 참조)
 - `process_frame()`/`/ws/stream` result 및 `/ws/session` frame: `variant`(str), `model_mb`(float), `stage_ms`{detect,track,recognize}
@@ -57,7 +59,7 @@
 - 서버/테스트 env: **convnext_env** (`conda run -n convnext_env ...`)
 - 테스트: `set KMP_DUPLICATE_LIB_OK=TRUE & set EDGE_SIGN_CPU_ONLY=1 & python -m pytest tests/ -q`
 - 데모 클립: `data/demo_videos/d_validation_1920_1080_daylight_2_clips/` (도메인 일치)
-- 모델: `model_space/` (gitignore) — fp32 44MB, int8_static 11.6MB(현 v2 택소노미), v3_fp32 44MB, **v3_int8_static 미생성**
+- 모델: `model_space/` (gitignore) — v3_fp32 44MB, **v3_int8_static 18MB(생성됨)**, OCR w8a8 2.8MB, 분류기 fp32 116KB
 
 ## 세션 운영 지침 (사용자 요청 2026-06-01)
 - 한도로 중단 우려 시 모델 자동 교체하되 **sonnet high 미만으로 내려가지 말 것**.
