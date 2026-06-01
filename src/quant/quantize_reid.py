@@ -7,8 +7,8 @@ SimpleReIDNet W8A8 양자화 + ONNX 내보내기 (E6 실험용).
 """
 
 import argparse
-import sys
 import io
+import sys
 from pathlib import Path
 
 import torch
@@ -24,7 +24,7 @@ sys.path.insert(0, str(ROOT))
 MODEL_SPACE = ROOT / "model_space"
 MODEL_SPACE.mkdir(parents=True, exist_ok=True)
 
-from src.quant.quantize_recognizers import apply_w8a8_ptq, export_to_onnx
+from src.quant.quantize_recognizers import apply_w8a8_ptq, export_to_onnx  # noqa: E402
 
 
 def build_reid(embed_dim: int = 128) -> nn.Module:

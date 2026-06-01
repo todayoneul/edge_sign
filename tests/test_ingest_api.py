@@ -1,5 +1,5 @@
-import io
 from fastapi.testclient import TestClient
+
 from src.pipeline.app import app
 
 
@@ -20,9 +20,6 @@ def test_ingest_bad_url_returns_error():
     resp = client.post("/api/ingest", data={"kind": "url", "url": "rtsp://0.0.0.0:1/x"})
     assert resp.status_code == 400
     assert "error" in resp.json()
-
-
-import json
 
 
 def test_ws_session_streams_annotated_frames(sample_mp4):

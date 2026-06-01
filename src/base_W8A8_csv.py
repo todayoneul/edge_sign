@@ -1,21 +1,21 @@
+import csv
 import os
 import time
-import csv
 import warnings
 
 warnings.filterwarnings("ignore", category=UserWarning, module="PIL.TiffImagePlugin")
-import logging
+import logging  # noqa: E402
 
 logging.getLogger("PIL").setLevel(logging.ERROR)
-from PIL import ImageFile
+from PIL import ImageFile  # noqa: E402
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-import torch
-import torch.nn as nn
-import timm
-from torch.utils.data import DataLoader
-from datasets import load_dataset
+import timm  # noqa: E402
+import torch  # noqa: E402
+import torch.nn as nn  # noqa: E402
+from datasets import load_dataset  # noqa: E402
+from torch.utils.data import DataLoader  # noqa: E402
 
 MODEL_NAME = "convnextv2_nano.fcmae_ft_in1k"
 BATCH_SIZE = 64
@@ -23,8 +23,9 @@ NUM_WORKERS = 8
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 LOG_DIR = "./logs"
 
-import json
-from safetensors.torch import save_file
+import json  # noqa: E402
+
+from safetensors.torch import save_file  # noqa: E402
 
 
 def export_huggingface_w8a8(model, save_dir="./hf_w8a8_model"):

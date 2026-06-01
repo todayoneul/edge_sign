@@ -1,12 +1,11 @@
-import os
 import argparse
+import os
+
+import timm
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import timm
-from torch.utils.data import DataLoader
 from datasets import load_dataset
-from torchvision import transforms
+from torch.utils.data import DataLoader
 
 # 1. Configuration
 MODEL_NAME = "convnextv2_nano.fcmae_ft_in1k"

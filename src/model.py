@@ -12,7 +12,7 @@ class TrafficSignNet(nn.Module):
     """
 
     def __init__(self, num_classes=12):
-        super(TrafficSignNet, self).__init__()
+        super().__init__()
 
         # Block 1: Input 3x32x32 -> Output 16x16x16
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1)

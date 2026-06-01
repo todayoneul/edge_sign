@@ -1,28 +1,28 @@
-import os
-import time
-import sys
 import csv
 import glob
-import warnings
 import json
+import os
+import sys
+import time
+import warnings
 
 warnings.filterwarnings("ignore", category=UserWarning, module="PIL.TiffImagePlugin")
-import logging
+import logging  # noqa: E402
 
 logging.getLogger("PIL").setLevel(logging.ERROR)
-from PIL import ImageFile
+from PIL import ImageFile  # noqa: E402
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-import timm
-from torch.utils.data import DataLoader
-from datasets import load_dataset
-import numpy as np  # 💡 비트 패킹을 위해 numpy가 필요합니다!
-from safetensors.torch import save_file  # 💡 safetensors 추가!
+import numpy as np  # noqa: E402  # 💡 비트 패킹을 위해 numpy가 필요합니다!
+import timm  # noqa: E402
+import torch  # noqa: E402
+import torch.nn as nn  # noqa: E402
+import torch.nn.functional as F  # noqa: E402
+import torch.optim as optim  # noqa: E402
+from datasets import load_dataset  # noqa: E402
+from safetensors.torch import save_file  # noqa: E402  # 💡 safetensors 추가!
+from torch.utils.data import DataLoader  # noqa: E402
 
 # 1. 환경 및 설정
 MODEL_NAME = "convnextv2_nano.fcmae_ft_in1k"
@@ -194,7 +194,7 @@ def collate_fn_val(examples):
 
 # 5. 메인 학습 루프
 def main():
-    print(f"[Phase 3] 1-Bit Binary CNN + 지식 증류(KD) 학습 시작!")
+    print("[Phase 3] 1-Bit Binary CNN + 지식 증류(KD) 학습 시작!")
     os.makedirs(SAVE_DIR, exist_ok=True)
     os.makedirs(LOG_DIR, exist_ok=True)
     csv_file_path = os.path.join(LOG_DIR, "training_log_1bit.csv")

@@ -1,14 +1,14 @@
+import hashlib
 import os
 import random
-import hashlib
-import torch
-from torch.utils.data import IterableDataset, DataLoader
-from datasets import load_dataset
-from transformers import AutoTokenizer
-import timm
-import requests
-from PIL import Image
 from io import BytesIO
+
+import requests
+import timm
+from datasets import load_dataset
+from PIL import Image
+from torch.utils.data import DataLoader, IterableDataset
+from transformers import AutoTokenizer
 
 # 설정
 LLM_MODEL_NAME = "Qwen/Qwen1.5-0.5B"
@@ -57,7 +57,7 @@ class OmniModalIterableDataset(IterableDataset):
 
         resolved_sources = []
         resolved_weights = []
-        for src, weight in zip(sources, source_weights):
+        for src, weight in zip(sources, source_weights, strict=False):
             ds = self._load_streaming_dataset(src, split)
             if ds is None:
                 continue

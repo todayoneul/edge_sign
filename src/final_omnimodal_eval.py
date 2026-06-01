@@ -1,20 +1,20 @@
 import os
-import time
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import timm
-from tqdm import tqdm
-from datasets import load_dataset
-from transformers import CLIPTokenizer, CLIPTextModelWithProjection
 
 # Imports for different quantization layers
 import sys
+import time
+
+import timm
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from datasets import load_dataset
+from transformers import CLIPTextModelWithProjection, CLIPTokenizer
 
 sys.path.append(os.path.dirname(__file__))
-from multimodal_w8a8_qat import replace_layers_with_w8a8
+from multimodal_unified_eval import CustomProjectionHead, replace_layers_with_1bit
 from multimodal_w4a16_qat import replace_layers_with_w4a16
-from multimodal_unified_eval import replace_layers_with_1bit, CustomProjectionHead
+from multimodal_w8a8_qat import replace_layers_with_w8a8
 from multimodal_w8a8_smoothquant import SmoothQuantWrapper
 
 # Configuration

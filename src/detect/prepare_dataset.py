@@ -137,7 +137,7 @@ def convert_gtsdb(val_ratio=0.2):
 
     # gt.txt 파싱
     annotations: dict = {}
-    with open(gt_file, "r") as f:
+    with open(gt_file) as f:
         for line in f:
             parts = line.strip().split(";")
             if len(parts) < 6:
@@ -445,7 +445,7 @@ def main():
         total += convert_aihub_signboard(aihub_dir, args.max_images)
 
     if total > 0:
-        print(f"\n[dataset.yaml 생성]")
+        print("\n[dataset.yaml 생성]")
         write_dataset_yaml()
         print(f"\n총 {total:,}장 변환 완료 → {YOLO_DIR}")
     else:

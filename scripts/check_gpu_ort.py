@@ -10,12 +10,12 @@ _torch_lib = Path(torch.__file__).parent / "lib"
 if _torch_lib.exists():
     os.add_dll_directory(str(_torch_lib))
 
-import onnxruntime as ort
+import onnxruntime as ort  # noqa: E402
 
 print("providers:", ort.get_available_providers())
 assert "CUDAExecutionProvider" in ort.get_available_providers(), "CUDA EP 미가용"
 
-import numpy as np
+import numpy as np  # noqa: E402
 
 ROOT = Path(__file__).parent.parent
 yolo = ROOT / "model_space" / "yolov8s_signs_w8a8.onnx"

@@ -4,20 +4,19 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from typing import Optional
 
 from src.pipeline.sources import (
     FrameSource,
     ImageSource,
-    VideoFileSource,
     UrlStreamSource,
+    VideoFileSource,
 )
 
 MAX_UPLOAD_BYTES = 500 * 1024 * 1024  # 500MB
 
 
 class Session:
-    def __init__(self, source: FrameSource, temp_path: Optional[Path] = None):
+    def __init__(self, source: FrameSource, temp_path: Path | None = None):
         self.source = source
         self.temp_path = temp_path
         self.playing = True
@@ -45,7 +44,7 @@ class SessionManager:
     """동시 세션 1개. 새 세션 생성 시 이전 세션 정리."""
 
     def __init__(self):
-        self._current: Optional[Session] = None
+        self._current: Session | None = None
 
     def _replace(self, sess: Session) -> str:
         if self._current is not None:
@@ -53,7 +52,7 @@ class SessionManager:
         self._current = sess
         return "session"
 
-    def get(self) -> Optional[Session]:
+    def get(self) -> Session | None:
         return self._current
 
     def from_image(self, path: Path) -> str:

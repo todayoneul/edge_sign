@@ -1,9 +1,12 @@
 import os
+import sys
+
+import faiss
+import streamlit as st
+import timm
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import streamlit as st
-import faiss
 from PIL import Image
 from transformers import (
     AutoModelForCausalLM,
@@ -11,9 +14,6 @@ from transformers import (
     CLIPTextModelWithProjection,
     CLIPTokenizer,
 )
-import timm
-
-import sys
 
 sys.path.append(os.path.dirname(__file__))
 from multimodal_w8a8_smoothquant import SmoothQuantWrapper
@@ -89,7 +89,7 @@ def load_models():
     index = faiss.read_index(FAISS_INDEX_PATH) if os.path.exists(FAISS_INDEX_PATH) else None
     metadata = []
     if os.path.exists(FAISS_META_PATH):
-        with open(FAISS_META_PATH, "r") as f:
+        with open(FAISS_META_PATH) as f:
             metadata = [line.strip() for line in f.readlines()]
 
     return (
@@ -194,11 +194,11 @@ with tab2:
                         .numpy()
                     )
 
-                D, I = index.search(t_feat, 4)
+                D, indices = index.search(t_feat, 4)
 
                 cols = st.columns(4)
                 for c_idx, col in enumerate(cols):
-                    match_idx = I[0][c_idx]
+                    match_idx = indices[0][c_idx]
                     if match_idx < len(metadata):
                         img_path = metadata[match_idx]
                         try:

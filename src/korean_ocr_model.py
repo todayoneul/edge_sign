@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class DepthwiseSeparableConv(nn.Module):
@@ -30,7 +29,7 @@ class KoreanOCRNet(nn.Module):
     """
 
     def __init__(self, num_classes=2350):
-        super(KoreanOCRNet, self).__init__()
+        super().__init__()
 
         # Block 1: 1x64x64 -> 32x32x32
         self.conv1 = nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1)

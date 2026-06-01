@@ -1,12 +1,12 @@
-import os
+import argparse
+
+import timm
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import timm
-from tqdm import tqdm
 from datasets import load_dataset
-from transformers import CLIPTokenizer, CLIPTextModelWithProjection
-import argparse
+from tqdm import tqdm
+from transformers import CLIPTextModelWithProjection, CLIPTokenizer
 
 # 1. Configuration
 MODEL_NAME = "convnextv2_nano.fcmae_ft_in1k"

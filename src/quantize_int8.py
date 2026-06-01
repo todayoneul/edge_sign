@@ -1,5 +1,6 @@
 import os
-from onnxruntime.quantization import quantize_dynamic, QuantType
+
+from onnxruntime.quantization import QuantType, quantize_dynamic
 
 # 경로 세팅 (export_onnx.py 실행 후 생성된 FP32 파일 경로와 맞춰서 사용)
 FP32_ONNX_PATH = "./model_space/convnextv2_fp32.onnx"

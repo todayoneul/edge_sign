@@ -1,27 +1,26 @@
-import os
-import time
-import sys
 import csv
 import glob
+import os
+import time
 import warnings
 
 warnings.filterwarnings("ignore", category=UserWarning)
-import logging
+import logging  # noqa: E402
 
 logging.getLogger("PIL").setLevel(logging.ERROR)
-from PIL import ImageFile
+from PIL import ImageFile  # noqa: E402
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-import timm
-from torch.utils.data import DataLoader
-from datasets import load_dataset
-from torchvision import transforms
-from transformers import CLIPVisionModelWithProjection
+import timm  # noqa: E402
+import torch  # noqa: E402
+import torch.nn as nn  # noqa: E402
+import torch.nn.functional as F  # noqa: E402
+import torch.optim as optim  # noqa: E402
+from datasets import load_dataset  # noqa: E402
+from torch.utils.data import DataLoader  # noqa: E402
+from torchvision import transforms  # noqa: E402
+from transformers import CLIPVisionModelWithProjection  # noqa: E402
 
 # 1. Configuration
 MODEL_NAME = "convnextv2_nano.fcmae_ft_in1k"
@@ -140,7 +139,7 @@ def collate_fn_val(examples):
 
 # 4. Main Training Loop
 def main():
-    print(f"[Term Project] Multimodal 1-Bit KD Started!")
+    print("[Term Project] Multimodal 1-Bit KD Started!")
     csv_file_path = os.path.join(LOG_DIR, "training_log_mm_1bit.csv")
     if not os.path.exists(csv_file_path):
         with open(csv_file_path, mode="w", newline="") as f:
@@ -235,7 +234,7 @@ def main():
         total_cos_sim = 0.0
         print(f"[Epoch {epoch}] Validation (Cosine Similarity)...")
         with torch.no_grad():
-            for i, (s_images, t_images) in enumerate(val_loader):
+            for _i, (s_images, t_images) in enumerate(val_loader):
                 s_images = s_images.to(DEVICE, dtype=torch.bfloat16)
                 t_images = t_images.to(DEVICE, dtype=torch.bfloat16)
 

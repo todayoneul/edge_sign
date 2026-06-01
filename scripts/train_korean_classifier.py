@@ -28,7 +28,7 @@ from torch.utils.data import DataLoader, Dataset
 
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
-from src.model import TrafficSignNet
+from src.model import TrafficSignNet  # noqa: E402
 
 ROI_DIR = ROOT / "data" / "roi_cls"
 CKPT_OUT = ROOT / "model_space" / "korean_sign_net_best.pth"
@@ -82,7 +82,7 @@ def evaluate(model, loader, device):
             y = y.numpy()
             correct += (pred == y).sum()
             total += len(y)
-            for yi, pi in zip(y, pred):
+            for yi, pi in zip(y, pred, strict=False):
                 per_cls_t[yi] += 1
                 if yi == pi:
                     per_cls_c[yi] += 1
@@ -96,7 +96,7 @@ def train(args):
     train_ds = ROIDataset("train", augment=True)
     val_ds = ROIDataset("val", augment=False)
     print(f"클래스 {NUM_CLASSES}, Train {len(train_ds):,}  Val {len(val_ds):,}  device={device}")
-    print("train 클래스 분포:", dict(zip(CLASSES, train_ds.counts.tolist())))
+    print("train 클래스 분포:", dict(zip(CLASSES, train_ds.counts.tolist(), strict=False)))
 
     train_loader = DataLoader(train_ds, batch_size=args.batch, shuffle=True, num_workers=0)
     val_loader = DataLoader(val_ds, batch_size=args.batch, shuffle=False, num_workers=0)
@@ -139,7 +139,7 @@ def train(args):
                 str(CKPT_OUT),
             )
         if ep % 2 == 0 or ep == 1:
-            worst = sorted(zip(CLASSES, per), key=lambda t: t[1])[:3]
+            worst = sorted(zip(CLASSES, per, strict=False), key=lambda t: t[1])[:3]
             print(
                 f"ep{ep:2d} loss={tot_loss / len(train_ds):.3f} "
                 f"val_acc={acc:.4f} best={best:.4f}  약점:{[(c, round(float(p), 2)) for c, p in worst]}"

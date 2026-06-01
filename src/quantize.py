@@ -1,5 +1,5 @@
-import os
 from pathlib import Path
+
 import onnx
 from onnxconverter_common import convert_float_to_float16
 
@@ -34,7 +34,7 @@ def main():
         fp32_size = FP32_PATH.stat().st_size / 1024
         fp16_size = FP16_PATH.stat().st_size / 1024
 
-        print(f"FP16 Conversion complete!")
+        print("FP16 Conversion complete!")
         print(f"Original FP32 model size: {fp32_size:.2f} KB (~{fp32_size / 1024:.2f} MB)")
         print(
             f"Converted FP16 model size: {fp16_size:.2f} KB (~{fp16_size / 1024:.2f} MB) (Reduction: {(1 - fp16_size / fp32_size) * 100:.1f}%)"

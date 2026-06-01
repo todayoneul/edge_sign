@@ -11,14 +11,12 @@ GTSDB gt.txt에서 교통표지판 크롭 → 분류 학습 → ONNX 내보내�
 
 import argparse
 import sys
-import time
 from pathlib import Path
 
 import cv2
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset, random_split
 
 ROOT = Path(__file__).parent.parent.parent
@@ -299,7 +297,7 @@ def export_onnx(ckpt_path: Path | None = None):
     dummy = torch.zeros(1, 3, IMG_SIZE, IMG_SIZE)
     MODEL_OUT.parent.mkdir(parents=True, exist_ok=True)
 
-    import tempfile, shutil
+    import tempfile
 
     with tempfile.NamedTemporaryFile(suffix=".onnx", delete=False) as tmp:
         tmp_path = Path(tmp.name)

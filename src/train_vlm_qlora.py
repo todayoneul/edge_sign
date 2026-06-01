@@ -1,13 +1,14 @@
+import argparse
 import os
 import time
-import argparse
+
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers import get_linear_schedule_with_warmup
 
-from prepare_vlm_dataset import OmniModalIterableDataset
 from omni_modal_vlm import OmniModalW8A8VLM
+from prepare_vlm_dataset import OmniModalIterableDataset
 
 
 def parse_csv_list(value):

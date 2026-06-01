@@ -26,9 +26,6 @@ https://arxiv.org/abs/2110.06864
 from __future__ import annotations
 
 import numpy as np
-from collections import OrderedDict
-from typing import List, Optional, Tuple
-
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 1. Kalman Filter  (constant-velocity, 8-dim state)
@@ -63,7 +60,7 @@ class KalmanFilter:
         self._std_weight_pos = 1.0 / 20.0
         self._std_weight_vel = 1.0 / 160.0
 
-    def initiate(self, measurement: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def initiate(self, measurement: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """측정값 [cx, cy, ar, h] → 초기 상태 (mean, covariance) 반환."""
         mean_pos = measurement.copy()
         mean_vel = np.zeros(4, dtype=np.float32)
@@ -82,7 +79,7 @@ class KalmanFilter:
         covariance = np.diag(np.square(std, dtype=np.float32))
         return mean, covariance
 
-    def predict(self, mean: np.ndarray, covariance: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def predict(self, mean: np.ndarray, covariance: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """시간 t → t+1 상태 예측."""
         std_pos = [
             self._std_weight_pos * mean[3],
@@ -102,7 +99,7 @@ class KalmanFilter:
         covariance = self._F @ covariance @ self._F.T + Q
         return mean, covariance
 
-    def project(self, mean: np.ndarray, covariance: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def project(self, mean: np.ndarray, covariance: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """상태 공간 → 관측 공간 투영 (측정 노이즈 포함)."""
         std = [
             self._std_weight_pos * mean[3],
@@ -121,7 +118,7 @@ class KalmanFilter:
         mean: np.ndarray,
         covariance: np.ndarray,
         measurement: np.ndarray,
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """칼만 업데이트 (측정값으로 상태 보정)."""
         mean_proj, cov_proj = self.project(mean, covariance)
 
@@ -202,9 +199,9 @@ class STrack:
         self.score = score
         self.cls = cls
 
-        self.kalman_filter: Optional[KalmanFilter] = None
-        self.mean: Optional[np.ndarray] = None
-        self.covariance: Optional[np.ndarray] = None
+        self.kalman_filter: KalmanFilter | None = None
+        self.mean: np.ndarray | None = None
+        self.covariance: np.ndarray | None = None
 
         self.state = TrackState.New
         self.track_id = 0  # 아직 confirmed 아님
@@ -261,7 +258,7 @@ class STrack:
         self.frame_id = frame_id
         self.start_frame = frame_id
 
-    def re_activate(self, new_track: "STrack", frame_id: int, new_id: bool = False):
+    def re_activate(self, new_track: STrack, frame_id: int, new_id: bool = False):
         """Lost → Tracked 재활성화."""
         self.mean, self.covariance = self.kalman_filter.update(
             self.mean, self.covariance, self.tlwh_to_xyah(new_track.tlwh)
@@ -275,7 +272,7 @@ class STrack:
         if new_id:
             self.track_id = self._next_id()
 
-    def update(self, new_track: "STrack", frame_id: int):
+    def update(self, new_track: STrack, frame_id: int):
         """정상 업데이트 (매칭된 검출로 칼만 보정)."""
         self.frame_id = frame_id
         self.tracklet_len += 1
@@ -343,7 +340,7 @@ def iou_batch(tlbr_a: np.ndarray, tlbr_b: np.ndarray) -> np.ndarray:
     return (inter / union).squeeze() if inter.ndim > 2 else inter / union
 
 
-def iou_cost(tracks: List[STrack], detections: List[STrack]) -> np.ndarray:
+def iou_cost(tracks: list[STrack], detections: list[STrack]) -> np.ndarray:
     """1 - IoU 비용 행렬 [M, N]."""
     if not tracks or not detections:
         return np.empty((len(tracks), len(detections)), dtype=np.float32)
@@ -382,7 +379,7 @@ def linear_assignment(cost_matrix: np.ndarray, thresh: float):
     matched_mask_r = np.zeros(cost_matrix.shape[0], dtype=bool)
     matched_mask_c = np.zeros(cost_matrix.shape[1], dtype=bool)
 
-    for r, c in zip(row_ind, col_ind):
+    for r, c in zip(row_ind, col_ind, strict=False):
         if cost_matrix[r, c] <= thresh:
             matches.append((int(r), int(c)))
             matched_mask_r[r] = True
@@ -445,9 +442,9 @@ class ByteTracker:
 
         self.kalman_filter = KalmanFilter()
 
-        self.tracked_stracks: List[STrack] = []  # 현재 추적 중
-        self.lost_stracks: List[STrack] = []  # 일시적 소실
-        self.removed_stracks: List[STrack] = []  # 제거됨
+        self.tracked_stracks: list[STrack] = []  # 현재 추적 중
+        self.lost_stracks: list[STrack] = []  # 일시적 소실
+        self.removed_stracks: list[STrack] = []  # 제거됨
 
         self.frame_id = 0
         STrack.reset_id()
@@ -455,7 +452,7 @@ class ByteTracker:
     # ── 내부 유틸 ────────────────────────────────────────────────────────────
 
     @staticmethod
-    def _joint_stracks(list_a: List[STrack], list_b: List[STrack]) -> List[STrack]:
+    def _joint_stracks(list_a: list[STrack], list_b: list[STrack]) -> list[STrack]:
         """두 트랙 리스트 합집합 (track_id 기준 중복 제거)."""
         seen = {}
         for t in list_a:
@@ -466,13 +463,13 @@ class ByteTracker:
         return list(seen.values())
 
     @staticmethod
-    def _sub_stracks(list_a: List[STrack], list_b: List[STrack]) -> List[STrack]:
+    def _sub_stracks(list_a: list[STrack], list_b: list[STrack]) -> list[STrack]:
         """list_a - list_b (track_id 기준 차집합)."""
         ids_b = {t.track_id for t in list_b}
         return [t for t in list_a if t.track_id not in ids_b]
 
     @staticmethod
-    def _remove_duplicate_stracks(list_a: List[STrack], list_b: List[STrack]):
+    def _remove_duplicate_stracks(list_a: list[STrack], list_b: list[STrack]):
         """두 리스트에 걸쳐 IoU>0.15 이고 더 짧은 tracklet을 제거."""
         if not list_a or not list_b:
             return list_a, list_b
@@ -491,7 +488,7 @@ class ByteTracker:
 
     # ── 메인 업데이트 ────────────────────────────────────────────────────────
 
-    def update(self, detections: np.ndarray) -> List[STrack]:
+    def update(self, detections: np.ndarray) -> list[STrack]:
         """
         한 프레임의 검출 결과를 받아 업데이트된 트랙 리스트를 반환.
 
@@ -506,8 +503,8 @@ class ByteTracker:
         self.frame_id += 1
 
         # ─ 검출 결과 파싱 ─────────────────────────────────────────────────
-        dets_high: List[STrack] = []
-        dets_low: List[STrack] = []
+        dets_high: list[STrack] = []
+        dets_low: list[STrack] = []
 
         if detections is not None and len(detections) > 0:
             detections = np.asarray(detections, dtype=np.float32)
@@ -536,8 +533,8 @@ class ByteTracker:
             cost1, thresh=1.0 - self.match_thresh
         )
 
-        activated_this_frame: List[STrack] = []  # 이번 프레임에 업데이트된 Tracked
-        refound_this_frame: List[STrack] = []  # Lost → re-activated
+        activated_this_frame: list[STrack] = []  # 이번 프레임에 업데이트된 Tracked
+        refound_this_frame: list[STrack] = []  # Lost → re-activated
 
         for track_i, det_i in matches1:
             track = strack_pool[track_i]
@@ -573,7 +570,7 @@ class ByteTracker:
                 track.mark_lost()
 
         # ─ 새 트랙 생성 (미매칭 고신뢰 검출) ─────────────────────────
-        new_tracks: List[STrack] = []
+        new_tracks: list[STrack] = []
         for i in unmatched_dets1:
             det = dets_high[i]
             if det.score >= self.track_thresh:
@@ -581,7 +578,7 @@ class ByteTracker:
                 new_tracks.append(det)
 
         # ─ Lost 트랙 버퍼 초과 시 제거 ────────────────────────────────
-        remaining_lost: List[STrack] = []
+        remaining_lost: list[STrack] = []
         for track in self.lost_stracks:
             if self.frame_id - track.frame_id > self.max_time_lost:
                 track.mark_removed()

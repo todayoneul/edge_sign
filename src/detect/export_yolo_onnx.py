@@ -61,7 +61,7 @@ def export_onnx(weights, half=False, simplify=True, output_name=None):
 def quantize_int8(onnx_path):
     """ONNX Runtime 동적 INT8 양자화 (src/quantize_int8.py 패턴)."""
     try:
-        from onnxruntime.quantization import quantize_dynamic, QuantType
+        from onnxruntime.quantization import QuantType, quantize_dynamic
     except ImportError:
         print("onnxruntime not installed. Run: pip install onnxruntime")
         sys.exit(1)
@@ -85,8 +85,8 @@ def quantize_int8(onnx_path):
 def verify_onnx(onnx_path):
     """ONNX 모델 추론 검증."""
     try:
-        import onnxruntime as ort
         import numpy as np
+        import onnxruntime as ort
     except ImportError:
         print("Skipping verification (onnxruntime not available)")
         return

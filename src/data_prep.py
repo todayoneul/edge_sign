@@ -1,9 +1,7 @@
-import os
 import json
-import glob
-import pandas as pd
 from pathlib import Path
-from PIL import Image
+
+import pandas as pd
 from sklearn.model_selection import train_test_split
 
 DATA_DIR = Path(__file__).parent.parent / "data"
@@ -78,7 +76,7 @@ def main():
     data_records = []
 
     # GTSRB contains folders like 00000, 00001, etc.
-    for orig_id, (new_idx, name_en, name_ko) in SELECTED_CLASSES.items():
+    for orig_id, (new_idx, _name_en, _name_ko) in SELECTED_CLASSES.items():
         class_folder = train_img_dir / f"{orig_id:05d}"
         if not class_folder.exists():
             print(f"Warning: Class folder {class_folder} does not exist.")

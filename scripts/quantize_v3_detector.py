@@ -22,14 +22,15 @@ import onnx
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
-from onnxruntime.quantization import (
-    QuantType,
-    QuantFormat,
+from onnxruntime.quantization import (  # noqa: E402
     CalibrationDataReader,
-    quantize_static,
+    QuantFormat,
+    QuantType,
     quant_pre_process,
+    quantize_static,
 )
-from scripts.archive.quantize_onnx_real import verify, compare_latency
+
+from scripts.archive.quantize_onnx_real import compare_latency, verify  # noqa: E402
 
 # YOLOv8 Detect 헤드 prefix — 이 노드들은 양자화 제외(FP32 유지)해야 신뢰도 보존.
 #   cv2=박스회귀, cv3=클래스점수, dfl. 헤드를 INT8화하면 conf가 임계값 아래로 붕괴.
@@ -104,7 +105,7 @@ def main():
 
     exclude = [] if args.quant_head else _head_nodes(src)
 
-    print(f"\nv3 검출기 Static INT8 QDQ 양자화")
+    print("\nv3 검출기 Static INT8 QDQ 양자화")
     print(f"  {src.name} -> {dst.name}")
     print(f"  헤드 제외 노드: {len(exclude)}개 (FP32 유지)" if exclude else "  (헤드까지 양자화)")
     print("=" * 60)
@@ -143,7 +144,7 @@ def main():
     real = _real_frame()  # 실프레임 기준 FP32↔INT8 출력 일치도
     verify(src, dst, real)
     if args.bench:
-        print(f"  Latency:")
+        print("  Latency:")
         compare_latency(src, dst, real, n=50)
 
     print(f"\n생성: {dst} ({q_mb:.2f} MB)")

@@ -1,6 +1,6 @@
 import os
-import sys
 import shutil
+import sys
 
 # Reconfigure stdout/stderr to utf-8 to avoid encoding issues with print/emojis on Windows
 if sys.platform.startswith("win"):
@@ -9,14 +9,16 @@ if sys.platform.startswith("win"):
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8")
 
+from pathlib import Path
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from onnxruntime.quantization import QuantType, quantize_dynamic
 from torch.utils.data import DataLoader
-from torchvision import transforms, datasets
-from pathlib import Path
+from torchvision import datasets, transforms
+
 from korean_ocr_model import KoreanOCRNet
-from onnxruntime.quantization import quantize_dynamic, QuantType
 
 
 class NumericalImageFolder(datasets.ImageFolder):

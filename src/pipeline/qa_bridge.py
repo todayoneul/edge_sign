@@ -18,8 +18,8 @@ from __future__ import annotations
 
 import asyncio
 import os
+from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import AsyncIterator
 
 
 # .env 로드 (python-dotenv)
@@ -124,7 +124,7 @@ async def ask_stream(
     try:
         from groq import AsyncGroq
     except ImportError:
-        raise ImportError("groq 패키지가 설치되지 않았습니다.\n설치: pip install groq")
+        raise ImportError("groq 패키지가 설치되지 않았습니다.\n설치: pip install groq") from None
 
     # BYOK 우선 — 요청별 키가 있으면 env보다 우선 사용.
     key = (api_key or "").strip() or os.environ.get("GROQ_API_KEY", "")

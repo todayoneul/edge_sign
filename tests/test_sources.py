@@ -1,4 +1,5 @@
 import numpy as np
+
 from src.pipeline.sources import ImageSource
 
 
@@ -12,7 +13,7 @@ def test_image_source_reads_same_frame(sample_image):
     src.release()
 
 
-from src.pipeline.sources import VideoFileSource
+from src.pipeline.sources import VideoFileSource  # noqa: E402
 
 
 def test_video_file_source_reads_frames(sample_mp4):
@@ -38,7 +39,7 @@ def test_video_file_source_seek(sample_mp4):
     src.release()
 
 
-from src.pipeline.sources import UrlStreamSource
+from src.pipeline.sources import UrlStreamSource  # noqa: E402
 
 
 def test_url_source_opens_direct_path(sample_mp4):

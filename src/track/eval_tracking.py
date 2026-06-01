@@ -21,7 +21,6 @@ import json
 import sys
 import time
 from pathlib import Path
-from collections import defaultdict
 
 import cv2
 import numpy as np
@@ -146,7 +145,7 @@ def load_gt_sequence(seq_dir: Path):
             data = json.loads(json_path.read_text(encoding="utf-8"))
             ann = data.get("annotation", [])
             imsize = data.get("image", {}).get("imsize", [1, 1])
-            W, H = imsize[0], imsize[1]
+            _W, _H = imsize[0], imsize[1]
             for a in ann:
                 if a.get("class") in ("traffic_sign", "traffic_light"):
                     b = a["box"]  # [x1,y1,x2,y2]
@@ -324,7 +323,6 @@ def compute_mot_metrics(gt_tracks: dict, pred_tracks: dict, iou_thresh: float = 
 
 def evaluate_sequence(seq_dir: Path, detector: OnnxDetector, tracker, verbose: bool = True):
     """단일 시퀀스 평가 → (metrics, fps)."""
-    from src.track import ByteTracker
 
     img_paths, gt_raw = load_gt_sequence(seq_dir)
     gt_tracks = assign_gt_track_ids(gt_raw)

@@ -1,14 +1,13 @@
 import os
+from io import BytesIO
+
+import faiss
+import requests
 import torch
 import torch.nn.functional as F
-import faiss
-import numpy as np
 from datasets import load_dataset
-from tqdm import tqdm
 from PIL import Image
-import requests
-from io import BytesIO
-from transformers import CLIPVisionModelWithProjection, CLIPProcessor
+from transformers import CLIPProcessor, CLIPVisionModelWithProjection
 
 # Configuration
 CLIP_MODEL_ID = "openai/clip-vit-base-patch32"
@@ -20,14 +19,14 @@ GALLERY_DIR = os.path.join(SAVE_DIR, "gallery_images")
 os.makedirs(SAVE_DIR, exist_ok=True)
 os.makedirs(GALLERY_DIR, exist_ok=True)
 
-print(f"🚀 Initializing CLIP Vision Encoder for FAISS indexing...")
+print("🚀 Initializing CLIP Vision Encoder for FAISS indexing...")
 
 # 1. Load CLIP Model
 vision_encoder = CLIPVisionModelWithProjection.from_pretrained(CLIP_MODEL_ID).to(DEVICE).eval()
 processor = CLIPProcessor.from_pretrained(CLIP_MODEL_ID)
 
 # 2. Build Index
-print(f"📥 Downloading General Conceptual Captions dataset for FAISS index...")
+print("📥 Downloading General Conceptual Captions dataset for FAISS index...")
 ds = load_dataset("conceptual_captions", split="train", streaming=True)
 ds = ds.shuffle(seed=42, buffer_size=5000)
 

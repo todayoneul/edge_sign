@@ -1,6 +1,7 @@
 import os
-import pandas as pd
+
 import matplotlib.pyplot as plt
+import pandas as pd
 import seaborn as sns
 
 os.makedirs("assets", exist_ok=True)
@@ -47,7 +48,7 @@ if os.path.exists("logs/final_score_report.txt"):
     )
 
     # Annotate points
-    for i, row in df_score.iterrows():
+    for _i, row in df_score.iterrows():
         plt.annotate(
             f"{row['Model']}\n({row['Memory(MB)']:.2f}MB, {row['FinalScore']:.2f})",
             (row["Memory(MB)"], row["FinalScore"]),

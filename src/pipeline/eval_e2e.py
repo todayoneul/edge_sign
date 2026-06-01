@@ -370,7 +370,7 @@ def main():
     parser.add_argument("--n_frames", type=int, default=50, help="FPS 측정 프레임 수")
     args = parser.parse_args()
 
-    print(f"\nEdge-Sign v2  E2E Evaluation")
+    print("\nEdge-Sign v2  E2E Evaluation")
     print(f"  ONNX Runtime: {ort.__version__}")
     print(f"  Providers: {ort.get_available_providers()}")
 

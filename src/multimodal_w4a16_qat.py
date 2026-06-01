@@ -1,14 +1,15 @@
-import os
-import time
 import csv
 import glob
+import os
+import time
+
+import timm
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import timm
-from torch.utils.data import DataLoader
 from datasets import load_dataset
+from torch.utils.data import DataLoader
 from torchvision import transforms
 from transformers import CLIPVisionModelWithProjection
 
@@ -126,7 +127,7 @@ def collate_fn_val(examples):
 
 # 4. Main Training Loop
 def main():
-    print(f"🚀 [Multimodal QAT] W4A16 Multimodal KD Started!")
+    print("🚀 [Multimodal QAT] W4A16 Multimodal KD Started!")
     csv_file_path = os.path.join(LOG_DIR, "training_log_mm_w4a16.csv")
     if not os.path.exists(csv_file_path):
         with open(csv_file_path, mode="w", newline="") as f:

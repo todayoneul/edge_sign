@@ -11,13 +11,12 @@ ByteTrack E1 결과와 비교.
 """
 
 import argparse
+import io
 import sys
 import time
-import io
 from pathlib import Path
 
 import cv2
-import numpy as np
 
 if sys.platform.startswith("win"):
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -33,13 +32,13 @@ TEST_BASE = ROOT / "data" / "aihub_traffic" / "test"
 DET_CONF = 0.25
 NMS_IOU = 0.45
 
-from src.track.eval_tracking import (
+from src.track.botsort import BoTSORTTracker, OnnxReIDNet  # noqa: E402
+from src.track.eval_tracking import (  # noqa: E402
     OnnxDetector,
-    load_gt_sequence,
     assign_gt_track_ids,
     compute_mot_metrics,
+    load_gt_sequence,
 )
-from src.track.botsort import BoTSORTTracker, OnnxReIDNet
 
 
 def evaluate_sequence_botsort(
@@ -80,7 +79,7 @@ def evaluate_sequence_botsort(
 def run_all_sequences(
     det_onnx: Path, reid_onnx: Path | None, use_cmc: bool = True, verbose: bool = True
 ):
-    print(f"\n[BoT-SORT E6]")
+    print("\n[BoT-SORT E6]")
     print(f"  Detector : {det_onnx.name}")
     print(f"  ReID     : {reid_onnx.name if reid_onnx else 'None'}")
     print(f"  CMC      : {use_cmc}")
@@ -130,7 +129,7 @@ def run_all_sequences(
 
     # 전체 평균
     print(f"\n{'=' * 60}")
-    print(f"BoT-SORT E6 전체 평균 결과")
+    print("BoT-SORT E6 전체 평균 결과")
     print(f"{'=' * 60}")
     avg = {
         k: round(sum(m[k] for m in all_metrics) / len(all_metrics), 4)
@@ -146,7 +145,7 @@ def run_all_sequences(
     print(f"  GT:    {avg['GT']}  FP: {avg['FP']}  FN: {avg['FN']}  IDSW: {avg['IDSW']}")
 
     # ByteTrack E1과 비교
-    print(f"\n[E6 vs E1 ByteTrack 비교]")
+    print("\n[E6 vs E1 ByteTrack 비교]")
     e1 = {"MOTA": 0.221, "IDF1": 0.384, "HOTA": 0.487, "IDSW": 0}
     for k in ("MOTA", "IDF1", "HOTA"):
         d = avg[k] - e1[k]

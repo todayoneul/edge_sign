@@ -90,7 +90,7 @@ def _parse_metrics(stdout: str | None) -> dict | None:
 
     import re
 
-    result: dict = {}
+    _result: dict = {}
 
     def _extract(label: str) -> float | None:
         m = re.search(rf"{label}:\s*([-\d.]+)", stdout)

@@ -1,12 +1,13 @@
-import os
+from pathlib import Path
+
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms
-import pandas as pd
 from PIL import Image
-from pathlib import Path
+from torch.utils.data import DataLoader, Dataset
+from torchvision import transforms
+
 from model import TrafficSignNet
 
 # Configurations

@@ -25,7 +25,7 @@ if not (VAR_A.exists() and VAR_B.exists()):
 # CUDA EP 시도/경고를 피하고 CPU로만 로드 (CI/테스트 환경 안정성)
 os.environ["EDGE_SIGN_CPU_ONLY"] = "1"
 
-from src.pipeline.e2e_pipeline import EdgeSignPipeline
+from src.pipeline.e2e_pipeline import EdgeSignPipeline  # noqa: E402
 
 
 @pytest.fixture(scope="module")

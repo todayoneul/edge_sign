@@ -1,13 +1,14 @@
+import csv
 import os
 import time
-import csv
+
+import timm
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import timm
-from torch.utils.data import DataLoader
 from datasets import load_dataset
+from torch.utils.data import DataLoader
 from torchvision import transforms
 from transformers import CLIPVisionModelWithProjection
 

@@ -187,7 +187,7 @@ def plan_split(sequences: dict, train_ratio: float, val_ratio: float) -> dict:
     test_ratio = n_test / n_total
     val_ratio_norm = n_val / n_total
 
-    for domain, seqs in groups.items():
+    for _domain, seqs in groups.items():
         n_d = len(seqs)
         if n_d == 0:
             continue
@@ -341,7 +341,7 @@ def main():
         )
         total += count
 
-    print(f"\n[DONE] 추출 완료!")
+    print("\n[DONE] 추출 완료!")
     print(f"   총 프레임: {total:,}개")
     print(f"   출력 위치: {output_dir}/")
     print()

@@ -1,17 +1,18 @@
-import os
-import time
 import csv
-import sys
 import glob
+import json
+import os
+import sys
+import time
+
+import timm
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import timm
-import json
-from torch.utils.data import DataLoader
 from datasets import load_dataset
 from safetensors.torch import save_file
+from torch.utils.data import DataLoader
 
 # 1. 환경 및 설정
 MODEL_NAME = "convnextv2_nano.fcmae_ft_in1k"
@@ -91,7 +92,7 @@ def replace_layers_with_qat(model):
 
 
 def export_huggingface_w4a16(model, save_dir="./hf_w4a16_model"):
-    print(f"\n📦 허깅페이스 표준 포맷(Safetensors)으로 추출을 시작합니다...")
+    print("\n📦 허깅페이스 표준 포맷(Safetensors)으로 추출을 시작합니다...")
     os.makedirs(save_dir, exist_ok=True)
 
     export_state_dict = {}
@@ -213,12 +214,12 @@ def main():
             model.load_state_dict(checkpoint['model_state_dict'])
         else:
             model.load_state_dict(checkpoint)
-            
+
         print("✅ 모델 가중치 로드 완료! 허깅페이스 포맷으로 추출을 시작합니다.")
-        
+
         # 💡 2. 진짜 가중치가 들어간 모델을 추출합니다.
         export_huggingface_w4a16(model)
-        
+
         # 💡 3. 추출이 목적이므로 여기서 스크립트를 깔끔하게 종료합니다. (선택 사항)
         import sys
         print("🛑 추출이 완료되어 프로그램을 종료합니다.")

@@ -1,10 +1,10 @@
-import os
 import time
+
+import timm
 import torch
 import torch.nn as nn
-import timm
-from torch.utils.data import DataLoader
 from datasets import load_dataset
+from torch.utils.data import DataLoader
 
 # 1. 환경 및 설정
 MODEL_NAME = "convnextv2_nano.fcmae_ft_in1k"

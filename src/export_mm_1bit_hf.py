@@ -1,8 +1,9 @@
+import json
 import os
+
+import timm
 import torch
 import torch.nn as nn
-import timm
-import json
 from safetensors.torch import save_file
 
 # 1. Configuration
@@ -84,7 +85,7 @@ def replace_layers_with_1bit(model):
 
 
 def export_huggingface_mm_1bit():
-    print(f"📦 [Export] 1-Bit Multimodal Model to Hugging Face format...")
+    print("📦 [Export] 1-Bit Multimodal Model to Hugging Face format...")
 
     # Load model structure
     model = timm.create_model(MODEL_NAME, pretrained=False)

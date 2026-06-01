@@ -17,15 +17,14 @@ fake-quant PTQ (W8A8 / W4A16 / 1-Bit) + ONNX 내보내기 + val 평가.
 """
 
 import argparse
-import sys
 import io
+import sys
 import time
 from pathlib import Path
 
+import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import numpy as np
 
 # Windows 터미널 인코딩 문제 해결
 if sys.platform.startswith("win"):
@@ -259,7 +258,7 @@ def quantize_tsign(mode: str) -> Path:
 def eval_ocr_onnx(onnx_path: Path, max_samples: int = 5000) -> dict:
     """KoreanOCRNet ONNX 평가 (data/korean_ocr/val/)."""
     import onnxruntime as ort
-    from torchvision import transforms, datasets
+    from torchvision import datasets, transforms
 
     val_dir = OCR_DATA / "val"
     if not val_dir.exists():
@@ -287,7 +286,7 @@ def eval_ocr_onnx(onnx_path: Path, max_samples: int = 5000) -> dict:
     val_ds = NumericalImageFolder(root=str(val_dir), transform=transform)
     # 평가 속도를 위해 최대 max_samples개만 사용
     indices = list(range(min(max_samples, len(val_ds))))
-    from torch.utils.data import Subset, DataLoader
+    from torch.utils.data import DataLoader, Subset
 
     subset = Subset(val_ds, indices)
     loader = DataLoader(subset, batch_size=256, shuffle=False, num_workers=0)
@@ -324,9 +323,9 @@ def eval_ocr_onnx(onnx_path: Path, max_samples: int = 5000) -> dict:
 def eval_tsign_onnx(onnx_path: Path) -> dict:
     """TrafficSignNet ONNX 평가 (GTSDB val 크롭)."""
     import onnxruntime as ort
-    import cv2
+    from torch.utils.data import random_split
+
     from src.detect.train_traffic_sign_net import GTSDBCropDataset
-    from torch.utils.data import DataLoader, random_split
 
     full_ds = GTSDBCropDataset(GTSDB_DIR, img_size=32, augment=False)
     n_val = max(1, int(len(full_ds) * 0.2))
@@ -338,8 +337,8 @@ def eval_tsign_onnx(onnx_path: Path) -> dict:
     input_name = sess.get_inputs()[0].name
     output_name = sess.get_outputs()[0].name
 
-    MEAN = np.array([0.485, 0.456, 0.406], dtype=np.float32)
-    STD = np.array([0.229, 0.224, 0.225], dtype=np.float32)
+    _MEAN = np.array([0.485, 0.456, 0.406], dtype=np.float32)
+    _STD = np.array([0.229, 0.224, 0.225], dtype=np.float32)
 
     correct1 = correct5 = 0
     t0 = time.time()
@@ -392,7 +391,7 @@ def run_all(
         print(f"{'=' * 55}")
 
         # ── KoreanOCRNet
-        print(f"  [OCR] 양자화 내보내기...")
+        print("  [OCR] 양자화 내보내기...")
         try:
             ocr_path = quantize_ocr(mode)
         except Exception as e:
@@ -411,7 +410,7 @@ def run_all(
                 )
 
         # ── TrafficSignNet
-        print(f"  [TrafficSign] 양자화 내보내기...")
+        print("  [TrafficSign] 양자화 내보내기...")
         try:
             ts_path = quantize_tsign(mode)
         except Exception as e:
@@ -420,7 +419,7 @@ def run_all(
 
         ts_metrics = {}
         if eval_tsign and ts_path and ts_path.exists():
-            print(f"  [TrafficSign] 평가 중...")
+            print("  [TrafficSign] 평가 중...")
             ts_metrics = eval_tsign_onnx(ts_path)
             if ts_metrics:
                 print(

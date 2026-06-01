@@ -16,13 +16,12 @@ PyTorch 레벨 fake-quantization 후 ONNX 내보내기.
 """
 
 import argparse
-import sys
 import shutil
 from pathlib import Path
 
+import numpy as np
 import torch
 import torch.nn as nn
-import numpy as np
 
 ROOT = Path(__file__).parent.parent.parent
 MODEL_SPACE = ROOT / "model_space"

@@ -9,7 +9,6 @@ UrlStreamSource: 직접 URL·RTSP (+ YouTube는 yt-dlp 옵션)
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional
 
 import cv2
 import numpy as np
@@ -21,17 +20,17 @@ class FrameSource(ABC):
     frame_count: int = 0
 
     @abstractmethod
-    def read(self) -> Optional[np.ndarray]:
+    def read(self) -> np.ndarray | None:
         """다음 BGR 프레임 또는 None(끝/실패)."""
 
-    def seek(self, frame_idx: int) -> None:
+    def seek(self, frame_idx: int) -> None:  # noqa: B027
         """seekable 소스만 의미 있음 (기본 no-op)."""
 
     def position(self) -> int:
         """현재 소스 프레임 위치(0-based). seek 바 진행 표시용 (기본 0)."""
         return 0
 
-    def release(self) -> None:
+    def release(self) -> None:  # noqa: B027
         pass
 
 
@@ -48,7 +47,7 @@ class ImageSource(FrameSource):
         self.fps = 1.0
         self.frame_count = 1
 
-    def read(self) -> Optional[np.ndarray]:
+    def read(self) -> np.ndarray | None:
         return self._frame.copy()
 
 
@@ -63,7 +62,7 @@ class VideoFileSource(FrameSource):
         self.fps = self._cap.get(cv2.CAP_PROP_FPS) or 30.0
         self.frame_count = int(self._cap.get(cv2.CAP_PROP_FRAME_COUNT)) or 0
 
-    def read(self) -> Optional[np.ndarray]:
+    def read(self) -> np.ndarray | None:
         ok, frame = self._cap.read()
         return frame if ok else None
 
@@ -105,7 +104,7 @@ class UrlStreamSource(FrameSource):
         self.fps = self._cap.get(cv2.CAP_PROP_FPS) or 30.0
         self.frame_count = 0
 
-    def read(self) -> Optional[np.ndarray]:
+    def read(self) -> np.ndarray | None:
         ok, frame = self._cap.read()
         return frame if ok else None
 

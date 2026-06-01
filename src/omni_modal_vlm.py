@@ -1,10 +1,10 @@
 import os
+import sys
+
+import timm
 import torch
 import torch.nn as nn
 from transformers import AutoModelForCausalLM, AutoTokenizer
-import timm
-
-import sys
 
 sys.path.append(os.path.dirname(__file__))
 from multimodal_w8a8_smoothquant import SmoothQuantWrapper
@@ -84,8 +84,8 @@ def build_llm_and_tokenizer(
 ):
     if use_qlora:
         try:
-            from transformers import BitsAndBytesConfig
             from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+            from transformers import BitsAndBytesConfig
         except Exception as e:
             raise RuntimeError("QLoRA 사용을 위해 bitsandbytes와 peft 설치가 필요합니다.") from e
 

@@ -22,22 +22,27 @@ ByteTrack 대비 추가 구성 요소:
 
 from __future__ import annotations
 
-import numpy as np
+# ByteTrack 기반 구성 요소 재사용
+import sys
+from collections import deque
+from pathlib import Path
+
 import cv2
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from collections import deque
-from typing import List, Optional
-
-# ByteTrack 기반 구성 요소 재사용
-import sys
-from pathlib import Path
 
 ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-from src.track.bytetrack import KalmanFilter, STrack, TrackState, iou_batch, linear_assignment
+from src.track.bytetrack import (  # noqa: E402
+    KalmanFilter,
+    STrack,
+    TrackState,
+    iou_batch,
+    linear_assignment,
+)
 
 
 def iou_distance(tlwhs_a: np.ndarray, tlwhs_b: np.ndarray) -> np.ndarray:
@@ -135,7 +140,7 @@ def preprocess_crop(img_bgr: np.ndarray, bbox: np.ndarray, size: int = 64) -> np
 
 def extract_features(
     reid_model: nn.Module | None, img_bgr: np.ndarray, bboxes: np.ndarray
-) -> Optional[np.ndarray]:
+) -> np.ndarray | None:
     """검출 bbox 배치 → 임베딩 [N, embed_dim]."""
     if reid_model is None or len(bboxes) == 0:
         return None
@@ -162,9 +167,9 @@ class CMC:
         self.orb = cv2.ORB_create(nfeatures=max_features)
         self.bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)
         self.ratio = match_ratio
-        self.prev_gray: Optional[np.ndarray] = None
-        self.prev_kp: Optional[list] = None
-        self.prev_des: Optional[np.ndarray] = None
+        self.prev_gray: np.ndarray | None = None
+        self.prev_kp: list | None = None
+        self.prev_des: np.ndarray | None = None
 
     def reset(self):
         self.prev_gray = None
@@ -224,13 +229,13 @@ class BoTTrack(STrack):
         tlwh: np.ndarray,
         score: float,
         cls: int,
-        feat: Optional[np.ndarray] = None,
+        feat: np.ndarray | None = None,
         feat_history: int = 50,
         alpha: float = 0.95,
     ):
         super().__init__(tlwh, score, cls)
         self.alpha = alpha
-        self.smooth_feat: Optional[np.ndarray] = None
+        self.smooth_feat: np.ndarray | None = None
         self.feat_buf: deque = deque(maxlen=feat_history)
         if feat is not None:
             self.update_features(feat)
@@ -265,7 +270,7 @@ class BoTSORTTracker:
 
     def __init__(
         self,
-        reid_net: Optional[nn.Module] = None,
+        reid_net: nn.Module | None = None,
         track_thresh: float = 0.5,
         match_thresh: float = 0.8,
         track_buffer: int = 30,
@@ -284,9 +289,9 @@ class BoTSORTTracker:
         self.kalman = KalmanFilter()
         self.cmc = CMC() if use_cmc else None
 
-        self.tracked_stracks: List[BoTTrack] = []
-        self.lost_stracks: List[BoTTrack] = []
-        self.removed_stracks: List[BoTTrack] = []
+        self.tracked_stracks: list[BoTTrack] = []
+        self.lost_stracks: list[BoTTrack] = []
+        self.removed_stracks: list[BoTTrack] = []
 
         self.frame_id = 0
         self._next_id = 1
@@ -306,7 +311,7 @@ class BoTSORTTracker:
         track.is_activated = True
 
     def _matching_cost(
-        self, tracks: List[BoTTrack], dets_tlwh: np.ndarray, det_feats: Optional[np.ndarray]
+        self, tracks: list[BoTTrack], dets_tlwh: np.ndarray, det_feats: np.ndarray | None
     ) -> np.ndarray:
         """IoU 거리 + (있으면) 코사인 거리 결합."""
         if len(tracks) == 0 or len(dets_tlwh) == 0:
@@ -342,9 +347,7 @@ class BoTSORTTracker:
         t._tlwh = tlwh.copy()
         return t
 
-    def update(
-        self, detections: np.ndarray, frame_bgr: Optional[np.ndarray] = None
-    ) -> List[BoTTrack]:
+    def update(self, detections: np.ndarray, frame_bgr: np.ndarray | None = None) -> list[BoTTrack]:
         """
         Args:
             detections: [N, 6] x1 y1 x2 y2 conf cls
@@ -374,7 +377,7 @@ class BoTSORTTracker:
             dets_low = detections[~high_mask]
 
         # 4. ReID 특징 추출 (고신뢰 검출)
-        det_feats_high: Optional[np.ndarray] = None
+        det_feats_high: np.ndarray | None = None
         if self.reid_net is not None and frame_bgr is not None and len(dets_high):
             det_feats_high = extract_features(self.reid_net, frame_bgr, dets_high[:, :4])
 
@@ -382,8 +385,8 @@ class BoTSORTTracker:
         confirmed = [t for t in self.tracked_stracks if t.is_activated]
         unconfirmed = [t for t in self.tracked_stracks if not t.is_activated]
 
-        activated_now: List[BoTTrack] = []
-        refound: List[BoTTrack] = []
+        activated_now: list[BoTTrack] = []
+        refound: list[BoTTrack] = []
 
         if len(confirmed) and len(dets_high):
             tlwh_high = np.array([[d[0], d[1], d[2] - d[0], d[3] - d[1]] for d in dets_high])
@@ -486,7 +489,7 @@ class BoTSORTTracker:
             unmatched_d_final = list(unmatched_d_new)
 
         # 10. 새 트랙 생성
-        new_tracks: List[BoTTrack] = []
+        new_tracks: list[BoTTrack] = []
         for di5 in unmatched_d_final:
             d = dets_high[di5]
             if d[4] < self.track_thresh:
@@ -498,7 +501,7 @@ class BoTSORTTracker:
             new_tracks.append(t)
 
         # 11. lost 만료 제거 (frame_id = last seen)
-        expire: List[BoTTrack] = []
+        expire: list[BoTTrack] = []
         for t in self.lost_stracks:
             if self.frame_id - t.frame_id > self.buffer_size:
                 t.mark_removed()

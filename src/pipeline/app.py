@@ -18,31 +18,25 @@ from __future__ import annotations
 import asyncio
 import base64
 import json
-import os
 import sys
 import time
 from pathlib import Path
 
 import cv2
 import numpy as np
+from fastapi import FastAPI, File, Form, UploadFile, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-from fastapi import FastAPI, File, Form, UploadFile, WebSocket, WebSocketDisconnect
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import (
-    FileResponse,
-    HTMLResponse,
-    JSONResponse,
-    StreamingResponse,
-)
-from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
-
-# onnxruntime-gpu가 torch cu128 동봉 CUDA/cuDNN DLL을 찾도록 등록 (GPU 추론)
-import os as _os
-from pathlib import Path as _Path
+# onnxruntime-gpu가 torch cu128 동봉 CUDA/cuDNN DLL을 찾도록 등록 (GPU 추론).
+# 반드시 onnxruntime(=e2e_pipeline) import 전에 실행돼야 CUDAExecutionProvider가 활성화된다.
+import os as _os  # noqa: E402
+from pathlib import Path as _Path  # noqa: E402
 
 try:
     import torch as _torch
@@ -53,9 +47,9 @@ try:
 except Exception:
     pass  # torch 없거나 CPU 환경이면 CPU 폴백
 
-from src.pipeline.e2e_pipeline import EdgeSignPipeline
-from src.pipeline.qa_bridge import build_context, ask_stream
-from src.pipeline.session import SessionManager, save_upload
+from src.pipeline.e2e_pipeline import EdgeSignPipeline  # noqa: E402
+from src.pipeline.qa_bridge import ask_stream, build_context  # noqa: E402
+from src.pipeline.session import SessionManager, save_upload  # noqa: E402
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 설정
@@ -153,7 +147,7 @@ session_mgr = SessionManager()
 
 
 @app.post("/api/ingest")
-async def ingest(kind: str = Form(...), url: str = Form(None), file: UploadFile = File(None)):
+async def ingest(kind: str = Form(...), url: str = Form(None), file: UploadFile = File(None)):  # noqa: B008
     """파일/URL/이미지 → 서버 스트림 세션 발급. 실패 시 400 + error JSON."""
     try:
         if kind == "url":

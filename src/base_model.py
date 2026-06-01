@@ -1,10 +1,9 @@
-import os
 import time
-import torch
-import timm
-from torch.utils.data import DataLoader
-from datasets import load_dataset
 
+import timm
+import torch
+from datasets import load_dataset
+from torch.utils.data import DataLoader
 
 # 1. 환경 및 설정 (전역 변수)
 

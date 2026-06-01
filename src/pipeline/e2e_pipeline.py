@@ -25,9 +25,8 @@ import json
 import os
 import sys
 import time
-from collections import deque, defaultdict
+from collections import defaultdict, deque
 from pathlib import Path
-from typing import Optional
 
 import cv2
 import numpy as np
@@ -35,7 +34,7 @@ import numpy as np
 ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-from src.track.bytetrack import ByteTracker, STrack
+from src.track.bytetrack import ByteTracker, STrack  # noqa: E402
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 상수
@@ -294,19 +293,21 @@ class EdgeSignPipeline:
 
     def __init__(
         self,
-        yolo_onnx: Optional[str] = None,
-        ocr_onnx: Optional[str] = None,
-        tsign_onnx: Optional[str] = None,
+        yolo_onnx: str | None = None,
+        ocr_onnx: str | None = None,
+        tsign_onnx: str | None = None,
         conf_thres: float = 0.25,
         iou_thres: float = 0.45,
         track_thresh: float = 0.5,
         det_taxonomy: str = "v3",
-        yolo_variants: Optional[dict[str, str]] = None,
+        yolo_variants: dict[str, str] | None = None,
     ):
         try:
             import onnxruntime as ort
         except ImportError:
-            raise ImportError("onnxruntime가 설치되지 않았습니다: pip install onnxruntime")
+            raise ImportError(
+                "onnxruntime가 설치되지 않았습니다: pip install onnxruntime"
+            ) from None
 
         self.conf_thres = conf_thres
         self.iou_thres = iou_thres
@@ -330,7 +331,7 @@ class EdgeSignPipeline:
         # ByteTrack/temporal buffer는 공유하므로 스트림 중 무손실 전환 가능.
         if not yolo_variants:
             yolo_variants = {"default": yolo_onnx} if yolo_onnx else {}
-        self.yolo_sessions: dict[str, "ort.InferenceSession"] = {}
+        self.yolo_sessions: dict[str, ort.InferenceSession] = {}
         self._yolo_meta: dict[str, dict] = {}  # name -> {input_name, h, w, mb}
         for name, path in yolo_variants.items():
             if path and Path(path).exists():
@@ -353,7 +354,7 @@ class EdgeSignPipeline:
         self.active_variant = next(iter(self.yolo_sessions), None)
         self.yolo_session = self.yolo_sessions.get(self.active_variant)
         if not self.yolo_sessions:
-            print(f"[Pipeline] WARNING: YOLOv8s ONNX not found -- detection disabled")
+            print("[Pipeline] WARNING: YOLOv8s ONNX not found -- detection disabled")
 
         # KoreanOCRNet 세션
         self.ocr_session = None
@@ -364,7 +365,7 @@ class EdgeSignPipeline:
             self._ocr_input_name = self.ocr_session.get_inputs()[0].name
             print(f"[Pipeline] KoreanOCRNet loaded: {Path(ocr_onnx).name}")
         else:
-            print(f"[Pipeline] WARNING: OCR ONNX not found -- signboard OCR disabled")
+            print("[Pipeline] WARNING: OCR ONNX not found -- signboard OCR disabled")
 
         # 한국 표지판/신호등 분류기 세션 (korean_sign_net 14클래스)
         # 기존 tsign_onnx 인자 재사용 — 한국 분류기 ONNX 경로를 받음.
@@ -380,7 +381,7 @@ class EdgeSignPipeline:
                 f"({len(self._kcls['names'])} classes)"
             )
         else:
-            print(f"[Pipeline] INFO: 분류기 ONNX 없음 -- 라벨 = class_name")
+            print("[Pipeline] INFO: 분류기 ONNX 없음 -- 라벨 = class_name")
 
         # ByteTracker
         self.tracker = ByteTracker(
@@ -418,7 +419,7 @@ class EdgeSignPipeline:
         tensor = rgb.astype(np.float32) / 255.0
         return np.transpose(tensor, (2, 0, 1))[np.newaxis]  # [1, 3, H, W]
 
-    def _run_yolo(self, frame: np.ndarray, variant: Optional[str] = None) -> np.ndarray:
+    def _run_yolo(self, frame: np.ndarray, variant: str | None = None) -> np.ndarray:
         """ONNX 추론 → [N, 6] (x1,y1,x2,y2,conf,cls). variant 미지정 시 active 사용."""
         name = variant or self.active_variant
         sess = self.yolo_sessions.get(name) if name else None
@@ -495,7 +496,7 @@ class EdgeSignPipeline:
 
     # ── 메인 인터페이스 ───────────────────────────────────────────────────────
 
-    def process_frame(self, frame: np.ndarray, variant: Optional[str] = None) -> dict:
+    def process_frame(self, frame: np.ndarray, variant: str | None = None) -> dict:
         """
         한 프레임을 처리하여 구조화된 인식 결과를 반환.
 
@@ -652,7 +653,7 @@ def main():
     if args.dry_run:
         print("[DryRun] 640×480 더미 프레임으로 파이프라인 테스트...")
         dummy = np.zeros((480, 640, 3), dtype=np.uint8)
-        for i in range(3):
+        for _i in range(3):
             res = pipeline.process_frame(dummy)
             print(
                 f"  Frame {res['frame_id']}: {res['inference_ms']:.1f}ms, {len(res['tracks'])} tracks"

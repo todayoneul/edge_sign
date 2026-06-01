@@ -19,7 +19,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
-from src.pipeline.sources import VideoFileSource
+from src.pipeline.sources import VideoFileSource  # noqa: E402
 
 base = next(ROOT.glob("data/demo_videos/**/*.mp4"), None)
 assert base, "기준 mp4 없음 — scripts/build_demo_video.py 를 먼저 실행하세요"

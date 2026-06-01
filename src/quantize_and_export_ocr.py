@@ -1,7 +1,6 @@
-import os
-import onnx
-from onnxruntime.quantization import quantize_dynamic, QuantType
 from pathlib import Path
+
+from onnxruntime.quantization import QuantType, quantize_dynamic
 
 # Paths
 BASE_DIR = Path(__file__).parent.parent
