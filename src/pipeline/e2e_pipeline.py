@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from collections import deque, defaultdict
@@ -42,6 +43,14 @@ from src.track.bytetrack import ByteTracker, STrack
 # 검출기 클래스 (v3: 신호등 분리). signboard는 이 데모에선 미사용.
 CLASS_NAMES = {0: "traffic_sign", 1: "traffic_light", 2: "signboard"}
 TEMPORAL_BUFFER_LEN = 8  # 트랙별 인식 결과 누적 프레임 수
+
+
+def _yolo_providers() -> list[str]:
+    """검출기 ONNX 세션 EP. EDGE_SIGN_CPU_ONLY=1이면 CPU만 (HF Space·테스트)."""
+    cpu_only = os.environ.get("EDGE_SIGN_CPU_ONLY", "") not in ("", "0", "false", "False")
+    if cpu_only:
+        return ["CPUExecutionProvider"]
+    return ["CUDAExecutionProvider", "CPUExecutionProvider"]
 
 # 한국 표지판/신호등 분류기 14클래스 (data/roi_cls/classes.json)
 _KCLS = None  # {"names": [...], "sign_ids": [...], "light_ids": [...]}
@@ -253,6 +262,7 @@ class EdgeSignPipeline:
         iou_thres: float = 0.45,
         track_thresh: float = 0.5,
         det_taxonomy: str = "v3",
+        yolo_variants: Optional[dict[str, str]] = None,
     ):
         try:
             import onnxruntime as ort
@@ -275,18 +285,33 @@ class EdgeSignPipeline:
             self.class_names = {0: "traffic_sign", 1: "traffic_light", 2: "signboard"}
             self._ocr_cls = 2
 
-        # YOLOv8s 세션
-        self.yolo_session = None
-        if yolo_onnx and Path(yolo_onnx).exists():
-            self.yolo_session = ort.InferenceSession(
-                str(yolo_onnx), providers=["CUDAExecutionProvider", "CPUExecutionProvider"]
-            )
-            inp = self.yolo_session.get_inputs()[0]
-            self._yolo_input_name = inp.name
-            self._yolo_h = inp.shape[2] if isinstance(inp.shape[2], int) else 640
-            self._yolo_w = inp.shape[3] if isinstance(inp.shape[3], int) else 640
-            print(f"[Pipeline] YOLOv8s loaded: {Path(yolo_onnx).name}")
-        else:
+        # YOLOv8s 검출기 variant 세션 (FP32/INT8 A/B 토글).
+        #   yolo_variants={"fp32": path, "int8": path} 형태로 여러 개 사전 로드.
+        #   단일 yolo_onnx 인자는 하위호환 — {"default": yolo_onnx}로 변환.
+        # ByteTrack/temporal buffer는 공유하므로 스트림 중 무손실 전환 가능.
+        if not yolo_variants:
+            yolo_variants = {"default": yolo_onnx} if yolo_onnx else {}
+        self.yolo_sessions: dict[str, "ort.InferenceSession"] = {}
+        self._yolo_meta: dict[str, dict] = {}   # name -> {input_name, h, w, mb}
+        for name, path in yolo_variants.items():
+            if path and Path(path).exists():
+                sess = ort.InferenceSession(str(path), providers=_yolo_providers())
+                inp = sess.get_inputs()[0]
+                self.yolo_sessions[name] = sess
+                self._yolo_meta[name] = {
+                    "input_name": inp.name,
+                    "h": inp.shape[2] if isinstance(inp.shape[2], int) else 640,
+                    "w": inp.shape[3] if isinstance(inp.shape[3], int) else 640,
+                    "mb": round(Path(path).stat().st_size / 1e6, 2),
+                }
+                print(f"[Pipeline] YOLOv8s variant '{name}' loaded: "
+                      f"{Path(path).name} ({self._yolo_meta[name]['mb']} MB)")
+            else:
+                print(f"[Pipeline] WARNING: variant '{name}' ONNX not found: {path}")
+        # 활성 variant = dict 첫 키. 하위호환용 self.yolo_session 별칭 유지.
+        self.active_variant = next(iter(self.yolo_sessions), None)
+        self.yolo_session = self.yolo_sessions.get(self.active_variant)
+        if not self.yolo_sessions:
             print(f"[Pipeline] WARNING: YOLOv8s ONNX not found -- detection disabled")
 
         # KoreanOCRNet 세션
@@ -328,26 +353,42 @@ class EdgeSignPipeline:
             lambda: deque(maxlen=TEMPORAL_BUFFER_LEN)
         )
 
+    # ── variant 관리 (양자화 A/B 토글) ─────────────────────────────────────────
+
+    def variant_info(self) -> list[dict]:
+        """로드된 검출기 variant 목록 [{"name","mb"}, ...] (프론트 토글 초기화용)."""
+        return [{"name": n, "mb": self._yolo_meta[n]["mb"]} for n in self.yolo_sessions]
+
+    def set_variant(self, name: str) -> None:
+        """활성 검출기 variant 전환. ByteTrack/버퍼는 유지하여 스트림 무손실."""
+        if name not in self.yolo_sessions:
+            raise KeyError(name)
+        self.active_variant = name
+        self.yolo_session = self.yolo_sessions[name]
+
     # ── 내부 헬퍼 ─────────────────────────────────────────────────────────────
 
-    def _preprocess_yolo(self, frame: np.ndarray):
+    def _preprocess_yolo(self, frame: np.ndarray, w: int = 640, h: int = 640):
         """BGR 프레임 → NCHW float32 [1, 3, H, W] (YOLOv8n 입력)."""
-        resized = cv2.resize(frame, (self._yolo_w, self._yolo_h))
+        resized = cv2.resize(frame, (w, h))
         rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
         tensor = rgb.astype(np.float32) / 255.0
         return np.transpose(tensor, (2, 0, 1))[np.newaxis]  # [1, 3, H, W]
 
-    def _run_yolo(self, frame: np.ndarray) -> np.ndarray:
-        """ONNX 추론 → [N, 6] (x1,y1,x2,y2,conf,cls)."""
-        if self.yolo_session is None:
+    def _run_yolo(self, frame: np.ndarray, variant: Optional[str] = None) -> np.ndarray:
+        """ONNX 추론 → [N, 6] (x1,y1,x2,y2,conf,cls). variant 미지정 시 active 사용."""
+        name = variant or self.active_variant
+        sess = self.yolo_sessions.get(name) if name else None
+        if sess is None:
             return np.empty((0, 6), dtype=np.float32)
-        h, w = frame.shape[:2]
-        inp = self._preprocess_yolo(frame)
-        raw = self.yolo_session.run(None, {self._yolo_input_name: inp})
+        meta = self._yolo_meta[name]
+        hh, ww = frame.shape[:2]
+        inp = self._preprocess_yolo(frame, meta["w"], meta["h"])
+        raw = sess.run(None, {meta["input_name"]: inp})
         return postprocess_yolo(
             raw[0],
-            input_w=self._yolo_w, input_h=self._yolo_h,
-            orig_w=w, orig_h=h,
+            input_w=meta["w"], input_h=meta["h"],
+            orig_w=ww, orig_h=hh,
             conf_thres=self.conf_thres, iou_thres=self.iou_thres,
         )
 
@@ -407,15 +448,22 @@ class EdgeSignPipeline:
 
     # ── 메인 인터페이스 ───────────────────────────────────────────────────────
 
-    def process_frame(self, frame: np.ndarray) -> dict:
+    def process_frame(self, frame: np.ndarray, variant: Optional[str] = None) -> dict:
         """
         한 프레임을 처리하여 구조화된 인식 결과를 반환.
+
+        Args:
+            variant: 이 프레임에 사용할 검출기 variant (미지정 시 active_variant).
+                     active 상태는 바꾸지 않음 — 호출별 오버라이드.
 
         Returns:
             {
               "frame_id": int,
               "ts_ms": float,         # 처리 시작 타임스탬프 (ms)
               "inference_ms": float,  # 추론 소요 시간 (ms)
+              "variant": str,         # 사용된 검출기 variant
+              "model_mb": float,      # 해당 variant 모델 크기 (MB)
+              "stage_ms": {"detect","track","recognize"},  # 단계별 레이턴시
               "tracks": [
                 {
                   "id": int,
@@ -430,13 +478,16 @@ class EdgeSignPipeline:
             }
         """
         self._frame_id += 1
+        used_variant = variant or self.active_variant
         t0 = time.perf_counter()
 
         # 1. YOLOv8n 검출
-        dets = self._run_yolo(frame)
+        dets = self._run_yolo(frame, variant=used_variant)
+        t_detect = time.perf_counter()
 
         # 2. ByteTrack 추적
         tracks: list[STrack] = self.tracker.update(dets)
+        t_track = time.perf_counter()
 
         # 3. 인식 + 버퍼 갱신
         result_tracks = []
@@ -470,12 +521,23 @@ class EdgeSignPipeline:
                 "top_labels": [(lbl, round(c, 3)) for lbl, c in top_labels],
             })
 
-        elapsed_ms = (time.perf_counter() - t0) * 1000
+        t_recognize = time.perf_counter()
+        elapsed_ms = (t_recognize - t0) * 1000
+
+        stage_ms = {
+            "detect":    round((t_detect - t0) * 1000, 1),
+            "track":     round((t_track - t_detect) * 1000, 1),
+            "recognize": round((t_recognize - t_track) * 1000, 1),
+        }
+        mb = self._yolo_meta[used_variant]["mb"] if used_variant else 0.0
 
         return {
             "frame_id":    self._frame_id,
             "ts_ms":       t0 * 1000,
             "inference_ms": round(elapsed_ms, 1),
+            "variant":     used_variant,
+            "model_mb":    mb,
+            "stage_ms":    stage_ms,
             "tracks":      result_tracks,
         }
 
