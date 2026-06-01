@@ -36,6 +36,11 @@ const state = {
   seenIds: new Set(),       // 누적 검출 (리셋 시 초기화)
   fpsHistory: [],           // 스파크라인용
   displayed: {},            // KPI 현재 표시값 (count-up)
+  variant: null,            // 활성 검출기 양자화 variant (fp32/int8)
+  variants: [],             // [{name, mb}] (/api/status)
+  fpsByVariant: {},         // name -> 최근 FPS (A/B Δ 비교용)
+  curFps: 0,                // 최근 FPS (variant별 기록 갱신용)
+  byokKey: '',              // Groq BYOK 키 (localStorage)
 };
 
 // ── DOM ───────────────────────────────────────────────────────────────────────
@@ -169,7 +174,7 @@ function sendFrame() {
   _cap.width = tw; _cap.height = Math.round(tw * vh / vw);
   _cctx.drawImage(videoEl, 0, 0, _cap.width, _cap.height);
   state.sentW = _cap.width; state.sentH = _cap.height;
-  wsSend({ type: 'frame', data: _cap.toDataURL('image/jpeg', 0.8) });
+  wsSend({ type: 'frame', data: _cap.toDataURL('image/jpeg', 0.8), variant: state.variant });
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -189,6 +194,7 @@ function handleResult(result) {
     animateVal(kpiFps, 'fps', fps, { decimals: 1 });
     stageStatus.textContent = `처리 중 · ${fps.toFixed(1)} FPS`;
     stageStatus.classList.add('live');
+    recordFps(fps);
     state.fpsHistory.push(fps);
     if (state.fpsHistory.length > 48) state.fpsHistory.shift();
     drawSpark();
@@ -207,6 +213,8 @@ function handleResult(result) {
   trackCount.textContent = `tracks ${tracks.length}`;
   trackTally.textContent = tracks.length;
 
+  if (result.variant && result.variant !== state.variant) syncVariant(result.variant);
+  renderStages(result.stage_ms);
   drawOverlay(tracks);
   updateTrackList(tracks);
 }
@@ -475,6 +483,7 @@ function handleServerFrame(msg) {
     const fps = _sFpsCount * 1000 / (now - _sFpsTs);
     animateVal(kpiFps, 'fps', fps, { decimals: 1 });
     stageStatus.textContent = `서버 스트림 · ${fps.toFixed(1)} FPS`;
+    recordFps(fps);
     state.fpsHistory.push(fps); if (state.fpsHistory.length > 48) state.fpsHistory.shift();
     drawSpark();
     _sFpsCount = 0; _sFpsTs = now;
@@ -487,6 +496,8 @@ function handleServerFrame(msg) {
   timeInfo.textContent  = `추론 ${msg.inference_ms ?? '—'} ms`;
   trackCount.textContent = `tracks ${tracks.length}`;
   trackTally.textContent = tracks.length;
+  if (msg.variant && msg.variant !== state.variant) syncVariant(msg.variant);
+  renderStages(msg.stage_ms);
   updateTrackList(tracks);
   drawOverlay(tracks);   // 클라가 직접 박스/라벨 렌더 — 클라 모드와 동일 스타일(한글 라벨 포함)
 }
@@ -598,7 +609,7 @@ async function sendQuestion(qOverride) {
   try {
     const resp = await fetch(QA_URL, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tracks, question }),
+      body: JSON.stringify({ tracks, question, api_key: state.byokKey || null }),
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const reader = resp.body.getReader(), dec = new TextDecoder();
@@ -684,5 +695,134 @@ document.addEventListener('keydown', (e) => {
   else if (e.key.toLowerCase() === 't') { toggleTheme(); }
 });
 
+// ════════════════════════════════════════════════════════════════════════════
+//  양자화 A/B 토글 (검출기 variant)
+// ════════════════════════════════════════════════════════════════════════════
+const variantBlock = $('variant-block'), variantToggle = $('variant-toggle'), variantDelta = $('variant-delta');
+const VAR_KR = { fp32: 'FP32', int8: 'INT8', w8a8: 'W8A8', default: '기본' };
+const varName = (n) => VAR_KR[n] || (n || '').toUpperCase();
+
+async function initVariants() {
+  try {
+    const s = await (await fetch('/api/status')).json();
+    state.variants = s.variants || [];
+    state.variant = s.active_variant || (state.variants[0]?.name ?? null);
+  } catch (e) { state.variants = []; }
+  buildVariantToggle();
+}
+
+function buildVariantToggle() {
+  if (!state.variants.length) { variantBlock.hidden = true; return; }
+  variantBlock.hidden = state.variants.length < 2;        // 1개뿐이면 토글 숨김
+  variantToggle.innerHTML = state.variants.map(v => {
+    const on = v.name === state.variant;
+    return `<button type="button" data-variant="${v.name}" aria-pressed="${on}">` +
+           `${varName(v.name)}<span class="vmb">${v.mb}MB</span></button>`;
+  }).join('');
+  variantToggle.querySelectorAll('button').forEach(b =>
+    b.addEventListener('click', () => setVariant(b.dataset.variant)));
+  updateVariantDelta(); updateFooterModel();
+}
+
+function setVariant(name) {
+  if (name === state.variant) return;
+  state.variant = name;
+  reflectVariant(name);
+  if (state.mode === 'server') sessionControl('variant', name);   // 서버 스트림 즉시 전환
+  updateVariantDelta(); updateFooterModel();
+  toast(`검출기 → ${varName(name)}`, 'ok');
+}
+
+// 서버가 보낸 variant로 토글만 동기화 (setVariant 미호출 → 전환 루프 방지)
+function syncVariant(name) {
+  if (!state.variants.find(v => v.name === name)) return;
+  state.variant = name; reflectVariant(name);
+  updateVariantDelta(); updateFooterModel();
+}
+function reflectVariant(name) {
+  variantToggle.querySelectorAll('button').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.variant === name)));
+}
+
+function recordFps(fps) {
+  state.curFps = fps;
+  if (state.variant) { state.fpsByVariant[state.variant] = fps; updateVariantDelta(); }
+}
+
+function updateVariantDelta() {
+  if (state.variants.length < 2 || !state.variant) { variantDelta.textContent = ''; return; }
+  const cur = state.variants.find(v => v.name === state.variant);
+  const other = state.variants.find(v => v.name !== state.variant);
+  if (!cur || !other) { variantDelta.textContent = ''; return; }
+  const dMb = cur.mb - other.mb;                           // 음수 = 더 작음(개선)
+  const sizeCmp = dMb <= 0
+    ? `<span class="good">${dMb.toFixed(1)}MB</span> vs ${varName(other.name)}`
+    : `+${dMb.toFixed(1)}MB vs ${varName(other.name)}`;
+  let fpsStr = '';
+  const fa = state.fpsByVariant[state.variant], fb = state.fpsByVariant[other.name];
+  if (fa != null && fb != null) {
+    const dF = fa - fb;
+    fpsStr = dF >= 0 ? ` · <span class="good">+${dF.toFixed(1)} FPS</span>` : ` · ${dF.toFixed(1)} FPS`;
+  }
+  variantDelta.innerHTML = `<b>${cur.mb}MB</b> · ${sizeCmp}${fpsStr}`;
+}
+
+function updateFooterModel() {
+  const m = document.querySelector('#footer .ftr-model');
+  if (m && state.variant) m.textContent = `YOLOv8s-${varName(state.variant)} · OCR-INT8 · ByteTrack`;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  파이프라인 단계 레이턴시 플로우
+// ════════════════════════════════════════════════════════════════════════════
+const STAGE_IDS = { detect: ['ms-detect', 'bar-detect'], track: ['ms-track', 'bar-track'], recog: ['ms-recog', 'bar-recog'] };
+function renderStages(stage) {
+  if (!stage) return;
+  const d = +stage.detect || 0, t = +stage.track || 0, r = +stage.recognize || 0;
+  const tot = Math.max(d + t + r, 0.001);
+  setStage('detect', d, d / tot);
+  setStage('track',  t, t / tot);
+  setStage('recog',  r, r / tot);
+  const max = Math.max(d, t, r);
+  const bn = d === max ? 'detect' : (t === max ? 'track' : 'recog');
+  ['detect', 'track', 'recog'].forEach(k => {
+    const cell = document.querySelector(`.pstage[data-stage="${k}"]`);
+    if (cell) cell.classList.toggle('bottleneck', k === bn && max > 0);
+  });
+}
+function setStage(key, ms, frac) {
+  const [msId, barId] = STAGE_IDS[key];
+  const el = $(msId), bar = $(barId);
+  if (el) el.innerHTML = `${ms.toFixed(1)}<small>ms</small>`;
+  if (bar) bar.style.width = `${Math.round(Math.min(1, frac) * 100)}%`;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  BYOK Groq 키
+// ════════════════════════════════════════════════════════════════════════════
+const BYOK_LS = 'edge-sign-groq-key';
+const byokInput = $('byok-input'), byokState = $('byok-state'), byokShow = $('byok-show');
+function initByok() {
+  state.byokKey = localStorage.getItem(BYOK_LS) || '';
+  byokInput.value = state.byokKey;
+  refreshByokState();
+  byokInput.addEventListener('input', () => {
+    state.byokKey = byokInput.value.trim();
+    localStorage.setItem(BYOK_LS, state.byokKey);
+    refreshByokState();
+  });
+  byokShow.addEventListener('click', () => {
+    const masked = byokInput.type === 'password';
+    byokInput.type = masked ? 'text' : 'password';
+    byokShow.textContent = masked ? '숨김' : '표시';
+  });
+}
+function refreshByokState() {
+  if (state.byokKey) { byokState.textContent = '저장됨'; byokState.className = 'byok-state ok'; }
+  else { byokState.textContent = '미설정'; byokState.className = 'byok-state off'; }
+}
+
 // ── 초기화 ──────────────────────────────────────────────────────────────────
 connectWS();
+initVariants();
+initByok();
