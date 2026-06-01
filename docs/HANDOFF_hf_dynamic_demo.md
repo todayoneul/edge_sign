@@ -25,12 +25,16 @@
       `/api/status`에 `variants`/`active_variant`
 - [x] 전체 회귀 `pytest tests/` → 14 passed (기존 FastAPI on_event DeprecationWarning만)
 
+### ✅ 완료 (추가)
+- [x] **#2 Q&A BYOK** — `ask_stream(api_key=)`, `QARequest.api_key`, no-key 안내. tests/test_qa_byok.py 2 passed.
+- [x] **#3 v3 INT8 static export** — `scripts/quantize_v3_detector.py` 생성·실행 →
+      `model_space/yolov8s_signs_v3_int8_static.onnx` (**18.0 MB, 2.49x**).
+      ⚠️ **핵심 교훈:** 헤드(`/model.22/*` cv2/cv3/dfl)까지 INT8화하면 **검출 0개로 붕괴**(CosSim 0.9995여도!).
+      `nodes_to_exclude`로 헤드 FP32 유지 → 검출 수 11/12 일치, conf~0.40 동일. **CosSim 말고 실검출로 검증할 것.**
+      재생성: `KMP_DUPLICATE_LIB_OK=TRUE python scripts/quantize_v3_detector.py --bench`
+      (모델은 model_space/ gitignore — HF Space엔 LFS로 동봉 필요.)
+
 ### ⏳ 남은 작업 (우선순위 순)
-- [ ] **#2 Q&A BYOK** — `qa_bridge.ask_stream(context, question, api_key=None)` 키 인자 추가(없으면 env 폴백),
-      `app.py QARequest.api_key`, 키 없고 env도 없으면 SSE error. (TDD 권장)
-- [ ] **#3 v3 INT8 static export** — `yolov8s_signs_v3_fp32.onnx` → `yolov8s_signs_v3_int8_static.onnx` 생성.
-      `src/detect/export_yolo_onnx.py`의 INT8 경로 또는 `scripts/archive/quantize_onnx_real.py`(ORT quantize_static) 패턴.
-      이게 있어야 서버 A/B 토글이 v3 택소노미로 fp32⇄int8 둘 다 노출됨. 없으면 fp32 단일.
 - [ ] **#4 프론트** (`web/detection/index.html`, `app.js`) — **`Skill: ui-ux-pro-max` 먼저 호출**해 설계:
   - FP32⇄INT8 세그먼트 토글 → WS로 variant 전송(클라모드: 프레임 msg에 `variant`; 서버모드: `{type:control,action:variant,value}`)
   - KPI에 model_mb·FPS·Δ 카운트업 (기존 `animateVal` 재사용)
