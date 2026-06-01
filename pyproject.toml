@@ -1,0 +1,57 @@
+# Edge-Sign — 코드 품질 도구 설정 (SP-A)
+# ruff(린트+포맷) · mypy(타입) · pytest. 런타임 동작에 영향 없음.
+
+[tool.ruff]
+target-version = "py310"  # convnext_env = Python 3.10.19
+line-length = 100
+extend-exclude = [
+    "scripts/archive",
+    "runs",
+    "data",
+    "model_space",
+    "models",
+    "checkpoints",
+    "assets",
+    "web",
+    "AIhub",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "W", "C4"]
+ignore = ["E501"]  # 줄 길이는 formatter가 처리, 긴 한글 주석 보호
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # 재노출(re-export) 허용
+
+[tool.mypy]
+python_version = "3.10"
+mypy_path = "."
+explicit_package_bases = true
+namespace_packages = true
+ignore_missing_imports = true   # cv2·onnxruntime·torch·groq·ultralytics 스텁 부재
+warn_unused_ignores = true
+
+# 서버/추론 오케스트레이션 경계 — 엄격 타입
+[[tool.mypy.overrides]]
+module = "src.pipeline.*"
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+no_implicit_optional = true
+warn_return_any = true
+check_untyped_defs = true
+
+# eval_e2e.py 는 CLI 평가 스크립트(서빙 경로 아님) — 완화
+[[tool.mypy.overrides]]
+module = "src.pipeline.eval_e2e"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+warn_return_any = false
+
+# 비-파이프라인 패키지(src.track/detect/quant)는 SP-A 타입 대상 아님.
+# mypy src/pipeline가 import를 따라가 끌어와도 해당 모듈 에러는 미보고.
+[[tool.mypy.overrides]]
+module = ["src.track.*", "src.detect.*", "src.quant.*"]
+ignore_errors = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
