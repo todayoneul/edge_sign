@@ -35,8 +35,8 @@ plt.savefig('assets/mm_all_progress.png', dpi=300)
 print("Saved mm_all_progress.png")
 
 # 2. Pareto Frontier (Memory vs Final Score)
-if os.path.exists('final_score_report.txt'):
-    df_score = pd.read_csv('final_score_report.txt')
+if os.path.exists('logs/final_score_report.txt'):
+    df_score = pd.read_csv('logs/final_score_report.txt')
     plt.figure(figsize=(10, 6))
     
     # Scatter plot
@@ -59,7 +59,7 @@ if os.path.exists('final_score_report.txt'):
     print("Saved mm_final_pareto.png")
 
 # 3. Bar Chart of Latency
-if os.path.exists('final_score_report.txt'):
+if os.path.exists('logs/final_score_report.txt'):
     plt.figure(figsize=(10, 6))
     df_score = df_score.sort_values(by='Latency(ms)')
     sns.barplot(data=df_score, x='Model', y='Latency(ms)', palette='viridis')

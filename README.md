@@ -30,7 +30,7 @@ Edge-Sign은 엣지 디바이스에서 실시간으로 한글 간판과 교통�
 - **크기 목표 초과**: 5.6 MB로 목표 15 MB 대비 **2.7배 여유** — 모바일/IoT 배포 가능 수준.
 - **속도 목표 초과**: Static INT8 QDQ로 56.3 FPS @ CPU 달성 — 30 FPS 목표 대비 **1.88배 초과**.
 - **재현 명령**:
-  `python scripts/quantize_onnx_real.py && python scripts/benchmark_pipeline.py --pipe_only`
+  `python scripts/archive/quantize_onnx_real.py && python scripts/archive/benchmark_pipeline.py --pipe_only`
 
 최적 구성: `yolov8s_signs_w8a8.onnx`(5.4 MB) + ByteTrack + KoreanOCRNet W8A8 + TrafficSignNet W8A8.
 실시간 가속이 필요한 경우 동일 구성을 Static INT8 QDQ로 양자화하여 사용한다.
@@ -510,7 +510,7 @@ CosSim ≥ 0.98로 양자화 후에도 출력이 거의 동등하게 유지된�
 
 ### 7.6. Phase 5 — CPU ONNX Runtime 벤치마크
 
-`scripts/quantize_onnx_real.py`(Static QDQ INT8 생성)와 `scripts/benchmark_pipeline.py` 실행 결과이다.
+`scripts/archive/quantize_onnx_real.py`(Static QDQ INT8 생성)와 `scripts/archive/benchmark_pipeline.py` 실행 결과이다.
 
 - **Fake-quant**: FP32 가중치 저장(기존 실험 형식), 실제 INT8 연산 없음
 - **Static INT8 QDQ**: `onnxruntime.quantization.quantize_static()` — INT8 Conv 커널 실사용
@@ -686,8 +686,8 @@ python src/quantize_int8.py   # ONNX Runtime INT8 정적 양자화
 ### Phase 2 — 데이터 준비
 
 ```bash
-# GTSDB 다운로드 및 변환
-python scripts/download_gtsdb.py
+# GTSDB 다운로드 및 변환 (다운로드 스크립트는 scripts/archive/에 보관)
+python scripts/archive/download_gtsdb.py
 python src/detect/prepare_dataset.py --source gtsdb
 
 # AI Hub 신호등·도로표지판 TAR 해제 + 서브샘플링 (시퀀스 단위 분할)

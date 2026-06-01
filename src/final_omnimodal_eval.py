@@ -222,7 +222,7 @@ def main():
         print(f"{r['name']:<25} | {r['recall']:<8.2f}% | {r['latency']*1000:<8.2f}ms | {r['memory']:<8.2f}MB | {r['final_score']:<10.4f}")
 
     # Save to a report text file
-    with open("final_score_report.txt", "w", encoding="utf-8") as f:
+    with open("logs/final_score_report.txt", "w", encoding="utf-8") as f:
         f.write("Model,Recall@1(%),Latency(ms),Memory(MB),PerfNorm,SpeedNorm,MemNorm,FinalScore\n")
         for r in results:
             f.write(f"{r['name']},{r['recall']:.2f},{r['latency']*1000:.2f},{r['memory']:.2f},{r['perf_norm']:.4f},{r['speed_norm']:.4f},{r['mem_norm']:.4f},{r['final_score']:.4f}\n")

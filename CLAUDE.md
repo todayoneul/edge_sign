@@ -70,10 +70,9 @@ CNN_Quant/
 │       ├── run_experiments.py   # E1/E4/E5 검출기 양자화 실험 일괄 실행
 │
 ├── web/                         # 웹 프론트엔드
-│   ├── index.html               # 한글 OCR 캔버스 데모
+│   ├── index.html               # 한글 OCR 캔버스 데모 (Phase 1, ORT-Web)
 │   ├── app.js                   # ONNX Runtime Web 추론
-│   ├── aihub/                   # OpenPose 데모
-│   └── detection/               # [Phase 2] 검출+추적 + Q&A 데모
+│   └── detection/               # [Phase 2/3] 검출+추적+인식 + Q&A 데모 (메인 시연)
 │       ├── index.html           # 검출 뷰 + 채팅 UI
 │       └── app.js               # WebSocket 프레임 전송 + SSE Q&A
 │
@@ -83,24 +82,21 @@ CNN_Quant/
 │   ├── 다양한 형태의 한글 문자 OCR/         # ZIP 압축 (인쇄체+필기체, 39.6GB)
 │   └── 교통사고 블랙박스/                   # 미사용 (참고용 보관)
 │
-├── scripts/                     # 데이터 수집/전처리 + 분석 스크립트
+├── scripts/                     # 현행 데이터 준비 + 검증 스크립트
 │   ├── extract_frames.py        # [Phase 2] AI Hub TAR 해제 + 시퀀스 분할 + 서브샘플링
 │   ├── build_demo_video.py      # [Phase 7] test JPG 시퀀스 → H.264 mp4 합성 (검증/시연용) → data/demo_videos/
 │   ├── prepare_korean_traffic.py # [Phase 8] AI Hub → 검출기(yolo_signs_v2) + 분류기 ROI(roi_cls) 단일패스 생성
-│   ├── train_korean_classifier.py # [Phase 8] 한국 표지판/신호등 14클래스 분류기 학습 → korean_sign_net
-│   ├── check_gpu_ort.py         # [SP1] onnxruntime-gpu CUDA EP 검증
-│   ├── check_codec_matrix.py    # [SP1] H.264/MPEG-4/HEVC 서버 디코딩 검증
-│   ├── archive/                 # 이전 Phase 4·5 실험/플롯/다운로드 스크립트 보관
-│   ├── plot_pareto.py           # [Phase 5] Pareto frontier 차트 생성 → assets/pareto_frontier.png
-│   ├── plot_sensitivity.py     # [Phase 4] 단계별 양자화 민감도 분석 그래프 (4종) → assets/sensitivity_*.png
-│   ├── plot_v2_extras.py       # [Phase 5 v2] E0~E7 비교 / 압축률 / FPS 비교 (3종) → assets/v2/*.png
-│   ├── plot_detection_samples.py  # [Phase 5 v2] 실제 추론 bbox 오버레이 → assets/v2/detection_samples.png
-│   ├── benchmark_pipeline.py   # [Phase 5] E2E 파이프라인 CPU 벤치마크 (레이턴시/FPS)
-│   └── quantize_onnx_real.py   # [Phase 5] Static INT8 QDQ 실양자화 (ORT quantize_static)
-├── checkpoints/                 # 학습 체크포인트 (.pth)
-├── models/                      # 내보낸 모델 (safetensors, ONNX)
-├── logs/                        # 학습 로그 (CSV)
-├── data/                        # 데이터 매핑, FAISS 인덱스
+│   ├── train_korean_classifier.py # [Phase 9] 한국 표지판/신호등 14클래스 분류기 학습 → korean_sign_net
+│   ├── check_gpu_ort.py         # [Phase 10] onnxruntime-gpu CUDA EP 검증
+│   ├── check_codec_matrix.py    # [Phase 10] H.264/MPEG-4/HEVC 서버 디코딩 검증
+│   └── archive/                 # 종료된 Phase 1·4·5 실험·플롯·벤치마크·다운로드 스크립트 보관
+│                                #   (plot_pareto/sensitivity/v2_extras/detection_samples,
+│                                #    benchmark_pipeline, quantize_onnx_real, download_*, export_* 등)
+├── checkpoints/                 # 학습 체크포인트 (.pth, gitignore)
+├── models/                      # Phase 1 내보낸 모델 (safetensors, ONNX) — git 추적
+├── model_space/                 # Phase 2/3 ONNX 모델 (검출/추적/인식, gitignore)
+├── logs/                        # 실험 데이터 (학습 곡선 CSV, final_score_report.txt)
+├── data/                        # 데이터셋·매핑·FAISS 인덱스 (gitignore)
 └── assets/                      # 시각화 이미지
 ```
 
@@ -118,7 +114,7 @@ python src/base_W8A8.py               # W8A8 PTQ
 python src/final_omnimodal_eval.py    # 종합 평가
 
 # Phase 2 - 데이터 준비
-python scripts/download_gtsdb.py               # GTSDB 다운로드 (이미 완료)
+python scripts/archive/download_gtsdb.py       # GTSDB 다운로드 (이미 완료, 보관됨)
 
 # 신호등-도로표지판 TAR 해제 + 시퀀스 분할 + 서브샘플링
 python scripts/extract_frames.py --dry_run     # 분할 계획 미리보기
