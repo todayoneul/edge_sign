@@ -277,8 +277,9 @@
 - [x] Q&A BYOK — `ask_stream(api_key=)`, `QARequest.api_key`, `tests/test_qa_byok.py` (2)
 - [x] 프론트 다이나믹 컴포넌트 → `web/detection/` — FP32⇄INT8 토글(크기·FPS Δ), 단계 플로우(병목 강조), BYOK 키, 샘플 영상, WS https→wss 자동
 - [x] HF Spaces (Docker, CPU) 패키징 → `Dockerfile`·`requirements-hf.txt`·`.dockerignore`·`spaces/README.md`
-  - [ ] `docker build` 실측 검증 (Docker Desktop 실행 필요 — 보류) / HF Space 푸시(LFS)
-- 회귀: `pytest tests/` 16 passed · CPU 전용 부팅·샘플 서빙·WS variant 라우팅 실측 OK
+  - [x] `docker build` 실측 — 이미지 427MB, 컨테이너 CPU 추론 검증(fp32/int8 검출 OK, INT8 33ms<fp32 93ms)
+  - [ ] HF Space 푸시(Space 리포 + LFS) — 사용자 액션
+- 회귀: `pytest tests/` 16 passed · Docker 컨테이너 `/api/status`·`/detection/`·샘플·WS variant 실측 OK
 
 ---
 

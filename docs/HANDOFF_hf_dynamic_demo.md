@@ -42,9 +42,12 @@
       `.dockerignore`(ONNX 4개만), `spaces/README.md`(YAML+LFS), 샘플 클립 2종 `web/detection/samples/`.
 - [x] **#6 문서** — ROADMAP/EXPERIMENTS Phase 11, CLAUDE.md 구조·명령. `pytest` 16 passed, CPU 부팅·샘플 서빙 OK.
 
+### ✅ docker build 실측 완료
+- 이미지 `edge-sign:latest` **427MB** 빌드 성공. 컨테이너(`-p 7860:7860`) `/api/status`·`/detection/`·샘플 200,
+  WS variant 추론 OK (fp32 1트랙 / int8 1트랙, INT8 33ms < fp32 93ms). `.dockerignore` ONNX 선별도 정상.
+- ⚠️ 빌드 실행 시 `&` + run_in_background 동시 사용 금지(런처 셸 즉시 종료로 빌드 중단됨). run_in_background만 사용.
+
 ### ⏳ 남은 작업 (사용자 액션)
-- [ ] **docker build 실측** — Docker Desktop **데몬 꺼짐 → 보류**. 실행 후
-      `docker build -t edge-sign . && docker run --rm -p 7860:7860 edge-sign` → http://localhost:7860/detection/
 - [ ] **HF Space 푸시** — Space 리포 생성, `spaces/README.md`를 루트 README로, 대용량 onnx·mp4는 **git LFS**
       (model_space는 main 리포 gitignore → Space 리포에 별도 LFS 동봉).
 
