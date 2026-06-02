@@ -404,12 +404,30 @@ export default function Viewport() {
   // ── togglePlay — 두 모드 공통 (app.js togglePlay) ────────────────────────
   const togglePlay = useCallback(() => {
     if (mode === "server") {
-      session.togglePlay();
-      setIsPlaying(session.serverPlaying);  // 반전 후 값은 useEffect로 보정
+      if (session.ended) {
+        // 끝난 서버 스트림 → 처음부터 재생
+        session.restart();
+        setIsPlaying(true);
+        setStageStatus("서버 스트림 — 처음부터 재생");
+        setStageStatusLive(true);
+      } else {
+        session.togglePlay();
+        setIsPlaying(session.serverPlaying);  // 반전 후 값은 useEffect로 보정
+      }
     } else {
       const video = videoRef.current;
       if (!video) return;
-      if (video.paused) {
+      if (video.ended) {
+        // 끝난 영상 → 처음부터 재생 (트랙 ID도 초기화)
+        video.currentTime = 0;
+        video.play().then(() => {
+          setIsPlaying(true);
+          setStageStatus("다시 재생 중");
+          setStageStatusLive(true);
+          stream.reset();
+          stream.start(getFrame);
+        }).catch(() => {});
+      } else if (video.paused) {
         video.play().then(() => {
           setIsPlaying(true);
           stream.start(getFrame);
@@ -430,13 +448,34 @@ export default function Viewport() {
   // ── stepBack/stepFwd — 두 모드 (app.js step-back/fwd 버튼) ──────────────
   const stepBack = useCallback(() => {
     if (mode === "server") {
+      if (session.ended) {
+        // 끝난 뒤 되감기 → 처음부터 재생
+        session.restart();
+        setIsPlaying(true);
+        setStageStatus("서버 스트림 — 처음부터 재생");
+        setStageStatusLive(true);
+        return;
+      }
       const { pos, fps } = session.seekInfo;
       session.seek(Math.max(0, pos - Math.round(5 * fps)));
     } else {
       const video = videoRef.current;
-      if (video?.src) video.currentTime = Math.max(0, video.currentTime - 5);
+      if (!video?.src) return;
+      if (video.ended) {
+        // 끝난 뒤 되감기 → 처음부터 재생
+        video.currentTime = 0;
+        video.play().then(() => {
+          setIsPlaying(true);
+          setStageStatus("다시 재생 중");
+          setStageStatusLive(true);
+          stream.reset();
+          stream.start(getFrame);
+        }).catch(() => {});
+        return;
+      }
+      video.currentTime = Math.max(0, video.currentTime - 5);
     }
-  }, [mode, session]);
+  }, [mode, session, stream, getFrame]);
 
   const stepFwd = useCallback(() => {
     if (mode === "server") {

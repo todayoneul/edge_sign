@@ -187,6 +187,15 @@ export function useSession() {
   /** seek to frame index */
   const seek = useCallback((frameIdx: number) => control("seek", frameIdx), [control]);
 
+  /** restart — 종료된 세션을 0프레임부터 다시 재생 (seek 0 + play + ended 해제) */
+  const restart = useCallback(() => {
+    control("seek", 0);
+    control("play");
+    setServerPlaying(true);
+    setEnded(false);
+    useStore.setState({ playing: true });
+  }, [control]);
+
   /** playback speed */
   const setSpeed = useCallback((rate: number) => control("speed", rate), [control]);
 
@@ -198,6 +207,7 @@ export function useSession() {
     stop,
     togglePlay,
     seek,
+    restart,
     setSpeed,
     setVariant,
     control,
