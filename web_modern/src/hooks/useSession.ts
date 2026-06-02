@@ -51,6 +51,8 @@ export function useSession() {
   const [seekInfo, setSeekInfo] = useState<SeekInfo>({ pos: 0, total: 0, fps: 30, seekable: false });
   const [serverPlaying, setServerPlaying] = useState(false);
   const [ended, setEnded] = useState(false);
+  /** 서버가 처리한 프레임의 픽셀 크기 — overlay letterbox 기준 (app.js state.sentW/H) */
+  const [frameDims, setFrameDims] = useState<{ w: number; h: number } | null>(null);
 
   const setFrame = useStore((s) => s.setFrame);
   const reset = useStore((s) => s.reset);
@@ -106,6 +108,10 @@ export function useSession() {
                   fps: fm.fps ?? 30,
                   seekable: !!fm.seekable,
                 });
+              }
+              // 서버 프레임 크기 갱신 (overlay letterbox 기준, app.js handleServerFrame w/h)
+              if (fm.w && fm.h) {
+                setFrameDims({ w: fm.w, h: fm.h });
               }
             } else if (msg.type === "ended") {
               setEnded(true);
@@ -165,6 +171,8 @@ export function useSession() {
     if (blobUrlRef.current) { URL.revokeObjectURL(blobUrlRef.current); blobUrlRef.current = null; }
     setFrameBlobUrl(null);
     setServerPlaying(false);
+    setFrameDims(null);
+    setEnded(false);
     useStore.setState({ sourceKind: "none", playing: false });
   }, [control]);
 
@@ -194,6 +202,7 @@ export function useSession() {
     setVariant,
     control,
     frameBlobUrl,
+    frameDims,
     seekInfo,
     serverPlaying,
     ended,

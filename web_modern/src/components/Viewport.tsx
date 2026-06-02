@@ -5,19 +5,25 @@
  *   - getFrame(): 현재 <video> 프레임을 오프스크린 캔버스로 캡처 → base64 JPEG 반환
  *   - useStream 훅이 setInterval로 getFrame()을 호출, WS 전송
  *
+ * 모드②(서버 스트림): ingest() → /ws/session → frameBlobUrl → <img id="stream-img">
+ *   - URL 입력, 이미지 업로드, 비호환 코덱 영상 → 자동 폴백
+ *   - 서버 w/h를 sentDimsRef에 기록 → letterbox overlay 기준으로 사용
+ *
  * 오버레이 렌더:
  *   - useStore(s.tracks) 구독
  *   - rAF 루프에서 renderTracks(ctx, tracks, srcW, srcH, dispW, dispH) 호출
  *   - object-fit: contain 레터박스 오프셋(oX, oY) 계산 후 ctx.translate(oX, oY)
  *   - clear는 오프셋 포함 전체 캔버스 기준
  *
- * 모드②(서버 스트림): T7에서 완성; <img id="stream-img"> 자리만 확보
+ * 통합 seekbar: SeekBar 컴포넌트 — mode① = videoRef, mode② = seekInfo
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useStore } from "../store";
 import { useStream } from "../hooks/useStream";
+import { useSession } from "../hooks/useSession";
 import { renderTracks } from "../lib/draw";
+import SeekBar from "./SeekBar";
 import Hero from "./Hero";
 import Controls from "./Controls";
 
@@ -28,6 +34,9 @@ const SAMPLES = ["samples/clip_01.mp4", "samples/clip_02.mp4"];
 const _cap = document.createElement("canvas");
 const _cctx = _cap.getContext("2d")!;
 
+/** 모드 구분 — app.js state.mode */
+type Mode = "client" | "server";
+
 export default function Viewport() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const overlayRef = useRef<HTMLCanvasElement>(null);
@@ -37,24 +46,40 @@ export default function Viewport() {
   const sampleIdxRef = useRef(0);
   const streamRef = useRef<MediaStream | null>(null);
   const videoBlobRef = useRef<string | null>(null);
+  // 인제스트 폴백에서 재사용하기 위해 현재 로드된 File 보관 (app.js loadVideoFile)
+  const pendingFileRef = useRef<File | null>(null);
 
   const tracks = useStore((s) => s.tracks);
   const variant = useStore((s) => s.telemetry.variant);
-  const playing = useStore((s) => s.playing);
 
   // Sent frame dimensions (for letterbox math source)
+  // 모드② 에서는 서버가 보내는 w/h로 덮어씀 (handleServerFrame 패턴)
   const sentDimsRef = useRef({ w: 640, h: 480 });
 
   // Local UI state
+  const [mode, setMode] = useState<Mode>("client");
   const [isPlaying, setIsPlaying] = useState(false);
   const [stageStatus, setStageStatus] = useState("서버 연결 대기 중…");
   const [stageStatusLive, setStageStatusLive] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1.0);
-
-  // Seekbar state (basic for mode①; full seekbar in T7)
   const [seekbarVisible, setSeekbarVisible] = useState(false);
 
   const stream = useStream(10);
+  const session = useSession();
+
+  // 서버 프레임의 w/h를 sentDimsRef에 반영 (overlay letterbox 계산 기준)
+  // useSession이 store.setFrame을 통해 트랙을 올리므로, seekInfo.pos 변화 시 체크
+  const sourceKind = useStore((s) => s.sourceKind);
+  useEffect(() => {
+    // session.seekInfo는 프레임마다 갱신되며 w/h는 useSession이 직접 노출하지 않음.
+    // 대신 useSession 내부에서 setFrame 호출 시 w/h를 같이 넘길 수 있도록
+    // sentDimsRef 를 session 의 seekInfo 변화에 맞춰 갱신하는 대신,
+    // Viewport 가 session 의 내부 w/h 를 얻으려면 useSession 을 확장해야 한다.
+    // 여기서는 useSession 이 노출하는 frameDims 를 사용한다.
+    if (session.frameDims) {
+      sentDimsRef.current = session.frameDims;
+    }
+  }, [session.frameDims]);
 
   // ── getFrame callback (Viewport → useStream) ────────────────────────────
   const getFrame = useCallback((): { data: string; variant?: string | null } | null => {
@@ -106,7 +131,6 @@ export default function Viewport() {
       oX = (cw - dW) / 2;
     }
 
-    // ctx.translate로 레터박스 오프셋 적용 후 renderTracks 호출
     ctx.save();
     ctx.translate(oX, oY);
     renderTracks(ctx, tracks, srcW, srcH, dW, dH);
@@ -120,7 +144,7 @@ export default function Viewport() {
     return () => cancelAnimationFrame(animRef.current);
   }, [renderOverlay]);
 
-  // ResizeObserver — 뷰포트 크기 변경 시 오버레이 재렌더
+  // ResizeObserver
   useEffect(() => {
     const vp = viewportRef.current;
     if (!vp) return;
@@ -132,9 +156,10 @@ export default function Viewport() {
     return () => ro.disconnect();
   }, [renderOverlay]);
 
-  // ── stopMedia ─────────────────────────────────────────────────────────────
-  const stopMedia = useCallback(() => {
+  // ── 공통 stopAll — 두 모드 모두 정리 ─────────────────────────────────────
+  const stopAll = useCallback(() => {
     stream.stop();
+    session.stop();
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
@@ -145,21 +170,101 @@ export default function Viewport() {
       video.srcObject = null;
       video.src = "";
       video.removeAttribute("src");
+      video.onerror = null;
     }
     if (videoBlobRef.current) {
       URL.revokeObjectURL(videoBlobRef.current);
       videoBlobRef.current = null;
     }
+    pendingFileRef.current = null;
+    // img 숨기기
+    const img = streamImgRef.current;
+    if (img) { img.removeAttribute("src"); }
+    setMode("client");
     setIsPlaying(false);
     setSeekbarVisible(false);
     setStageStatusLive(false);
     setStageStatus("정지됨 — 영상을 시작하세요");
     useStore.getState().reset();
-  }, [stream]);
+  }, [stream, session]);
+
+  // ── 서버 인제스트 공통 진입점 (app.js ingest + startServerStream) ───────
+  const startIngest = useCallback(
+    async (kind: "image" | "video" | "url", fileOrUrl: File | string, label: string) => {
+      // 클라 스트림만 먼저 정지 (session은 useSession.ingest가 내부에서 처리)
+      stream.stop();
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+      }
+      const video = videoRef.current;
+      if (video) {
+        video.pause();
+        video.src = "";
+        video.srcObject = null;
+        video.onerror = null;
+      }
+
+      setStageStatus("서버 디코딩 준비 중…");
+
+      const fd = new FormData();
+      fd.append("kind", kind);
+      if (kind === "url") {
+        fd.append("url", fileOrUrl as string);
+      } else {
+        fd.append("file", fileOrUrl as File);
+      }
+
+      await session.ingest(fd);
+      // ingest가 오류 없이 반환되면 WS가 열린 것 (session 내부에서 sourceKind="session" 세팅)
+      setMode("server");
+      setIsPlaying(true);
+      setSeekbarVisible(true);
+      setStageStatus(`서버 스트림 · ${label}`);
+      setStageStatusLive(true);
+
+      // img 표시, video 숨기기
+      const img = streamImgRef.current;
+      if (img) img.style.display = "block";
+      if (video) video.style.display = "none";
+    },
+    [stream, session],
+  );
+
+  // session.frameBlobUrl 변화 → img.src 갱신 (app.js startServerStream binary 분기)
+  useEffect(() => {
+    const img = streamImgRef.current;
+    if (!img) return;
+    if (session.frameBlobUrl) {
+      img.src = session.frameBlobUrl;
+    }
+  }, [session.frameBlobUrl]);
+
+  // session.ended → 상태 반영
+  useEffect(() => {
+    if (session.ended && mode === "server") {
+      setStageStatus("재생 완료 — 다른 입력을 시도하세요");
+      setStageStatusLive(false);
+      setIsPlaying(false);
+    }
+  }, [session.ended, mode]);
+
+  // sourceKind가 session으로 바뀌었을 때 img 표시 보정
+  useEffect(() => {
+    const img = streamImgRef.current;
+    const video = videoRef.current;
+    if (sourceKind === "session") {
+      if (img) img.style.display = "block";
+      if (video) video.style.display = "none";
+    } else {
+      if (img) img.style.display = "none";
+      if (video) video.style.display = "";
+    }
+  }, [sourceKind]);
 
   // ── startWebcam ───────────────────────────────────────────────────────────
   const startWebcam = useCallback(async () => {
-    stopMedia();
+    stopAll();
     try {
       const ms = await navigator.mediaDevices.getUserMedia({
         video: { width: 640, height: 480 },
@@ -168,8 +273,10 @@ export default function Viewport() {
       streamRef.current = ms;
       const video = videoRef.current!;
       video.srcObject = ms;
+      video.style.display = "";
       await video.play();
       sentDimsRef.current = { w: 640, h: 480 };
+      setMode("client");
       setIsPlaying(true);
       setSeekbarVisible(true);
       setStageStatus("웹캠 — 실시간 스트리밍 중");
@@ -180,35 +287,43 @@ export default function Viewport() {
       const msg = e instanceof Error ? e.message : String(e);
       setStageStatus(`웹캠 접근 실패: ${msg}`);
     }
-  }, [stopMedia, stream, getFrame]);
+  }, [stopAll, stream, getFrame]);
 
   // ── loadVideoFile ─────────────────────────────────────────────────────────
   const loadVideoFile = useCallback(
     (file: File) => {
+      // 이미지 → 무조건 서버 인제스트 (app.js loadVideoFile 이미지 분기)
       if (file.type.startsWith("image/")) {
-        // T7: image → server ingest; stub
-        setStageStatus(`이미지 입력(T7 미구현): ${file.name}`);
+        void startIngest("image", file, file.name);
         return;
       }
-      stopMedia();
+
+      // 비디오: 먼저 클라 디코딩 시도 (app.js loadVideoFile)
+      stopAll();
       if (videoBlobRef.current) URL.revokeObjectURL(videoBlobRef.current);
       videoBlobRef.current = URL.createObjectURL(file);
+      pendingFileRef.current = file;
+
       const video = videoRef.current!;
       video.srcObject = null;
       video.loop = false;
       video.src = videoBlobRef.current;
+      video.style.display = "";
       video.playbackRate = playbackRate;
 
       let fellBack = false;
+      // 폴백: 비호환 코덱 or play() 거부 → 서버 인제스트 (app.js fallback)
       const fallback = () => {
         if (fellBack) return;
         fellBack = true;
         video.onerror = null;
-        // T7: server ingest fallback
-        setStageStatus(`비호환 코덱 — 서버 인제스트(T7) 필요: ${file.name}`);
+        const f = pendingFileRef.current;
+        if (f) void startIngest("video", f, f.name);
       };
-      video.onerror = fallback;
+      video.onerror = fallback;           // MEDIA_ERR_SRC_NOT_SUPPORTED 등
+
       video.play().then(() => {
+        setMode("client");
         setIsPlaying(true);
         setSeekbarVisible(true);
         setStageStatus(`재생 중 · ${file.name}`);
@@ -217,25 +332,27 @@ export default function Viewport() {
         stream.start(getFrame);
       }).catch(fallback);
     },
-    [stopMedia, stream, getFrame, playbackRate],
+    [stopAll, startIngest, stream, getFrame, playbackRate],
   );
 
   // ── loadSample ────────────────────────────────────────────────────────────
   const loadSample = useCallback(() => {
     const url = SAMPLES[sampleIdxRef.current % SAMPLES.length];
     sampleIdxRef.current++;
-    stopMedia();
+    stopAll();
     const video = videoRef.current!;
     video.srcObject = null;
     video.loop = true;
     video.src = url;
+    video.style.display = "";
     video.playbackRate = playbackRate;
+    // 샘플도 폴백 지원 (app.js loadSample)
     video.onerror = () => {
       video.onerror = null;
-      // T7: server ingest fallback
-      setStageStatus("샘플 재생 실패 — 서버 디코딩 시도(T7)");
+      void startIngest("url", url, "샘플");
     };
     video.play().then(() => {
+      setMode("client");
       setIsPlaying(true);
       setSeekbarVisible(true);
       setStageStatus("샘플 영상 — FP32⇄INT8 토글을 바꿔보세요");
@@ -243,34 +360,78 @@ export default function Viewport() {
       stream.reset();
       stream.start(getFrame);
     }).catch(() => {
-      setStageStatus("샘플 재생 실패");
+      void startIngest("url", url, "샘플");
     });
-  }, [stopMedia, stream, getFrame, playbackRate]);
+  }, [stopAll, startIngest, stream, getFrame, playbackRate]);
 
-  // ── togglePlay (seekbar) ──────────────────────────────────────────────────
+  // ── handleUrl (Controls URL 입력 → 서버 인제스트) ────────────────────────
+  const handleUrl = useCallback(
+    (url: string) => {
+      if (!url) return;
+      void startIngest("url", url, url);
+    },
+    [startIngest],
+  );
+
+  // ── togglePlay — 두 모드 공통 (app.js togglePlay) ────────────────────────
   const togglePlay = useCallback(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (video.paused) {
-      video.play().then(() => {
-        setIsPlaying(true);
-        stream.start(getFrame);
-      }).catch(() => {});
+    if (mode === "server") {
+      session.togglePlay();
+      setIsPlaying(session.serverPlaying);  // 반전 후 값은 useEffect로 보정
     } else {
-      video.pause();
-      setIsPlaying(false);
-      stream.stop();
+      const video = videoRef.current;
+      if (!video) return;
+      if (video.paused) {
+        video.play().then(() => {
+          setIsPlaying(true);
+          stream.start(getFrame);
+        }).catch(() => {});
+      } else {
+        video.pause();
+        setIsPlaying(false);
+        stream.stop();
+      }
     }
-  }, [stream, getFrame]);
+  }, [mode, session, stream, getFrame]);
 
-  // Sync playing state from store
+  // session.serverPlaying 변화를 isPlaying에 반영 (서버 pause/play 제어 후)
   useEffect(() => {
-    if (!playing && isPlaying) {
-      // store reset was called externally
-    }
-  }, [playing, isPlaying]);
+    if (mode === "server") setIsPlaying(session.serverPlaying);
+  }, [session.serverPlaying, mode]);
 
-  // Video event listeners
+  // ── stepBack/stepFwd — 두 모드 (app.js step-back/fwd 버튼) ──────────────
+  const stepBack = useCallback(() => {
+    if (mode === "server") {
+      const { pos, fps } = session.seekInfo;
+      session.seek(Math.max(0, pos - Math.round(5 * fps)));
+    } else {
+      const video = videoRef.current;
+      if (video?.src) video.currentTime = Math.max(0, video.currentTime - 5);
+    }
+  }, [mode, session]);
+
+  const stepFwd = useCallback(() => {
+    if (mode === "server") {
+      const { pos, total, fps } = session.seekInfo;
+      session.seek(Math.min(total, pos + Math.round(5 * fps)));
+    } else {
+      const video = videoRef.current;
+      if (video?.src && isFinite(video.duration))
+        video.currentTime = Math.min(video.duration, video.currentTime + 5);
+    }
+  }, [mode, session]);
+
+  // ── 재생 속도 (app.js speedRange) ────────────────────────────────────────
+  const handlePlaybackRate = useCallback(
+    (r: number) => {
+      setPlaybackRate(r);
+      if (videoRef.current) videoRef.current.playbackRate = r;
+      if (mode === "server") session.setSpeed(r);      // 서버 스트림 속도 제어
+    },
+    [mode, session],
+  );
+
+  // ── video 이벤트 리스너 ────────────────────────────────────────────────────
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -280,12 +441,8 @@ export default function Viewport() {
       setStageStatus("재생 완료 — 다른 영상을 올려보세요");
       stream.stop();
     };
-    const onPause = () => {
-      setIsPlaying(false);
-    };
-    const onPlay = () => {
-      if (video.src || video.srcObject) setIsPlaying(true);
-    };
+    const onPause = () => { if (mode === "client") setIsPlaying(false); };
+    const onPlay = () => { if ((video.src || video.srcObject) && mode === "client") setIsPlaying(true); };
     video.addEventListener("ended", onEnded);
     video.addEventListener("pause", onPause);
     video.addEventListener("play", onPlay);
@@ -294,13 +451,13 @@ export default function Viewport() {
       video.removeEventListener("pause", onPause);
       video.removeEventListener("play", onPlay);
     };
-  }, [stream]);
+  }, [stream, mode]);
 
-  // Playback rate sync
+  // Playback rate sync to video element
   useEffect(() => {
     const video = videoRef.current;
-    if (video) video.playbackRate = playbackRate;
-  }, [playbackRate]);
+    if (video && mode === "client") video.playbackRate = playbackRate;
+  }, [playbackRate, mode]);
 
   // Viewport drag-drop
   const handleViewportDrop = useCallback(
@@ -312,21 +469,13 @@ export default function Viewport() {
     [loadVideoFile],
   );
 
-  // Stub handlers for T7
-  const handleUrl = useCallback((url: string) => {
-    setStageStatus(`URL 입력(T7 미구현): ${url}`);
-  }, []);
-
-  // Step ±5s
-  const stepBack = useCallback(() => {
-    const video = videoRef.current;
-    if (video?.src) video.currentTime = Math.max(0, video.currentTime - 5);
-  }, []);
-  const stepFwd = useCallback(() => {
-    const video = videoRef.current;
-    if (video?.src && isFinite(video.duration))
-      video.currentTime = Math.min(video.duration, video.currentTime + 5);
-  }, []);
+  // ── 서버 seek 콜백 (SeekBar → session.seek) ──────────────────────────────
+  const handleServerSeek = useCallback(
+    (frameIdx: number) => {
+      session.seek(frameIdx);
+    },
+    [session],
+  );
 
   return (
     <>
@@ -338,7 +487,7 @@ export default function Viewport() {
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleViewportDrop}
       >
-        {/* 클라 모드 비디오 엘리먼트 */}
+        {/* 클라 모드① 비디오 엘리먼트 */}
         <video
           ref={videoRef}
           id="video-el"
@@ -350,11 +499,11 @@ export default function Viewport() {
             width: "100%",
             height: "100%",
             objectFit: "contain",
-            display: isPlaying ? "block" : "none",
+            display: mode === "client" && isPlaying ? "block" : "none",
           }}
         />
 
-        {/* 서버 스트림 모드②용 img (T7에서 활성화) */}
+        {/* 서버 스트림 모드② img (app.js stream-img) */}
         <img
           ref={streamImgRef}
           id="stream-img"
@@ -365,7 +514,7 @@ export default function Viewport() {
             width: "100%",
             height: "100%",
             objectFit: "contain",
-            display: "none",
+            display: "none",               // sourceKind effect로 토글
             background: "var(--viewport)",
           }}
         />
@@ -399,9 +548,12 @@ export default function Viewport() {
       {/* ── 통합 재생 탐색 바 ── */}
       <SeekBar
         visible={seekbarVisible}
-        videoRef={videoRef}
+        mode={mode}
         playing={isPlaying}
         onTogglePlay={togglePlay}
+        videoRef={videoRef}
+        seekInfo={session.seekInfo}
+        onServerSeek={handleServerSeek}
       />
 
       {/* ── 성능 스트립 placeholder (T8에서 완성) ── */}
@@ -413,111 +565,16 @@ export default function Viewport() {
         onSample={loadSample}
         onWebcam={startWebcam}
         onFile={loadVideoFile}
-        onStop={stopMedia}
+        onStop={stopAll}
         onUrl={handleUrl}
         stageStatus={stageStatus}
         stageStatusLive={stageStatusLive}
         playbackRate={playbackRate}
-        onPlaybackRate={(r) => setPlaybackRate(r)}
+        onPlaybackRate={handlePlaybackRate}
         onStepBack={stepBack}
         onStepFwd={stepFwd}
       />
     </>
-  );
-}
-
-// ── SeekBar ──────────────────────────────────────────────────────────────────
-// 클라 모드①용 기본 seekbar (app.js 통합 seekbar 포팅, 서버 모드 부분은 T7)
-function SeekBar({
-  visible,
-  videoRef,
-  playing,
-  onTogglePlay,
-}: {
-  visible: boolean;
-  videoRef: React.RefObject<HTMLVideoElement | null>;
-  playing: boolean;
-  onTogglePlay: () => void;
-}) {
-  const [cur, setCur] = useState("0:00");
-  const [dur, setDur] = useState("0:00");
-  const [val, setVal] = useState(0);
-  const [seeking, setSeeking] = useState(false);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    const onTimeUpdate = () => {
-      if (seeking) return;
-      const d = video.duration;
-      if (isFinite(d) && d > 0) {
-        setVal(Math.round((video.currentTime / d) * 1000));
-        setCur(fmtTime(video.currentTime));
-        setDur(fmtTime(d));
-      } else {
-        setDur("LIVE");
-        setCur(fmtTime(video.currentTime));
-      }
-    };
-    video.addEventListener("timeupdate", onTimeUpdate);
-    return () => video.removeEventListener("timeupdate", onTimeUpdate);
-  }, [videoRef, seeking]);
-
-  function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
-    setSeeking(true);
-    const frac = Number(e.target.value) / 1000;
-    const video = videoRef.current;
-    const d = video?.duration;
-    if (video && isFinite(d!) && d! > 0) {
-      video.currentTime = frac * d!;
-      setCur(fmtTime(frac * d!));
-    }
-    setVal(Number(e.target.value));
-  }
-
-  function handleChange() {
-    setSeeking(false);
-  }
-
-  return (
-    <div className={`seekbar${visible ? "" : " hidden"}`} id="seekbar">
-      <button
-        className="pc-btn"
-        id="play-toggle"
-        type="button"
-        aria-label="재생 / 일시정지"
-        title="재생 / 일시정지 (Space)"
-        onClick={onTogglePlay}
-      >
-        {playing ? (
-          <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 20, height: 20 }}>
-            <path d="M7 5h3v14H7zM14 5h3v14h-3z" />
-          </svg>
-        ) : (
-          <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 20, height: 20 }}>
-            <path d="M8 5v14l11-7z" />
-          </svg>
-        )}
-      </button>
-      <span className="seek-time" id="seek-cur">
-        {cur}
-      </span>
-      <input
-        type="range"
-        id="seek-range"
-        min={0}
-        max={1000}
-        value={val}
-        step={1}
-        aria-label="재생 위치"
-        onChange={handleInput}
-        onMouseUp={handleChange}
-        onTouchEnd={handleChange}
-      />
-      <span className="seek-time" id="seek-dur">
-        {dur}
-      </span>
-    </div>
   );
 }
 
@@ -572,12 +629,4 @@ function PerfStripPlaceholder() {
       </div>
     </div>
   );
-}
-
-// ── 시간 포맷 ────────────────────────────────────────────────────────────────
-function fmtTime(s: number): string {
-  if (!isFinite(s) || s < 0) return "--:--";
-  const m = Math.floor(s / 60);
-  const ss = Math.floor(s % 60);
-  return `${m}:${ss < 10 ? "0" : ""}${ss}`;
 }
