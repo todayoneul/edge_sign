@@ -27,6 +27,16 @@ body {
   transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
 }
 
+/* React 마운트 루트 — vanilla는 header/main/footer가 body 직계였으나
+   React는 #root로 감싼다. body의 flex 컬럼이 전파되도록 #root를 풀하이트
+   flex 컬럼으로 만들어야 main{flex:1}·viewport{flex:1}이 펼쳐진다. */
+#root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 /* 데이터/수치는 항상 등폭 + tabular */
 .mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
 
