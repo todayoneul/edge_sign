@@ -158,7 +158,13 @@ export default function SeekBar({
 
   return (
     <div className={`seekbar${visible ? "" : " hidden"}`} id="seekbar">
-      {/* 재생/일시정지 토글 */}
+      {/* 트랜스포트 클러스터: 5초 뒤로(←) · 재생/정지(Space) · 5초 앞으로(→) */}
+      <button className="pc-btn step" id="step-back-btn" title="5초 뒤로 (←)" aria-label="5초 뒤로" onClick={onStepBack}>
+        <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 16, height: 16 }}>
+          <path d="M11 6v12L4 12zM19 6v12l-7-6z" />
+        </svg>
+      </button>
+
       <button
         className="pc-btn"
         id="play-toggle"
@@ -178,10 +184,9 @@ export default function SeekBar({
         )}
       </button>
 
-      {/* 5초 뒤로 */}
-      <button className="pc-btn step" id="step-back-btn" title="5초 뒤로" onClick={onStepBack}>
+      <button className="pc-btn step" id="step-fwd-btn" title="5초 앞으로 (→)" aria-label="5초 앞으로" onClick={onStepFwd}>
         <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 16, height: 16 }}>
-          <path d="M11 6v12L4 12zM19 6v12l-7-6z" />
+          <path d="M13 6v12l7-6zM5 6v12l7-6z" />
         </svg>
       </button>
 
@@ -209,13 +214,6 @@ export default function SeekBar({
       <span className="seek-time" id="seek-dur">
         {dur}
       </span>
-
-      {/* 5초 앞으로 */}
-      <button className="pc-btn step" id="step-fwd-btn" title="5초 앞으로" onClick={onStepFwd}>
-        <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 16, height: 16 }}>
-          <path d="M13 6v12l7-6zM5 6v12l7-6z" />
-        </svg>
-      </button>
 
       {/* 재생 속도 */}
       <label className="speed-ctl" title="재생 속도">

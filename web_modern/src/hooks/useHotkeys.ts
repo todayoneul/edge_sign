@@ -27,9 +27,12 @@ export interface HotkeyHandlers {
 export function useHotkeys(handlers: HotkeyHandlers) {
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
+      const ae = document.activeElement;
+      // 텍스트 입력(텍스트 input·textarea)만 단축키 차단. range 슬라이더(시크·속도)에
+      // 포커스가 있어도 Space·←·→ 가 동작하도록 통과시킨다.
       const typing =
-        document.activeElement instanceof HTMLInputElement ||
-        document.activeElement instanceof HTMLTextAreaElement;
+        (ae instanceof HTMLInputElement && ae.type !== "range") ||
+        ae instanceof HTMLTextAreaElement;
 
       // Escape — 항상 처리
       if (e.key === "Escape") {
@@ -51,8 +54,10 @@ export function useHotkeys(handlers: HotkeyHandlers) {
         e.preventDefault();
         handlers.onTogglePlay?.();
       } else if (e.key === "ArrowLeft") {
+        e.preventDefault();   // range 포커스 시 네이티브 슬라이더 이동 방지
         handlers.onStepBack?.();
       } else if (e.key === "ArrowRight") {
+        e.preventDefault();
         handlers.onStepForward?.();
       } else if (e.key.toLowerCase() === "t") {
         handlers.onToggleTheme?.();
