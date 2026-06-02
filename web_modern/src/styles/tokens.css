@@ -1,0 +1,80 @@
+/* ══════════════════════════════════════════════════════════════════
+   Edge-Sign — Design Tokens
+   Ported verbatim from web/detection/index.html :root + theme blocks.
+   ══════════════════════════════════════════════════════════════════ */
+
+:root {
+  --f-sans: 'Fira Sans', 'Pretendard', system-ui, sans-serif;
+  --f-mono: 'Fira Code', 'Spline Sans Mono', ui-monospace, monospace;
+
+  /* 검출 데이터 전용 시그널색 (테마 공통) */
+  --c-sign:  #22c55e;   /* 교통표지판 */
+  --c-light: #ef4444;   /* 신호등 */
+  --c-board: #f59e0b;   /* 간판 */
+
+  /* 간격 스케일 (8px 리듬) */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px;
+  --r-sm: 8px;  --r: 12px; --r-lg: 16px; --r-pill: 999px;
+
+  --dur: 200ms;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --z-overlay: 40; --z-toast: 60; --z-modal: 80; --z-splash: 100;
+}
+
+/* ── 다크 (OLED) ───────────────────────────────────────── */
+html[data-theme="dark"] {
+  --bg:        #000000;
+  --surface:   #0b0b0d;
+  --surface-2: #131316;
+  --surface-3: #1b1b1f;
+  --ink:       #fafafa;
+  --ink-2:     #a1a1aa;
+  --ink-3:     #71717a;
+  --ink-4:     #52525b;
+  --line:      #232327;
+  --line-2:    #34343a;
+  --invert-bg: #fafafa;   /* primary action 배경 */
+  --invert-ink:#0a0a0a;   /* primary action 글자 */
+  --viewport:  #050506;
+  --scrim:     rgba(0,0,0,0.6);
+  --focus:     rgba(250,250,250,0.55);
+  --shadow:    0 1px 0 rgba(255,255,255,0.03), 0 18px 40px -24px rgba(0,0,0,0.9);
+  --spark:     #52525b;
+}
+
+/* ── 라이트 (기본) — 프리미엄 중립 팔레트, WCAG AA 대비 ──────────── */
+html[data-theme="light"] {
+  --bg:        #f5f6f8;   /* 부드러운 오프화이트 캔버스 */
+  --surface:   #ffffff;   /* 카드/패널 */
+  --surface-2: #f1f3f5;
+  --surface-3: #e7eaee;
+  --ink:       #16181d;   /* 본문 — #fff 대비 ~15:1 */
+  --ink-2:     #485161;
+  --ink-3:     #6b7280;
+  --ink-4:     #9aa3af;
+  --line:      #e6e8ec;
+  --line-2:    #d3d8df;
+  --invert-bg: #16181d;
+  --invert-ink:#ffffff;
+  --viewport:  #0d0f13;   /* 영상 영역은 어둡게(대비) */
+  --scrim:     rgba(16,18,24,0.5);
+  --focus:     rgba(37,99,235,0.55);
+  --shadow:    0 1px 2px rgba(16,18,24,0.05), 0 12px 28px -16px rgba(16,18,24,0.22);
+  --spark:     #9aa3af;
+}
+
+/* ── 글래스 토큰 ──────────────────────────────────────── */
+html[data-theme="light"] {
+  --glass-bg: rgba(255,255,255,0.62);
+  --glass-brd: rgba(16,18,24,0.10);
+  --glass-blur: 14px;
+  --depth: 0 8px 30px -12px rgba(16,18,24,0.28);
+}
+html[data-theme="dark"] {
+  --glass-bg: rgba(20,20,24,0.55);
+  --glass-brd: rgba(255,255,255,0.08);
+  --glass-blur: 16px;
+  --depth: 0 18px 44px -22px rgba(0,0,0,0.92);
+}
+.glass { background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid var(--glass-brd); box-shadow: var(--depth); }
