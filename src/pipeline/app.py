@@ -20,6 +20,7 @@ import base64
 import json
 import sys
 import time
+from collections.abc import AsyncIterator
 from pathlib import Path
 
 import cv2
@@ -108,7 +109,7 @@ pipeline: EdgeSignPipeline | None = None
 
 
 @app.on_event("startup")
-async def startup():
+async def startup() -> None:
     global pipeline
     configure_logging()
     pipeline = EdgeSignPipeline(
@@ -122,7 +123,7 @@ async def startup():
 
 
 @app.on_event("shutdown")
-async def _shutdown():
+async def _shutdown() -> None:
     session_mgr.close()
 
 
@@ -132,7 +133,7 @@ async def _shutdown():
 
 
 @app.get("/", response_class=HTMLResponse)
-async def root():
+async def root() -> HTMLResponse:
     """루트 → detection UI로 리다이렉트."""
     return HTMLResponse(
         '<meta http-equiv="refresh" content="0; url=/detection/">',
@@ -147,8 +148,12 @@ async def root():
 session_mgr = SessionManager()
 
 
-@app.post("/api/ingest")
-async def ingest(kind: str = Form(...), url: str = Form(None), file: UploadFile = File(None)):  # noqa: B008
+@app.post("/api/ingest", response_model=None)
+async def ingest(
+    kind: str = Form(...),
+    url: str = Form(None),
+    file: UploadFile = File(None),  # noqa: B008
+) -> dict | JSONResponse:
     """파일/URL/이미지 → 서버 스트림 세션 발급. 실패 시 400 + error JSON."""
     try:
         if kind == "url":
@@ -184,7 +189,7 @@ async def ingest(kind: str = Form(...), url: str = Form(None), file: UploadFile 
 
 
 @app.websocket("/ws/stream")
-async def ws_stream(websocket: WebSocket):
+async def ws_stream(websocket: WebSocket) -> None:
     """
     클라이언트에서 base64 JPEG 프레임을 수신, 파이프라인 처리 후 JSON 결과를 반환.
 
@@ -253,7 +258,7 @@ async def ws_stream(websocket: WebSocket):
 
 
 @app.websocket("/ws/session")
-async def ws_session(websocket: WebSocket):
+async def ws_session(websocket: WebSocket) -> None:
     """서버 스트림: 세션 소스 디코딩 → 파이프라인 → 주석 JPEG + JSON 푸시.
     수신: {type:"control", action:"play|pause|seek|speed|stop", value:?}"""
     await websocket.accept()
@@ -263,7 +268,7 @@ async def ws_session(websocket: WebSocket):
         await websocket.close()
         return
 
-    async def handle_controls():
+    async def handle_controls() -> None:
         try:
             while True:
                 msg = await websocket.receive_json()
@@ -353,7 +358,7 @@ class QARequest(BaseModel):
 
 
 @app.post("/api/qa")
-async def qa_endpoint(req: QARequest):
+async def qa_endpoint(req: QARequest) -> StreamingResponse:
     """
     인식된 tracks + 사용자 질문 → Groq LLM 스트리밍 답변 (SSE).
 
@@ -362,7 +367,7 @@ async def qa_endpoint(req: QARequest):
     """
     context = build_context(req.tracks)
 
-    async def event_generator():
+    async def event_generator() -> AsyncIterator[str]:
         yield f"data: {json.dumps({'type': 'context', 'text': context}, ensure_ascii=False)}\n\n"
         async for token in ask_stream(context, req.question, api_key=req.api_key):
             payload = json.dumps({"type": "token", "text": token}, ensure_ascii=False)
@@ -385,7 +390,7 @@ async def qa_endpoint(req: QARequest):
 
 
 @app.get("/api/status")
-async def status():
+async def status() -> dict[str, object]:
     return {
         "pipeline": pipeline is not None,
         "yolo": pipeline.yolo_session is not None if pipeline else False,

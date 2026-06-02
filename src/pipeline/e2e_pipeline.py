@@ -193,7 +193,7 @@ def postprocess_yolo(
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def preprocess_ocr_roi(frame: np.ndarray, bbox: np.ndarray) -> np.ndarray:
+def preprocess_ocr_roi(frame: np.ndarray, bbox: np.ndarray) -> np.ndarray | None:
     """
     검출 bbox ROI → KoreanOCRNet 입력 [1, 1, 64, 64].
     ROI를 64×64 흑백으로 리사이즈 후 정규화 [0, 1].
@@ -225,7 +225,7 @@ def decode_ocr_output(logits: np.ndarray, top_k: int = 3) -> list[tuple[str, flo
 def softmax(x: np.ndarray) -> np.ndarray:
     x = x - x.max()
     e = np.exp(x)
-    return e / e.sum()
+    return e / e.sum()  # type: ignore[no-any-return]
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -353,7 +353,9 @@ class EdgeSignPipeline:
                 logger.warning(f"variant '{name}' ONNX 없음: {path}")
         # 활성 variant = dict 첫 키. 하위호환용 self.yolo_session 별칭 유지.
         self.active_variant = next(iter(self.yolo_sessions), None)
-        self.yolo_session = self.yolo_sessions.get(self.active_variant)
+        self.yolo_session = (
+            self.yolo_sessions.get(self.active_variant) if self.active_variant else None
+        )
         if not self.yolo_sessions:
             logger.warning("YOLOv8s ONNX 없음 — 검출 비활성")
 
@@ -412,7 +414,7 @@ class EdgeSignPipeline:
 
     # ── 내부 헬퍼 ─────────────────────────────────────────────────────────────
 
-    def _preprocess_yolo(self, frame: np.ndarray, w: int = 640, h: int = 640):
+    def _preprocess_yolo(self, frame: np.ndarray, w: int = 640, h: int = 640) -> np.ndarray:
         """BGR 프레임 → NCHW float32 [1, 3, H, W] (YOLOv8n 입력)."""
         resized = cv2.resize(frame, (w, h))
         rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
@@ -423,7 +425,7 @@ class EdgeSignPipeline:
         """ONNX 추론 → [N, 6] (x1,y1,x2,y2,conf,cls). variant 미지정 시 active 사용."""
         name = variant or self.active_variant
         sess = self.yolo_sessions.get(name) if name else None
-        if sess is None:
+        if sess is None or name is None:
             return np.empty((0, 6), dtype=np.float32)
         meta = self._yolo_meta[name]
         hh, ww = frame.shape[:2]
@@ -595,7 +597,7 @@ class EdgeSignPipeline:
             "tracks": result_tracks,
         }
 
-    def reset(self):
+    def reset(self) -> None:
         """트래커와 버퍼 초기화 (새 시퀀스 시작 시)."""
         self.tracker.reset()
         self._track_buffers.clear()
@@ -634,7 +636,7 @@ class EdgeSignPipeline:
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Edge-Sign E2E 파이프라인 테스트")
     parser.add_argument("--yolo", default=str(ROOT / "model_space" / "yolov8s_signs_w8a8.onnx"))
     parser.add_argument("--ocr", default=str(ROOT / "model_space" / "korean_ocr_net_w8a8.onnx"))

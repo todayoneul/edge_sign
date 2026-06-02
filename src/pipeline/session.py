@@ -22,7 +22,7 @@ class Session:
         self.playing = True
         self.speed = 1.0
 
-    def control(self, action: str, value=None):
+    def control(self, action: str, value: float | int | str | None = None) -> None:
         if action == "play":
             self.playing = True
         elif action == "pause":
@@ -32,7 +32,7 @@ class Session:
         elif action == "seek" and value is not None and self.source.is_seekable:
             self.source.seek(int(value))
 
-    def close(self):
+    def close(self) -> None:
         try:
             self.source.release()
         finally:
@@ -43,7 +43,7 @@ class Session:
 class SessionManager:
     """동시 세션 1개. 새 세션 생성 시 이전 세션 정리."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._current: Session | None = None
 
     def _replace(self, sess: Session) -> str:
@@ -64,7 +64,7 @@ class SessionManager:
     def from_url(self, url: str) -> str:
         return self._replace(Session(UrlStreamSource(url)))
 
-    def close(self):
+    def close(self) -> None:
         if self._current is not None:
             self._current.close()
             self._current = None

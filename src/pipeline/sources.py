@@ -40,7 +40,7 @@ class ImageSource(FrameSource):
     def __init__(self, path: str):
         # 한글 경로 대비: np.fromfile + imdecode
         data = np.fromfile(path, dtype=np.uint8)
-        self._frame = cv2.imdecode(data, cv2.IMREAD_COLOR)
+        self._frame: np.ndarray = cv2.imdecode(data, cv2.IMREAD_COLOR)  # type: ignore[assignment]
         if self._frame is None:
             raise ValueError(f"이미지 디코딩 실패: {path}")
         self.is_seekable = False
@@ -84,7 +84,7 @@ def _resolve_stream_url(url: str) -> str:
         raise RuntimeError("yt-dlp 미설치 — pip install yt-dlp") from e
     with YoutubeDL({"quiet": True, "format": "best[ext=mp4]/best"}) as ydl:
         info = ydl.extract_info(url, download=False)
-        return info["url"]
+        return info["url"]  # type: ignore[no-any-return]
 
 
 _PAGE_HOSTS = ("youtube.com", "youtu.be")

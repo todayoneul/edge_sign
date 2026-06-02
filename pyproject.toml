@@ -40,12 +40,10 @@ no_implicit_optional = true
 warn_return_any = true
 check_untyped_defs = true
 
-# eval_e2e.py 는 CLI 평가 스크립트(서빙 경로 아님) — 완화
+# eval_e2e.py 는 CLI 평가 스크립트(서빙 경로 아님) — 에러 무시
 [[tool.mypy.overrides]]
 module = "src.pipeline.eval_e2e"
-disallow_untyped_defs = false
-disallow_incomplete_defs = false
-warn_return_any = false
+ignore_errors = true
 
 # 비-파이프라인 패키지(src.track/detect/quant)는 SP-A 타입 대상 아님.
 # mypy src/pipeline가 import를 따라가 끌어와도 해당 모듈 에러는 미보고.

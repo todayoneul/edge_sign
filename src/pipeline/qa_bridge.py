@@ -20,10 +20,11 @@ import asyncio
 import os
 from collections.abc import AsyncIterator
 from pathlib import Path
+from typing import Any
 
 
 # .env 로드 (python-dotenv)
-def _load_dotenv():
+def _load_dotenv() -> None:
     try:
         from dotenv import load_dotenv
 
@@ -155,7 +156,7 @@ async def ask_stream(
         yield f"\n⚠️ API 오류: {e}"
 
 
-async def ask_once(context: str, question: str, **kwargs) -> str:
+async def ask_once(context: str, question: str, **kwargs: Any) -> str:
     """ask_stream을 완전히 소비하여 전체 답변 문자열 반환 (테스트용)."""
     parts = []
     async for token in ask_stream(context, question, **kwargs):
@@ -168,7 +169,7 @@ async def ask_once(context: str, question: str, **kwargs) -> str:
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-async def _test():
+async def _test() -> None:
     """더미 컨텍스트로 Groq API 연결 테스트."""
     dummy_tracks = [
         {
