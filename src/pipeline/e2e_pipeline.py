@@ -30,6 +30,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+from loguru import logger
 
 ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT))
@@ -344,17 +345,17 @@ class EdgeSignPipeline:
                     "w": inp.shape[3] if isinstance(inp.shape[3], int) else 640,
                     "mb": round(Path(path).stat().st_size / 1e6, 2),
                 }
-                print(
-                    f"[Pipeline] YOLOv8s variant '{name}' loaded: "
+                logger.info(
+                    f"YOLOv8s variant '{name}' 로드: "
                     f"{Path(path).name} ({self._yolo_meta[name]['mb']} MB)"
                 )
             else:
-                print(f"[Pipeline] WARNING: variant '{name}' ONNX not found: {path}")
+                logger.warning(f"variant '{name}' ONNX 없음: {path}")
         # 활성 variant = dict 첫 키. 하위호환용 self.yolo_session 별칭 유지.
         self.active_variant = next(iter(self.yolo_sessions), None)
         self.yolo_session = self.yolo_sessions.get(self.active_variant)
         if not self.yolo_sessions:
-            print("[Pipeline] WARNING: YOLOv8s ONNX not found -- detection disabled")
+            logger.warning("YOLOv8s ONNX 없음 — 검출 비활성")
 
         # KoreanOCRNet 세션
         self.ocr_session = None
@@ -363,9 +364,9 @@ class EdgeSignPipeline:
                 str(ocr_onnx), providers=["CPUExecutionProvider"]
             )
             self._ocr_input_name = self.ocr_session.get_inputs()[0].name
-            print(f"[Pipeline] KoreanOCRNet loaded: {Path(ocr_onnx).name}")
+            logger.info(f"KoreanOCRNet 로드: {Path(ocr_onnx).name}")
         else:
-            print("[Pipeline] WARNING: OCR ONNX not found -- signboard OCR disabled")
+            logger.warning("OCR ONNX 없음 — signboard OCR 비활성")
 
         # 한국 표지판/신호등 분류기 세션 (korean_sign_net 14클래스)
         # 기존 tsign_onnx 인자 재사용 — 한국 분류기 ONNX 경로를 받음.
@@ -376,12 +377,11 @@ class EdgeSignPipeline:
                 str(tsign_onnx), providers=["CPUExecutionProvider"]
             )
             self._tsign_input_name = self.tsign_session.get_inputs()[0].name
-            print(
-                f"[Pipeline] Korean classifier loaded: {Path(tsign_onnx).name} "
-                f"({len(self._kcls['names'])} classes)"
+            logger.info(
+                f"한국 분류기 로드: {Path(tsign_onnx).name} ({len(self._kcls['names'])} classes)"
             )
         else:
-            print("[Pipeline] INFO: 분류기 ONNX 없음 -- 라벨 = class_name")
+            logger.info("분류기 ONNX 없음 — 라벨 = class_name")
 
         # ByteTracker
         self.tracker = ByteTracker(

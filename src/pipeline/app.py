@@ -28,6 +28,7 @@ from fastapi import FastAPI, File, Form, UploadFile, WebSocket, WebSocketDisconn
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
+from loguru import logger
 from pydantic import BaseModel
 
 ROOT = Path(__file__).parent.parent.parent
@@ -48,6 +49,7 @@ except Exception:
     pass  # torch 없거나 CPU 환경이면 CPU 폴백
 
 from src.pipeline.e2e_pipeline import EdgeSignPipeline  # noqa: E402
+from src.pipeline.logging_config import configure_logging  # noqa: E402
 from src.pipeline.qa_bridge import ask_stream, build_context  # noqa: E402
 from src.pipeline.session import SessionManager, save_upload  # noqa: E402
 
@@ -108,6 +110,7 @@ pipeline: EdgeSignPipeline | None = None
 @app.on_event("startup")
 async def startup():
     global pipeline
+    configure_logging()
     pipeline = EdgeSignPipeline(
         yolo_variants=YOLO_VARIANTS,
         ocr_onnx=OCR_ONNX,
@@ -115,9 +118,7 @@ async def startup():
         conf_thres=0.15,
         det_taxonomy=DET_TAXONOMY,
     )
-    print(
-        f"[Server] 파이프라인 초기화 완료 (택소노미={DET_TAXONOMY}, variant={list(YOLO_VARIANTS)})"
-    )
+    logger.info(f"파이프라인 초기화 완료 (택소노미={DET_TAXONOMY}, variant={list(YOLO_VARIANTS)})")
 
 
 @app.on_event("shutdown")
@@ -194,7 +195,7 @@ async def ws_stream(websocket: WebSocket):
             {"type": "error", "message": "..."}
     """
     await websocket.accept()
-    print("[WS] 클라이언트 연결")
+    logger.info("WS stream 연결")
 
     try:
         while True:
@@ -241,9 +242,9 @@ async def ws_stream(websocket: WebSocket):
             await websocket.send_json({"type": "result", "data": result})
 
     except WebSocketDisconnect:
-        print("[WS] 클라이언트 연결 해제")
-    except Exception as e:
-        print(f"[WS] 오류: {e}")
+        logger.info("WS stream 연결 해제")
+    except Exception:
+        logger.exception("WS stream 처리 중 오류")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
