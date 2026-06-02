@@ -8,5 +8,6 @@ numpy==2.2.5
 opencv-python-headless==4.13.0.92
 python-multipart==0.0.27      # /api/ingest 폼 업로드
 websockets==16.0
+loguru==0.7.3                 # [SP-A] 구조화 로깅 — app.py가 import (누락 시 startup 크래시)
 groq>=1.0                     # Q&A (BYOK — 방문자 키)
 yt-dlp>=2025.0.0              # URL/유튜브 스트림 입력
