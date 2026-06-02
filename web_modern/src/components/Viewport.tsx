@@ -29,9 +29,6 @@ import Hero from "./Hero";
 import Controls from "./Controls";
 import PerfStrip from "./PerfStrip";
 
-// 샘플 클립 목록 (app.js SAMPLES)
-const SAMPLES = ["samples/clip_01.mp4", "samples/clip_02.mp4"];
-
 // 오프스크린 캔버스 (sendFrame용, 컴포넌트 라이프사이클 밖 싱글턴)
 const _cap = document.createElement("canvas");
 const _cctx = _cap.getContext("2d")!;
@@ -45,7 +42,6 @@ export default function Viewport() {
   const streamImgRef = useRef<HTMLImageElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<number>(0);
-  const sampleIdxRef = useRef(0);
   const streamRef = useRef<MediaStream | null>(null);
   const videoBlobRef = useRef<string | null>(null);
   // 인제스트 폴백에서 재사용하기 위해 현재 로드된 File 보관 (app.js loadVideoFile)
@@ -362,36 +358,6 @@ export default function Viewport() {
     [stopAll, startIngest, stream, getFrame, playbackRate],
   );
 
-  // ── loadSample ────────────────────────────────────────────────────────────
-  const loadSample = useCallback(() => {
-    const url = SAMPLES[sampleIdxRef.current % SAMPLES.length];
-    sampleIdxRef.current++;
-    stopAll();
-    const video = videoRef.current!;
-    video.srcObject = null;
-    video.loop = true;
-    video.src = url;
-    video.style.display = "";
-    video.playbackRate = playbackRate;
-    // 샘플도 폴백 지원 (app.js loadSample)
-    video.onerror = () => {
-      video.onerror = null;
-      void startIngest("url", url, "샘플");
-    };
-    video.play().then(() => {
-      setMode("client");
-      setIsPlaying(true);
-      setLoaded(true);
-      setSeekbarVisible(true);
-      setStageStatus("샘플 영상 — FP32⇄INT8 토글을 바꿔보세요");
-      setStageStatusLive(true);
-      stream.reset();
-      stream.start(getFrame);
-    }).catch(() => {
-      void startIngest("url", url, "샘플");
-    });
-  }, [stopAll, startIngest, stream, getFrame, playbackRate]);
-
   // ── handleUrl (Controls URL 입력 → 서버 인제스트) ────────────────────────
   const handleUrl = useCallback(
     (url: string) => {
@@ -643,7 +609,6 @@ export default function Viewport() {
             onFile={() =>
               (document.getElementById("file-input") as HTMLInputElement | null)?.click()
             }
-            onSample={loadSample}
             onWebcam={startWebcam}
           />
         )}
@@ -670,7 +635,6 @@ export default function Viewport() {
       {/* ── 소스 선택 바 ── */}
       <Controls
         playing={isPlaying}
-        onSample={loadSample}
         onWebcam={startWebcam}
         onFile={loadVideoFile}
         onStop={stopAll}

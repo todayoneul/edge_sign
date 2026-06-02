@@ -5,11 +5,10 @@
 
 interface Props {
   onFile: () => void;
-  onSample: () => void;
   onWebcam: () => void;
 }
 
-export default function Hero({ onFile, onSample, onWebcam }: Props) {
+export default function Hero({ onFile, onWebcam }: Props) {
   return (
     <div id="hero">
       <span className="hero-mark" aria-hidden="true">
@@ -69,20 +68,6 @@ export default function Hero({ onFile, onSample, onWebcam }: Props) {
           동영상 열기
         </button>
 
-        <button className="btn btn-ghost" id="hero-sample" onClick={onSample}>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M8 5v14l11-7z" />
-          </svg>
-          샘플 영상
-        </button>
-
         <button className="btn btn-ghost" id="hero-webcam" onClick={onWebcam}>
           <svg
             viewBox="0 0 24 24"
@@ -99,7 +84,7 @@ export default function Hero({ onFile, onSample, onWebcam }: Props) {
         </button>
       </div>
 
-      <p className="hero-hint">샘플로 바로 체험하거나, 본인 영상을 드래그·업로드하세요</p>
+      <p className="hero-hint">영상을 드래그·업로드하거나 웹캠으로 바로 체험하세요</p>
     </div>
   );
 }

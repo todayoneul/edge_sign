@@ -1,5 +1,5 @@
 /**
- * Controls.tsx — 소스 선택 바 (샘플/웹캠/동영상/URL/정지 + 상태)
+ * Controls.tsx — 소스 선택 바 (웹캠/동영상/URL/정지 + 상태)
  * web/detection/index.html .controls 포팅
  *
  * 재생 컨트롤(재생/정지·탐색·속도·5초 점프)은 뷰포트 내부 오버레이
@@ -13,7 +13,6 @@ import { useRef, useState } from "react";
 
 interface Props {
   playing: boolean;
-  onSample: () => void;
   onWebcam: () => void;
   onFile: (f: File) => void;
   onStop: () => void;
@@ -25,7 +24,6 @@ interface Props {
 
 export default function Controls({
   playing,
-  onSample,
   onWebcam,
   onFile,
   onStop,
@@ -56,20 +54,6 @@ export default function Controls({
     <>
       {/* ── 컨트롤 바 ── */}
       <div className="controls">
-        <button className="btn btn-ghost" id="sample-btn" onClick={onSample}>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M8 5v14l11-7z" />
-          </svg>
-          샘플
-        </button>
-
         <button className="btn btn-ghost" id="webcam-btn" onClick={onWebcam}>
           <svg
             viewBox="0 0 24 24"
