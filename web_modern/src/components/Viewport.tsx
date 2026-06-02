@@ -26,6 +26,7 @@ import { renderTracks } from "../lib/draw";
 import SeekBar from "./SeekBar";
 import Hero from "./Hero";
 import Controls from "./Controls";
+import PerfStrip from "./PerfStrip";
 
 // 샘플 클립 목록 (app.js SAMPLES)
 const SAMPLES = ["samples/clip_01.mp4", "samples/clip_02.mp4"];
@@ -48,9 +49,14 @@ export default function Viewport() {
   const videoBlobRef = useRef<string | null>(null);
   // 인제스트 폴백에서 재사용하기 위해 현재 로드된 File 보관 (app.js loadVideoFile)
   const pendingFileRef = useRef<File | null>(null);
+  // 박스 화면 좌표 캐시 — mousemove 히트테스트용 (app.js _geo)
+  const geoRef = useRef<Array<{ id: number; x: number; y: number; w: number; h: number }>>([]);
 
   const tracks = useStore((s) => s.tracks);
-  const variant = useStore((s) => s.telemetry.variant);
+  const hoverId = useStore((s) => s.hoverId);
+  const setHoverId = useStore((s) => s.setHoverId);
+  // selectedVariant is set by PerfStrip; fall back to telemetry.variant from server
+  const selectedVariant = useStore((s) => s.selectedVariant ?? s.telemetry.variant);
 
   // Sent frame dimensions (for letterbox math source)
   // 모드② 에서는 서버가 보내는 w/h로 덮어씀 (handleServerFrame 패턴)
@@ -92,8 +98,8 @@ export default function Viewport() {
     _cap.height = Math.round((tw * vh) / vw);
     _cctx.drawImage(video, 0, 0, _cap.width, _cap.height);
     sentDimsRef.current = { w: _cap.width, h: _cap.height };
-    return { data: _cap.toDataURL("image/jpeg", 0.8), variant: variant ?? null };
-  }, [isPlaying, variant]);
+    return { data: _cap.toDataURL("image/jpeg", 0.8), variant: selectedVariant ?? null };
+  }, [isPlaying, selectedVariant]);
 
   // ── Overlay render loop (rAF) ────────────────────────────────────────────
   const renderOverlay = useCallback(() => {
@@ -131,11 +137,24 @@ export default function Viewport() {
       oX = (cw - dW) / 2;
     }
 
+    // Build geo cache for mousemove hit-test (app.js _geo)
+    const sx = dW / srcW, sy = dH / srcH;
+    geoRef.current = tracks.map((t) => {
+      const [x1, y1, x2, y2] = t.bbox;
+      return {
+        id: t.id,
+        x: oX + x1 * sx,
+        y: oY + y1 * sy,
+        w: (x2 - x1) * sx,
+        h: (y2 - y1) * sy,
+      };
+    });
+
     ctx.save();
     ctx.translate(oX, oY);
-    renderTracks(ctx, tracks, srcW, srcH, dW, dH);
+    renderTracks(ctx, tracks, srcW, srcH, dW, dH, hoverId ?? undefined);
     ctx.restore();
-  }, [tracks]);
+  }, [tracks, hoverId]);
 
   // rAF 루프 — tracks 변경 or 재사이즈 시 재렌더
   useEffect(() => {
@@ -469,6 +488,32 @@ export default function Viewport() {
     [loadVideoFile],
   );
 
+  // Viewport mousemove → canvas 박스 히트테스트 → setHoverId (app.js viewport mousemove)
+  const handleViewportMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      const canvas = overlayRef.current;
+      if (!canvas) return;
+      const geo = geoRef.current;
+      if (!geo.length) return;
+      const r = canvas.getBoundingClientRect();
+      const mx = e.clientX - r.left;
+      const my = e.clientY - r.top;
+      let hit: number | null = null;
+      for (const g of geo) {
+        if (mx >= g.x && mx <= g.x + g.w && my >= g.y && my <= g.y + g.h) {
+          hit = g.id;
+          break;
+        }
+      }
+      if (hit !== useStore.getState().hoverId) setHoverId(hit);
+    },
+    [setHoverId],
+  );
+
+  const handleViewportMouseLeave = useCallback(() => {
+    if (useStore.getState().hoverId != null) setHoverId(null);
+  }, [setHoverId]);
+
   // ── 서버 seek 콜백 (SeekBar → session.seek) ──────────────────────────────
   const handleServerSeek = useCallback(
     (frameIdx: number) => {
@@ -486,6 +531,8 @@ export default function Viewport() {
         ref={viewportRef}
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleViewportDrop}
+        onMouseMove={handleViewportMouseMove}
+        onMouseLeave={handleViewportMouseLeave}
       >
         {/* 클라 모드① 비디오 엘리먼트 */}
         <video
@@ -556,8 +603,8 @@ export default function Viewport() {
         onServerSeek={handleServerSeek}
       />
 
-      {/* ── 성능 스트립 placeholder (T8에서 완성) ── */}
-      <PerfStripPlaceholder />
+      {/* ── 성능 스트립 (T8 완성) ── */}
+      <PerfStrip />
 
       {/* ── 컨트롤 바 ── */}
       <Controls
@@ -578,55 +625,3 @@ export default function Viewport() {
   );
 }
 
-// ── PerfStrip placeholder (T8) ───────────────────────────────────────────────
-function PerfStripPlaceholder() {
-  const telemetry = useStore((s) => s.telemetry);
-  const stageMs = telemetry.stageMs;
-
-  const d = stageMs?.detect ?? 0;
-  const t = stageMs?.track ?? 0;
-  const r = stageMs?.recognize ?? 0;
-  const tot = Math.max(d + t + r, 0.001);
-
-  return (
-    <div className="perf-strip" id="perf-strip">
-      <div className="perf-block" style={{ flex: 1 }}>
-        <span className="perf-tag">파이프라인 단계 · 프레임당 소요</span>
-        <div className="pipeline-flow" id="pipeline-flow">
-          {(
-            [
-              { key: "detect", label: "검출", ms: d, frac: d / tot },
-              { key: "track", label: "추적", ms: t, frac: t / tot },
-              { key: "recog", label: "인식", ms: r, frac: r / tot },
-            ] as const
-          ).map(({ key, label, ms, frac }) => (
-            <div className="pstage" data-stage={key} key={key}>
-              <div className="pstage-head">
-                <span className="pstage-name">
-                  {label}
-                  <span className="bn">병목</span>
-                </span>
-                <span className="pstage-ms" id={`ms-${key}`}>
-                  {ms > 0 ? (
-                    <>
-                      {ms.toFixed(1)}
-                      <small>ms</small>
-                    </>
-                  ) : (
-                    "—"
-                  )}
-                </span>
-              </div>
-              <div className="pbar">
-                <i
-                  id={`bar-${key}`}
-                  style={{ width: `${Math.round(Math.min(1, frac) * 100)}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}

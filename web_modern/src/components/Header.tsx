@@ -11,6 +11,7 @@ import { useStore } from "../store";
 
 interface Props {
   onToggleTheme: () => void;
+  onOpenShortcuts?: () => void;
 }
 
 // FPS 스파크라인 — Canvas 버전 (app.js drawSpark 포팅)
@@ -71,7 +72,7 @@ function FpsSpark({ history }: { history: number[] }) {
   );
 }
 
-export default function Header({ onToggleTheme }: Props) {
+export default function Header({ onToggleTheme, onOpenShortcuts }: Props) {
   const telemetry = useStore((s) => s.telemetry);
   const tracks = useStore((s) => s.tracks);
   const totalDetections = useStore((s) => s.totalDetections);
@@ -168,11 +169,7 @@ export default function Header({ onToggleTheme }: Props) {
           id="help-btn"
           title="단축키 (?)"
           aria-label="단축키 도움말"
-          onClick={() =>
-            document.dispatchEvent(
-              new KeyboardEvent("keydown", { key: "?", bubbles: true }),
-            )
-          }
+          onClick={onOpenShortcuts}
         >
           <svg
             viewBox="0 0 24 24"

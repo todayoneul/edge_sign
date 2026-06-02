@@ -70,7 +70,8 @@ function roundRect(
  * @param srcW    - 서버가 처리한 프레임 너비 (bbox 좌표 기준)
  * @param srcH    - 서버가 처리한 프레임 높이
  * @param dstW    - 캔버스 CSS 표시 너비 (레터박스 내 실제 영상 영역)
- * @param dstH    - 캔버스 CSS 표시 높이
+ * @param dstH     - 캔버스 CSS 표시 높이
+ * @param hoverId  - 호버된 트랙 id; 해당 박스만 강조, 나머지 dim (app.js hoverId 패턴)
  */
 export function renderTracks(
   ctx: CanvasRenderingContext2D,
@@ -79,6 +80,7 @@ export function renderTracks(
   srcH: number,
   dstW: number,
   dstH: number,
+  hoverId?: number,
 ): void {
   ctx.clearRect(0, 0, dstW, dstH);
 
@@ -93,14 +95,18 @@ export function renderTracks(
       bh = (y2 - y1) * sy;
 
     const color = classColor(t.class);
+    const hot = hoverId === t.id;
+    // Dim non-hovered boxes when any box is hovered (app.js globalAlpha pattern)
+    ctx.globalAlpha = hoverId == null || hot ? 1 : 0.4;
 
     // ── 박스 (app.js lines 267-271) ──────────────────────────────────────────
-    // lineWidth 2, roundRect radius 7, stroke with class color
+    // lineWidth 2 (hot: 3), roundRect radius 7, stroke with class color
     ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-    ctx.shadowBlur = 0;
+    ctx.lineWidth = hot ? 3 : 2;
+    if (hot) { ctx.shadowColor = color; ctx.shadowBlur = 12; } else { ctx.shadowBlur = 0; }
     roundRect(ctx, bx, by, bw, bh, 7);
     ctx.stroke();
+    ctx.shadowBlur = 0;
 
     // ── 라벨 pill (app.js lines 275-288) ─────────────────────────────────────
     const label = t.label ?? t.class_name;
@@ -133,7 +139,7 @@ export function renderTracks(
 
     // ── 신뢰도 바 — 박스 하단 내부 (app.js lines 291-293) ───────────────────
     // height 2.5, width = bw * conf (conf ≤ 1), globalAlpha 0.9
-    ctx.globalAlpha = 0.9;
+    ctx.globalAlpha = hoverId == null || hot ? 0.9 : 0.4;
     ctx.fillStyle = color;
     ctx.fillRect(bx, by + bh - 2.5, bw * Math.min(1, t.conf), 2.5);
     ctx.globalAlpha = 1;
