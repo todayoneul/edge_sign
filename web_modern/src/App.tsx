@@ -63,8 +63,8 @@ export default function App() {
   // Hotkeys — fully wired (T8)
   useHotkeys({
     onTogglePlay: () => {
-      // Viewport registers its own Space handler; no double-handling needed here.
-      // The Viewport listens to keydown directly via its own useHotkeys instance.
+      // 재생/정지(Space)·5초 점프(←/→)는 Viewport의 useHotkeys가 자기
+      // togglePlay/stepBack/stepFwd로 직접 처리한다. 여기선 noop.
     },
     onFocusChat: () => {
       // Switch to QA tab and focus chat input

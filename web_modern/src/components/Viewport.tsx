@@ -22,6 +22,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useStore } from "../store";
 import { useStream } from "../hooks/useStream";
 import { useSession } from "../hooks/useSession";
+import { useHotkeys } from "../hooks/useHotkeys";
 import { renderTracks } from "../lib/draw";
 import SeekBar from "./SeekBar";
 import Hero from "./Hero";
@@ -529,6 +530,15 @@ export default function Viewport() {
     },
     [session],
   );
+
+  // ── 재생 단축키 (Space 재생/정지, ←/→ 5초 점프) ──────────────────────────
+  // App의 전역 useHotkeys는 ?/·테마 등 앱 레벨 키만 처리(재생키는 noop).
+  // 재생 제어는 mode/session/videoRef 컨텍스트를 가진 Viewport가 직접 소유.
+  useHotkeys({
+    onTogglePlay: togglePlay,
+    onStepBack: stepBack,
+    onStepForward: stepFwd,
+  });
 
   return (
     <>
