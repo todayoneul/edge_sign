@@ -1,9 +1,12 @@
 /**
- * Controls.tsx — 컨트롤 바 (소스 선택 버튼 + URL 입력 + 드롭존 + 속도)
- * web/detection/index.html .controls + .playback 포팅
+ * Controls.tsx — 소스 선택 바 (샘플/웹캠/동영상/URL/정지 + 상태)
+ * web/detection/index.html .controls 포팅
+ *
+ * 재생 컨트롤(재생/정지·탐색·속도·5초 점프)은 뷰포트 내부 오버레이
+ * 트랜스포트 바(SeekBar)로 옮겼다. 여기는 소스 선택만 담당.
  *
  * 모드①(webcam/H.264 file) → useStream 경로 (Viewport가 직접 처리)
- * 모드②(URL/image/incompatible) → T7에서 useSession 연결 예정, stub 처리
+ * 모드②(URL/image/incompatible) → useSession 서버 인제스트
  */
 
 import { useRef, useState } from "react";
@@ -14,16 +17,10 @@ interface Props {
   onWebcam: () => void;
   onFile: (f: File) => void;
   onStop: () => void;
-  /** T7 stub — URL/이미지 서버 인제스트 */
+  /** URL/이미지 서버 인제스트 */
   onUrl?: (url: string) => void;
-  /** T7 stub — image file */
-  onImageFile?: (f: File) => void;
   stageStatus?: string;
   stageStatusLive?: boolean;
-  playbackRate: number;
-  onPlaybackRate: (r: number) => void;
-  onStepBack: () => void;
-  onStepFwd: () => void;
 }
 
 export default function Controls({
@@ -35,14 +32,9 @@ export default function Controls({
   onUrl,
   stageStatus = "서버 연결 대기 중…",
   stageStatusLive = false,
-  playbackRate,
-  onPlaybackRate,
-  onStepBack,
-  onStepFwd,
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [urlValue, setUrlValue] = useState("");
-  const [dragover, setDragover] = useState(false);
 
   function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
@@ -186,59 +178,6 @@ export default function Controls({
         >
           {stageStatus}
         </span>
-      </div>
-
-      {/* ── 재생 속도 + 5초 점프 + 드롭존 ── */}
-      <div className="playback">
-        <label>
-          속도
-          <input
-            type="range"
-            id="speed-range"
-            min="0.25"
-            max="3"
-            step="0.25"
-            value={playbackRate}
-            onChange={(e) => onPlaybackRate(parseFloat(e.target.value))}
-            aria-label="재생 속도"
-          />
-          <span className="speed-val mono" id="speed-val">
-            {playbackRate.toFixed(2)}×
-          </span>
-        </label>
-
-        <button className="pc-btn" id="step-back-btn" title="5초 뒤로" onClick={onStepBack}>
-          ⏪ 5s
-        </button>
-        <button className="pc-btn" id="step-fwd-btn" title="5초 앞으로" onClick={onStepFwd}>
-          5s ⏩
-        </button>
-
-        <div className="spacer" />
-
-        {/* 드롭존 */}
-        <div
-          id="dropzone"
-          className={dragover ? "dragover" : ""}
-          role="button"
-          tabIndex={0}
-          onClick={() => fileInputRef.current?.click()}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") fileInputRef.current?.click();
-          }}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragover(true);
-          }}
-          onDragLeave={() => setDragover(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDragover(false);
-            handleFiles(e.dataTransfer.files);
-          }}
-        >
-          영상 파일을 드래그하거나 클릭
-        </div>
       </div>
     </>
   );

@@ -16,34 +16,6 @@ import Rail from "./components/Rail";
 import Toast from "./components/Toast";
 import ShortcutsModal from "./components/ShortcutsModal";
 
-function Footer() {
-  const telemetry = useStore((s) => s.telemetry);
-  const tracks = useStore((s) => s.tracks);
-  const connected = useStore((s) => s.connected);
-  const selectedVariant = useStore((s) => s.selectedVariant);
-
-  return (
-    <footer id="footer">
-      <span id="frame-info">frame —</span>
-      <span id="time-info">
-        추론 {telemetry.inferenceMs > 0 ? `${telemetry.inferenceMs.toFixed(0)} ms` : "— ms"}
-      </span>
-      <span id="track-count">tracks {tracks.length}</span>
-      <span id="ws-info">{connected ? "WS 연결됨" : "WS 미연결"}</span>
-      <span className="ftr-keys">
-        <span className="kbd">Space</span> 재생/정지 ·{" "}
-        <span className="kbd">/</span> 질문 ·{" "}
-        <span className="kbd">?</span> 단축키
-      </span>
-      <span className="ftr-model">
-        {selectedVariant
-          ? `YOLOv8s-${selectedVariant.toUpperCase()} · OCR-INT8 · ByteTrack`
-          : "YOLOv8n-INT8 · OCR-INT8 · ByteTrack"}
-      </span>
-    </footer>
-  );
-}
-
 export default function App() {
   const { toggle: toggleTheme } = useTheme();
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
@@ -141,8 +113,6 @@ export default function App() {
         {/* 우: 레일 (T8 완성) */}
         <Rail ref={chatInputRef} />
       </main>
-
-      <Footer />
 
       {/* 단축키 모달 (T8) */}
       <ShortcutsModal

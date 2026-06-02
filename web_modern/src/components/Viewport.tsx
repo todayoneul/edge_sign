@@ -598,23 +598,27 @@ export default function Viewport() {
             onWebcam={startWebcam}
           />
         )}
+
+        {/* ── 재생 트랜스포트 바 (뷰포트 내부 오버레이) ── */}
+        <SeekBar
+          visible={seekbarVisible}
+          mode={mode}
+          playing={isPlaying}
+          onTogglePlay={togglePlay}
+          videoRef={videoRef}
+          seekInfo={session.seekInfo}
+          onServerSeek={handleServerSeek}
+          playbackRate={playbackRate}
+          onPlaybackRate={handlePlaybackRate}
+          onStepBack={stepBack}
+          onStepFwd={stepFwd}
+        />
       </div>
 
-      {/* ── 통합 재생 탐색 바 ── */}
-      <SeekBar
-        visible={seekbarVisible}
-        mode={mode}
-        playing={isPlaying}
-        onTogglePlay={togglePlay}
-        videoRef={videoRef}
-        seekInfo={session.seekInfo}
-        onServerSeek={handleServerSeek}
-      />
-
-      {/* ── 성능 스트립 (T8 완성) ── */}
+      {/* ── 성능 스트립 (양자화 A/B + 단계 레이턴시) ── */}
       <PerfStrip />
 
-      {/* ── 컨트롤 바 ── */}
+      {/* ── 소스 선택 바 ── */}
       <Controls
         playing={isPlaying}
         onSample={loadSample}
@@ -624,10 +628,6 @@ export default function Viewport() {
         onUrl={handleUrl}
         stageStatus={stageStatus}
         stageStatusLive={stageStatusLive}
-        playbackRate={playbackRate}
-        onPlaybackRate={handlePlaybackRate}
-        onStepBack={stepBack}
-        onStepFwd={stepFwd}
       />
     </>
   );

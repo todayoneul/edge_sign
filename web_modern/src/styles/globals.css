@@ -206,6 +206,8 @@ main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
 }
 .viewport::before { top: 11px; left: 11px; border-right: 0; border-bottom: 0; border-radius: 4px 0 0 0; }
 .viewport::after  { bottom: 11px; right: 11px; border-left: 0; border-top: 0; border-radius: 0 0 4px 0; }
+/* 재생 중엔 하단 트랜스포트 바와 겹치는 모서리 마커 숨김 */
+.viewport.playing::after { display: none; }
 
 /* ── 히어로 ── */
 #hero {
@@ -319,36 +321,82 @@ main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
 .stage-status::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--ink-4); }
 .stage-status.live::before { background: var(--c-sign); }
 
-/* ── 통합 재생 탐색 바 ── */
-.seekbar {
-  display: flex; align-items: center; gap: var(--sp-3);
+/* ── 재생 트랜스포트 바 (뷰포트 내부 오버레이) ──
+   뷰포트는 라이트/다크 공통으로 어둡다(--viewport). 따라서 바는 항상
+   다크 글래스 + 라이트 컨트롤로 고정한다. 영상 위에 떠 있다. */
+.viewport .seekbar {
+  position: absolute; left: var(--sp-4); right: var(--sp-4); bottom: var(--sp-4);
+  z-index: 4;
+  display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap;
   padding: var(--sp-2) var(--sp-3);
-  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+  background: rgba(10, 11, 14, 0.62);
+  backdrop-filter: blur(14px) saturate(1.25);
+  -webkit-backdrop-filter: blur(14px) saturate(1.25);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--r);
+  box-shadow: 0 10px 34px -12px rgba(0, 0, 0, 0.6);
+  color: #fafafa;
+  opacity: 1; transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
 }
-.seekbar.hidden { display: none; }
-#play-toggle {
-  width: 44px; height: 44px; flex-shrink: 0; padding: 0;
+/* idle 직후 등 — 마우스 비활성 시 살짝 흐리게 (영상 가독성) */
+.viewport:not(:hover) .seekbar { opacity: 0.82; }
+.viewport .seekbar.hidden { display: none; }
+
+.viewport .seekbar #play-toggle {
+  width: 42px; height: 42px; flex-shrink: 0; padding: 0;
   display: grid; place-items: center;
+}
+.viewport .seekbar .pc-btn {
+  background: rgba(255, 255, 255, 0.08); color: #fafafa;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+.viewport .seekbar .pc-btn:hover {
+  background: rgba(255, 255, 255, 0.16); color: #fff;
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.viewport .seekbar .pc-btn.step {
+  width: 38px; height: 38px; padding: 0; display: grid; place-items: center; flex-shrink: 0;
 }
 .seek-time {
   font-family: var(--f-mono); font-variant-numeric: tabular-nums;
-  font-size: 0.8rem; color: var(--ink-2); min-width: 50px; text-align: center;
+  font-size: 0.8rem; color: rgba(250, 250, 250, 0.85); min-width: 48px; text-align: center;
 }
 #seek-range {
-  -webkit-appearance: none; appearance: none; flex: 1; min-width: 80px;
-  height: 6px; border-radius: var(--r-pill); background: var(--line-2); cursor: pointer;
+  -webkit-appearance: none; appearance: none; flex: 1; min-width: 120px;
+  height: 6px; border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.22); cursor: pointer;
 }
 #seek-range::-webkit-slider-thumb {
   -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
-  background: var(--ink); border: 3px solid var(--surface); cursor: grab;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.28);
+  background: #fafafa; border: 3px solid rgba(10, 11, 14, 0.7); cursor: grab;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 #seek-range::-webkit-slider-thumb:active { cursor: grabbing; }
 #seek-range::-moz-range-thumb {
-  width: 18px; height: 18px; border-radius: 50%; background: var(--ink);
-  border: 3px solid var(--surface); cursor: grab;
+  width: 18px; height: 18px; border-radius: 50%; background: #fafafa;
+  border: 3px solid rgba(10, 11, 14, 0.7); cursor: grab;
 }
 #seek-range:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* 속도 컨트롤 (트랜스포트 바 내부) */
+.speed-ctl {
+  display: inline-flex; align-items: center; gap: var(--sp-2); flex-shrink: 0;
+  font-family: var(--f-mono); font-size: 0.76rem; color: rgba(250, 250, 250, 0.8);
+}
+.speed-ctl input[type=range] {
+  -webkit-appearance: none; appearance: none;
+  width: 84px; height: 3px; border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.22); cursor: pointer;
+}
+.speed-ctl input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%;
+  background: #fafafa; border: 2px solid rgba(10, 11, 14, 0.7); cursor: pointer;
+}
+.speed-ctl input[type=range]::-moz-range-thumb {
+  width: 12px; height: 12px; border-radius: 50%; background: #fafafa;
+  border: 2px solid rgba(10, 11, 14, 0.7); cursor: pointer;
+}
+.speed-ctl .speed-val { color: #fff; font-weight: 500; min-width: 42px; }
 
 /* ── 성능 스트립 ── */
 .perf-strip {

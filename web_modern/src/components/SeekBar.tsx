@@ -1,5 +1,8 @@
 /**
- * SeekBar.tsx — 통합 재생 탐색 바 (모드①·② 공용)
+ * SeekBar.tsx — 통합 재생 트랜스포트 바 (모드①·② 공용, 뷰포트 내부 오버레이)
+ *
+ * 재생/일시정지 · 현재시간 · 탐색 슬라이더 · 총시간 · 5초 점프 · 재생속도까지
+ * 한 줄에 모은 비디오 플레이어식 컨트롤. 뷰포트 위에 글래스 바로 떠 있다.
  *
  * 모드① (client): videoRef.current 를 직접 구동.
  *   - timeupdate 리스너 → cur/dur/val 갱신
@@ -7,15 +10,16 @@
  *   - LIVE (webcam / 길이 불명) → range disabled + "LIVE"
  *
  * 모드② (server): SeekInfo(pos, total, fps, seekable)로 구동.
- *   - input 중 cur 미리보기, change → onServerSeek(frameIdx) 콜백
+ *   - input 중 cur 미리보기, commit → onServerSeek(frameIdx) 콜백
  *   - seekable=false → range disabled + "LIVE"
  *
- * app.js 참조:
- *   fmtTime, showSeekbar, setSeekEnabled, resetSeekbar,
- *   seekRange input/change, playToggle click
+ * 클릭 탐색 버그 수정:
+ *   - 커밋 값은 state(val) 대신 lastFracRef(즉시값)에서 읽는다.
+ *     클릭은 input→pointerup 사이에 리렌더가 없어 val이 stale이고,
+ *     그 stale 값으로 commit하면 방금 시킹한 위치가 옛 위치로 되돌아갔다.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { SeekInfo } from "../hooks/useSession";
 
 export interface SeekBarProps {
@@ -31,6 +35,12 @@ export interface SeekBarProps {
   // 모드② only
   seekInfo?: SeekInfo;
   onServerSeek?: (frameIdx: number) => void;
+
+  // 재생 속도 + 5초 점프 (트랜스포트 바에 통합)
+  playbackRate: number;
+  onPlaybackRate: (r: number) => void;
+  onStepBack: () => void;
+  onStepFwd: () => void;
 }
 
 /** 초 → m:ss 포맷 (app.js fmtTime) */
@@ -49,12 +59,18 @@ export default function SeekBar({
   videoRef,
   seekInfo,
   onServerSeek,
+  playbackRate,
+  onPlaybackRate,
+  onStepBack,
+  onStepFwd,
 }: SeekBarProps) {
   const [cur, setCur] = useState("0:00");
   const [dur, setDur] = useState("0:00");
   const [val, setVal] = useState(0);
   const [seeking, setSeeking] = useState(false);
   const [seekEnabled, setSeekEnabled] = useState(false);
+  // 커밋 시 stale state 대신 읽을 즉시 frac (클릭 탐색 버그 수정의 핵심)
+  const lastFracRef = useRef(0);
 
   // ── 모드① — video timeupdate ─────────────────────────────────────────────
   useEffect(() => {
@@ -107,11 +123,13 @@ export default function SeekBar({
     }
   }, [visible]);
 
-  // ── drag input ────────────────────────────────────────────────────────────
+  // ── drag/click input — 미리보기 + 즉시값 기록 ──────────────────────────────
   function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
     setSeeking(true);
-    const frac = Number(e.target.value) / 1000;
-    setVal(Number(e.target.value));
+    const raw = Number(e.target.value);
+    const frac = raw / 1000;
+    lastFracRef.current = frac;
+    setVal(raw);
     if (mode === "server" && seekInfo) {
       const sec = seekInfo.fps > 0 ? (frac * seekInfo.total) / seekInfo.fps : 0;
       setCur(fmtTime(sec));
@@ -125,9 +143,9 @@ export default function SeekBar({
     }
   }
 
-  // ── drag end ──────────────────────────────────────────────────────────────
-  function handleChange() {
-    const frac = val / 1000;
+  // ── commit (pointerup/keyup) — lastFracRef(즉시값)로 확정 ──────────────────
+  function handleCommit() {
+    const frac = lastFracRef.current;
     if (mode === "server" && seekInfo?.seekable) {
       onServerSeek?.(Math.round(frac * seekInfo.total));
     } else if (mode === "client") {
@@ -160,6 +178,13 @@ export default function SeekBar({
         )}
       </button>
 
+      {/* 5초 뒤로 */}
+      <button className="pc-btn step" id="step-back-btn" title="5초 뒤로" onClick={onStepBack}>
+        <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 16, height: 16 }}>
+          <path d="M11 6v12L4 12zM19 6v12l-7-6z" />
+        </svg>
+      </button>
+
       {/* 현재 시간 */}
       <span className="seek-time" id="seek-cur">
         {cur}
@@ -176,14 +201,43 @@ export default function SeekBar({
         disabled={!seekEnabled}
         aria-label="재생 위치"
         onChange={handleInput}
-        onMouseUp={handleChange}
-        onTouchEnd={handleChange}
+        onPointerUp={handleCommit}
+        onKeyUp={handleCommit}
       />
 
       {/* 총 시간 */}
       <span className="seek-time" id="seek-dur">
         {dur}
       </span>
+
+      {/* 5초 앞으로 */}
+      <button className="pc-btn step" id="step-fwd-btn" title="5초 앞으로" onClick={onStepFwd}>
+        <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 16, height: 16 }}>
+          <path d="M13 6v12l7-6zM5 6v12l7-6z" />
+        </svg>
+      </button>
+
+      {/* 재생 속도 */}
+      <label className="speed-ctl" title="재생 속도">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+          strokeLinecap="round" strokeLinejoin="round" style={{ width: 15, height: 15 }} aria-hidden="true">
+          <path d="M12 3a9 9 0 1 0 9 9" />
+          <path d="M12 8v4l3 2" />
+        </svg>
+        <input
+          type="range"
+          id="speed-range"
+          min="0.25"
+          max="3"
+          step="0.25"
+          value={playbackRate}
+          onChange={(e) => onPlaybackRate(parseFloat(e.target.value))}
+          aria-label="재생 속도"
+        />
+        <span className="speed-val mono" id="speed-val">
+          {playbackRate.toFixed(2)}×
+        </span>
+      </label>
     </div>
   );
 }
