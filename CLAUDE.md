@@ -64,7 +64,8 @@ CNN_Quant/
 │   │   ├── qa_bridge.py         # LLM 컨텍스트 빌더 + Groq API 래퍼
 │   │   ├── sources.py           # [SP1] FrameSource 추상화 (Image/VideoFile/UrlStream) — 모든 코덱 디코딩
 │   │   ├── session.py           # [SP1] 서버 스트림 세션 매니저 (단일 세션 + 재생 제어)
-│   │   └── app.py               # FastAPI 서버 (WS /ws/stream·/ws/session, /api/ingest, /api/qa SSE)
+│   │   ├── app.py               # FastAPI 서버 (WS /ws/stream·/ws/session, /api/ingest, /api/qa SSE)
+│   │   └── logging_config.py    # [SP-A] 중앙 loguru 설정 + stdlib 인터셉트 (서버 startup 1회 호출)
 │   └── quant/                   # [Phase 2] 파이프라인 양자화
 │       ├── quantize_yolo.py     # W8A8/W4A16/SmoothQuant PTQ 구현
 │       ├── run_experiments.py   # E1/E4/E5 검출기 양자화 실험 일괄 실행
@@ -73,6 +74,8 @@ CNN_Quant/
 ├── .dockerignore                # 빌드 컨텍스트 슬림화 (필요 ONNX 4개만 선별)
 ├── requirements-hf.txt          # [Phase 11] HF Space 슬림 CPU 의존성
 ├── spaces/README.md             # [Phase 11] HF Space YAML 헤더 + 배포 안내
+├── pyproject.toml               # [SP-A] ruff·mypy·pytest 설정 (mypy strict: src/pipeline)
+├── requirements-dev.txt         # [SP-A] dev 도구 (ruff·mypy·pytest)
 │
 ├── web/                         # 웹 프론트엔드
 │   ├── index.html               # 한글 OCR 캔버스 데모 (Phase 1, ORT-Web)
@@ -182,6 +185,14 @@ KMP_DUPLICATE_LIB_OK=TRUE python scripts/quantize_v3_detector.py --bench
 # HF Spaces (Docker, CPU 전용) 로컬 빌드 검증:
 docker build -t edge-sign . && docker run --rm -p 7860:7860 edge-sign
 #   → http://localhost:7860/detection/  (EDGE_SIGN_CPU_ONLY=1, 모델 LFS 동봉은 spaces/README.md)
+
+# SP-A — 코드 품질 (ruff·mypy·loguru, convnext_env에서 실행)
+pip install -r requirements-dev.txt          # dev 도구 (ruff·mypy·pytest)
+ruff format . && ruff check .                 # 포맷 + 린트 (E,F,I,UP,B,W,C4 / line 100 / E501 무시)
+mypy src/pipeline                             # 엄격 타입 게이트 (서빙 경계만; ML 경계 완화)
+python -m pytest tests/                       # 회귀 (20 passed: 16 + 로깅 4)
+# 운영 로그=loguru(logger.*), CLI/__main__ 출력=print 유지. 레벨 EDGE_SIGN_LOG_LEVEL(기본 INFO). 핫루프 무로깅.
+# 주의: 셸 기본 python은 base(deps 없음) — 반드시 convnext_env python으로 위 명령 실행.
 ```
 
 ---
@@ -207,3 +218,4 @@ docker build -t edge-sign . && docker run --rm -p 7860:7860 edge-sign
 - **웹**: FastAPI + WebSocket (서버), ONNX Runtime Web (클라이언트), PWA
 - **추적**: ByteTrack (Kalman + IoU), BoT-SORT (ReID 옵션)
 - **Q&A**: Groq Python SDK (`groq`), Llama 3.3 70B (무료 티어), SSE 스트리밍
+- **코드 품질 [SP-A]**: ruff(린트+포맷), mypy(`src/pipeline` strict), loguru(구조화 로깅), pytest — 설정 `pyproject.toml`, dev 의존성 `requirements-dev.txt`

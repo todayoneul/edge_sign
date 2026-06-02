@@ -283,6 +283,26 @@
 
 ---
 
+## SP-A — 코드 품질 기반 (ruff · mypy · loguru) (2026-06-02)
+
+> 상용화 고도화 1단계. 설계·계획: `docs/superpowers/specs/2026-06-02-code-quality-foundation-design.md`,
+> `docs/superpowers/plans/2026-06-02-code-quality-foundation.md`. 서브에이전트 드리븐 6태스크 + 태스크별 2단계 리뷰(스펙→품질).
+> 원칙: **추론·양자화 동작 0줄 변경** (포맷/임포트/로깅/타입만).
+
+- [x] 도구 설정 → `pyproject.toml`(ruff E,F,I,UP,B,W,C4 / line 100 / E501 무시 · mypy strict=`src.pipeline.*`, ML·CLI 경계 ignore), `requirements-dev.txt`(ruff·mypy·pytest)
+- [x] ruff format + `--fix` 전체 적용 (로직 무변경; UP/B 현대화는 동작 보존 — `zip strict=False` no-op 등)
+  - **지뢰 처리:** app.py 임포트 재정렬 시 DLL 등록 → onnxruntime 순서 보존 (`# noqa: E402`, GPU EP 활성 실증)
+- [x] 중앙 loguru → `src/pipeline/logging_config.py` (`configure_logging()` 멱등, stdlib 인터셉트, `EDGE_SIGN_LOG_LEVEL`)
+  - `tests/test_logging_config.py` 4건 (멱등·INFO·stdlib 인터셉트·env 레벨)
+- [x] 운영 print→loguru (app·e2e_pipeline 11곳; CLI/`__main__`/`_test` print 유지; 핫루프 무로깅; startup에서 `configure_logging()`)
+- [x] 엄격 타입 → `mypy src/pipeline` **0 오류** (ML 경계 최소 `# type: ignore` 3건; `eval_e2e` CLI 완화)
+- 게이트(전부 그린): `ruff check .` 0 · `ruff format --check` clean · `mypy src/pipeline` 0 · `pytest tests/` **20 passed** · 서버 스모크 200/v3 + loguru · GPU `CUDAExecutionProvider` 활성
+
+**완료 기준:** 추론/양자화 동작 무변경 + ruff·mypy·loguru 게이트 통과 ✅ 달성 (브랜치 `feat/code-quality-foundation`)
+**후속(상용화 로드맵):** SP-B(CI/CD GitHub Actions) → SP-C(React+Vite 프론트) → SP-D(docker-compose 컨테이너화)
+
+---
+
 ## 최종 산출물 체크리스트
 - [ ] 연구 보고서 (실험 결과 + 분석)
 - [x] 시연 시스템 (웹 앱 — 범용 실시간 입력, Phase 7·10 기반) (2026-05-31)
