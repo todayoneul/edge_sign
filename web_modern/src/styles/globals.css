@@ -513,8 +513,9 @@ main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
 
 /* ── 토스트 ── */
 #toast-wrap {
-  position: fixed; left: var(--sp-5); bottom: var(--sp-5); z-index: var(--z-toast);
-  display: flex; flex-direction: column; gap: var(--sp-2);
+  position: fixed; top: var(--sp-5); left: 50%; transform: translateX(-50%);
+  z-index: var(--z-toast);
+  display: flex; flex-direction: column; align-items: center; gap: var(--sp-2);
 }
 .toast {
   display: flex; align-items: center; gap: var(--sp-3);
@@ -528,8 +529,8 @@ main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
 .toast.ok .tdot { background: var(--c-sign); }
 .toast.warn .tdot { background: var(--c-board); }
 .toast.err .tdot { background: var(--c-light); }
-@keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-@keyframes toastOut { to { opacity: 0; transform: translateY(8px); } }
+@keyframes toastIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+@keyframes toastOut { to { opacity: 0; transform: translateY(-8px); } }
 
 /* ── 단축키 모달 ── */
 #shortcuts {
