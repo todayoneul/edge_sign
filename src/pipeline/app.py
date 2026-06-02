@@ -85,7 +85,10 @@ YOLO_ONNX = next(iter(YOLO_VARIANTS.values()), "")  # status 표시용 대표 �
 OCR_ONNX = str(ROOT / "model_space" / "korean_ocr_net_w8a8.onnx")
 # 분류기는 FP32 사용 (114KB로 작음 + 동적 INT8은 CPU EP ConvInteger 미지원)
 TSIGN_ONNX = str(ROOT / "model_space" / "korean_sign_net_fp32.onnx")
-WEB_DIR = ROOT / "web" / "detection"
+# 프론트 정적 서빙 — 신규 React 빌드(web_modern/dist) 우선, 없으면 레거시 vanilla 폴백.
+# vanilla는 항상 /detection-legacy/ 에도 유지(패리티 비교·폴백). API 로직 무변경.
+WEB_LEGACY = ROOT / "web" / "detection"
+WEB_DIST = ROOT / "web_modern" / "dist"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # FastAPI 앱 + 파이프라인 초기화
@@ -100,9 +103,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 정적 파일 (web/detection/ 디렉토리가 존재할 때만)
-if WEB_DIR.exists():
-    app.mount("/detection", StaticFiles(directory=str(WEB_DIR), html=True), name="detection")
+# 정적 파일 — /detection/ 은 dist(신규 React) 우선, 부재 시 레거시. /detection-legacy/ 는 항상 vanilla.
+_web_main = WEB_DIST if WEB_DIST.exists() else WEB_LEGACY
+if _web_main.exists():
+    app.mount("/detection", StaticFiles(directory=str(_web_main), html=True), name="detection")
+if WEB_LEGACY.exists():
+    app.mount(
+        "/detection-legacy",
+        StaticFiles(directory=str(WEB_LEGACY), html=True),
+        name="detection-legacy",
+    )
 
 # 파이프라인 (전역 단일 인스턴스)
 pipeline: EdgeSignPipeline | None = None
