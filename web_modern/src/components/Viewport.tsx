@@ -65,6 +65,9 @@ export default function Viewport() {
   // Local UI state
   const [mode, setMode] = useState<Mode>("client");
   const [isPlaying, setIsPlaying] = useState(false);
+  // 소스가 로드된 상태(재생/일시정지/종료 모두 포함) — idle(Hero 표시)과 구분.
+  // 종료 시 isPlaying은 false가 되지만 loaded는 true로 유지 → 마지막 프레임 보존.
+  const [loaded, setLoaded] = useState(false);
   const [stageStatus, setStageStatus] = useState("서버 연결 대기 중…");
   const [stageStatusLive, setStageStatusLive] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1.0);
@@ -201,6 +204,7 @@ export default function Viewport() {
     if (img) { img.removeAttribute("src"); }
     setMode("client");
     setIsPlaying(false);
+    setLoaded(false);
     setSeekbarVisible(false);
     setStageStatusLive(false);
     setStageStatus("정지됨 — 영상을 시작하세요");
@@ -238,6 +242,7 @@ export default function Viewport() {
       // ingest가 오류 없이 반환되면 WS가 열린 것 (session 내부에서 sourceKind="session" 세팅)
       setMode("server");
       setIsPlaying(true);
+      setLoaded(true);
       setSeekbarVisible(true);
       setStageStatus(`서버 스트림 · ${label}`);
       setStageStatusLive(true);
@@ -297,6 +302,7 @@ export default function Viewport() {
       sentDimsRef.current = { w: 640, h: 480 };
       setMode("client");
       setIsPlaying(true);
+      setLoaded(true);
       setSeekbarVisible(true);
       setStageStatus("웹캠 — 실시간 스트리밍 중");
       setStageStatusLive(true);
@@ -344,6 +350,7 @@ export default function Viewport() {
       video.play().then(() => {
         setMode("client");
         setIsPlaying(true);
+        setLoaded(true);
         setSeekbarVisible(true);
         setStageStatus(`재생 중 · ${file.name}`);
         setStageStatusLive(true);
@@ -373,6 +380,7 @@ export default function Viewport() {
     video.play().then(() => {
       setMode("client");
       setIsPlaying(true);
+      setLoaded(true);
       setSeekbarVisible(true);
       setStageStatus("샘플 영상 — FP32⇄INT8 토글을 바꿔보세요");
       setStageStatusLive(true);
@@ -526,7 +534,7 @@ export default function Viewport() {
     <>
       {/* ── 뷰포트 ── */}
       <div
-        className={`viewport${isPlaying ? " playing" : ""}`}
+        className={`viewport${loaded ? " playing" : ""}`}
         id="viewport"
         ref={viewportRef}
         onDragOver={(e) => e.preventDefault()}
@@ -546,7 +554,7 @@ export default function Viewport() {
             width: "100%",
             height: "100%",
             objectFit: "contain",
-            display: mode === "client" && isPlaying ? "block" : "none",
+            display: mode === "client" && loaded ? "block" : "none",
           }}
         />
 
@@ -580,8 +588,8 @@ export default function Viewport() {
           }}
         />
 
-        {/* 히어로 (재생 전) */}
-        {!isPlaying && (
+        {/* 히어로 (소스 로드 전 idle 상태에서만) — 종료/일시정지 시엔 마지막 프레임 유지 */}
+        {!loaded && (
           <Hero
             onFile={() =>
               (document.getElementById("file-input") as HTMLInputElement | null)?.click()
