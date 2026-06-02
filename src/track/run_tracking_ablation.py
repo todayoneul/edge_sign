@@ -7,6 +7,7 @@ E0 FP32 기준선 대비 검출기 양자화가 MOT 메트릭에 미치는 영�
   python src/track/run_tracking_ablation.py
   python src/track/run_tracking_ablation.py --models E1 E4   # 특정 실험만
 """
+
 import argparse
 import subprocess
 import sys
@@ -17,9 +18,9 @@ ROOT = Path(__file__).parent.parent.parent
 MODEL_SPACE = ROOT / "model_space"
 
 EXPERIMENTS = {
-    "E0": ("yolov8s_signs_fp32.onnx",        "FP32 기준선"),
-    "E1": ("yolov8s_signs_w8a8.onnx",        "W8A8 PTQ"),
-    "E4": ("yolov8s_signs_w4a16.onnx",       "W4A16 PTQ"),
+    "E0": ("yolov8s_signs_fp32.onnx", "FP32 기준선"),
+    "E1": ("yolov8s_signs_w8a8.onnx", "W8A8 PTQ"),
+    "E4": ("yolov8s_signs_w4a16.onnx", "W4A16 PTQ"),
     "E5": ("yolov8s_signs_smoothquant.onnx", "SmoothQuant+W8A8"),
 }
 
@@ -32,14 +33,14 @@ def run_eval(exp_id: str, onnx_name: str, label: str) -> dict | None:
         print(f"[{exp_id}] ⚠️  모델 없음: {onnx_path}")
         return None
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"[{exp_id}] {label}  →  {onnx_name}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     t0 = time.time()
     result = subprocess.run(
         [sys.executable, "-u", str(EVAL_SCRIPT), "--onnx", str(onnx_path)],
-        capture_output=True   # bytes mode — Windows CP949 인코딩 문제 회피
+        capture_output=True,  # bytes mode — Windows CP949 인코딩 문제 회피
     )
     elapsed = time.time() - t0
 
@@ -88,7 +89,8 @@ def _parse_metrics(stdout: str | None) -> dict | None:
         return None
 
     import re
-    result: dict = {}
+
+    _result: dict = {}
 
     def _extract(label: str) -> float | None:
         m = re.search(rf"{label}:\s*([-\d.]+)", stdout)
@@ -97,7 +99,7 @@ def _parse_metrics(stdout: str | None) -> dict | None:
     mota = _extract("MOTA")
     idf1 = _extract("IDF1")
     hota = _extract("HOTA")
-    fps  = _extract("FPS")
+    fps = _extract("FPS")
     idsw = _extract("IDSW")
 
     if mota is None or idf1 is None or hota is None:
@@ -108,17 +110,17 @@ def _parse_metrics(stdout: str | None) -> dict | None:
         "idf1": idf1,
         "hota": hota,
         "idsw": int(idsw) if idsw is not None else 0,
-        "fps":  fps if fps is not None else 0.0,
+        "fps": fps if fps is not None else 0.0,
     }
 
 
 def print_summary(all_results: list[dict]):
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("추적 ablation 결과 요약 (검출기 양자화 영향)")
-    print("="*70)
+    print("=" * 70)
     header = f"{'ID':<5} {'설명':<20} {'MOTA':>7} {'IDF1':>7} {'HOTA':>7} {'IDSW':>6} {'FPS':>7}"
     print(header)
-    print("-"*70)
+    print("-" * 70)
 
     e0 = next((r for r in all_results if r["exp_id"] == "E0"), None)
 
@@ -127,11 +129,9 @@ def print_summary(all_results: list[dict]):
         if e0 and r["exp_id"] != "E0":
             d = r["mota"] - e0["mota"]
             mota_delta = f" ({d:+.3f})"
-        row = (f"{r['exp_id']:<5} {r['label']:<20} "
-               f"{r['mota']:>7.3f}{mota_delta}")
+        row = f"{r['exp_id']:<5} {r['label']:<20} {r['mota']:>7.3f}{mota_delta}"
         # idf1, hota, idsw, fps
-        row2 = (f"  IDF1={r['idf1']:.3f}  HOTA={r['hota']:.3f}  "
-                f"IDSW={r['idsw']}  FPS={r['fps']:.1f}")
+        row2 = f"  IDF1={r['idf1']:.3f}  HOTA={r['hota']:.3f}  IDSW={r['idsw']}  FPS={r['fps']:.1f}"
         print(row)
         print("       " + row2)
 
@@ -143,19 +143,25 @@ def print_summary(all_results: list[dict]):
             dm = r["mota"] - e0["mota"]
             di = r["idf1"] - e0["idf1"]
             dh = r["hota"] - e0["hota"]
-            print(f"  {r['exp_id']}: MOTA {e0['mota']:.3f}→{r['mota']:.3f} ({dm:+.3f})"
-                  f"  IDF1 {e0['idf1']:.3f}→{r['idf1']:.3f} ({di:+.3f})"
-                  f"  HOTA {e0['hota']:.3f}→{r['hota']:.3f} ({dh:+.3f})")
+            print(
+                f"  {r['exp_id']}: MOTA {e0['mota']:.3f}→{r['mota']:.3f} ({dm:+.3f})"
+                f"  IDF1 {e0['idf1']:.3f}→{r['idf1']:.3f} ({di:+.3f})"
+                f"  HOTA {e0['hota']:.3f}→{r['hota']:.3f} ({dh:+.3f})"
+            )
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--models", nargs="*",
-                        choices=list(EXPERIMENTS.keys()),
-                        default=["E1", "E4", "E5"],
-                        help="평가할 실험 ID (기본: E1 E4 E5)")
-    parser.add_argument("--include_e0", action="store_true",
-                        help="E0 FP32도 재평가 (이미 완료된 경우 불필요)")
+    parser.add_argument(
+        "--models",
+        nargs="*",
+        choices=list(EXPERIMENTS.keys()),
+        default=["E1", "E4", "E5"],
+        help="평가할 실험 ID (기본: E1 E4 E5)",
+    )
+    parser.add_argument(
+        "--include_e0", action="store_true", help="E0 FP32도 재평가 (이미 완료된 경우 불필요)"
+    )
     args = parser.parse_args()
 
     targets = args.models
@@ -166,11 +172,18 @@ def main():
 
     # E0 기준선 하드코딩 (이미 측정 완료)
     if "E0" not in targets:
-        all_results.append({
-            "exp_id": "E0", "label": "FP32 기준선",
-            "mota": 0.219, "idf1": 0.384, "hota": 0.487,
-            "idsw": 0, "fps": 21.6, "wall_time": 0,
-        })
+        all_results.append(
+            {
+                "exp_id": "E0",
+                "label": "FP32 기준선",
+                "mota": 0.219,
+                "idf1": 0.384,
+                "hota": 0.487,
+                "idsw": 0,
+                "fps": 21.6,
+                "wall_time": 0,
+            }
+        )
 
     for exp_id in targets:
         onnx_name, label = EXPERIMENTS[exp_id]

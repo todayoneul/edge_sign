@@ -1,36 +1,39 @@
-import os
-import time
-import sys
 import csv
 import glob
+import os
+import time
 import warnings
+
 warnings.filterwarnings("ignore", category=UserWarning)
-import logging
+import logging  # noqa: E402
+
 logging.getLogger("PIL").setLevel(logging.ERROR)
-from PIL import ImageFile
+from PIL import ImageFile  # noqa: E402
+
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-import timm
-from torch.utils.data import DataLoader
-from datasets import load_dataset
-from torchvision import transforms
-from transformers import CLIPVisionModelWithProjection
+import timm  # noqa: E402
+import torch  # noqa: E402
+import torch.nn as nn  # noqa: E402
+import torch.nn.functional as F  # noqa: E402
+import torch.optim as optim  # noqa: E402
+from datasets import load_dataset  # noqa: E402
+from torch.utils.data import DataLoader  # noqa: E402
+from torchvision import transforms  # noqa: E402
+from transformers import CLIPVisionModelWithProjection  # noqa: E402
 
 # 1. Configuration
-MODEL_NAME = 'convnextv2_nano.fcmae_ft_in1k'
+MODEL_NAME = "convnextv2_nano.fcmae_ft_in1k"
 BATCH_SIZE = 64
 NUM_WORKERS = 8
-DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 EPOCHS = 15
 LEARNING_RATE = 5e-4
 SAVE_DIR = "./checkpoints/checkpoints_mm_1bit"
 LOG_DIR = "./logs"
 os.makedirs(SAVE_DIR, exist_ok=True)
 os.makedirs(LOG_DIR, exist_ok=True)
+
 
 # 2. 1-Bit Binarization Layers (Same as previous project)
 class BinarySTE(torch.autograd.Function):
@@ -41,10 +44,11 @@ class BinarySTE(torch.autograd.Function):
 
     @staticmethod
     def backward(ctx, grad_output):
-        weight, = ctx.saved_tensors
+        (weight,) = ctx.saved_tensors
         grad_input = grad_output.clone()
         grad_input[weight.abs() > 1.0] = 0
         return grad_input
+
 
 def binarize_weight(weight):
     if weight.dim() == 4:
@@ -55,11 +59,13 @@ def binarize_weight(weight):
         scale = weight.abs().mean()
     return BinarySTE.apply(weight) * scale
 
+
 class BinaryConv2d(nn.Conv2d):
     def forward(self, input):
         bw = binarize_weight(self.weight).to(input.dtype)
         bias = self.bias.to(input.dtype) if self.bias is not None else None
         return F.conv2d(input, bw, bias, self.stride, self.padding, self.dilation, self.groups)
+
 
 class BinaryLinear(nn.Linear):
     def forward(self, input):
@@ -67,21 +73,35 @@ class BinaryLinear(nn.Linear):
         bias = self.bias.to(input.dtype) if self.bias is not None else None
         return F.linear(input, bw, bias)
 
+
 def replace_layers_with_1bit(model):
     for name, module in model.named_children():
         if isinstance(module, nn.Conv2d) and "stem" not in name and "head" not in name:
-            bin_conv = BinaryConv2d(module.in_channels, module.out_channels, module.kernel_size, 
-                                    module.stride, module.padding, module.dilation, module.groups, module.bias is not None)
+            bin_conv = BinaryConv2d(
+                module.in_channels,
+                module.out_channels,
+                module.kernel_size,
+                module.stride,
+                module.padding,
+                module.dilation,
+                module.groups,
+                module.bias is not None,
+            )
             bin_conv.weight.data.copy_(module.weight.data)
-            if module.bias is not None: bin_conv.bias.data.copy_(module.bias.data)
+            if module.bias is not None:
+                bin_conv.bias.data.copy_(module.bias.data)
             setattr(model, name, bin_conv)
         elif isinstance(module, nn.Linear) and "head" not in name and "classifier" not in name:
-            bin_linear = BinaryLinear(module.in_features, module.out_features, module.bias is not None)
+            bin_linear = BinaryLinear(
+                module.in_features, module.out_features, module.bias is not None
+            )
             bin_linear.weight.data.copy_(module.weight.data)
-            if module.bias is not None: bin_linear.bias.data.copy_(module.bias.data)
+            if module.bias is not None:
+                bin_linear.bias.data.copy_(module.bias.data)
             setattr(model, name, bin_linear)
         else:
             replace_layers_with_1bit(module)
+
 
 # 3. Data Loaders & Transforms
 _dummy = timm.create_model(MODEL_NAME, pretrained=False)
@@ -91,12 +111,17 @@ student_val_transform = timm.data.create_transform(**data_config, is_training=Fa
 del _dummy
 
 # CLIP Transform
-clip_transform = transforms.Compose([
-    transforms.Resize(224, interpolation=transforms.InterpolationMode.BICUBIC),
-    transforms.CenterCrop(224),
-    transforms.ToTensor(),
-    transforms.Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
-])
+clip_transform = transforms.Compose(
+    [
+        transforms.Resize(224, interpolation=transforms.InterpolationMode.BICUBIC),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize(
+            (0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)
+        ),
+    ]
+)
+
 
 def collate_fn_train(examples):
     rgbs = [ex["image"].convert("RGB") for ex in examples]
@@ -104,20 +129,24 @@ def collate_fn_train(examples):
     t_images = torch.stack([clip_transform(img) for img in rgbs])
     return s_images, t_images
 
+
 def collate_fn_val(examples):
     rgbs = [ex["image"].convert("RGB") for ex in examples]
     s_images = torch.stack([student_val_transform(img) for img in rgbs])
     t_images = torch.stack([clip_transform(img) for img in rgbs])
     return s_images, t_images
 
+
 # 4. Main Training Loop
 def main():
-    print(f"[Term Project] Multimodal 1-Bit KD Started!")
+    print("[Term Project] Multimodal 1-Bit KD Started!")
     csv_file_path = os.path.join(LOG_DIR, "training_log_mm_1bit.csv")
     if not os.path.exists(csv_file_path):
-        with open(csv_file_path, mode='w', newline='') as f:
+        with open(csv_file_path, mode="w", newline="") as f:
             writer = csv.writer(f)
-            writer.writerow(["Epoch", "Train_Cosine_Loss", "Val_Cosine_Sim", "Learning_Rate", "Time_sec"])
+            writer.writerow(
+                ["Epoch", "Train_Cosine_Loss", "Val_Cosine_Sim", "Learning_Rate", "Time_sec"]
+            )
 
     print("Loading CLIP Vision Teacher Model...")
     teacher_model = CLIPVisionModelWithProjection.from_pretrained("openai/clip-vit-base-patch32")
@@ -136,10 +165,22 @@ def main():
     print("Loading ImageNet Dataset...")
     hf_dataset = load_dataset("ILSVRC/imagenet-1k")
     # For speed in 3-week project, we limit max steps or just run normally.
-    train_loader = DataLoader(hf_dataset["train"], batch_size=BATCH_SIZE, shuffle=True, 
-                              num_workers=NUM_WORKERS, pin_memory=True, collate_fn=collate_fn_train)
-    val_loader = DataLoader(hf_dataset["validation"], batch_size=BATCH_SIZE, shuffle=False, 
-                            num_workers=NUM_WORKERS, pin_memory=True, collate_fn=collate_fn_val)
+    train_loader = DataLoader(
+        hf_dataset["train"],
+        batch_size=BATCH_SIZE,
+        shuffle=True,
+        num_workers=NUM_WORKERS,
+        pin_memory=True,
+        collate_fn=collate_fn_train,
+    )
+    val_loader = DataLoader(
+        hf_dataset["validation"],
+        batch_size=BATCH_SIZE,
+        shuffle=False,
+        num_workers=NUM_WORKERS,
+        pin_memory=True,
+        collate_fn=collate_fn_val,
+    )
 
     optimizer = optim.AdamW(student_model.parameters(), lr=LEARNING_RATE, weight_decay=1e-5)
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=EPOCHS)
@@ -149,43 +190,43 @@ def main():
     checkpoints = glob.glob(os.path.join(SAVE_DIR, "mm_1bit_epoch_*.pth"))
     if checkpoints:
         latest_ckpt = max(checkpoints, key=os.path.getctime)
-        epoch_str = latest_ckpt.split('_epoch_')[-1].split('.pth')[0]
+        epoch_str = latest_ckpt.split("_epoch_")[-1].split(".pth")[0]
         start_epoch = int(epoch_str) + 1
         print(f"Auto-Resuming from {latest_ckpt}")
         ckpt = torch.load(latest_ckpt, map_location=DEVICE)
-        student_model.load_state_dict(ckpt['model_state_dict'])
-        optimizer.load_state_dict(ckpt['optimizer_state_dict'])
-        scheduler.load_state_dict(ckpt['scheduler_state_dict'])
+        student_model.load_state_dict(ckpt["model_state_dict"])
+        optimizer.load_state_dict(ckpt["optimizer_state_dict"])
+        scheduler.load_state_dict(ckpt["scheduler_state_dict"])
 
-    target = torch.ones(BATCH_SIZE).to(DEVICE) # Target for Cosine Embedding Loss
+    target = torch.ones(BATCH_SIZE).to(DEVICE)  # Target for Cosine Embedding Loss
 
     for epoch in range(start_epoch, EPOCHS + 1):
         epoch_start_time = time.time()
         print(f"\n[Epoch {epoch}/{EPOCHS}] Distilling CLIP into 1-Bit CNN...")
         student_model.train()
         train_loss = 0.0
-        
+
         for i, (s_images, t_images) in enumerate(train_loader):
             s_images = s_images.to(DEVICE, dtype=torch.bfloat16)
             t_images = t_images.to(DEVICE, dtype=torch.bfloat16)
             current_batch_size = s_images.size(0)
             target_batch = target[:current_batch_size]
-            
+
             optimizer.zero_grad()
             with torch.no_grad():
                 teacher_features = teacher_model(t_images).image_embeds
-            
+
             student_features = student_model(s_images)
-            
+
             loss = criterion(student_features, teacher_features, target_batch)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(student_model.parameters(), max_norm=1.0)
             optimizer.step()
             train_loss += loss.item()
-            
+
             if i % 500 == 0:
                 print(f"  Step [{i}/{len(train_loader)}] Cosine Loss: {loss.item():.4f}")
-        
+
         scheduler.step()
         avg_train_loss = train_loss / len(train_loader)
 
@@ -193,34 +234,49 @@ def main():
         total_cos_sim = 0.0
         print(f"[Epoch {epoch}] Validation (Cosine Similarity)...")
         with torch.no_grad():
-            for i, (s_images, t_images) in enumerate(val_loader):
+            for _i, (s_images, t_images) in enumerate(val_loader):
                 s_images = s_images.to(DEVICE, dtype=torch.bfloat16)
                 t_images = t_images.to(DEVICE, dtype=torch.bfloat16)
-                
+
                 t_feats = teacher_model(t_images).image_embeds
                 s_feats = student_model(s_images)
-                
+
                 cos_sim = F.cosine_similarity(s_feats, t_feats, dim=1).mean().item()
                 total_cos_sim += cos_sim
-        
+
         avg_val_sim = total_cos_sim / len(val_loader)
         epoch_time = time.time() - epoch_start_time
         current_lr = scheduler.get_last_lr()[0]
-        print(f"Epoch {epoch} Val Avg Cosine Similarity: {avg_val_sim:.4f} (Time: {epoch_time:.1f}s)")
+        print(
+            f"Epoch {epoch} Val Avg Cosine Similarity: {avg_val_sim:.4f} (Time: {epoch_time:.1f}s)"
+        )
 
-        torch.save({
-            'epoch': epoch,
-            'model_state_dict': student_model.state_dict(),
-            'optimizer_state_dict': optimizer.state_dict(),
-            'scheduler_state_dict': scheduler.state_dict(),
-            'val_cos_sim': avg_val_sim
-        }, os.path.join(SAVE_DIR, f"mm_1bit_epoch_{epoch}.pth"))
-        
-        with open(csv_file_path, mode='a', newline='') as f:
+        torch.save(
+            {
+                "epoch": epoch,
+                "model_state_dict": student_model.state_dict(),
+                "optimizer_state_dict": optimizer.state_dict(),
+                "scheduler_state_dict": scheduler.state_dict(),
+                "val_cos_sim": avg_val_sim,
+            },
+            os.path.join(SAVE_DIR, f"mm_1bit_epoch_{epoch}.pth"),
+        )
+
+        with open(csv_file_path, mode="a", newline="") as f:
             writer = csv.writer(f)
-            writer.writerow([epoch, f"{avg_train_loss:.4f}", f"{avg_val_sim:.4f}", f"{current_lr:.6f}", f"{epoch_time:.1f}"])
+            writer.writerow(
+                [
+                    epoch,
+                    f"{avg_train_loss:.4f}",
+                    f"{avg_val_sim:.4f}",
+                    f"{current_lr:.6f}",
+                    f"{epoch_time:.1f}",
+                ]
+            )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import multiprocessing
+
     multiprocessing.freeze_support()
     main()

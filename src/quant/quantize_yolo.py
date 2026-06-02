@@ -14,14 +14,14 @@ PyTorch 레벨 fake-quantization 후 ONNX 내보내기.
   python src/quant/quantize_yolo.py --mode w4a16
   python src/quant/quantize_yolo.py --mode smoothquant --calib_batches 10
 """
+
 import argparse
-import sys
 import shutil
 from pathlib import Path
 
+import numpy as np
 import torch
 import torch.nn as nn
-import numpy as np
 
 ROOT = Path(__file__).parent.parent.parent
 MODEL_SPACE = ROOT / "model_space"
@@ -35,8 +35,10 @@ MODEL_SPACE.mkdir(parents=True, exist_ok=True)
 # 공통 유틸
 # ────────────────────────────────────────────
 
+
 def load_yolo_model(weights=WEIGHTS):
     from ultralytics import YOLO
+
     return YOLO(str(weights))
 
 
@@ -90,7 +92,7 @@ def export_nn_to_onnx(nn_model: nn.Module, out_name: str, opset: int = 14) -> Pa
             input_names=["images"],
             output_names=["output0"],
             do_constant_folding=True,
-            dynamo=False,          # TorchScript 기반 exporter 사용 (PyTorch 2.x 호환)
+            dynamo=False,  # TorchScript 기반 exporter 사용 (PyTorch 2.x 호환)
         )
 
     # onnxslim으로 최적화
@@ -108,6 +110,7 @@ def export_nn_to_onnx(nn_model: nn.Module, out_name: str, opset: int = 14) -> Pa
 
 def verify_onnx(path: Path):
     import onnxruntime as ort
+
     sess = ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])
     dummy = np.random.randn(1, 3, 640, 640).astype(np.float32)
     out = sess.run(None, {sess.get_inputs()[0].name: dummy})
@@ -117,6 +120,7 @@ def verify_onnx(path: Path):
 # ────────────────────────────────────────────
 # W8A8 PTQ (Phase 1 base_W8A8.py 동일 방식)
 # ────────────────────────────────────────────
+
 
 def apply_w8a8_ptq(model_nn: nn.Module) -> int:
     """
@@ -130,13 +134,13 @@ def apply_w8a8_ptq(model_nn: nn.Module) -> int:
         with torch.no_grad():
             w = module.weight.data
             # Per-output-channel MinMax scale
-            if w.dim() == 4:                          # Conv2d: [out, in, kH, kW]
+            if w.dim() == 4:  # Conv2d: [out, in, kH, kW]
                 max_val = w.view(w.size(0), -1).abs().max(dim=1)[0].view(-1, 1, 1, 1)
-            else:                                      # Linear: [out, in]
+            else:  # Linear: [out, in]
                 max_val = w.abs().max(dim=1)[0].view(-1, 1)
             scale = (max_val / 127.0).clamp(min=1e-8)
             q_w = torch.round(w / scale).clamp(-128, 127)
-            module.weight.data = q_w * scale          # fake-dequant
+            module.weight.data = q_w * scale  # fake-dequant
         quantized += 1
     return quantized
 
@@ -158,6 +162,7 @@ def run_w8a8(weights=WEIGHTS):
 # W4A16 PTQ (4-bit 가중치 / FP16 활성화)
 # ────────────────────────────────────────────
 
+
 def apply_w4a16_ptq(model_nn: nn.Module) -> int:
     """
     4-bit 가중치 양자화 시뮬레이션 (활성화는 FP32 유지).
@@ -173,7 +178,7 @@ def apply_w4a16_ptq(model_nn: nn.Module) -> int:
                 max_val = w.view(w.size(0), -1).abs().max(dim=1)[0].view(-1, 1, 1, 1)
             else:
                 max_val = w.abs().max(dim=1)[0].view(-1, 1)
-            scale = (max_val / 7.0).clamp(min=1e-8)   # INT4: [-8, 7]
+            scale = (max_val / 7.0).clamp(min=1e-8)  # INT4: [-8, 7]
             q_w = torch.round(w / scale).clamp(-8, 7)
             module.weight.data = q_w * scale
         quantized += 1
@@ -197,13 +202,14 @@ def run_w4a16(weights=WEIGHTS):
 # SmoothQuant + W8A8 (Phase 1 동일 방식)
 # ────────────────────────────────────────────
 
+
 def _build_calib_loader(num_batches=10, batch_size=4):
     """val 이미지를 캘리브레이션 데이터로 사용."""
     import cv2
     from torch.utils.data import DataLoader, Dataset
 
     img_dir = DATA_DIR / "images" / "val"
-    img_paths = sorted(img_dir.rglob("*.jpg"))[:num_batches * batch_size]
+    img_paths = sorted(img_dir.rglob("*.jpg"))[: num_batches * batch_size]
 
     class YOLOImageDataset(Dataset):
         def __init__(self, paths, imgsz=640):
@@ -229,6 +235,7 @@ class _SmoothWrapper(nn.Module):
     SmoothQuant Wrapper: forward에서 입력을 1/s로 스케일링 후 가중치(s 흡수+W8) 레이어 실행.
     ONNX export 시 스케일 나눗셈이 그래프에 포함됨 (Phase 1 SmoothQuantWrapper 동일 방식).
     """
+
     def __init__(self, module: nn.Module, smooth_scale: torch.Tensor):
         super().__init__()
         self.module = module
@@ -262,11 +269,10 @@ def apply_smoothquant(model_nn: nn.Module, calib_loader, alpha: float = 0.5) -> 
             else:
                 ch_max = x.amax(dim=0) if x.dim() >= 2 else x
             act_max[name] = torch.max(act_max[name], ch_max) if name in act_max else ch_max
+
         return hook
 
-    target_names = [
-        name for name, m in model_nn.named_modules() if _is_quantizable(name, m)
-    ]
+    target_names = [name for name, m in model_nn.named_modules() if _is_quantizable(name, m)]
     target_mods = dict(model_nn.named_modules())
 
     for name in target_names:
@@ -314,14 +320,14 @@ def apply_smoothquant(model_nn: nn.Module, calib_loader, alpha: float = 0.5) -> 
         else:
             w_max = w.abs().amax(dim=0).clamp(min=1e-8)
 
-        smooth_s = (a_max ** alpha) / (w_max ** (1 - alpha) + 1e-8)
+        smooth_s = (a_max**alpha) / (w_max ** (1 - alpha) + 1e-8)
         smooth_s = smooth_s.clamp(1e-3, 1e3)
 
         # 가중치에 smooth_s 흡수 + W8 fake-quant
         with torch.no_grad():
             if w.dim() == 4:
                 w_scaled = w * smooth_s.view(1, in_ch, 1, 1)
-                out_max = w_scaled.view(w.size(0), -1).abs().max(dim=1)[0].view(-1,1,1,1)
+                out_max = w_scaled.view(w.size(0), -1).abs().max(dim=1)[0].view(-1, 1, 1, 1)
             else:
                 w_scaled = w * smooth_s.view(1, in_ch)
                 out_max = w_scaled.abs().max(dim=1)[0].view(-1, 1)
@@ -361,16 +367,19 @@ def run_smoothquant(weights=WEIGHTS, calib_batches=10, alpha=0.5):
 # CLI
 # ────────────────────────────────────────────
 
+
 def main():
     parser = argparse.ArgumentParser(description="YOLOv8s 검출기 양자화")
-    parser.add_argument("--mode", choices=["w8a8", "w4a16", "smoothquant", "all"],
-                        default="all", help="양자화 모드")
-    parser.add_argument("--weights", type=str, default=str(WEIGHTS),
-                        help="학습된 best.pt 경로")
-    parser.add_argument("--calib_batches", type=int, default=10,
-                        help="SmoothQuant 캘리브레이션 배치 수")
-    parser.add_argument("--alpha", type=float, default=0.5,
-                        help="SmoothQuant alpha (0=weight만, 1=activation만)")
+    parser.add_argument(
+        "--mode", choices=["w8a8", "w4a16", "smoothquant", "all"], default="all", help="양자화 모드"
+    )
+    parser.add_argument("--weights", type=str, default=str(WEIGHTS), help="학습된 best.pt 경로")
+    parser.add_argument(
+        "--calib_batches", type=int, default=10, help="SmoothQuant 캘리브레이션 배치 수"
+    )
+    parser.add_argument(
+        "--alpha", type=float, default=0.5, help="SmoothQuant alpha (0=weight만, 1=activation만)"
+    )
     args = parser.parse_args()
 
     modes = ["w8a8", "w4a16", "smoothquant"] if args.mode == "all" else [args.mode]
@@ -385,7 +394,7 @@ def main():
 
     print("\n모든 양자화 완료. model_space/ 디렉토리 확인:")
     for f in sorted(MODEL_SPACE.glob("yolov8s_signs_*.onnx")):
-        print(f"  {f.name}: {f.stat().st_size/1024/1024:.2f} MB")
+        print(f"  {f.name}: {f.stat().st_size / 1024 / 1024:.2f} MB")
 
 
 if __name__ == "__main__":

@@ -1,13 +1,14 @@
+import argparse
 import os
 import time
-import argparse
+
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers import get_linear_schedule_with_warmup
 
-from prepare_vlm_dataset import OmniModalIterableDataset
 from omni_modal_vlm import OmniModalW8A8VLM
+from prepare_vlm_dataset import OmniModalIterableDataset
 
 
 def parse_csv_list(value):
@@ -53,14 +54,7 @@ def load_projection_head(model, proj_ckpt):
 
 
 def build_dataloader(
-    split,
-    batch_size,
-    max_samples,
-    sources,
-    source_weights,
-    cache_images,
-    cache_dir,
-    seed
+    split, batch_size, max_samples, sources, source_weights, cache_images, cache_dir, seed
 ):
     try:
         dataset = OmniModalIterableDataset(
@@ -70,7 +64,7 @@ def build_dataloader(
             source_weights=source_weights,
             cache_images=cache_images,
             cache_dir=cache_dir,
-            seed=seed
+            seed=seed,
         )
     except Exception as e:
         print(f"데이터셋 로드 실패: {e}")
@@ -101,7 +95,7 @@ def evaluate_loss(model, dataloader, device, max_steps):
                 images=pixel_values,
                 text_input_ids=input_ids,
                 attention_mask=attention_mask,
-                labels=labels
+                labels=labels,
             )
             loss = outputs.loss
             total_loss += loss.item()
@@ -124,7 +118,7 @@ def train_single_llm(args, llm_name, report_path):
         lora_r=args.lora_r,
         lora_alpha=args.lora_alpha,
         lora_dropout=args.lora_dropout,
-        lora_target_modules=parse_csv_list(args.lora_target_modules)
+        lora_target_modules=parse_csv_list(args.lora_target_modules),
     )
 
     load_vision_checkpoint(model, args.vision_ckpt)
@@ -149,7 +143,7 @@ def train_single_llm(args, llm_name, report_path):
         source_weights=source_weights,
         cache_images=not args.disable_cache,
         cache_dir=args.cache_dir,
-        seed=args.seed
+        seed=args.seed,
     )
 
     if train_loader is None:
@@ -166,7 +160,7 @@ def train_single_llm(args, llm_name, report_path):
             source_weights=source_weights,
             cache_images=not args.disable_cache,
             cache_dir=args.cache_dir,
-            seed=args.seed
+            seed=args.seed,
         )
 
     trainable_params = [p for p in model.parameters() if p.requires_grad]
@@ -181,9 +175,7 @@ def train_single_llm(args, llm_name, report_path):
 
     total_steps = steps_per_epoch * args.epochs
     scheduler = get_linear_schedule_with_warmup(
-        optimizer,
-        num_warmup_steps=int(total_steps * 0.1),
-        num_training_steps=total_steps
+        optimizer, num_warmup_steps=int(total_steps * 0.1), num_training_steps=total_steps
     )
 
     llm_tag = sanitize_name(llm_name)
@@ -197,7 +189,7 @@ def train_single_llm(args, llm_name, report_path):
         model.train()
         total_loss = 0.0
         steps = 0
-        progress_bar = tqdm(range(steps_per_epoch), desc=f"에포크 {epoch+1}/{args.epochs}")
+        progress_bar = tqdm(range(steps_per_epoch), desc=f"에포크 {epoch + 1}/{args.epochs}")
         data_iter = iter(train_loader)
 
         for _ in progress_bar:
@@ -221,7 +213,7 @@ def train_single_llm(args, llm_name, report_path):
                 images=pixel_values,
                 text_input_ids=input_ids,
                 attention_mask=attention_mask,
-                labels=labels
+                labels=labels,
             )
             loss = outputs.loss
             loss.backward()
@@ -234,12 +226,12 @@ def train_single_llm(args, llm_name, report_path):
 
         if steps > 0:
             train_loss_last = total_loss / steps
-            print(f"에포크 {epoch+1} 평균 Loss: {train_loss_last:.4f}")
+            print(f"에포크 {epoch + 1} 평균 Loss: {train_loss_last:.4f}")
 
-        proj_path = os.path.join(output_dir, f"projection_head_epoch_{epoch+1}.pth")
+        proj_path = os.path.join(output_dir, f"projection_head_epoch_{epoch + 1}.pth")
         torch.save(model.projection_head.state_dict(), proj_path)
 
-        adapter_path = os.path.join(output_dir, f"lora_adapter_epoch_{epoch+1}")
+        adapter_path = os.path.join(output_dir, f"lora_adapter_epoch_{epoch + 1}")
         model.llm.save_pretrained(adapter_path)
 
     eval_loss = None
@@ -264,7 +256,9 @@ def train_single_llm(args, llm_name, report_path):
 
 def main():
     parser = argparse.ArgumentParser(description="Train QLoRA for Omni-Modal VLM")
-    parser.add_argument("--vision_ckpt", type=str, default="./models/hf_w8a8_smoothquant/smoothquant_w8a8.pth")
+    parser.add_argument(
+        "--vision_ckpt", type=str, default="./models/hf_w8a8_smoothquant/smoothquant_w8a8.pth"
+    )
     parser.add_argument("--proj_ckpt", type=str, default=None)
     parser.add_argument("--llm_name", type=str, default="Qwen/Qwen1.5-0.5B")
     parser.add_argument("--llm_list", type=str, default=None, help="쉼표로 구분된 LLM 후보 목록")

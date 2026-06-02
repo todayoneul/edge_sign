@@ -13,22 +13,27 @@
   async for token in ask_stream(context, "저 표지판이 뭐야?"):
       print(token, end="", flush=True)
 """
+
 from __future__ import annotations
 
 import asyncio
 import os
+from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import AsyncIterator
+from typing import Any
+
 
 # .env 로드 (python-dotenv)
-def _load_dotenv():
+def _load_dotenv() -> None:
     try:
         from dotenv import load_dotenv
+
         env_path = Path(__file__).parent.parent.parent / ".env"
         if env_path.exists():
             load_dotenv(env_path)
     except ImportError:
         pass  # python-dotenv 없으면 환경변수 직접 설정
+
 
 _load_dotenv()
 
@@ -56,6 +61,7 @@ DEFAULT_MODEL = "llama-3.3-70b-versatile"
 # ─────────────────────────────────────────────────────────────────────────────
 # 컨텍스트 빌더
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def build_context(tracks: list[dict]) -> str:
     """
@@ -94,6 +100,7 @@ def build_context(tracks: list[dict]) -> str:
 # Groq API 스트리밍 Q&A
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 async def ask_stream(
     context: str,
     question: str,
@@ -118,10 +125,7 @@ async def ask_stream(
     try:
         from groq import AsyncGroq
     except ImportError:
-        raise ImportError(
-            "groq 패키지가 설치되지 않았습니다.\n"
-            "설치: pip install groq"
-        )
+        raise ImportError("groq 패키지가 설치되지 않았습니다.\n설치: pip install groq") from None
 
     # BYOK 우선 — 요청별 키가 있으면 env보다 우선 사용.
     key = (api_key or "").strip() or os.environ.get("GROQ_API_KEY", "")
@@ -152,7 +156,7 @@ async def ask_stream(
         yield f"\n⚠️ API 오류: {e}"
 
 
-async def ask_once(context: str, question: str, **kwargs) -> str:
+async def ask_once(context: str, question: str, **kwargs: Any) -> str:
     """ask_stream을 완전히 소비하여 전체 답변 문자열 반환 (테스트용)."""
     parts = []
     async for token in ask_stream(context, question, **kwargs):
@@ -164,13 +168,26 @@ async def ask_once(context: str, question: str, **kwargs) -> str:
 # CLI 테스트
 # ─────────────────────────────────────────────────────────────────────────────
 
-async def _test():
+
+async def _test() -> None:
     """더미 컨텍스트로 Groq API 연결 테스트."""
     dummy_tracks = [
-        {"id": 1, "class": 0, "class_name": "traffic_sign",  "conf": 0.92,
-         "label": "속도제한50",   "bbox": [100, 100, 200, 200]},
-        {"id": 2, "class": 1, "class_name": "traffic_light", "conf": 0.85,
-         "label": "신호등_빨강",  "bbox": [300, 150, 360, 260]},
+        {
+            "id": 1,
+            "class": 0,
+            "class_name": "traffic_sign",
+            "conf": 0.92,
+            "label": "속도제한50",
+            "bbox": [100, 100, 200, 200],
+        },
+        {
+            "id": 2,
+            "class": 1,
+            "class_name": "traffic_light",
+            "conf": 0.85,
+            "label": "신호등_빨강",
+            "bbox": [300, 150, 360, 260],
+        },
     ]
     context = build_context(dummy_tracks)
     print("=== 컨텍스트 ===")
@@ -185,6 +202,7 @@ async def _test():
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--test", action="store_true")
     args = parser.parse_args()

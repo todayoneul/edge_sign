@@ -10,6 +10,7 @@ v3 검출기의 INT8 static 버전이 필요하다. 기존 dynamic INT8(ConvInte
   python scripts/quantize_v3_detector.py            # v3_fp32 → v3_int8_static
   python scripts/quantize_v3_detector.py --bench     # 양자화 + 레이턴시 비교
 """
+
 import argparse
 import sys
 from pathlib import Path
@@ -21,11 +22,15 @@ import onnx
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
-from onnxruntime.quantization import (
-    QuantType, QuantFormat, CalibrationDataReader,
-    quantize_static, quant_pre_process,
+from onnxruntime.quantization import (  # noqa: E402
+    CalibrationDataReader,
+    QuantFormat,
+    QuantType,
+    quant_pre_process,
+    quantize_static,
 )
-from scripts.archive.quantize_onnx_real import verify, compare_latency
+
+from scripts.archive.quantize_onnx_real import compare_latency, verify  # noqa: E402
 
 # YOLOv8 Detect 헤드 prefix — 이 노드들은 양자화 제외(FP32 유지)해야 신뢰도 보존.
 #   cv2=박스회귀, cv3=클래스점수, dfl. 헤드를 INT8화하면 conf가 임계값 아래로 붕괴.
@@ -49,7 +54,7 @@ class FlatYoloCalib(CalibrationDataReader):
         self._iter = iter(self._load())
 
     def _load(self):
-        paths = sorted(self._dir.glob("*.jpg"))[:self._n]
+        paths = sorted(self._dir.glob("*.jpg"))[: self._n]
         used = 0
         for p in paths:
             img = cv2.imread(str(p))
@@ -85,8 +90,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--bench", action="store_true", help="양자화 후 FP32/INT8 레이턴시 비교")
     ap.add_argument("--n_calib", type=int, default=150, help="캘리브레이션 프레임 수")
-    ap.add_argument("--quant_head", action="store_true",
-                    help="검출 헤드까지 양자화(정확도 붕괴 위험, 비교용)")
+    ap.add_argument(
+        "--quant_head", action="store_true", help="검출 헤드까지 양자화(정확도 붕괴 위험, 비교용)"
+    )
     args = ap.parse_args()
 
     src = MODEL_DIR / "yolov8s_signs_v3_fp32.onnx"
@@ -99,37 +105,46 @@ def main():
 
     exclude = [] if args.quant_head else _head_nodes(src)
 
-    print(f"\nv3 검출기 Static INT8 QDQ 양자화")
+    print("\nv3 검출기 Static INT8 QDQ 양자화")
     print(f"  {src.name} -> {dst.name}")
     print(f"  헤드 제외 노드: {len(exclude)}개 (FP32 유지)" if exclude else "  (헤드까지 양자화)")
     print("=" * 60)
 
     # Step 1: 전처리 (shape 추론 + BN-Conv 융합)
     prep = dst.parent / f"_prep_{src.stem}.onnx"
-    quant_pre_process(input_model_path=str(src), output_model_path=str(prep),
-                      skip_optimization=False, skip_onnx_shape=False,
-                      skip_symbolic_shape=True)
+    quant_pre_process(
+        input_model_path=str(src),
+        output_model_path=str(prep),
+        skip_optimization=False,
+        skip_onnx_shape=False,
+        skip_symbolic_shape=True,
+    )
 
     # Step 2: 정적 양자화 (헤드 노드 제외)
     quantize_static(
-        model_input=str(prep), model_output=str(dst),
+        model_input=str(prep),
+        model_output=str(dst),
         calibration_data_reader=FlatYoloCalib(CALIB_DIR, n=args.n_calib),
         quant_format=QuantFormat.QDQ,
         weight_type=QuantType.QInt8,
-        activation_type=QuantType.QUInt8,   # SiLU 이후 양수 분포 → UInt8
-        per_channel=True, reduce_range=False,
+        activation_type=QuantType.QUInt8,  # SiLU 이후 양수 분포 → UInt8
+        per_channel=True,
+        reduce_range=False,
         nodes_to_exclude=exclude,
-        extra_options={"ActivationSymmetric": False, "WeightSymmetric": True,
-                       "EnableSubgraph": True},
+        extra_options={
+            "ActivationSymmetric": False,
+            "WeightSymmetric": True,
+            "EnableSubgraph": True,
+        },
     )
     prep.unlink(missing_ok=True)
-    orig_mb, q_mb = src.stat().st_size/1e6, dst.stat().st_size/1e6
-    print(f"  {orig_mb:.2f} MB -> {q_mb:.2f} MB ({orig_mb/q_mb:.2f}x smaller)")
+    orig_mb, q_mb = src.stat().st_size / 1e6, dst.stat().st_size / 1e6
+    print(f"  {orig_mb:.2f} MB -> {q_mb:.2f} MB ({orig_mb / q_mb:.2f}x smaller)")
 
-    real = _real_frame()             # 실프레임 기준 FP32↔INT8 출력 일치도
+    real = _real_frame()  # 실프레임 기준 FP32↔INT8 출력 일치도
     verify(src, dst, real)
     if args.bench:
-        print(f"  Latency:")
+        print("  Latency:")
         compare_latency(src, dst, real, n=50)
 
     print(f"\n생성: {dst} ({q_mb:.2f} MB)")

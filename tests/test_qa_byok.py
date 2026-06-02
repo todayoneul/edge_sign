@@ -3,6 +3,7 @@
 공개 HF Space에서는 서버 키 대신 요청별 api_key를 받는다.
 네트워크 호출 없이 '키 없음' 분기만 결정적으로 검증.
 """
+
 import asyncio
 
 from src.pipeline.qa_bridge import ask_stream
@@ -11,6 +12,7 @@ from src.pipeline.qa_bridge import ask_stream
 def _collect(**kwargs):
     async def run():
         return [tok async for tok in ask_stream("컨텍스트", "질문?", **kwargs)]
+
     return asyncio.run(run())
 
 
@@ -28,12 +30,12 @@ def test_explicit_key_arg_takes_precedence(monkeypatch):
 
     class FakeClient:
         def __init__(self, api_key=None):
-            assert api_key == "gsk_byok"          # 인자 키가 전달됨
+            assert api_key == "gsk_byok"  # 인자 키가 전달됨
             self.chat = self
             self.completions = self
 
         async def create(self, **kw):
-            raise RuntimeError("SENTINEL_USED_KEY")   # create까지 도달 = 키 사용됨
+            raise RuntimeError("SENTINEL_USED_KEY")  # create까지 도달 = 키 사용됨
 
     monkeypatch.setattr(groq, "AsyncGroq", FakeClient)
     out = "".join(_collect(api_key="gsk_byok"))

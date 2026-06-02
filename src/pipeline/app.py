@@ -12,48 +12,52 @@ Edge-Sign v2 FastAPI 백엔드 서버
   uvicorn src.pipeline.app:app --reload --port 8000
   브라우저 → http://localhost:8000/detection/
 """
+
 from __future__ import annotations
 
 import asyncio
 import base64
 import json
-import os
 import sys
 import time
+from collections.abc import AsyncIterator
 from pathlib import Path
 
 import cv2
 import numpy as np
+from fastapi import FastAPI, File, Form, UploadFile, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
+from loguru import logger
+from pydantic import BaseModel
 
 ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-from fastapi import FastAPI, File, Form, UploadFile, WebSocket, WebSocketDisconnect
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import (
-    FileResponse, HTMLResponse, JSONResponse, StreamingResponse,
-)
-from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+# onnxruntime-gpu가 torch cu128 동봉 CUDA/cuDNN DLL을 찾도록 등록 (GPU 추론).
+# 반드시 onnxruntime(=e2e_pipeline) import 전에 실행돼야 CUDAExecutionProvider가 활성화된다.
+import os as _os  # noqa: E402
+from pathlib import Path as _Path  # noqa: E402
 
-# onnxruntime-gpu가 torch cu128 동봉 CUDA/cuDNN DLL을 찾도록 등록 (GPU 추론)
-import os as _os
-from pathlib import Path as _Path
 try:
     import torch as _torch
+
     _tlib = _Path(_torch.__file__).parent / "lib"
     if _tlib.exists():
         _os.add_dll_directory(str(_tlib))
 except Exception:
     pass  # torch 없거나 CPU 환경이면 CPU 폴백
 
-from src.pipeline.e2e_pipeline import EdgeSignPipeline
-from src.pipeline.qa_bridge import build_context, ask_stream
-from src.pipeline.session import SessionManager, save_upload
+from src.pipeline.e2e_pipeline import EdgeSignPipeline  # noqa: E402
+from src.pipeline.logging_config import configure_logging  # noqa: E402
+from src.pipeline.qa_bridge import ask_stream, build_context  # noqa: E402
+from src.pipeline.session import SessionManager, save_upload  # noqa: E402
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 설정
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 # v3 (2026-05-30) — 신호등 분리 검출기 + 한국 표지판/신호등 분류기
 #   검출기: 0=traffic_sign, 1=traffic_light (data/yolo_signs_v2 학습)
@@ -71,16 +75,17 @@ def _resolve_variants() -> tuple[dict[str, str], str]:
         v3_int8 = ms / "yolov8s_signs_v3_int8_static.onnx"
         if v3_int8.exists():
             variants["int8"] = str(v3_int8)
-        return variants, "v3"           # 0=sign, 1=light, 2=signboard
+        return variants, "v3"  # 0=sign, 1=light, 2=signboard
     # v2 폴백 (신호등 미분리)
     return {"w8a8": str(ms / "yolov8s_signs_w8a8.onnx")}, "v2"
 
+
 YOLO_VARIANTS, DET_TAXONOMY = _resolve_variants()
-YOLO_ONNX = next(iter(YOLO_VARIANTS.values()), "")   # status 표시용 대표 경로
-OCR_ONNX   = str(ROOT / "model_space" / "korean_ocr_net_w8a8.onnx")
+YOLO_ONNX = next(iter(YOLO_VARIANTS.values()), "")  # status 표시용 대표 경로
+OCR_ONNX = str(ROOT / "model_space" / "korean_ocr_net_w8a8.onnx")
 # 분류기는 FP32 사용 (114KB로 작음 + 동적 INT8은 CPU EP ConvInteger 미지원)
 TSIGN_ONNX = str(ROOT / "model_space" / "korean_sign_net_fp32.onnx")
-WEB_DIR    = ROOT / "web" / "detection"
+WEB_DIR = ROOT / "web" / "detection"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # FastAPI 앱 + 파이프라인 초기화
@@ -102,9 +107,11 @@ if WEB_DIR.exists():
 # 파이프라인 (전역 단일 인스턴스)
 pipeline: EdgeSignPipeline | None = None
 
+
 @app.on_event("startup")
-async def startup():
+async def startup() -> None:
     global pipeline
+    configure_logging()
     pipeline = EdgeSignPipeline(
         yolo_variants=YOLO_VARIANTS,
         ocr_onnx=OCR_ONNX,
@@ -112,12 +119,11 @@ async def startup():
         conf_thres=0.15,
         det_taxonomy=DET_TAXONOMY,
     )
-    print(f"[Server] 파이프라인 초기화 완료 (택소노미={DET_TAXONOMY}, "
-          f"variant={list(YOLO_VARIANTS)})")
+    logger.info(f"파이프라인 초기화 완료 (택소노미={DET_TAXONOMY}, variant={list(YOLO_VARIANTS)})")
 
 
 @app.on_event("shutdown")
-async def _shutdown():
+async def _shutdown() -> None:
     session_mgr.close()
 
 
@@ -125,8 +131,9 @@ async def _shutdown():
 # 정적 UI 서빙
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 @app.get("/", response_class=HTMLResponse)
-async def root():
+async def root() -> HTMLResponse:
     """루트 → detection UI로 리다이렉트."""
     return HTMLResponse(
         '<meta http-equiv="refresh" content="0; url=/detection/">',
@@ -141,10 +148,12 @@ async def root():
 session_mgr = SessionManager()
 
 
-@app.post("/api/ingest")
-async def ingest(kind: str = Form(...),
-                 url: str = Form(None),
-                 file: UploadFile = File(None)):
+@app.post("/api/ingest", response_model=None)
+async def ingest(
+    kind: str = Form(...),
+    url: str = Form(None),
+    file: UploadFile = File(None),  # noqa: B008
+) -> dict | JSONResponse:
     """파일/URL/이미지 → 서버 스트림 세션 발급. 실패 시 400 + error JSON."""
     try:
         if kind == "url":
@@ -158,8 +167,11 @@ async def ingest(kind: str = Form(...),
             suffix = Path(file.filename or "").suffix or (".jpg" if kind == "image" else ".mp4")
             path = save_upload(data, suffix)
             try:
-                sid = (session_mgr.from_image(path) if kind == "image"
-                       else session_mgr.from_video(path))
+                sid = (
+                    session_mgr.from_image(path)
+                    if kind == "image"
+                    else session_mgr.from_video(path)
+                )
             except Exception:
                 # 디코딩 실패 등으로 세션 생성이 실패하면 임시파일 누수 방지
                 path.unlink(missing_ok=True)
@@ -175,8 +187,9 @@ async def ingest(kind: str = Form(...),
 # WebSocket: 프레임 스트림 처리
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 @app.websocket("/ws/stream")
-async def ws_stream(websocket: WebSocket):
+async def ws_stream(websocket: WebSocket) -> None:
     """
     클라이언트에서 base64 JPEG 프레임을 수신, 파이프라인 처리 후 JSON 결과를 반환.
 
@@ -187,7 +200,7 @@ async def ws_stream(websocket: WebSocket):
             {"type": "error", "message": "..."}
     """
     await websocket.accept()
-    print("[WS] 클라이언트 연결")
+    logger.info("WS stream 연결")
 
     try:
         while True:
@@ -226,23 +239,26 @@ async def ws_stream(websocket: WebSocket):
                 variant = None
 
             # 파이프라인 처리
-            result = pipeline.process_frame(frame, variant=variant) if pipeline else {
-                "frame_id": 0, "tracks": [], "inference_ms": 0
-            }
+            result = (
+                pipeline.process_frame(frame, variant=variant)
+                if pipeline
+                else {"frame_id": 0, "tracks": [], "inference_ms": 0}
+            )
             await websocket.send_json({"type": "result", "data": result})
 
     except WebSocketDisconnect:
-        print("[WS] 클라이언트 연결 해제")
-    except Exception as e:
-        print(f"[WS] 오류: {e}")
+        logger.info("WS stream 연결 해제")
+    except Exception:
+        logger.exception("WS stream 처리 중 오류")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # WebSocket: 서버 스트림 (세션 디코딩 → 파이프라인 → 주석 JPEG + JSON 푸시)
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 @app.websocket("/ws/session")
-async def ws_session(websocket: WebSocket):
+async def ws_session(websocket: WebSocket) -> None:
     """서버 스트림: 세션 소스 디코딩 → 파이프라인 → 주석 JPEG + JSON 푸시.
     수신: {type:"control", action:"play|pause|seek|speed|stop", value:?}"""
     await websocket.accept()
@@ -252,7 +268,7 @@ async def ws_session(websocket: WebSocket):
         await websocket.close()
         return
 
-    async def handle_controls():
+    async def handle_controls() -> None:
         try:
             while True:
                 msg = await websocket.receive_json()
@@ -260,7 +276,7 @@ async def ws_session(websocket: WebSocket):
                     act = msg.get("action")
                     if act == "stop":
                         break
-                    if act == "variant":                  # 양자화 A/B 토글
+                    if act == "variant":  # 양자화 A/B 토글
                         v = msg.get("value")
                         if pipeline and v in pipeline.yolo_sessions:
                             pipeline.set_variant(v)
@@ -271,7 +287,7 @@ async def ws_session(websocket: WebSocket):
 
     ctrl_task = asyncio.create_task(handle_controls())
     target_dt = 1.0 / 30.0
-    miss = 0                                   # 연속 read 실패 카운트 (라이브 글리치 흡수)
+    miss = 0  # 연속 read 실패 카운트 (라이브 글리치 흡수)
     try:
         while not ctrl_task.done():
             t0 = time.perf_counter()
@@ -280,13 +296,13 @@ async def ws_session(websocket: WebSocket):
                 continue
             frame = sess.source.read()
             if frame is None:
-                if sess.source.is_seekable:        # 영상 끝 → 정지
+                if sess.source.is_seekable:  # 영상 끝 → 정지
                     sess.playing = False
                     await websocket.send_json({"type": "ended"})
                     continue
-                else:                              # 라이브 스트림: 일시적 글리치 재시도
+                else:  # 라이브 스트림: 일시적 글리치 재시도
                     miss += 1
-                    if miss >= 30:                 # 약 1초 연속 실패 → 종료
+                    if miss >= 30:  # 약 1초 연속 실패 → 종료
                         await websocket.send_json({"type": "ended"})
                         break
                     await asyncio.sleep(0.03)
@@ -299,18 +315,24 @@ async def ws_session(websocket: WebSocket):
             ok, buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
             if not ok:
                 continue
-            await websocket.send_json({
-                "type": "frame", "frame_id": result["frame_id"],
-                "inference_ms": result["inference_ms"], "tracks": result["tracks"],
-                "variant": result.get("variant"), "model_mb": result.get("model_mb"),
-                "stage_ms": result.get("stage_ms"),
-                "w": w, "h": h,
-                # 통합 seek 바용: 소스 실제 위치 + 총 프레임 + fps + seek 가능 여부
-                "pos": sess.source.position(),
-                "total": getattr(sess.source, "frame_count", 0),
-                "fps": getattr(sess.source, "fps", 30.0),
-                "seekable": getattr(sess.source, "is_seekable", False),
-            })
+            await websocket.send_json(
+                {
+                    "type": "frame",
+                    "frame_id": result["frame_id"],
+                    "inference_ms": result["inference_ms"],
+                    "tracks": result["tracks"],
+                    "variant": result.get("variant"),
+                    "model_mb": result.get("model_mb"),
+                    "stage_ms": result.get("stage_ms"),
+                    "w": w,
+                    "h": h,
+                    # 통합 seek 바용: 소스 실제 위치 + 총 프레임 + fps + seek 가능 여부
+                    "pos": sess.source.position(),
+                    "total": getattr(sess.source, "frame_count", 0),
+                    "fps": getattr(sess.source, "fps", 30.0),
+                    "seekable": getattr(sess.source, "is_seekable", False),
+                }
+            )
             await websocket.send_bytes(buf.tobytes())
             elapsed = time.perf_counter() - t0
             await asyncio.sleep(max(0, target_dt / max(sess.speed, 0.1) - elapsed))
@@ -328,14 +350,15 @@ async def ws_session(websocket: WebSocket):
 # POST /api/qa — Groq 스트리밍 Q&A (SSE)
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class QARequest(BaseModel):
-    tracks: list[dict]       # process_frame()["tracks"]
+    tracks: list[dict]  # process_frame()["tracks"]
     question: str
-    api_key: str | None = None   # BYOK — 방문자 본인 Groq 키 (없으면 서버 env 폴백)
+    api_key: str | None = None  # BYOK — 방문자 본인 Groq 키 (없으면 서버 env 폴백)
 
 
 @app.post("/api/qa")
-async def qa_endpoint(req: QARequest):
+async def qa_endpoint(req: QARequest) -> StreamingResponse:
     """
     인식된 tracks + 사용자 질문 → Groq LLM 스트리밍 답변 (SSE).
 
@@ -344,7 +367,7 @@ async def qa_endpoint(req: QARequest):
     """
     context = build_context(req.tracks)
 
-    async def event_generator():
+    async def event_generator() -> AsyncIterator[str]:
         yield f"data: {json.dumps({'type': 'context', 'text': context}, ensure_ascii=False)}\n\n"
         async for token in ask_stream(context, req.question, api_key=req.api_key):
             payload = json.dumps({"type": "token", "text": token}, ensure_ascii=False)
@@ -365,21 +388,25 @@ async def qa_endpoint(req: QARequest):
 # GET /api/status — 파이프라인 상태
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 @app.get("/api/status")
-async def status():
+async def status() -> dict[str, object]:
     return {
         "pipeline": pipeline is not None,
-        "yolo":     pipeline.yolo_session   is not None if pipeline else False,
-        "ocr":      pipeline.ocr_session    is not None if pipeline else False,
-        "tsign":    pipeline.tsign_session  is not None if pipeline else False,
-        "yolo_path":  YOLO_ONNX,
-        "ocr_path":   OCR_ONNX,
+        "yolo": pipeline.yolo_session is not None if pipeline else False,
+        "ocr": pipeline.ocr_session is not None if pipeline else False,
+        "tsign": pipeline.tsign_session is not None if pipeline else False,
+        "yolo_path": YOLO_ONNX,
+        "ocr_path": OCR_ONNX,
         "tsign_path": TSIGN_ONNX,
-        "variants":   pipeline.variant_info() if pipeline else [],
+        "variants": pipeline.variant_info() if pipeline else [],
         "active_variant": pipeline.active_variant if pipeline else None,
         "taxonomy": DET_TAXONOMY,
-        "version":  ("v3 (신호등 분리 + 한국 분류기 14클래스)" if DET_TAXONOMY == "v3"
-                     else "v2 검출기 + 한국 분류기 (신호등 미분리 — v3 학습 대기)"),
+        "version": (
+            "v3 (신호등 분리 + 한국 분류기 14클래스)"
+            if DET_TAXONOMY == "v3"
+            else "v2 검출기 + 한국 분류기 (신호등 미분리 — v3 학습 대기)"
+        ),
     }
 
 
@@ -389,4 +416,5 @@ async def status():
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run("src.pipeline.app:app", host="0.0.0.0", port=8000, reload=True)

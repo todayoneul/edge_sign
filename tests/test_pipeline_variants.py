@@ -3,6 +3,7 @@
 A/B 양자화 토글(FP32⇄INT8)과 파이프라인 단계 시각화의 백엔드 계약을 검증한다.
 실제 ONNX 모델을 로드하므로 onnxruntime + model_space 모델이 있을 때만 실행.
 """
+
 import os
 from pathlib import Path
 
@@ -24,7 +25,7 @@ if not (VAR_A.exists() and VAR_B.exists()):
 # CUDA EP 시도/경고를 피하고 CPU로만 로드 (CI/테스트 환경 안정성)
 os.environ["EDGE_SIGN_CPU_ONLY"] = "1"
 
-from src.pipeline.e2e_pipeline import EdgeSignPipeline
+from src.pipeline.e2e_pipeline import EdgeSignPipeline  # noqa: E402
 
 
 @pytest.fixture(scope="module")
@@ -37,20 +38,20 @@ def pipe():
 
 
 def test_loads_all_variants_with_sizes(pipe):
-    info = pipe.variant_info()                 # [{"name","mb"}, ...]
+    info = pipe.variant_info()  # [{"name","mb"}, ...]
     names = {v["name"] for v in info}
     assert names == {"a", "b"}
-    assert all(v["mb"] > 0 for v in info)      # 파일 크기(MB) 기록
+    assert all(v["mb"] > 0 for v in info)  # 파일 크기(MB) 기록
 
 
 def test_default_active_is_first_variant(pipe):
-    assert pipe.active_variant == "a"          # dict 첫 키가 기본
+    assert pipe.active_variant == "a"  # dict 첫 키가 기본
 
 
 def test_set_variant_switches_active(pipe):
     pipe.set_variant("b")
     assert pipe.active_variant == "b"
-    pipe.set_variant("a")                       # 원복 (모듈 fixture 공유)
+    pipe.set_variant("a")  # 원복 (모듈 fixture 공유)
     assert pipe.active_variant == "a"
 
 
@@ -62,12 +63,12 @@ def test_set_unknown_variant_raises(pipe):
 def test_process_frame_reports_variant_and_stage_ms(pipe):
     frame = np.zeros((480, 640, 3), np.uint8)
     out = pipe.process_frame(frame, variant="b")
-    assert out["variant"] == "b"               # 요청한 variant 반영
+    assert out["variant"] == "b"  # 요청한 variant 반영
     assert out["model_mb"] > 0
     stage = out["stage_ms"]
     assert set(stage) == {"detect", "track", "recognize"}
     assert all(v >= 0 for v in stage.values())
-    assert "inference_ms" in out               # 기존 총합 키 유지
+    assert "inference_ms" in out  # 기존 총합 키 유지
     # 단계 합이 총합에 근접 (오차 허용 — 후처리/직렬화 오버헤드)
     assert sum(stage.values()) <= out["inference_ms"] + 5
 

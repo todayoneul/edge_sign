@@ -15,16 +15,16 @@ fake-quant PTQ (W8A8 / W4A16 / 1-Bit) + ONNX 내보내기 + val 평가.
   python src/quant/quantize_recognizers.py --mode w8a8  # 특정 모드
   python src/quant/quantize_recognizers.py --eval_only  # 기존 ONNX 평가만
 """
+
 import argparse
-import sys
 import io
+import sys
 import time
 from pathlib import Path
 
+import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import numpy as np
 
 # Windows 터미널 인코딩 문제 해결
 if sys.platform.startswith("win"):
@@ -34,18 +34,19 @@ if sys.platform.startswith("win"):
 ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
-MODEL_SPACE  = ROOT / "model_space"
-MODEL_DIR    = ROOT / "models"
-OCR_CKPT     = MODEL_DIR / "korean_ocr_best.pth"
-TSIGN_CKPT   = MODEL_SPACE / "traffic_sign_net_best.pth"
-OCR_DATA     = ROOT / "data" / "korean_ocr"
-GTSDB_DIR    = ROOT / "data" / "GTSDB" / "FullIJCNN2013"
+MODEL_SPACE = ROOT / "model_space"
+MODEL_DIR = ROOT / "models"
+OCR_CKPT = MODEL_DIR / "korean_ocr_best.pth"
+TSIGN_CKPT = MODEL_SPACE / "traffic_sign_net_best.pth"
+OCR_DATA = ROOT / "data" / "korean_ocr"
+GTSDB_DIR = ROOT / "data" / "GTSDB" / "FullIJCNN2013"
 
 MODEL_SPACE.mkdir(parents=True, exist_ok=True)
 
 # ─────────────────────────────────────────────
 # 공통 양자화 함수 (Phase 1 패턴 재활용)
 # ─────────────────────────────────────────────
+
 
 def _quantizable(name: str, module: nn.Module) -> bool:
     """Conv2d / Linear 레이어만 대상 (BN, Activation 제외)."""
@@ -60,9 +61,9 @@ def apply_w8a8_ptq(model: nn.Module) -> int:
             continue
         with torch.no_grad():
             w = module.weight.data
-            if w.dim() == 4:   # Conv2d
+            if w.dim() == 4:  # Conv2d
                 max_val = w.view(w.size(0), -1).abs().max(dim=1)[0].view(-1, 1, 1, 1)
-            else:               # Linear
+            else:  # Linear
                 max_val = w.abs().max(dim=1)[0].view(-1, 1)
             scale = (max_val / 127.0).clamp(min=1e-8)
             q_w = torch.round(w / scale).clamp(-128, 127)
@@ -103,7 +104,7 @@ def apply_1bit_ptq(model: nn.Module) -> int:
             else:
                 scale = w.abs().mean(dim=1, keepdim=True)
             binary_w = torch.sign(w)
-            binary_w[binary_w == 0] = 1.0   # 0은 +1로 처리
+            binary_w[binary_w == 0] = 1.0  # 0은 +1로 처리
             module.weight.data = binary_w * scale
         count += 1
     return count
@@ -113,21 +114,31 @@ def apply_1bit_ptq(model: nn.Module) -> int:
 # ONNX 내보내기
 # ─────────────────────────────────────────────
 
-def export_to_onnx(model: nn.Module, dummy: torch.Tensor, out_path: Path,
-                   input_names: list, output_names: list, opset: int = 14):
+
+def export_to_onnx(
+    model: nn.Module,
+    dummy: torch.Tensor,
+    out_path: Path,
+    input_names: list,
+    output_names: list,
+    opset: int = 14,
+):
     """PyTorch 모델 → ONNX (dynamo=False)."""
     try:
         import onnxslim
+
         use_slim = True
     except ImportError:
         use_slim = False
 
     import tempfile
+
     with tempfile.NamedTemporaryFile(suffix=".onnx", delete=False) as tmp:
         tmp_path = Path(tmp.name)
 
     torch.onnx.export(
-        model.cpu().eval(), dummy.cpu(),
+        model.cpu().eval(),
+        dummy.cpu(),
         str(tmp_path),
         opset_version=opset,
         input_names=input_names,
@@ -152,8 +163,10 @@ def export_to_onnx(model: nn.Module, dummy: torch.Tensor, out_path: Path,
 # KoreanOCRNet 로드 + 양자화 + ONNX
 # ─────────────────────────────────────────────
 
+
 def load_ocr_model() -> nn.Module:
     from src.korean_ocr_model import KoreanOCRNet
+
     model = KoreanOCRNet(num_classes=2350)
     if OCR_CKPT.exists():
         state = torch.load(str(OCR_CKPT), map_location="cpu", weights_only=True)
@@ -193,8 +206,10 @@ def quantize_ocr(mode: str) -> Path:
 # TrafficSignNet 로드 + 양자화 + ONNX
 # ─────────────────────────────────────────────
 
+
 def load_tsign_model(num_classes: int = 43) -> nn.Module:
     from src.model import TrafficSignNet
+
     model = TrafficSignNet(num_classes=num_classes)
     if TSIGN_CKPT.exists():
         ckpt = torch.load(str(TSIGN_CKPT), map_location="cpu", weights_only=False)
@@ -214,7 +229,7 @@ def quantize_tsign(mode: str) -> Path:
     dummy = torch.zeros(1, 3, 32, 32)
 
     if mode == "fp32":
-        out = MODEL_SPACE / "traffic_sign_net_fp32.onnx"   # 이미 존재
+        out = MODEL_SPACE / "traffic_sign_net_fp32.onnx"  # 이미 존재
     elif mode == "w8a8":
         n = apply_w8a8_ptq(model)
         print(f"    W8A8 fake-quant: {n} 레이어")
@@ -239,10 +254,11 @@ def quantize_tsign(mode: str) -> Path:
 # 평가: KoreanOCRNet (val set)
 # ─────────────────────────────────────────────
 
+
 def eval_ocr_onnx(onnx_path: Path, max_samples: int = 5000) -> dict:
     """KoreanOCRNet ONNX 평가 (data/korean_ocr/val/)."""
     import onnxruntime as ort
-    from torchvision import transforms, datasets
+    from torchvision import datasets, transforms
 
     val_dir = OCR_DATA / "val"
     if not val_dir.exists():
@@ -253,28 +269,30 @@ def eval_ocr_onnx(onnx_path: Path, max_samples: int = 5000) -> dict:
     class NumericalImageFolder(datasets.ImageFolder):
         def find_classes(self, directory):
             import os
-            classes = sorted(
-                [d.name for d in os.scandir(directory) if d.is_dir()], key=int
-            )
+
+            classes = sorted([d.name for d in os.scandir(directory) if d.is_dir()], key=int)
             class_to_idx = {cls: int(cls) for cls in classes}
             return classes, class_to_idx
 
-    transform = transforms.Compose([
-        transforms.Grayscale(num_output_channels=1),
-        transforms.Resize((64, 64)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5], std=[0.5]),
-    ])
+    transform = transforms.Compose(
+        [
+            transforms.Grayscale(num_output_channels=1),
+            transforms.Resize((64, 64)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.5], std=[0.5]),
+        ]
+    )
 
     val_ds = NumericalImageFolder(root=str(val_dir), transform=transform)
     # 평가 속도를 위해 최대 max_samples개만 사용
     indices = list(range(min(max_samples, len(val_ds))))
-    from torch.utils.data import Subset, DataLoader
+    from torch.utils.data import DataLoader, Subset
+
     subset = Subset(val_ds, indices)
     loader = DataLoader(subset, batch_size=256, shuffle=False, num_workers=0)
 
     sess = ort.InferenceSession(str(onnx_path), providers=["CPUExecutionProvider"])
-    input_name  = sess.get_inputs()[0].name
+    input_name = sess.get_inputs()[0].name
     output_name = sess.get_outputs()[0].name
 
     correct1 = correct5 = total = 0
@@ -283,7 +301,7 @@ def eval_ocr_onnx(onnx_path: Path, max_samples: int = 5000) -> dict:
     for imgs, labels in loader:
         imgs_np = imgs.numpy()
         out = sess.run([output_name], {input_name: imgs_np})[0]  # [B, 2350]
-        top5 = np.argsort(out, axis=1)[:, -5:][:, ::-1]         # [B, 5] 내림차순
+        top5 = np.argsort(out, axis=1)[:, -5:][:, ::-1]  # [B, 5] 내림차순
         labels_np = labels.numpy()
         correct1 += (top5[:, 0] == labels_np).sum()
         correct5 += sum(labels_np[i] in top5[i] for i in range(len(labels_np)))
@@ -292,36 +310,35 @@ def eval_ocr_onnx(onnx_path: Path, max_samples: int = 5000) -> dict:
     elapsed = time.time() - t0
     top1 = correct1 / total * 100
     top5 = correct5 / total * 100
-    fps  = total / elapsed
+    fps = total / elapsed
 
-    return {"top1": round(top1, 2), "top5": round(top5, 2),
-            "samples": total, "fps": round(fps, 1)}
+    return {"top1": round(top1, 2), "top5": round(top5, 2), "samples": total, "fps": round(fps, 1)}
 
 
 # ─────────────────────────────────────────────
 # 평가: TrafficSignNet (GTSDB val 크롭)
 # ─────────────────────────────────────────────
 
+
 def eval_tsign_onnx(onnx_path: Path) -> dict:
     """TrafficSignNet ONNX 평가 (GTSDB val 크롭)."""
     import onnxruntime as ort
-    import cv2
+    from torch.utils.data import random_split
+
     from src.detect.train_traffic_sign_net import GTSDBCropDataset
-    from torch.utils.data import DataLoader, random_split
 
     full_ds = GTSDBCropDataset(GTSDB_DIR, img_size=32, augment=False)
-    n_val   = max(1, int(len(full_ds) * 0.2))
+    n_val = max(1, int(len(full_ds) * 0.2))
     n_train = len(full_ds) - n_val
-    _, val_ds = random_split(full_ds, [n_train, n_val],
-                             generator=torch.Generator().manual_seed(42))
+    _, val_ds = random_split(full_ds, [n_train, n_val], generator=torch.Generator().manual_seed(42))
 
     # DataLoader 대신 직접 배치 처리 (PIL → numpy 변환 포함)
     sess = ort.InferenceSession(str(onnx_path), providers=["CPUExecutionProvider"])
-    input_name  = sess.get_inputs()[0].name
+    input_name = sess.get_inputs()[0].name
     output_name = sess.get_outputs()[0].name
 
-    MEAN = np.array([0.485, 0.456, 0.406], dtype=np.float32)
-    STD  = np.array([0.229, 0.224, 0.225], dtype=np.float32)
+    _MEAN = np.array([0.485, 0.456, 0.406], dtype=np.float32)
+    _STD = np.array([0.229, 0.224, 0.225], dtype=np.float32)
 
     correct1 = correct5 = 0
     t0 = time.time()
@@ -341,8 +358,12 @@ def eval_tsign_onnx(onnx_path: Path) -> dict:
     top1 = correct1 / total * 100
     top5 = correct5 / total * 100
 
-    return {"top1": round(top1, 2), "top5": round(top5, 2),
-            "samples": total, "fps": round(total / elapsed, 1)}
+    return {
+        "top1": round(top1, 2),
+        "top5": round(top5, 2),
+        "samples": total,
+        "fps": round(total / elapsed, 1),
+    }
 
 
 # ─────────────────────────────────────────────
@@ -352,24 +373,25 @@ def eval_tsign_onnx(onnx_path: Path) -> dict:
 MODES = ["fp32", "w8a8", "w4a16", "1bit"]
 
 EXP_MAP = {
-    "fp32":  "E0 기준선",
-    "w8a8":  "E2/E3 W8A8",
+    "fp32": "E0 기준선",
+    "w8a8": "E2/E3 W8A8",
     "w4a16": "E4 W4A16",
-    "1bit":  "E7 1-Bit PTB",
+    "1bit": "E7 1-Bit PTB",
 }
 
 
-def run_all(modes: list[str], eval_ocr: bool = True, eval_tsign: bool = True,
-            ocr_samples: int = 5000):
+def run_all(
+    modes: list[str], eval_ocr: bool = True, eval_tsign: bool = True, ocr_samples: int = 5000
+):
     results = []
 
     for mode in modes:
-        print(f"\n{'='*55}")
+        print(f"\n{'=' * 55}")
         print(f"[{mode.upper()}] KoreanOCRNet + TrafficSignNet")
-        print(f"{'='*55}")
+        print(f"{'=' * 55}")
 
         # ── KoreanOCRNet
-        print(f"  [OCR] 양자화 내보내기...")
+        print("  [OCR] 양자화 내보내기...")
         try:
             ocr_path = quantize_ocr(mode)
         except Exception as e:
@@ -381,12 +403,14 @@ def run_all(modes: list[str], eval_ocr: bool = True, eval_tsign: bool = True,
             print(f"  [OCR] 평가 중 (최대 {ocr_samples}개)...")
             ocr_metrics = eval_ocr_onnx(ocr_path, max_samples=ocr_samples)
             if ocr_metrics:
-                print(f"    Top-1={ocr_metrics['top1']:.2f}%  "
-                      f"Top-5={ocr_metrics['top5']:.2f}%  "
-                      f"({ocr_metrics['samples']}개, {ocr_metrics['fps']:.0f} FPS)")
+                print(
+                    f"    Top-1={ocr_metrics['top1']:.2f}%  "
+                    f"Top-5={ocr_metrics['top5']:.2f}%  "
+                    f"({ocr_metrics['samples']}개, {ocr_metrics['fps']:.0f} FPS)"
+                )
 
         # ── TrafficSignNet
-        print(f"  [TrafficSign] 양자화 내보내기...")
+        print("  [TrafficSign] 양자화 내보내기...")
         try:
             ts_path = quantize_tsign(mode)
         except Exception as e:
@@ -395,43 +419,49 @@ def run_all(modes: list[str], eval_ocr: bool = True, eval_tsign: bool = True,
 
         ts_metrics = {}
         if eval_tsign and ts_path and ts_path.exists():
-            print(f"  [TrafficSign] 평가 중...")
+            print("  [TrafficSign] 평가 중...")
             ts_metrics = eval_tsign_onnx(ts_path)
             if ts_metrics:
-                print(f"    Top-1={ts_metrics['top1']:.2f}%  "
-                      f"Top-5={ts_metrics['top5']:.2f}%  "
-                      f"({ts_metrics['samples']}개, {ts_metrics['fps']:.0f} FPS)")
+                print(
+                    f"    Top-1={ts_metrics['top1']:.2f}%  "
+                    f"Top-5={ts_metrics['top5']:.2f}%  "
+                    f"({ts_metrics['samples']}개, {ts_metrics['fps']:.0f} FPS)"
+                )
 
         # OCR ONNX 크기
         ocr_size = ocr_path.stat().st_size / 1024 / 1024 if ocr_path and ocr_path.exists() else 0
-        ts_size  = ts_path.stat().st_size / 1024 / 1024  if ts_path  and ts_path.exists()  else 0
+        ts_size = ts_path.stat().st_size / 1024 / 1024 if ts_path and ts_path.exists() else 0
 
-        results.append({
-            "mode": mode,
-            "exp": EXP_MAP.get(mode, mode),
-            "ocr_top1": ocr_metrics.get("top1", "—"),
-            "ocr_top5": ocr_metrics.get("top5", "—"),
-            "ts_top1":  ts_metrics.get("top1", "—"),
-            "ts_top5":  ts_metrics.get("top5", "—"),
-            "ocr_size": round(ocr_size, 3),
-            "ts_size":  round(ts_size, 3),
-        })
+        results.append(
+            {
+                "mode": mode,
+                "exp": EXP_MAP.get(mode, mode),
+                "ocr_top1": ocr_metrics.get("top1", "—"),
+                "ocr_top5": ocr_metrics.get("top5", "—"),
+                "ts_top1": ts_metrics.get("top1", "—"),
+                "ts_top5": ts_metrics.get("top5", "—"),
+                "ocr_size": round(ocr_size, 3),
+                "ts_size": round(ts_size, 3),
+            }
+        )
 
     # ── 결과 요약표
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("인식기 양자화 결과 요약")
-    print(f"{'='*70}")
-    hdr = (f"{'모드':<8} {'실험':<12} "
-           f"{'OCR Top1':>9} {'OCR Top5':>9} {'TS Top1':>8} {'TS Top5':>8} "
-           f"{'OCR MB':>7} {'TS MB':>6}")
+    print(f"{'=' * 70}")
+    hdr = (
+        f"{'모드':<8} {'실험':<12} "
+        f"{'OCR Top1':>9} {'OCR Top5':>9} {'TS Top1':>8} {'TS Top5':>8} "
+        f"{'OCR MB':>7} {'TS MB':>6}"
+    )
     print(hdr)
     print("-" * 70)
 
     e0 = next((r for r in results if r["mode"] == "fp32"), None)
 
     for r in results:
-        ocr1 = r['ocr_top1']
-        ts1  = r['ts_top1']
+        ocr1 = r["ocr_top1"]
+        ts1 = r["ts_top1"]
         # 변화량
         if e0 and r["mode"] != "fp32":
             if isinstance(ocr1, float) and isinstance(e0["ocr_top1"], float):
@@ -444,12 +474,14 @@ def run_all(modes: list[str], eval_ocr: bool = True, eval_tsign: bool = True,
                 ts1_str = str(ts1)
         else:
             ocr1_str = f"{ocr1:.1f}" if isinstance(ocr1, float) else str(ocr1)
-            ts1_str  = f"{ts1:.1f}"  if isinstance(ts1, float) else str(ts1)
+            ts1_str = f"{ts1:.1f}" if isinstance(ts1, float) else str(ts1)
 
-        print(f"{r['mode']:<8} {r['exp']:<12} "
-              f"{ocr1_str:>9} {str(r['ocr_top5']):>9} "
-              f"{ts1_str:>8} {str(r['ts_top5']):>8} "
-              f"{r['ocr_size']:>7.3f} {r['ts_size']:>6.3f}")
+        print(
+            f"{r['mode']:<8} {r['exp']:<12} "
+            f"{ocr1_str:>9} {str(r['ocr_top5']):>9} "
+            f"{ts1_str:>8} {str(r['ts_top5']):>8} "
+            f"{r['ocr_size']:>7.3f} {r['ts_size']:>6.3f}"
+        )
 
     print("\n[민감도 분석]")
     if e0:
@@ -461,7 +493,7 @@ def run_all(modes: list[str], eval_ocr: bool = True, eval_tsign: bool = True,
                 ("TrafficSign Top-1", "ts_top1", "ts_top1"),
             ]:
                 bv = e0[base_key]
-                v  = r[key]
+                v = r[key]
                 if isinstance(v, float) and isinstance(bv, float):
                     d = v - bv
                     p = d / bv * 100
@@ -474,17 +506,17 @@ def run_all(modes: list[str], eval_ocr: bool = True, eval_tsign: bool = True,
 def main():
     parser = argparse.ArgumentParser(description="인식기 양자화 + 평가")
     parser.add_argument("--mode", choices=MODES + ["all"], default="all")
-    parser.add_argument("--no_ocr",   action="store_true", help="OCR 평가 건너뛰기")
+    parser.add_argument("--no_ocr", action="store_true", help="OCR 평가 건너뛰기")
     parser.add_argument("--no_tsign", action="store_true", help="TrafficSign 평가 건너뛰기")
-    parser.add_argument("--ocr_samples", type=int, default=5000,
-                        help="OCR val 최대 샘플 수 (기본 5000)")
+    parser.add_argument(
+        "--ocr_samples", type=int, default=5000, help="OCR val 최대 샘플 수 (기본 5000)"
+    )
     args = parser.parse_args()
 
     modes = MODES if args.mode == "all" else [args.mode]
-    run_all(modes,
-            eval_ocr=not args.no_ocr,
-            eval_tsign=not args.no_tsign,
-            ocr_samples=args.ocr_samples)
+    run_all(
+        modes, eval_ocr=not args.no_ocr, eval_tsign=not args.no_tsign, ocr_samples=args.ocr_samples
+    )
 
 
 if __name__ == "__main__":

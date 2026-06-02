@@ -5,10 +5,10 @@ VideoFileSource: 모든 코덱 동영상 (cv2/ffmpeg)
 UrlStreamSource: 직접 URL·RTSP (+ YouTube는 yt-dlp 옵션)
 웹캠은 클라이언트 캡처이므로 여기 없음.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional
 
 import cv2
 import numpy as np
@@ -20,17 +20,17 @@ class FrameSource(ABC):
     frame_count: int = 0
 
     @abstractmethod
-    def read(self) -> Optional[np.ndarray]:
+    def read(self) -> np.ndarray | None:
         """다음 BGR 프레임 또는 None(끝/실패)."""
 
-    def seek(self, frame_idx: int) -> None:
+    def seek(self, frame_idx: int) -> None:  # noqa: B027
         """seekable 소스만 의미 있음 (기본 no-op)."""
 
     def position(self) -> int:
         """현재 소스 프레임 위치(0-based). seek 바 진행 표시용 (기본 0)."""
         return 0
 
-    def release(self) -> None:
+    def release(self) -> None:  # noqa: B027
         pass
 
 
@@ -40,14 +40,14 @@ class ImageSource(FrameSource):
     def __init__(self, path: str):
         # 한글 경로 대비: np.fromfile + imdecode
         data = np.fromfile(path, dtype=np.uint8)
-        self._frame = cv2.imdecode(data, cv2.IMREAD_COLOR)
+        self._frame: np.ndarray = cv2.imdecode(data, cv2.IMREAD_COLOR)  # type: ignore[assignment]
         if self._frame is None:
             raise ValueError(f"이미지 디코딩 실패: {path}")
         self.is_seekable = False
         self.fps = 1.0
         self.frame_count = 1
 
-    def read(self) -> Optional[np.ndarray]:
+    def read(self) -> np.ndarray | None:
         return self._frame.copy()
 
 
@@ -62,7 +62,7 @@ class VideoFileSource(FrameSource):
         self.fps = self._cap.get(cv2.CAP_PROP_FPS) or 30.0
         self.frame_count = int(self._cap.get(cv2.CAP_PROP_FRAME_COUNT)) or 0
 
-    def read(self) -> Optional[np.ndarray]:
+    def read(self) -> np.ndarray | None:
         ok, frame = self._cap.read()
         return frame if ok else None
 
@@ -84,7 +84,7 @@ def _resolve_stream_url(url: str) -> str:
         raise RuntimeError("yt-dlp 미설치 — pip install yt-dlp") from e
     with YoutubeDL({"quiet": True, "format": "best[ext=mp4]/best"}) as ydl:
         info = ydl.extract_info(url, download=False)
-        return info["url"]
+        return info["url"]  # type: ignore[no-any-return]
 
 
 _PAGE_HOSTS = ("youtube.com", "youtu.be")
@@ -100,11 +100,11 @@ class UrlStreamSource(FrameSource):
         self._cap = cv2.VideoCapture(open_url)
         if not self._cap.isOpened():
             raise ValueError(f"스트림 열기 실패: {url}")
-        self.is_seekable = False           # 라이브/스트림은 seek 불가로 단순화
+        self.is_seekable = False  # 라이브/스트림은 seek 불가로 단순화
         self.fps = self._cap.get(cv2.CAP_PROP_FPS) or 30.0
         self.frame_count = 0
 
-    def read(self) -> Optional[np.ndarray]:
+    def read(self) -> np.ndarray | None:
         ok, frame = self._cap.read()
         return frame if ok else None
 

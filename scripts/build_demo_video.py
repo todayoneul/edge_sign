@@ -19,6 +19,7 @@
   python scripts/build_demo_video.py --list           # 사용 가능한 시퀀스 나열
   python scripts/build_demo_video.py --all             # 모든 test 시퀀스 합성
 """
+
 import argparse
 import subprocess
 import sys
@@ -45,7 +46,7 @@ def sorted_frames(seq_dir: Path):
     """숫자 prefix는 정수 정렬, 그 외(a... 등)는 문자열 정렬로 뒤에 배치."""
     jpgs = list(seq_dir.glob("*.jpg"))
     numeric = sorted([p for p in jpgs if p.stem.isdigit()], key=lambda p: int(p.stem))
-    other   = sorted([p for p in jpgs if not p.stem.isdigit()], key=lambda p: p.stem)
+    other = sorted([p for p in jpgs if not p.stem.isdigit()], key=lambda p: p.stem)
     return numeric + other
 
 
@@ -73,6 +74,7 @@ def _encode(frames, out_path: Path, fps: int, scale_w: int, crf: int, tag: str) 
     if not frames:
         return None
     import cv2
+
     out_path.parent.mkdir(parents=True, exist_ok=True)
     dur = 1.0 / fps
 
@@ -91,11 +93,28 @@ def _encode(frames, out_path: Path, fps: int, scale_w: int, crf: int, tag: str) 
     out_h = int(round(src_h * scale_w / src_w / 2)) * 2
     vf = f"scale={scale_w}:{out_h}"
     cmd = [
-        "ffmpeg", "-y",
-        "-f", "concat", "-safe", "0", "-i", str(list_path),
-        "-vsync", "vfr", "-vf", vf,
-        "-c:v", "libx264", "-preset", "veryfast", "-crf", str(crf),
-        "-pix_fmt", "yuv420p", "-movflags", "+faststart",
+        "ffmpeg",
+        "-y",
+        "-f",
+        "concat",
+        "-safe",
+        "0",
+        "-i",
+        str(list_path),
+        "-vsync",
+        "vfr",
+        "-vf",
+        vf,
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        str(crf),
+        "-pix_fmt",
+        "yuv420p",
+        "-movflags",
+        "+faststart",
         str(out_path),
     ]
     res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
@@ -104,7 +123,9 @@ def _encode(frames, out_path: Path, fps: int, scale_w: int, crf: int, tag: str) 
         print(f"[오류] ffmpeg 실패 ({tag}):\n{res.stderr[-1200:]}")
         return None
     size_mb = out_path.stat().st_size / 1e6
-    print(f"[완료] {out_path.name}  ({len(frames)} frames, {size_mb:.1f} MB, ~{len(frames)/fps:.0f}s)  [{tag}]")
+    print(
+        f"[완료] {out_path.name}  ({len(frames)} frames, {size_mb:.1f} MB, ~{len(frames) / fps:.0f}s)  [{tag}]"
+    )
     return out_path
 
 
@@ -119,8 +140,9 @@ def build(seq_dir: Path, fps: int, scale_w: int = 1280, crf: int = 24) -> Path:
     return _encode(frames, out_path, fps, scale_w, crf, "full")
 
 
-def build_clips(seq_dir: Path, fps: int, scale_w: int, crf: int,
-                gap: int, min_len: int, top_n: int) -> int:
+def build_clips(
+    seq_dir: Path, fps: int, scale_w: int, crf: int, gap: int, min_len: int, top_n: int
+) -> int:
     """시퀀스를 '같은 위치' 연속 구간별 개별 mp4로 분할 저장.
 
     출력: data/demo_videos/<seq>_clips/clip_01.mp4 ...
@@ -138,7 +160,9 @@ def build_clips(seq_dir: Path, fps: int, scale_w: int, crf: int,
 
     clip_dir = OUT_DIR / f"{seq_dir.name}_clips"
     clip_dir.mkdir(parents=True, exist_ok=True)
-    print(f"[클립] {seq_dir.name}: {len(runs)}개 위치 클립 (fps={fps}, min_len={min_len}) → {clip_dir.name}/")
+    print(
+        f"[클립] {seq_dir.name}: {len(runs)}개 위치 클립 (fps={fps}, min_len={min_len}) → {clip_dir.name}/"
+    )
     n = 0
     for i, run in enumerate(runs, 1):
         out = clip_dir / f"clip_{i:02d}_{run[0].stem}.mp4"
@@ -149,19 +173,28 @@ def build_clips(seq_dir: Path, fps: int, scale_w: int, crf: int,
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--seq", default="d_validation_1920_1080_daylight_2",
-                    help="test 시퀀스 디렉토리명")
-    ap.add_argument("--fps", type=int, default=6,
-                    help="출력 fps (클립 모드는 낮게 — 일시정지하며 Q&A 하기 좋게)")
+    ap.add_argument(
+        "--seq", default="d_validation_1920_1080_daylight_2", help="test 시퀀스 디렉토리명"
+    )
+    ap.add_argument(
+        "--fps",
+        type=int,
+        default=6,
+        help="출력 fps (클립 모드는 낮게 — 일시정지하며 Q&A 하기 좋게)",
+    )
     ap.add_argument("--scale", type=int, default=1280, help="출력 너비(px), 높이는 비율 유지")
     ap.add_argument("--crf", type=int, default=24, help="H.264 품질(낮을수록 고화질/대용량)")
     ap.add_argument("--list", action="store_true", help="사용 가능한 시퀀스 나열")
     ap.add_argument("--all", action="store_true", help="모든 test 시퀀스 합성")
     # 클립 분할 모드 (기본값) — 같은 위치 연속 구간을 개별 영상으로
-    ap.add_argument("--full", action="store_true",
-                    help="분할하지 않고 시퀀스 전체를 단일 영상으로 (몽타주, 위치 점프 많음)")
-    ap.add_argument("--gap", type=int, default=10,
-                    help="타임스탬프 간격이 이보다 크면 다른 위치로 분할")
+    ap.add_argument(
+        "--full",
+        action="store_true",
+        help="분할하지 않고 시퀀스 전체를 단일 영상으로 (몽타주, 위치 점프 많음)",
+    )
+    ap.add_argument(
+        "--gap", type=int, default=10, help="타임스탬프 간격이 이보다 크면 다른 위치로 분할"
+    )
     ap.add_argument("--min_len", type=int, default=8, help="클립 최소 프레임 수")
     ap.add_argument("--top_n", type=int, default=12, help="가장 긴 클립 N개만 추출")
     args = ap.parse_args()
@@ -176,8 +209,11 @@ def main():
         print("먼저 실행: python scripts/prepare_korean_traffic.py (또는 extract_frames.py)")
         sys.exit(1)
 
-    targets = (sorted([d for d in TEST_IMG_DIR.iterdir() if d.is_dir()])
-               if args.all else [TEST_IMG_DIR / args.seq])
+    targets = (
+        sorted([d for d in TEST_IMG_DIR.iterdir() if d.is_dir()])
+        if args.all
+        else [TEST_IMG_DIR / args.seq]
+    )
 
     for seq_dir in targets:
         if not seq_dir.exists():
@@ -188,8 +224,7 @@ def main():
         if args.full:
             build(seq_dir, args.fps if args.fps else 15, args.scale, args.crf)
         else:
-            build_clips(seq_dir, args.fps, args.scale, args.crf,
-                        args.gap, args.min_len, args.top_n)
+            build_clips(seq_dir, args.fps, args.scale, args.crf, args.gap, args.min_len, args.top_n)
 
 
 if __name__ == "__main__":

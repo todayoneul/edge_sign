@@ -18,6 +18,7 @@ YOLOv8n → ONNX 내보내기 + 선택적 INT8 양자화.
   model_space/yolov8n_signs_fp16.onnx
   model_space/yolov8n_signs_int8.onnx
 """
+
 import argparse
 import sys
 from pathlib import Path
@@ -50,6 +51,7 @@ def export_onnx(weights, half=False, simplify=True, output_name=None):
         dst_path = MODEL_SPACE / f"yolov8n_signs_{precision}.onnx"
     if src_path.exists():
         import shutil
+
         shutil.copy2(src_path, dst_path)
         size_mb = dst_path.stat().st_size / (1024 * 1024)
         print(f"\nExported: {dst_path} ({size_mb:.2f} MB)")
@@ -59,7 +61,7 @@ def export_onnx(weights, half=False, simplify=True, output_name=None):
 def quantize_int8(onnx_path):
     """ONNX Runtime 동적 INT8 양자화 (src/quantize_int8.py 패턴)."""
     try:
-        from onnxruntime.quantization import quantize_dynamic, QuantType
+        from onnxruntime.quantization import QuantType, quantize_dynamic
     except ImportError:
         print("onnxruntime not installed. Run: pip install onnxruntime")
         sys.exit(1)
@@ -83,8 +85,8 @@ def quantize_int8(onnx_path):
 def verify_onnx(onnx_path):
     """ONNX 모델 추론 검증."""
     try:
-        import onnxruntime as ort
         import numpy as np
+        import onnxruntime as ort
     except ImportError:
         print("Skipping verification (onnxruntime not available)")
         return
@@ -109,8 +111,9 @@ def main():
     parser.add_argument("--half", action="store_true", help="FP16으로 내보내기")
     parser.add_argument("--quantize", choices=["none", "int8"], default="none", help="양자화 방법")
     parser.add_argument("--verify", action="store_true", default=True, help="내보내기 후 검증")
-    parser.add_argument("--output", type=str, default=None,
-                        help="출력 파일명 (model_space/ 기준, 미지정 시 기본명)")
+    parser.add_argument(
+        "--output", type=str, default=None, help="출력 파일명 (model_space/ 기준, 미지정 시 기본명)"
+    )
     args = parser.parse_args()
 
     onnx_path = export_onnx(args.weights, half=args.half, output_name=args.output)
