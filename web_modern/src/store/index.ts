@@ -11,6 +11,10 @@ export interface ToastItem {
 interface State {
   connected: boolean;
   sourceKind: "none" | "stream" | "session";
+  /** 추론 위치: server=서버 WS 추론, ondevice=브라우저 ORT-Web(WebGPU) 추론 */
+  pipelineMode: "server" | "ondevice";
+  /** 온디바이스 검출기 정밀도: fp32=빠름(43MB), fp16=작음(22MB) */
+  ondeviceModel: "fp32" | "fp16";
   playing: boolean;
   tracks: Track[];
   totalDetections: number;
@@ -36,6 +40,8 @@ interface State {
   _toastSeq: number;
 
   setFrame: (r: FrameResult) => void;
+  setPipelineMode: (m: "server" | "ondevice") => void;
+  setOndeviceModel: (m: "fp32" | "fp16") => void;
   setConnected: (b: boolean) => void;
   setTab: (t: "tracks" | "qa") => void;
   setByok: (k: string) => void;
@@ -51,6 +57,8 @@ interface State {
 export const useStore = create<State>((set, get) => ({
   connected: false,
   sourceKind: "none",
+  pipelineMode: "server",
+  ondeviceModel: "fp32",
   playing: false,
   tracks: [],
   totalDetections: 0,
@@ -81,6 +89,8 @@ export const useStore = create<State>((set, get) => ({
       };
     }),
 
+  setPipelineMode: (m) => set({ pipelineMode: m }),
+  setOndeviceModel: (m) => set({ ondeviceModel: m }),
   setConnected: (b) => set({ connected: b }),
   setTab: (t) => set({ activeTab: t }),
   setByok: (k) => {

@@ -303,6 +303,21 @@
 
 ---
 
+## SP-C — React/Vite 프론트 전환 + 단일화 (2026-06-05)
+
+> 상용화 고도화 3단계. 메인 콘솔을 vanilla(`web/`) → React 19+Vite+TS(`web_modern/`)로 컷오버(커밋 `169fe5a`),
+> 양자화 A/B·Q&A·BYOK·통합 seek 패리티 완성. 본 작업에서 **레거시 `web/` 완전 제거 + 단일화**.
+
+- [x] React 컷오버 + 레거시 폴백 운영 → 패리티 검증 후 폴백(`/detection-legacy/`) 제거
+- [x] `web/` 제거 — OCR 캔버스 데모(Phase 1)는 `web_modern/public/ocr/`로 상속 → `/detection/ocr/` 체험,
+      헤더 'OCR 데모' 링크 추가. 샘플 영상은 의도적 제거(커밋 `9f7fb43`)와 일관되게 클립도 삭제.
+- [x] `app.py` dist 전용 서빙(폴백 제거) · `e2e_pipeline.py`/`Dockerfile`/`.dockerignore`의 `web/` 참조 정리
+- [x] `Dockerfile` 멀티스테이지(node 빌더 → `web_modern/dist`) — dist 커밋 불필요, OCR 자산 동봉
+- 게이트(그린): `web_modern` `npm run build`·`vitest`(19) · `ruff`/`mypy src/pipeline`(0) · `pytest tests/`(20 passed)
+  · 서버 스모크 `/detection/`·`/detection/ocr/`+자산 200 · `/detection-legacy/` 404
+
+---
+
 ## 최종 산출물 체크리스트
 - [ ] 연구 보고서 (실험 결과 + 분석)
 - [x] 시연 시스템 (웹 앱 — 범용 실시간 입력, Phase 7·10 기반) (2026-05-31)

@@ -5,13 +5,13 @@ Edge-Sign v2 E2E Pipeline
 
 재활용:
   - src/track/bytetrack.py → ByteTracker
-  - web/korean_ocr_quant.onnx  → KoreanOCRNet (char-level, 2350 classes)
+  - model_space/korean_ocr_net_w8a8.onnx → KoreanOCRNet (char-level, 2350 classes)
   - model_space/yolov8n_signs_*.onnx → YOLOv8n
 
 사용법:
   python src/pipeline/e2e_pipeline.py \\
     --yolo model_space/yolov8n_signs_fp32.onnx \\
-    --ocr  web/korean_ocr_quant.onnx \\
+    --ocr  model_space/korean_ocr_net_w8a8.onnx \\
     --input data/aihub_traffic/val/
 
   # 단일 이미지/프레임 디렉토리 테스트
@@ -69,7 +69,7 @@ def _load_kcls() -> dict:
     return _KCLS
 
 
-# OCR 인덱스→문자 매핑 (web/idx_to_char.json)
+# OCR 인덱스→문자 매핑 (data/idx_to_char.json, 폴백: web_modern OCR 데모 번들)
 _IDX_TO_CHAR: dict[int, str] | None = None
 
 
@@ -78,7 +78,7 @@ def _load_idx_to_char() -> dict[int, str]:
     if _IDX_TO_CHAR is None:
         p = ROOT / "data" / "idx_to_char.json"
         if not p.exists():
-            p = ROOT / "web" / "idx_to_char.json"
+            p = ROOT / "web_modern" / "public" / "ocr" / "idx_to_char.json"
         if p.exists():
             with open(p, encoding="utf-8") as f:
                 raw = json.load(f)

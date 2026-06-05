@@ -224,7 +224,7 @@ ReID 양자화  ──► 추적 IDF1 변화 (ID 재식별 정확도)
 └──────────┘ ◄────────── 스트리밍 답변
 ```
 
-**참조 패턴:** `web/app.js` (WebSocket, ONNX Runtime Web 클라이언트 패턴)
+**참조 패턴:** `web_modern/src/hooks/useStream.ts`·`lib/api.ts` (WebSocket 클라이언트), `web_modern/public/ocr/app.js` (ONNX Runtime Web 온디바이스 추론 패턴)
 
 ### 모드 2: 전체 클라이언트 사이드 (목표, Phase 5 이후)
 

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>스파이크 — 브라우저 온디바이스 YOLO (ORT-Web) FPS 실측</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <!-- ORT-Web은 spike.js(ES 모듈) 내부에서 webgpu ESM 번들을 import 한다.
+         (webgpu 번들은 import.meta 사용 → classic <script>로는 전역 ort가 안 잡힘) -->
+    <style>
+      :root { color-scheme: dark; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: 'Pretendard', system-ui, sans-serif;
+        background: #0a0b0e; color: #e8eaed; padding: 20px;
+        min-height: 100vh;
+      }
+      h1 { font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; }
+      .sub { color: #8b909a; font-size: 0.82rem; margin-bottom: 18px; }
+      .sub a { color: #6ea8fe; }
+      .layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.6fr); gap: 18px; align-items: start; }
+      @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+      .stage {
+        position: relative; background: #000; border-radius: 12px; overflow: hidden;
+        border: 1px solid #23252b; aspect-ratio: 4 / 3;
+      }
+      .stage video, .stage img, .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+      .stage canvas { pointer-events: none; }
+      .panel { background: #121419; border: 1px solid #23252b; border-radius: 12px; padding: 16px; }
+      .panel h2 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: #8b909a; margin-bottom: 12px; }
+      .row { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #1c1e24; }
+      .row:last-child { border-bottom: 0; }
+      .row .k { color: #9aa0aa; font-size: 0.84rem; }
+      .row .v { font-family: 'Fira Code', ui-monospace, monospace; font-size: 0.92rem; font-weight: 600; }
+      .v.big { font-size: 1.5rem; color: #4ade80; }
+      .v.ep { color: #fbbf24; }
+      .controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+      button, select {
+        font-family: inherit; font-size: 0.85rem; font-weight: 600;
+        padding: 10px 14px; border-radius: 8px; border: 1px solid #2c2f37;
+        background: #1b1e25; color: #e8eaed; cursor: pointer;
+      }
+      button.primary { background: #2563eb; border-color: #2563eb; }
+      button:disabled { opacity: 0.45; cursor: not-allowed; }
+      select { padding: 10px; }
+      .log {
+        margin-top: 14px; font-family: 'Fira Code', ui-monospace, monospace;
+        font-size: 0.74rem; line-height: 1.55; color: #9aa0aa;
+        background: #0c0e12; border: 1px solid #1c1e24; border-radius: 8px;
+        padding: 10px; max-height: 220px; overflow-y: auto; white-space: pre-wrap;
+      }
+      .note { margin-top: 16px; font-size: 0.78rem; color: #6b7280; line-height: 1.6; }
+      .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; }
+      .badge.ok { background: rgba(74,222,128,0.15); color: #4ade80; }
+      .badge.warn { background: rgba(251,191,36,0.15); color: #fbbf24; }
+      .badge.err { background: rgba(248,113,113,0.15); color: #f87171; }
+    </style>
+  </head>
+  <body>
+    <div id="fatal" style="display:none; background:#7f1d1d; color:#fff; padding:12px 14px; border-radius:8px; margin-bottom:14px; font-size:0.85rem; white-space:pre-wrap;"></div>
+    <h1>🔬 타당성 스파이크 — 브라우저 온디바이스 YOLO (ORT-Web)</h1>
+    <p class="sub">
+      서버 추론 없이 브라우저에서 검출기를 직접 돌려 <b>FPS·실행 백엔드(EP)·INT8 구동 여부</b>를 실측합니다.
+      메인 콘솔로 → <a href="../">/detection/</a>
+    </p>
+
+    <div class="controls">
+      <select id="model-sel">
+        <option value="/models/yolov8s_signs_v3_fp16.onnx">검출기 FP16 (22MB) ★WebGPU</option>
+        <option value="/models/yolov8s_signs_v3_fp32.onnx">검출기 FP32 (43MB)</option>
+        <option value="/models/yolov8s_signs_v3_int8_static.onnx">검출기 INT8 (18MB, WASM만)</option>
+      </select>
+      <select id="ep-sel">
+        <option value="auto">EP: 자동 (WebGPU→WASM)</option>
+        <option value="webgpu">EP: WebGPU 강제</option>
+        <option value="wasm">EP: WASM 강제</option>
+      </select>
+      <button id="load-btn" class="primary" disabled>① 모델 로드</button>
+      <span style="width: 1px; height: 28px; background: #2c2f37; margin: 0 4px;"></span>
+      <button id="cam-btn" disabled>웹캠</button>
+      <button id="file-btn" disabled>이미지/동영상 파일</button>
+      <button id="synth-btn" disabled>테스트 프레임(자동)</button>
+      <button id="stop-btn" disabled>정지</button>
+      <input id="file-input" type="file" accept="image/*,video/*" style="display: none" />
+    </div>
+
+    <div class="layout">
+      <div class="stage">
+        <video id="video" muted playsinline loop></video>
+        <img id="still" alt="" style="display: none" />
+        <canvas id="overlay"></canvas>
+      </div>
+
+      <div class="panel">
+        <h2>실측 지표</h2>
+        <div class="row"><span class="k">처리 FPS</span><span class="v big" id="m-fps">—</span></div>
+        <div class="row"><span class="k">추론 지연 (avg)</span><span class="v" id="m-infer">— ms</span></div>
+        <div class="row"><span class="k">활성 백엔드 (EP)</span><span class="v ep" id="m-ep">—</span></div>
+        <div class="row"><span class="k">모델 로드 시간</span><span class="v" id="m-load">—</span></div>
+        <div class="row"><span class="k">검출 수</span><span class="v" id="m-det">—</span></div>
+        <div class="row"><span class="k">전처리+후처리</span><span class="v" id="m-pp">— ms</span></div>
+        <div class="log" id="log"></div>
+        <p class="note">
+          ※ WASM 멀티스레드/SIMD는 cross-origin isolation(COOP/COEP) 헤더가 있어야 최대 성능이 납니다.
+          이 스파이크는 헤더 없이 측정하므로 WASM은 보수적(저성능) 기준선입니다. WebGPU가 핵심 지표입니다.
+        </p>
+      </div>
+    </div>
+
+    <script type="module" src="spike.js?v=5"></script>
+  </body>
+</html>

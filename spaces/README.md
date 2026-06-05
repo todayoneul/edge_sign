@@ -30,8 +30,10 @@ short_description: 초경량 양자화 검출·추적·인식 실시간 데모 (
 
 ## 배포 메모 (이 폴더를 Space 루트로)
 - 이 `spaces/README.md`의 내용을 **Space 리포 루트의 `README.md`**로 사용해야 HF가 YAML 헤더를 인식합니다.
-- 본 메인 리포의 `Dockerfile`·`requirements-hf.txt`·`src/`·`web/`·필요 `model_space/*.onnx`·
-  `data/roi_cls/classes.json`·`data/idx_to_char.json`을 Space 리포에 포함(대용량 onnx·mp4는 **git LFS**).
+- 본 메인 리포의 `Dockerfile`·`requirements-hf.txt`·`src/`·`web_modern/`(node_modules·dist 제외)·
+  필요 `model_space/*.onnx`·`data/roi_cls/classes.json`·`data/idx_to_char.json`을 Space 리포에 포함
+  (대용량 onnx는 **git LFS**). Dockerfile 멀티스테이지가 node 빌더로 `web_modern/dist`를 생성하므로
+  dist를 직접 커밋할 필요는 없음(OCR 데모 자산은 `web_modern/public/ocr/`에 동봉).
 - CPU 전용: `EDGE_SIGN_CPU_ONLY=1`(Dockerfile에 설정). GPU 불필요.
 - 서버 키가 필요 없도록 Q&A는 BYOK 기본. (원한다면 Space Secret `GROQ_API_KEY`로 서버 폴백 가능.)
 

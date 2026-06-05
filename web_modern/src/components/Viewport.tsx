@@ -21,6 +21,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useStore } from "../store";
 import { useStream } from "../hooks/useStream";
+import { useClientPipeline } from "../hooks/useClientPipeline";
 import { useSession } from "../hooks/useSession";
 import { useHotkeys } from "../hooks/useHotkeys";
 import { renderTracks } from "../lib/draw";
@@ -32,6 +33,16 @@ import PerfStrip from "./PerfStrip";
 // 오프스크린 캔버스 (sendFrame용, 컴포넌트 라이프사이클 밖 싱글턴)
 const _cap = document.createElement("canvas");
 const _cctx = _cap.getContext("2d")!;
+
+// 온디바이스 모드 전용 640×640 캡처 캔버스 (ORT-Web 입력)
+const _cap640 = document.createElement("canvas");
+_cap640.width = 640;
+_cap640.height = 640;
+const _cctx640 = _cap640.getContext("2d", { willReadFrequently: true })!;
+
+// ROI 크롭 캔버스 (온디바이스 인식 — bbox 영역을 size×size RGBA로)
+const _roi = document.createElement("canvas");
+const _rctx = _roi.getContext("2d", { willReadFrequently: true })!;
 
 /** 모드 구분 — app.js state.mode */
 type Mode = "client" | "server";
@@ -72,6 +83,15 @@ export default function Viewport() {
 
   const stream = useStream(10);
   const session = useSession();
+  const client = useClientPipeline();
+  const pipelineMode = useStore((s) => s.pipelineMode);
+  const ondeviceModel = useStore((s) => s.ondeviceModel);
+  const recordFps = useStore((s) => s.recordFps);
+  const pushToast = useStore((s) => s.pushToast);
+  // 온디바이스 추론 루프 (setInterval; busy 가드로 비중첩)
+  const clientTimerRef = useRef<number | null>(null);
+  const clientBusyRef = useRef(false);
+  const fpsEmaRef = useRef(0);
 
   // 서버 프레임의 w/h를 sentDimsRef에 반영 (overlay letterbox 계산 기준)
   // useSession이 store.setFrame을 통해 트랙을 올리므로, seekInfo.pos 변화 시 체크
@@ -175,9 +195,84 @@ export default function Viewport() {
     return () => ro.disconnect();
   }, [renderOverlay]);
 
+  // ── 온디바이스 추론 루프 (클라 캡처 모드 + pipelineMode==='ondevice') ──────
+  const stopClientLoop = useCallback(() => {
+    if (clientTimerRef.current != null) {
+      clearInterval(clientTimerRef.current);
+      clientTimerRef.current = null;
+    }
+  }, []);
+
+  const startClientLoop = useCallback(() => {
+    stopClientLoop();
+    let last = performance.now();
+    clientTimerRef.current = window.setInterval(() => {
+      const video = videoRef.current;
+      if (!video || video.readyState < 2 || video.paused || clientBusyRef.current) return;
+      clientBusyRef.current = true;
+      const vw = video.videoWidth || 640;
+      const vh = video.videoHeight || 480;
+      _cctx640.drawImage(video, 0, 0, 640, 640);
+      const rgba = _cctx640.getImageData(0, 0, 640, 640).data;
+      sentDimsRef.current = { w: vw, h: vh };
+      // ROI 샘플러 — bbox(원본 좌표) 영역을 size×size RGBA로 크롭 (인식용)
+      const roiSampler = (bbox: [number, number, number, number], size: number) => {
+        const sw = bbox[2] - bbox[0];
+        const sh = bbox[3] - bbox[1];
+        if (sw <= 0 || sh <= 0) return null;
+        _roi.width = size;
+        _roi.height = size;
+        _rctx.drawImage(video, bbox[0], bbox[1], sw, sh, 0, 0, size, size);
+        return _rctx.getImageData(0, 0, size, size).data;
+      };
+      void client
+        .processFrame(rgba, vw, vh, roiSampler)
+        .then((r) => {
+          if (r) {
+            useStore.getState().setFrame(r);
+            const now = performance.now();
+            const fps = 1000 / Math.max(1, now - last);
+            last = now;
+            fpsEmaRef.current = fpsEmaRef.current ? fpsEmaRef.current * 0.8 + fps * 0.2 : fps;
+            recordFps(Math.round(fpsEmaRef.current * 10) / 10);
+          }
+        })
+        .catch(() => {})
+        .finally(() => {
+          clientBusyRef.current = false;
+        });
+    }, 33);
+  }, [client, stopClientLoop, recordFps]);
+
+  /** 클라 캡처 추론 시작 — 모드에 따라 서버 WS(stream) 또는 온디바이스 루프. */
+  const startCaptureInference = useCallback(async () => {
+    if (pipelineMode === "ondevice") {
+      const modelUrl =
+        ondeviceModel === "fp16"
+          ? "/models/yolov8s_signs_v3_fp16.onnx"
+          : "/models/yolov8s_signs_v3_fp32.onnx";
+      setStageStatus("온디바이스 모델 로딩… (최초 1회 ~수초)");
+      try {
+        await client.ensureLoaded(modelUrl);
+      } catch {
+        setStageStatus("온디바이스 로드 실패 — 서버 모드로 폴백");
+        stream.reset();
+        stream.start(getFrame);
+        return;
+      }
+      setStageStatusLive(true);
+      startClientLoop();
+    } else {
+      stream.reset();
+      stream.start(getFrame);
+    }
+  }, [pipelineMode, ondeviceModel, client, startClientLoop, stream, getFrame]);
+
   // ── 공통 stopAll — 두 모드 모두 정리 ─────────────────────────────────────
   const stopAll = useCallback(() => {
     stream.stop();
+    stopClientLoop();
+    client.reset();
     session.stop();
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
@@ -206,7 +301,7 @@ export default function Viewport() {
     setStageStatusLive(false);
     setStageStatus("정지됨 — 영상을 시작하세요");
     useStore.getState().reset();
-  }, [stream, session]);
+  }, [stream, session, stopClientLoop, client]);
 
   // ── 서버 인제스트 공통 진입점 (app.js ingest + startServerStream) ───────
   const startIngest = useCallback(
@@ -270,6 +365,16 @@ export default function Viewport() {
     }
   }, [session.ended, mode]);
 
+  // 온디바이스 모델 로드 상태 → 토스트 (준비 완료 / 실패 폴백)
+  useEffect(() => {
+    if (client.status.loaded) {
+      pushToast(`온디바이스 추론 준비 완료 · ${client.status.ep.toUpperCase()}`, "ok");
+    }
+  }, [client.status.loaded, client.status.ep, pushToast]);
+  useEffect(() => {
+    if (client.status.error) pushToast("온디바이스 로드 실패 — 서버 모드로 폴백", "warn");
+  }, [client.status.error, pushToast]);
+
   // sourceKind가 session으로 바뀌었을 때 img 표시 보정
   useEffect(() => {
     const img = streamImgRef.current;
@@ -303,13 +408,12 @@ export default function Viewport() {
       setSeekbarVisible(true);
       setStageStatus("웹캠 — 실시간 스트리밍 중");
       setStageStatusLive(true);
-      stream.reset();
-      stream.start(getFrame);
+      void startCaptureInference();
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       setStageStatus(`웹캠 접근 실패: ${msg}`);
     }
-  }, [stopAll, stream, getFrame]);
+  }, [stopAll, startCaptureInference]);
 
   // ── loadVideoFile ─────────────────────────────────────────────────────────
   const loadVideoFile = useCallback(
@@ -351,11 +455,10 @@ export default function Viewport() {
         setSeekbarVisible(true);
         setStageStatus(`재생 중 · ${file.name}`);
         setStageStatusLive(true);
-        stream.reset();
-        stream.start(getFrame);
+        void startCaptureInference();
       }).catch(fallback);
     },
-    [stopAll, startIngest, stream, getFrame, playbackRate],
+    [stopAll, startIngest, startCaptureInference, playbackRate],
   );
 
   // ── handleUrl (Controls URL 입력 → 서버 인제스트) ────────────────────────
@@ -390,13 +493,16 @@ export default function Viewport() {
           setIsPlaying(true);
           setStageStatus("다시 재생 중");
           setStageStatusLive(true);
-          stream.reset();
-          stream.start(getFrame);
+          // 온디바이스 모드는 클라 루프가 video.paused로 자가 게이팅 → 서버 스트림 미시작
+          if (pipelineMode !== "ondevice") {
+            stream.reset();
+            stream.start(getFrame);
+          }
         }).catch(() => {});
       } else if (video.paused) {
         video.play().then(() => {
           setIsPlaying(true);
-          stream.start(getFrame);
+          if (pipelineMode !== "ondevice") stream.start(getFrame);
         }).catch(() => {});
       } else {
         video.pause();
@@ -404,7 +510,7 @@ export default function Viewport() {
         stream.stop();
       }
     }
-  }, [mode, session, stream, getFrame]);
+  }, [mode, session, stream, getFrame, pipelineMode]);
 
   // session.serverPlaying 변화를 isPlaying에 반영 (서버 pause/play 제어 후)
   useEffect(() => {
@@ -434,14 +540,16 @@ export default function Viewport() {
           setIsPlaying(true);
           setStageStatus("다시 재생 중");
           setStageStatusLive(true);
-          stream.reset();
-          stream.start(getFrame);
+          if (pipelineMode !== "ondevice") {
+            stream.reset();
+            stream.start(getFrame);
+          }
         }).catch(() => {});
         return;
       }
       video.currentTime = Math.max(0, video.currentTime - 5);
     }
-  }, [mode, session, stream, getFrame]);
+  }, [mode, session, stream, getFrame, pipelineMode]);
 
   const stepFwd = useCallback(() => {
     if (mode === "server") {
@@ -611,6 +719,17 @@ export default function Viewport() {
             }
             onWebcam={startWebcam}
           />
+        )}
+
+        {/* 온디바이스 모델 로딩 오버레이 (최초 1회 다운로드+컴파일) */}
+        {client.status.loading && (
+          <div className="od-loading" role="status" aria-live="polite">
+            <span className="od-spinner" aria-hidden="true" />
+            <span>
+              온디바이스 모델 로딩…
+              <small>최초 1회 · WebGPU 컴파일</small>
+            </span>
+          </div>
         )}
 
         {/* ── 재생 트랜스포트 바 (뷰포트 내부 오버레이) ── */}

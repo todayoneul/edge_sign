@@ -11,6 +11,9 @@
   --c-sign:  #22c55e;   /* 교통표지판 */
   --c-light: #ef4444;   /* 신호등 */
   --c-board: #f59e0b;   /* 간판 */
+  /* 온디바이스(브라우저 GPU/compute) 액센트 — 추론 위치 강조 */
+  --c-edge:  #7c8cff;
+  --c-edge-ink: #ffffff;
 
   /* 간격 스케일 (8px 리듬) */
   --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;

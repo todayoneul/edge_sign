@@ -112,30 +112,30 @@ export function renderTracks(
     const label = t.label ?? t.class_name;
     const txt = `#${t.id}  ${label}  ${(t.conf * 100).toFixed(0)}%`;
 
-    ctx.font = "600 12px 'Fira Code','Pretendard',monospace";
+    ctx.font = "600 15px 'Fira Code','Pretendard',monospace";
     const tw = ctx.measureText(txt).width;
 
-    const padX = 7;  // 수평 패딩
-    const ph = 19;   // pill 높이
+    const padX = 9;  // 수평 패딩
+    const ph = 24;   // pill 높이
     // pill y: 박스 위쪽에, 화면 위에 잘리지 않도록 max(..., 2)
-    const ly = Math.max(by - ph - 3, 2);
-    const pillW = tw + padX * 2 + 10; // 점(dot) 여백 10px 포함
+    const ly = Math.max(by - ph - 4, 2);
+    const pillW = tw + padX * 2 + 12; // 점(dot) 여백 12px 포함
 
-    // pill 배경 (class color 채움, radius 6)
-    roundRect(ctx, bx, ly, pillW, ph, 6);
+    // pill 배경 (class color 채움, radius 7)
+    roundRect(ctx, bx, ly, pillW, ph, 7);
     ctx.fillStyle = color;
     ctx.fill();
 
-    // 점 (반경 2.5, 어두운 색)
+    // 점 (반경 3, 어두운 색)
     ctx.fillStyle = "rgba(0,0,0,0.85)";
     ctx.beginPath();
-    ctx.arc(bx + padX + 2, ly + ph / 2, 2.5, 0, Math.PI * 2);
+    ctx.arc(bx + padX + 3, ly + ph / 2, 3, 0, Math.PI * 2);
     ctx.fill();
 
     // 라벨 텍스트 (어두운 색, 세로 중앙)
     ctx.fillStyle = "#0a0a0a";
     ctx.textBaseline = "middle";
-    ctx.fillText(txt, bx + padX + 10, ly + ph / 2 + 0.5);
+    ctx.fillText(txt, bx + padX + 13, ly + ph / 2 + 0.5);
 
     // ── 신뢰도 바 — 박스 하단 내부 (app.js lines 291-293) ───────────────────
     // height 2.5, width = bw * conf (conf ≤ 1), globalAlpha 0.9
