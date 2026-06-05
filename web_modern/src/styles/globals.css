@@ -10,8 +10,10 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* 전역 글자 스케일 업 — 모든 rem 1.125× (가독성). 콘솔 정보밀도 유지하며 크게. */
-html { font-size: 18px; }
+/* 전역 글자 스케일 업 — 루트 폰트가 모든 rem의 기준(폰트 47곳이 rem).
+   20px = 16px 기본의 1.25× → 헤더·PerfStrip(양자화 A/B)·버튼·패널 텍스트 전부 확대.
+   (가독성 우선. 더 키우려면 이 값만 올리면 됨 — 단 100dvh 고정 레이아웃이라 과하면 클리핑 주의) */
+html { font-size: 20px; }
 html, body { height: 100%; }
 
 body {
@@ -160,6 +162,24 @@ header {
   padding: 6px 11px; border: 1px solid var(--line-2); border-radius: var(--r-pill);
   color: var(--ink-2);
 }
+
+/* 추론 엔진 인디케이터 — 온디바이스(WebGPU)일 때 액센트 강조 */
+.engine-pill {
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+  font-family: var(--f-mono); font-size: 0.76rem; font-weight: 600;
+  letter-spacing: 0.04em; white-space: nowrap;
+  padding: 6px 11px; border-radius: var(--r-pill);
+  border: 1px solid var(--line-2); color: var(--ink-2);
+  transition: color var(--dur), border-color var(--dur), background var(--dur), box-shadow var(--dur);
+}
+.engine-pill svg { width: 15px; height: 15px; opacity: 0.85; }
+.engine-pill.ondevice {
+  color: var(--c-edge);
+  border-color: color-mix(in srgb, var(--c-edge) 55%, transparent);
+  background: color-mix(in srgb, var(--c-edge) 12%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--c-edge) 22%, transparent),
+              0 6px 18px -10px color-mix(in srgb, var(--c-edge) 70%, transparent);
+}
 #status-dot {
   width: 7px; height: 7px; border-radius: 50%; background: var(--ink-4);
   transition: background var(--dur);
@@ -172,7 +192,7 @@ header {
 }
 
 .icon-btn {
-  width: 44px; height: 44px; flex-shrink: 0;
+  width: 48px; height: 48px; flex-shrink: 0;
   display: grid; place-items: center;
   background: var(--surface-2); color: var(--ink);
   border: 1px solid var(--line); border-radius: var(--r-sm);
@@ -181,7 +201,7 @@ header {
 }
 .icon-btn:hover { background: var(--surface-3); border-color: var(--line-2); }
 .icon-btn:active { transform: scale(0.94); }
-.icon-btn svg { width: 20px; height: 20px; }
+.icon-btn svg { width: 22px; height: 22px; }
 .icon-btn .moon { display: none; }
 html[data-theme="dark"] .icon-btn .sun  { display: none; }
 html[data-theme="dark"] .icon-btn .moon { display: block; }
@@ -231,8 +251,10 @@ main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
   letter-spacing: -0.02em; line-height: 1.18; color: #fafafa;
 }
 #hero p.lead {
-  font-size: 0.92rem; color: rgba(255,255,255,0.6); max-width: 38ch; line-height: 1.6;
+  font-size: 0.92rem; color: rgba(255,255,255,0.6); max-width: 40ch; line-height: 1.6;
 }
+#hero p.lead b { color: #fafafa; font-weight: 600; }
+.hero-stat b .edge-accent, #hero .edge-accent { color: var(--c-edge); }
 .hero-stats {
   display: flex; gap: var(--sp-6); flex-wrap: wrap; justify-content: center;
   font-family: var(--f-mono); margin-top: var(--sp-1);
@@ -249,14 +271,14 @@ main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
 /* ── 버튼 ── */
 .btn {
   font-family: var(--f-sans); font-size: 0.84rem; font-weight: 500;
-  min-height: 46px; padding: 0 var(--sp-4);
+  min-height: 50px; padding: 0 var(--sp-5);
   display: inline-flex; align-items: center; gap: var(--sp-2);
   border-radius: var(--r-sm); border: 1px solid transparent; cursor: pointer;
   white-space: nowrap;
   transition: background var(--dur) var(--ease), border-color var(--dur),
               transform var(--dur), opacity var(--dur), color var(--dur);
 }
-.btn svg { width: 15px; height: 15px; }
+.btn svg { width: 17px; height: 17px; }
 .btn:active:not(:disabled) { transform: scale(0.97); }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .btn-primary { background: var(--invert-bg); color: var(--invert-ink); }
@@ -293,13 +315,28 @@ main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
 }
 .speed-val { color: var(--ink); font-weight: 500; min-width: 38px; }
 .pc-btn {
-  font-family: var(--f-mono); font-size: 0.78rem; font-weight: 500;
-  min-height: 40px; padding: 0 var(--sp-3);
+  font-family: var(--f-mono); font-size: 0.85rem; font-weight: 500;
+  min-height: 44px; padding: 0 var(--sp-3);
   background: var(--surface-2); color: var(--ink-2);
   border: 1px solid var(--line); border-radius: var(--r-sm); cursor: pointer;
   transition: color var(--dur), border-color var(--dur), background var(--dur);
 }
 .pc-btn:hover { color: var(--ink); border-color: var(--line-2); background: var(--surface-3); }
+
+/* 추론 위치 토글 (서버 ⇄ 온디바이스) */
+.mode-toggle {
+  display: inline-flex; flex-shrink: 0;
+  border: 1px solid var(--line); border-radius: var(--r-sm);
+  overflow: hidden; background: var(--surface-2);
+}
+.mode-btn {
+  font-family: var(--f-mono); font-size: 0.78rem; font-weight: 600;
+  padding: 0 12px; min-height: 44px; background: transparent; color: var(--ink-3);
+  border: 0; cursor: pointer; transition: background var(--dur), color var(--dur);
+}
+.mode-btn + .mode-btn { border-left: 1px solid var(--line); }
+.mode-btn[aria-pressed="true"] { background: var(--invert-bg); color: var(--invert-ink); }
+.mode-btn:hover:not([aria-pressed="true"]) { color: var(--ink); }
 
 /* 드롭존 */
 #dropzone {
@@ -327,8 +364,8 @@ main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
 .viewport .seekbar {
   position: absolute; left: var(--sp-4); right: var(--sp-4); bottom: var(--sp-4);
   z-index: 4;
-  display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap;
-  padding: var(--sp-2) var(--sp-3);
+  display: flex; align-items: center; gap: var(--sp-4); flex-wrap: wrap;
+  padding: var(--sp-3) var(--sp-4);
   background: rgba(10, 11, 14, 0.62);
   backdrop-filter: blur(14px) saturate(1.25);
   -webkit-backdrop-filter: blur(14px) saturate(1.25);
@@ -343,7 +380,7 @@ main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
 .viewport .seekbar.hidden { display: none; }
 
 .viewport .seekbar #play-toggle {
-  width: 42px; height: 42px; flex-shrink: 0; padding: 0;
+  width: 50px; height: 50px; flex-shrink: 0; padding: 0;
   display: grid; place-items: center;
 }
 .viewport .seekbar .pc-btn {
@@ -355,25 +392,25 @@ main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
   border-color: rgba(255, 255, 255, 0.28);
 }
 .viewport .seekbar .pc-btn.step {
-  width: 38px; height: 38px; padding: 0; display: grid; place-items: center; flex-shrink: 0;
+  width: 44px; height: 44px; padding: 0; display: grid; place-items: center; flex-shrink: 0;
 }
 .seek-time {
   font-family: var(--f-mono); font-variant-numeric: tabular-nums;
-  font-size: 0.8rem; color: rgba(250, 250, 250, 0.85); min-width: 48px; text-align: center;
+  font-size: 0.92rem; color: rgba(250, 250, 250, 0.9); min-width: 58px; text-align: center;
 }
 #seek-range {
-  -webkit-appearance: none; appearance: none; flex: 1; min-width: 120px;
-  height: 6px; border-radius: var(--r-pill);
+  -webkit-appearance: none; appearance: none; flex: 1; min-width: 140px;
+  height: 9px; border-radius: var(--r-pill);
   background: rgba(255, 255, 255, 0.22); cursor: pointer;
 }
 #seek-range::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
   background: #fafafa; border: 3px solid rgba(10, 11, 14, 0.7); cursor: grab;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 #seek-range::-webkit-slider-thumb:active { cursor: grabbing; }
 #seek-range::-moz-range-thumb {
-  width: 18px; height: 18px; border-radius: 50%; background: #fafafa;
+  width: 22px; height: 22px; border-radius: 50%; background: #fafafa;
   border: 3px solid rgba(10, 11, 14, 0.7); cursor: grab;
 }
 #seek-range:disabled { opacity: 0.45; cursor: not-allowed; }
@@ -381,22 +418,22 @@ main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
 /* 속도 컨트롤 (트랜스포트 바 내부) */
 .speed-ctl {
   display: inline-flex; align-items: center; gap: var(--sp-2); flex-shrink: 0;
-  font-family: var(--f-mono); font-size: 0.76rem; color: rgba(250, 250, 250, 0.8);
+  font-family: var(--f-mono); font-size: 0.9rem; color: rgba(250, 250, 250, 0.9);
 }
 .speed-ctl input[type=range] {
   -webkit-appearance: none; appearance: none;
-  width: 84px; height: 3px; border-radius: var(--r-pill);
+  width: 120px; height: 7px; border-radius: var(--r-pill);
   background: rgba(255, 255, 255, 0.22); cursor: pointer;
 }
 .speed-ctl input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%;
+  -webkit-appearance: none; width: 19px; height: 19px; border-radius: 50%;
   background: #fafafa; border: 2px solid rgba(10, 11, 14, 0.7); cursor: pointer;
 }
 .speed-ctl input[type=range]::-moz-range-thumb {
-  width: 12px; height: 12px; border-radius: 50%; background: #fafafa;
+  width: 19px; height: 19px; border-radius: 50%; background: #fafafa;
   border: 2px solid rgba(10, 11, 14, 0.7); cursor: pointer;
 }
-.speed-ctl .speed-val { color: #fff; font-weight: 500; min-width: 42px; }
+.speed-ctl .speed-val { color: #fff; font-weight: 500; min-width: 54px; font-size: 0.92rem; }
 
 /* ── 성능 스트립 ── */
 .perf-strip {

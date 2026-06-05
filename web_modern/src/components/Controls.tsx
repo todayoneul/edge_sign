@@ -10,6 +10,7 @@
  */
 
 import { useRef, useState } from "react";
+import { useStore } from "../store";
 
 interface Props {
   playing: boolean;
@@ -33,6 +34,9 @@ export default function Controls({
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [urlValue, setUrlValue] = useState("");
+  const pipelineMode = useStore((s) => s.pipelineMode);
+  const setPipelineMode = useStore((s) => s.setPipelineMode);
+  const pushToast = useStore((s) => s.pushToast);
 
   function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
@@ -154,6 +158,35 @@ export default function Controls({
           </svg>
           URL
         </button>
+
+        {/* 추론 위치 토글: 서버 WS ⇄ 브라우저 온디바이스(WebGPU). 다음 소스 시작 시 적용. */}
+        <div
+          className="mode-toggle"
+          role="group"
+          aria-label="추론 위치"
+          title="추론을 서버에서 할지, 브라우저(WebGPU)에서 직접 할지"
+        >
+          {(["server", "ondevice"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              className="mode-btn"
+              aria-pressed={pipelineMode === m}
+              onClick={() => {
+                if (pipelineMode === m) return;
+                setPipelineMode(m);
+                pushToast(
+                  m === "ondevice"
+                    ? "온디바이스(WebGPU) — 다음 웹캠/영상 시작부터 브라우저에서 추론"
+                    : "서버 추론 모드로 전환",
+                  "ok",
+                );
+              }}
+            >
+              {m === "server" ? "서버" : "온디바이스"}
+            </button>
+          ))}
+        </div>
 
         <div className="spacer" />
         <span

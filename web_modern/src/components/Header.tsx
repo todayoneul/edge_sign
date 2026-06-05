@@ -77,7 +77,16 @@ export default function Header({ onToggleTheme, onOpenShortcuts }: Props) {
   const tracks = useStore((s) => s.tracks);
   const totalDetections = useStore((s) => s.totalDetections);
   const connected = useStore((s) => s.connected);
+  const pipelineMode = useStore((s) => s.pipelineMode);
+  const variant = useStore((s) => s.telemetry.variant);
   const [fpsHistory, setFpsHistory] = useState<number[]>([]);
+
+  const onDevice = pipelineMode === "ondevice";
+  const engineLabel = onDevice
+    ? variant?.includes("wasm")
+      ? "온디바이스 · WASM"
+      : "온디바이스 · WebGPU"
+    : "서버 추론";
 
   // Accumulate FPS history for sparkline (app.js fpsHistory max 48)
   const prevFps = useRef(0);
@@ -152,8 +161,20 @@ export default function Header({ onToggleTheme, onOpenShortcuts }: Props) {
         </div>
       </div>
 
-      {/* 오른쪽: 상태 필 + 버튼들 */}
+      {/* 오른쪽: 추론 엔진 + 상태 필 + 버튼들 */}
       <div className="header-right">
+        {/* 추론 위치 인디케이터 — 서버 vs 브라우저 온디바이스(WebGPU) */}
+        <span
+          className={`engine-pill${onDevice ? " ondevice" : ""}`}
+          title="현재 추론이 실행되는 위치"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="6" y="6" width="12" height="12" rx="2" />
+            <path d="M9 1.5v3M15 1.5v3M9 19.5v3M15 19.5v3M1.5 9h3M1.5 15h3M19.5 9h3M19.5 15h3" />
+          </svg>
+          {engineLabel}
+        </span>
+
         <span className="status-pill">
           <span
             id="status-dot"
@@ -162,6 +183,41 @@ export default function Header({ onToggleTheme, onOpenShortcuts }: Props) {
           />
           <span id="status-text">{connected ? "연결됨" : "대기"}</span>
         </span>
+
+        {/* Phase 1 한글 손글씨 OCR 캔버스 데모 (별도 페이지 — /detection/ocr/) */}
+        <a
+          className="icon-btn"
+          id="ocr-demo-link"
+          href="ocr/"
+          target="_blank"
+          rel="noopener"
+          title="한글 손글씨 OCR 데모 (Phase 1, 온디바이스 W8A8)"
+          aria-label="한글 OCR 데모 새 탭으로 열기"
+          style={{
+            width: "auto",
+            padding: "0 10px",
+            gap: 6,
+            display: "inline-flex",
+            alignItems: "center",
+            fontSize: "0.72rem",
+            fontWeight: 600,
+            textDecoration: "none",
+          }}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ width: 16, height: 16 }}
+          >
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
+          </svg>
+          OCR 데모
+        </a>
 
         {/* 단축키 도움말 버튼 (T8에서 모달 연결 완성) */}
         <button

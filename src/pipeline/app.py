@@ -2,8 +2,9 @@
 Edge-Sign v2 FastAPI 백엔드 서버
 
 엔드포인트:
-  GET  /                  → web/detection/index.html 서빙
-  GET  /detection/{file}  → web/detection/ 정적 파일
+  GET  /                  → /detection/ 리다이렉트
+  GET  /detection/{file}  → web_modern/dist/ 정적 파일 (React 빌드)
+  GET  /detection/ocr/    → Phase 1 한글 OCR 캔버스 데모 (public/ocr → dist/ocr)
   WS   /ws/stream         → 프레임 수신 → 파이프라인 → JSON 전송
   POST /api/qa            → context + question → Groq 스트리밍 답변 (SSE)
   GET  /api/status        → 파이프라인 상태
@@ -85,9 +86,10 @@ YOLO_ONNX = next(iter(YOLO_VARIANTS.values()), "")  # status 표시용 대표 �
 OCR_ONNX = str(ROOT / "model_space" / "korean_ocr_net_w8a8.onnx")
 # 분류기는 FP32 사용 (114KB로 작음 + 동적 INT8은 CPU EP ConvInteger 미지원)
 TSIGN_ONNX = str(ROOT / "model_space" / "korean_sign_net_fp32.onnx")
-# 프론트 정적 서빙 — 신규 React 빌드(web_modern/dist) 우선, 없으면 레거시 vanilla 폴백.
-# vanilla는 항상 /detection-legacy/ 에도 유지(패리티 비교·폴백). API 로직 무변경.
-WEB_LEGACY = ROOT / "web" / "detection"
+# 프론트 정적 서빙 — React 빌드(web_modern/dist)만 서빙.
+# dist는 `cd web_modern && npm run build`(또는 Docker 빌더 스테이지)로 생성한다.
+# Phase 1 OCR 캔버스 데모는 web_modern/public/ocr → dist/ocr 로 함께 번들되어
+# /detection/ocr/ 에서 체험 가능. (구 web/ 디렉토리는 web_modern으로 통합·제거됨)
 WEB_DIST = ROOT / "web_modern" / "dist"
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -103,16 +105,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 정적 파일 — /detection/ 은 dist(신규 React) 우선, 부재 시 레거시. /detection-legacy/ 는 항상 vanilla.
-_web_main = WEB_DIST if WEB_DIST.exists() else WEB_LEGACY
-if _web_main.exists():
-    app.mount("/detection", StaticFiles(directory=str(_web_main), html=True), name="detection")
-if WEB_LEGACY.exists():
-    app.mount(
-        "/detection-legacy",
-        StaticFiles(directory=str(WEB_LEGACY), html=True),
-        name="detection-legacy",
+# 정적 파일 — /detection/ 은 React 빌드(web_modern/dist)를 서빙.
+# dist 부재 시(빌드 전) 안내 로그만 남기고 마운트 생략 → API/WS는 정상 동작.
+if WEB_DIST.exists():
+    app.mount("/detection", StaticFiles(directory=str(WEB_DIST), html=True), name="detection")
+else:
+    logger.warning(
+        "web_modern/dist 없음 — 프론트 미서빙. `cd web_modern && npm run build` 후 재기동하세요."
     )
+
+# ONNX 모델 정적 서빙(읽기전용) — 브라우저 온디바이스 추론 타당성 스파이크(/detection/spike/)가
+# ORT-Web으로 model_space/*.onnx 를 직접 fetch하기 위함. 서버 추론 경로와 무관.
+_MODEL_DIR = ROOT / "model_space"
+if _MODEL_DIR.exists():
+    app.mount("/models", StaticFiles(directory=str(_MODEL_DIR)), name="models")
 
 # 파이프라인 (전역 단일 인스턴스)
 pipeline: EdgeSignPipeline | None = None
@@ -418,6 +424,25 @@ async def status() -> dict[str, object]:
             else "v2 검출기 + 한국 분류기 (신호등 미분리 — v3 학습 대기)"
         ),
     }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GET /api/labels — 온디바이스 인식기용 라벨 메타 (분류기 names/서브셋 + OCR idx→char)
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+@app.get("/api/labels")
+async def labels() -> dict[str, object]:
+    """브라우저 온디바이스 인식기가 분류기 출력을 한글 라벨로 디코딩하기 위한 메타.
+    data/roi_cls/classes.json(분류기) + data/idx_to_char.json(OCR)을 그대로 노출."""
+    cls_path = ROOT / "data" / "roi_cls" / "classes.json"
+    idx_path = ROOT / "data" / "idx_to_char.json"
+    out: dict[str, object] = {"names": [], "sign_ids": [], "light_ids": [], "idx_to_char": {}}
+    if cls_path.exists():
+        out.update(json.loads(cls_path.read_text(encoding="utf-8")))
+    if idx_path.exists():
+        out["idx_to_char"] = json.loads(idx_path.read_text(encoding="utf-8"))
+    return out
 
 
 # ─────────────────────────────────────────────────────────────────────────────

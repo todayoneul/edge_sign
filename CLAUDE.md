@@ -77,13 +77,20 @@ CNN_Quant/
 ├── pyproject.toml               # [SP-A] ruff·mypy·pytest 설정 (mypy strict: src/pipeline)
 ├── requirements-dev.txt         # [SP-A] dev 도구 (ruff·mypy·pytest)
 │
-├── web/                         # 웹 프론트엔드
-│   ├── index.html               # 한글 OCR 캔버스 데모 (Phase 1, ORT-Web)
-│   ├── app.js                   # ONNX Runtime Web 추론
-│   └── detection/               # [Phase 2/3] 검출+추적+인식 + Q&A 데모 (메인 시연)
-│       ├── index.html           # 검출 뷰 + 채팅 UI + [Phase 11] 양자화 A/B 토글·단계 플로우·BYOK
-│       ├── app.js               # WS 프레임(+variant) 전송 · SSE Q&A · stage_ms 시각화
-│       └── samples/             # [Phase 11] 번들 데모 클립(H.264 720p) — '샘플 영상' 버튼
+├── web_modern/                  # [SP-C] 웹 프론트엔드 (React 19 + Vite + TS) — 유일한 프론트
+│   ├── src/                     # 검출+추적+인식+Q&A 콘솔: components·hooks·store·lib·styles
+│   │   │                        #   양자화 A/B(PerfStrip)·단계 stage_ms·BYOK Q&A·통합 seek
+│   │   │                        #   서버⇄온디바이스 토글(Controls) — 추론을 브라우저 WebGPU로
+│   │   ├── lib/byteTrack.ts     # [SP-C] ByteTrack TS 포팅(클라 추적) — bytetrack.py 골든 검증
+│   │   ├── lib/clientPipeline.ts # [SP-C] 온디바이스 검출+추적(ORT-Web) → FrameResult (서버 렌더 재사용)
+│   │   └── hooks/useClientPipeline.ts # [SP-C] ORT-Web 로드(WebGPU ESM)+모델 fetch+추론
+│   ├── public/
+│   │   ├── ocr/                 # Phase 1 한글 OCR 캔버스 데모(ORT-Web) — /detection/ocr/ 로 체험
+│   │   └── spike/               # [SP-C] 브라우저 온디바이스 타당성 스파이크 — /detection/spike/
+│   │                            #   ORT-Web WebGPU YOLO FPS 실측(웹캠/파일/합성 프레임)
+│   ├── index.html · vite.config.ts · package.json · tailwind.config.cjs
+│   └── dist/                    # 빌드 산출물(gitignore) — FastAPI가 /detection/ 로 서빙
+│                                #   (구 web/ vanilla 데모는 web_modern으로 통합·제거됨)
 │
 ├── AIhub/                       # AI Hub 원본 데이터 (.gitignore 제외)
 │   ├── 신호등-도로표지판 인지 영상(수도권)/  # TAR 압축 (9시퀀스, 110,900 JPG 프레임)
@@ -99,6 +106,9 @@ CNN_Quant/
 │   ├── check_gpu_ort.py         # [Phase 10] onnxruntime-gpu CUDA EP 검증
 │   ├── check_codec_matrix.py    # [Phase 10] H.264/MPEG-4/HEVC 서버 디코딩 검증
 │   ├── quantize_v3_detector.py  # [Phase 11] v3 검출기 Static INT8(QDQ) — 헤드 제외, A/B용
+│   ├── export_fp16_detector.py  # [SP-C] v3 검출기 FP32→FP16 ONNX(22MB) — 브라우저 WebGPU용
+│   │                            #   (스파이크 실측: INT8은 WebGPU 불가, fp16은 지원·크기 절반)
+│   ├── export_bytetrack_golden.py # [SP-C] ByteTrack 골든 출력 생성 → byteTrack.ts 검증 fixture
 │   └── archive/                 # 종료된 Phase 1·4·5 실험·플롯·벤치마크·다운로드 스크립트 보관
 │                                #   (plot_pareto/sensitivity/v2_extras/detection_samples,
 │                                #    benchmark_pipeline, quantize_onnx_real, download_*, export_* 등)
@@ -147,7 +157,7 @@ python src/detect/export_yolo_onnx.py --weights best.pt     # ONNX 내보내기
 # Phase 2 - 전체 파이프라인
 python src/pipeline/e2e_pipeline.py \
   --yolo model_space/yolov8n_signs_fp32.onnx \
-  --ocr  web/korean_ocr_quant.onnx \
+  --ocr  model_space/korean_ocr_net_w8a8.onnx \
   --input data/aihub_traffic/val/   # E2E 추론 (JSON 출력)
 
 python src/quant/run_experiments.py   # 양자화 실험 실행
@@ -163,8 +173,12 @@ python scripts/build_demo_video.py --fps 5 --top_n 12       # 위치별 클립 �
 # → data/demo_videos/<seq>_clips/clip_01.mp4 ... (검출 품질 확인 후 선별 사용)
 python scripts/build_demo_video.py --full --fps 15         # (옵션) 시퀀스 전체 단일 영상
 
+# 프론트 빌드(필수) — FastAPI는 web_modern/dist를 /detection/ 으로 서빙
+(cd web_modern && npm ci && npm run build)   # → web_modern/dist (OCR 데모 public/ocr→dist/ocr 포함)
+# (프론트 개발 시: cd web_modern && npm run dev → http://localhost:5173, /api·/ws는 8000으로 프록시)
+
 uvicorn src.pipeline.app:app --reload --port 8000
-# 브라우저 → http://localhost:8000/detection/
+# 브라우저 → http://localhost:8000/detection/   (헤더 'OCR 데모' → /detection/ocr/ 한글 OCR 캔버스)
 # [SP1] 범용 입력: 웹캠·이미지·URL/RTSP·모든 코덱 영상 지원.
 #   - H.264 등 브라우저 호환 영상/웹캠 → 클라 캡처(/ws/stream), 클라가 박스 렌더
 #   - MPEG-4 등 비호환 코덱·URL·이미지 → 서버 인제스트(/api/ingest → /ws/session),
@@ -181,8 +195,8 @@ uvicorn src.pipeline.app:app --reload --port 8000
 KMP_DUPLICATE_LIB_OK=TRUE python scripts/quantize_v3_detector.py --bench
 #   → model_space/yolov8s_signs_v3_int8_static.onnx (18MB, 검출 near-lossless)
 #   서버가 v3 fp32+int8_static 둘 다 로드 → 웹 FP32⇄INT8 A/B 토글 노출.
-# 양자화 A/B·단계 stage_ms·BYOK Q&A·샘플 영상은 web/detection/ 에 구현.
-# HF Spaces (Docker, CPU 전용) 로컬 빌드 검증:
+# 양자화 A/B·단계 stage_ms·BYOK Q&A는 web_modern/src/ 에 구현 (React).
+# HF Spaces (Docker, CPU 전용) — 멀티스테이지 빌드(node 빌더가 dist 생성) 로컬 검증:
 docker build -t edge-sign . && docker run --rm -p 7860:7860 edge-sign
 #   → http://localhost:7860/detection/  (EDGE_SIGN_CPU_ONLY=1, 모델 LFS 동봉은 spaces/README.md)
 
@@ -209,13 +223,14 @@ python -m pytest tests/                       # 회귀 (20 passed: 16 + 로깅 4
 - 기존 양자화 코드(`src/base_W8A8.py`, `src/base_train_w4a16_qat.py` 등)의 함수/클래스를 최대한 재활용
 - ONNX 내보내기는 항상 opset 14 + TorchScript 모드 사용 (`export_onnx.py` 참조)
 - 평가 코드는 `final_omnimodal_eval.py`의 Final Score 공식 사용: `0.6*Perf + 0.2*Speed + 0.2*Mem`
-- 웹 코드는 기존 `web/app.js`의 ONNX Runtime Web 패턴 따르기
+- 메인 웹 콘솔은 `web_modern/`(React/Vite/TS) — 기존 컴포넌트·hooks·store 패턴 따르기
+- 온디바이스 ORT-Web 데모 패턴은 `web_modern/public/ocr/app.js`(한글 OCR) 참조
 
 ### 기술 스택
 - **ML**: PyTorch 2.11+cu128, Ultralytics (YOLOv8), timm, transformers
 - **양자화**: 커스텀 PTQ/QAT 구현(W4A16,W8A8), ONNX Runtime quantization
 - **추론**: ONNX Runtime (CPU), ONNX Runtime Web (WASM/WebGPU)
-- **웹**: FastAPI + WebSocket (서버), ONNX Runtime Web (클라이언트), PWA
+- **웹**: FastAPI + WebSocket (서버), React 19 + Vite + TypeScript + zustand (web_modern), ONNX Runtime Web (OCR 데모), PWA
 - **추적**: ByteTrack (Kalman + IoU), BoT-SORT (ReID 옵션)
 - **Q&A**: Groq Python SDK (`groq`), Llama 3.3 70B (무료 티어), SSE 스트리밍
 - **코드 품질 [SP-A]**: ruff(린트+포맷), mypy(`src/pipeline` strict), loguru(구조화 로깅), pytest — 설정 `pyproject.toml`, dev 의존성 `requirements-dev.txt`

@@ -160,7 +160,7 @@ export default function SeekBar({
     <div className={`seekbar${visible ? "" : " hidden"}`} id="seekbar">
       {/* 트랜스포트 클러스터: 5초 뒤로(←) · 재생/정지(Space) · 5초 앞으로(→) */}
       <button className="pc-btn step" id="step-back-btn" title="5초 뒤로 (←)" aria-label="5초 뒤로" onClick={onStepBack}>
-        <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 16, height: 16 }}>
+        <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 20, height: 20 }}>
           <path d="M11 6v12L4 12zM19 6v12l-7-6z" />
         </svg>
       </button>
@@ -174,18 +174,18 @@ export default function SeekBar({
         onClick={onTogglePlay}
       >
         {playing ? (
-          <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 20, height: 20 }}>
+          <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 24, height: 24 }}>
             <path d="M7 5h3v14H7zM14 5h3v14h-3z" />
           </svg>
         ) : (
-          <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 20, height: 20 }}>
+          <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 24, height: 24 }}>
             <path d="M8 5v14l11-7z" />
           </svg>
         )}
       </button>
 
       <button className="pc-btn step" id="step-fwd-btn" title="5초 앞으로 (→)" aria-label="5초 앞으로" onClick={onStepFwd}>
-        <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 16, height: 16 }}>
+        <svg viewBox="0 0 24 24" fill="currentColor" style={{ width: 20, height: 20 }}>
           <path d="M13 6v12l7-6zM5 6v12l7-6z" />
         </svg>
       </button>
@@ -218,7 +218,7 @@ export default function SeekBar({
       {/* 재생 속도 */}
       <label className="speed-ctl" title="재생 속도">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
-          strokeLinecap="round" strokeLinejoin="round" style={{ width: 15, height: 15 }} aria-hidden="true">
+          strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }} aria-hidden="true">
           <path d="M12 3a9 9 0 1 0 9 9" />
           <path d="M12 8v4l3 2" />
         </svg>
@@ -226,7 +226,7 @@ export default function SeekBar({
           type="range"
           id="speed-range"
           min="0.25"
-          max="3"
+          max="1.75"
           step="0.25"
           value={playbackRate}
           onChange={(e) => onPlaybackRate(parseFloat(e.target.value))}

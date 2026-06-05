@@ -30,26 +30,24 @@ export default function Hero({ onFile, onWebcam }: Props) {
       </h2>
 
       <p className="lead">
-        초경량 양자화 검출 · 추적 · 인식 파이프라인. 표지판 · 신호등 · 간판을 동시에 감지하고,
-        장면을 그대로 질문하세요.
+        검출 · 추적 · 인식 파이프라인을 <b>브라우저(WebGPU)에서 직접</b>. 표지판 · 신호등 · 간판을
+        동시에 감지하고, 장면을 그대로 질문하세요.
       </p>
 
       <div className="hero-stats">
         <span className="hero-stat">
-          <b>
-            &lt;15<small>MB</small>
-          </b>
-          <span>모델 크기</span>
+          <b>WebGPU</b>
+          <span>온디바이스</span>
         </span>
         <span className="hero-stat">
           <b>
-            30+<small> FPS</small>
+            60+<small> FPS</small>
           </b>
-          <span>실시간 추론</span>
+          <span>브라우저 실시간</span>
         </span>
         <span className="hero-stat">
-          <b>INT8</b>
-          <span>양자화</span>
+          <b>0원</b>
+          <span>서버리스 · 프라이버시</span>
         </span>
       </div>
 

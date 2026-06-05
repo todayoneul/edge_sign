@@ -4,6 +4,10 @@
 *.pyc
 *.pyo
 
+# 프론트 빌드 컨텍스트 — 빌더 스테이지가 npm ci로 깨끗이 설치/빌드하므로 제외
+web_modern/node_modules/
+web_modern/dist/
+
 # 대용량 원본 데이터/학습 산출물
 AIhub/
 checkpoints/

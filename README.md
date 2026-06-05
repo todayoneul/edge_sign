@@ -661,7 +661,7 @@ flowchart LR
 
 - **장기 목표**: ONNX Runtime Web(WASM/WebGPU) 전체 클라이언트 추론 (모델 < 15 MB → 서버리스 배포).
 
-참조 구현: `web/detection/` (검출·추적·Q&A 데모, 라이트/다크 토글), `src/pipeline/{app,sources,session}.py`
+참조 구현: `web_modern/` (React/Vite 검출·추적·Q&A 콘솔, 라이트/다크 토글 · 헤더 'OCR 데모' → `/detection/ocr/`), `src/pipeline/{app,sources,session}.py`
 
 ### 8.1. 서버 동작 검증
 
