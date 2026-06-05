@@ -659,9 +659,26 @@ flowchart LR
 
 > 모드 ①(웹캠·호환영상)은 브라우저가 디코딩 후 좌표만 받아 렌더하고, 모드 ②(비호환 코덱·URL·이미지)는 서버가 디코딩·추론한 뒤 원본 JPEG와 좌표를 보내 **클라이언트가 동일 스타일로 렌더**한다.
 
-- **장기 목표**: ONNX Runtime Web(WASM/WebGPU) 전체 클라이언트 추론 (모델 < 15 MB → 서버리스 배포).
+- **온디바이스 모드(달성)**: 컨트롤 바의 `서버 ⇄ 온디바이스` 토글로, 검출+추적+인식 전체를
+  **브라우저에서 직접**(ONNX Runtime Web · WebGPU) 실행한다. 서버 없이 사용자 기기 GPU로 추론 →
+  비용 0 · 프라이버시. 서버 모드와 동일한 `FrameResult`를 store로 흘려보내 오버레이·Q&A를 그대로 공유.
 
-참조 구현: `web_modern/` (React/Vite 검출·추적·Q&A 콘솔, 라이트/다크 토글 · 헤더 'OCR 데모' → `/detection/ocr/`), `src/pipeline/{app,sources,session}.py`
+참조 구현: `web_modern/` (React/Vite 검출·추적·Q&A 콘솔, 라이트/다크 토글 · 헤더 'OCR 데모' → `/detection/ocr/`),
+`web_modern/src/lib/{byteTrack,clientPipeline}.ts`(온디바이스), `src/pipeline/{app,sources,session}.py`
+
+#### 온디바이스 타당성 스파이크 (`/detection/spike/`)
+
+브라우저 추론 실현 가능성을 모델·EP 조합별로 실측한 결과:
+
+| 검출기 | EP | FPS | 비고 |
+|--------|----|----:|------|
+| FP32 (43MB) | **WebGPU** | **62** | 실시간 충분 — 온디바이스 기본 |
+| FP16 (22MB) | WebGPU | 24 | 크기 절반, 속도는 더 느림(ORT-Web fp16 커널 미성숙) |
+| INT8 (18MB) | WASM | 2.2 | 실시간 불가 |
+| INT8 | WebGPU | — | **실행 불가**(`int32 DequantizeLinear` 미지원) |
+
+> **핵심 발견:** 브라우저 엣지의 레버는 *양자화(INT8)*가 아니라 **WebGPU + 모델 아키텍처**다.
+> INT8은 브라우저 WebGPU에서 동작하지 않으며, 실시간 온디바이스 추론은 FP32/WebGPU로 달성된다.
 
 ### 8.1. 서버 동작 검증
 

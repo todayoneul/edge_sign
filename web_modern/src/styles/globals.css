@@ -323,6 +323,28 @@ main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
 }
 .pc-btn:hover { color: var(--ink); border-color: var(--line-2); background: var(--surface-3); }
 
+/* 온디바이스 모델 로딩 오버레이 */
+.od-loading {
+  position: absolute; inset: 0; z-index: 5;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--sp-4);
+  background: color-mix(in srgb, var(--viewport) 82%, transparent);
+  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+  font-family: var(--f-mono); font-size: 0.92rem; font-weight: 600;
+  color: #fafafa; text-align: center;
+}
+.od-loading small {
+  display: block; margin-top: 4px; font-weight: 400; font-size: 0.74rem;
+  letter-spacing: 0.06em; color: rgba(250,250,250,0.55);
+}
+.od-spinner {
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 3px solid color-mix(in srgb, var(--c-edge) 25%, transparent);
+  border-top-color: var(--c-edge);
+  animation: odspin 0.8s linear infinite;
+}
+@keyframes odspin { to { transform: rotate(360deg); } }
+
 /* 추론 위치 토글 (서버 ⇄ 온디바이스) */
 .mode-toggle {
   display: inline-flex; flex-shrink: 0;
@@ -337,6 +359,9 @@ main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
 .mode-btn + .mode-btn { border-left: 1px solid var(--line); }
 .mode-btn[aria-pressed="true"] { background: var(--invert-bg); color: var(--invert-ink); }
 .mode-btn:hover:not([aria-pressed="true"]) { color: var(--ink); }
+/* 온디바이스 선택 시 인디고 액센트 — 헤더 엔진 인디케이터와 시각 일관 */
+.mode-btn--edge[aria-pressed="true"] { background: var(--c-edge); color: var(--c-edge-ink); }
+.mode-btn--edge:not([aria-pressed="true"]) { color: color-mix(in srgb, var(--c-edge) 80%, var(--ink-3)); }
 
 /* 드롭존 */
 #dropzone {

@@ -36,6 +36,8 @@ export default function Controls({
   const [urlValue, setUrlValue] = useState("");
   const pipelineMode = useStore((s) => s.pipelineMode);
   const setPipelineMode = useStore((s) => s.setPipelineMode);
+  const ondeviceModel = useStore((s) => s.ondeviceModel);
+  const setOndeviceModel = useStore((s) => s.setOndeviceModel);
   const pushToast = useStore((s) => s.pushToast);
 
   function handleFiles(files: FileList | null) {
@@ -170,7 +172,7 @@ export default function Controls({
             <button
               key={m}
               type="button"
-              className="mode-btn"
+              className={`mode-btn${m === "ondevice" ? " mode-btn--edge" : ""}`}
               aria-pressed={pipelineMode === m}
               onClick={() => {
                 if (pipelineMode === m) return;
@@ -187,6 +189,35 @@ export default function Controls({
             </button>
           ))}
         </div>
+
+        {/* 온디바이스 정밀도: fp32(빠름) ⇄ fp16(작음) — 다음 시작 시 적용 */}
+        {pipelineMode === "ondevice" && (
+          <div
+            className="mode-toggle"
+            role="group"
+            aria-label="온디바이스 모델 정밀도"
+            title="fp32=빠름(43MB) · fp16=작음(22MB). 다음 시작부터 적용"
+          >
+            {(["fp32", "fp16"] as const).map((p) => (
+              <button
+                key={p}
+                type="button"
+                className="mode-btn"
+                aria-pressed={ondeviceModel === p}
+                onClick={() => {
+                  if (ondeviceModel === p) return;
+                  setOndeviceModel(p);
+                  pushToast(
+                    p === "fp16" ? "온디바이스 FP16 (작음·22MB)" : "온디바이스 FP32 (빠름·43MB)",
+                    "ok",
+                  );
+                }}
+              >
+                {p.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="spacer" />
         <span

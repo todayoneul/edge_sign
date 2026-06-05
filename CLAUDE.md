@@ -179,6 +179,9 @@ python scripts/build_demo_video.py --full --fps 15         # (옵션) 시퀀스 
 
 uvicorn src.pipeline.app:app --reload --port 8000
 # 브라우저 → http://localhost:8000/detection/   (헤더 'OCR 데모' → /detection/ocr/ 한글 OCR 캔버스)
+# [SP-C] 컨트롤 바 '서버 ⇄ 온디바이스' 토글 → 검출+추적+인식을 브라우저 WebGPU로 직접 실행
+#   (fp32/fp16 토글, /detection/spike/ 는 EP·FPS 실측 스파이크, /api/labels 인식 메타).
+#   온디바이스 fp16 사용 시: KMP_DUPLICATE_LIB_OK=TRUE python scripts/export_fp16_detector.py
 # [SP1] 범용 입력: 웹캠·이미지·URL/RTSP·모든 코덱 영상 지원.
 #   - H.264 등 브라우저 호환 영상/웹캠 → 클라 캡처(/ws/stream), 클라가 박스 렌더
 #   - MPEG-4 등 비호환 코덱·URL·이미지 → 서버 인제스트(/api/ingest → /ws/session),

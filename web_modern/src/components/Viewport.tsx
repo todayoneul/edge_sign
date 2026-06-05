@@ -85,7 +85,9 @@ export default function Viewport() {
   const session = useSession();
   const client = useClientPipeline();
   const pipelineMode = useStore((s) => s.pipelineMode);
+  const ondeviceModel = useStore((s) => s.ondeviceModel);
   const recordFps = useStore((s) => s.recordFps);
+  const pushToast = useStore((s) => s.pushToast);
   // 온디바이스 추론 루프 (setInterval; busy 가드로 비중첩)
   const clientTimerRef = useRef<number | null>(null);
   const clientBusyRef = useRef(false);
@@ -245,9 +247,13 @@ export default function Viewport() {
   /** 클라 캡처 추론 시작 — 모드에 따라 서버 WS(stream) 또는 온디바이스 루프. */
   const startCaptureInference = useCallback(async () => {
     if (pipelineMode === "ondevice") {
+      const modelUrl =
+        ondeviceModel === "fp16"
+          ? "/models/yolov8s_signs_v3_fp16.onnx"
+          : "/models/yolov8s_signs_v3_fp32.onnx";
       setStageStatus("온디바이스 모델 로딩… (최초 1회 ~수초)");
       try {
-        await client.ensureLoaded();
+        await client.ensureLoaded(modelUrl);
       } catch {
         setStageStatus("온디바이스 로드 실패 — 서버 모드로 폴백");
         stream.reset();
@@ -260,7 +266,7 @@ export default function Viewport() {
       stream.reset();
       stream.start(getFrame);
     }
-  }, [pipelineMode, client, startClientLoop, stream, getFrame]);
+  }, [pipelineMode, ondeviceModel, client, startClientLoop, stream, getFrame]);
 
   // ── 공통 stopAll — 두 모드 모두 정리 ─────────────────────────────────────
   const stopAll = useCallback(() => {
@@ -358,6 +364,16 @@ export default function Viewport() {
       setIsPlaying(false);
     }
   }, [session.ended, mode]);
+
+  // 온디바이스 모델 로드 상태 → 토스트 (준비 완료 / 실패 폴백)
+  useEffect(() => {
+    if (client.status.loaded) {
+      pushToast(`온디바이스 추론 준비 완료 · ${client.status.ep.toUpperCase()}`, "ok");
+    }
+  }, [client.status.loaded, client.status.ep, pushToast]);
+  useEffect(() => {
+    if (client.status.error) pushToast("온디바이스 로드 실패 — 서버 모드로 폴백", "warn");
+  }, [client.status.error, pushToast]);
 
   // sourceKind가 session으로 바뀌었을 때 img 표시 보정
   useEffect(() => {
@@ -703,6 +719,17 @@ export default function Viewport() {
             }
             onWebcam={startWebcam}
           />
+        )}
+
+        {/* 온디바이스 모델 로딩 오버레이 (최초 1회 다운로드+컴파일) */}
+        {client.status.loading && (
+          <div className="od-loading" role="status" aria-live="polite">
+            <span className="od-spinner" aria-hidden="true" />
+            <span>
+              온디바이스 모델 로딩…
+              <small>최초 1회 · WebGPU 컴파일</small>
+            </span>
+          </div>
         )}
 
         {/* ── 재생 트랜스포트 바 (뷰포트 내부 오버레이) ── */}

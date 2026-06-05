@@ -34,6 +34,7 @@ export function useClientPipeline() {
   const pipeRef = useRef<ClientPipeline | null>(null);
   const ortRef = useRef<OrtNamespace | null>(null);
   const loadingRef = useRef<Promise<void> | null>(null);
+  const loadedUrlRef = useRef<string | null>(null);
   const [status, setStatus] = useState<ClientStatus>({
     loading: false,
     loaded: false,
@@ -44,7 +45,8 @@ export function useClientPipeline() {
   /** ORT + 모델을 1회 로드(중복 호출 시 진행 중 Promise 공유). */
   const ensureLoaded = useCallback(
     async (modelUrl: string = DEFAULT_MODEL, eps: string[] = ["webgpu", "wasm"]): Promise<void> => {
-      if (pipeRef.current?.loaded) return;
+      // 같은 모델이면 캐시 사용; 다른 정밀도(fp32↔fp16)로 바뀌면 재로드.
+      if (pipeRef.current?.loaded && loadedUrlRef.current === modelUrl) return;
       if (loadingRef.current) return loadingRef.current;
 
       const task = (async () => {
@@ -61,6 +63,7 @@ export function useClientPipeline() {
           const pipe = new ClientPipeline();
           await pipe.load(ortRef.current, bytes, eps);
           pipeRef.current = pipe;
+          loadedUrlRef.current = modelUrl;
           setStatus({ loading: false, loaded: true, ep: pipe.activeEP, error: null });
 
           // 인식기(분류기 + 라벨) — 비치명적. 실패 시 라벨=클래스명으로 동작.
