@@ -67,10 +67,8 @@ export default function App() {
       // togglePlay/stepBack/stepFwd로 직접 처리한다. 여기선 noop.
     },
     onFocusChat: () => {
-      // Switch to QA tab and focus chat input
-      useStore.getState().setTab("qa");
-      // Small delay to let tab switch render
-      setTimeout(() => chatInputRef.current?.focus(), 50);
+      // Q&A는 레일에 항상 표면화 — 바로 입력 포커스
+      chatInputRef.current?.focus();
     },
     onToggleTheme: toggleTheme,
     onToggleShortcuts: (open) => {

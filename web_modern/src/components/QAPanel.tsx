@@ -28,7 +28,6 @@ const QAPanel = forwardRef<HTMLTextAreaElement>((_, chatRef) => {
   const tracks = useStore((s) => s.tracks);
   const byokKey = useStore((s) => s.byokKey);
   const setByok = useStore((s) => s.setByok);
-  const setTab = useStore((s) => s.setTab);
   const pushToast = useStore((s) => s.pushToast);
 
   const { ask, streaming } = useQA();
@@ -121,12 +120,11 @@ const QAPanel = forwardRef<HTMLTextAreaElement>((_, chatRef) => {
   };
 
   const handleChip = (q: string) => {
-    setTab("qa");
     void sendQuestion(q);
   };
 
   return (
-    <div id="qa-panel" className="panel active" style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+    <div id="qa-panel" className="qa-surface" style={{ display: "flex", flexDirection: "column", flex: "0 0 auto", minHeight: 0 }}>
       {/* 퀵 칩 */}
       <div className="quick-chips" id="quick-chips">
         {QUICK_CHIPS.map((q) => (
@@ -141,8 +139,8 @@ const QAPanel = forwardRef<HTMLTextAreaElement>((_, chatRef) => {
         ))}
       </div>
 
-      {/* 채팅 로그 */}
-      <div id="chat-log" ref={logRef} style={{ flex: 1, overflowY: "auto", padding: "var(--sp-4)", display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
+      {/* 채팅 로그 — 항상 표면화된 레일 하단 패널이므로 높이 제한(없으면 짧게) */}
+      <div id="chat-log" ref={logRef} style={{ maxHeight: "28vh", minHeight: 0, overflowY: "auto", padding: "var(--sp-4)", display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
         {msgs.length === 0 && (
           <div className="empty" style={{ margin: "auto", textAlign: "center", color: "var(--ink-3)", fontFamily: "var(--f-mono)", fontSize: "0.78rem", lineHeight: 1.8 }}>
             질문을 입력하거나 위의 빠른 질문을 클릭하세요
