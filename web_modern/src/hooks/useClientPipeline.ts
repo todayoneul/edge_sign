@@ -12,6 +12,7 @@
 import { useCallback, useRef, useState } from "react";
 import {
   ClientPipeline,
+  type DetFormat,
   type OrtNamespace,
   type RecognizerLabels,
   type RoiSampler,
@@ -60,8 +61,10 @@ export function useClientPipeline() {
           if (!resp.ok) throw new Error(`모델 HTTP ${resp.status} (/models 마운트·서버 확인)`);
           const bytes = new Uint8Array(await resp.arrayBuffer());
 
+          // 출력 포맷 추론: yolo_v4/yolo26 모델은 NMS-free (1,N,6), 그 외 v8 (1,4+nc,8400).
+          const format: DetFormat = /yolo_?v4|yolo26/i.test(modelUrl) ? "yolo26" : "v8";
           const pipe = new ClientPipeline();
-          await pipe.load(ortRef.current, bytes, eps);
+          await pipe.load(ortRef.current, bytes, eps, format);
           pipeRef.current = pipe;
           loadedUrlRef.current = modelUrl;
           setStatus({ loading: false, loaded: true, ep: pipe.activeEP, error: null });
