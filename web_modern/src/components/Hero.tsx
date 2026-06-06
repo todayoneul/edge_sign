@@ -29,23 +29,6 @@ export default function Hero({ onFile, onWebcam }: Props) {
         <span className="acc">서버 전송 없이</span>, 영상은 기기 밖으로 나가지 않습니다.
       </p>
 
-      <div className="hero-stats">
-        <span className="hero-stat">
-          <b>WebGPU</b>
-          <span>온디바이스</span>
-        </span>
-        <span className="hero-stat">
-          <b>
-            60+<small> FPS</small>
-          </b>
-          <span>브라우저 실시간</span>
-        </span>
-        <span className="hero-stat">
-          <b>0원</b>
-          <span>서버리스 · 프라이버시</span>
-        </span>
-      </div>
-
       <div className="hero-cta">
         <button className="btn btn-primary" id="hero-file" onClick={onFile}>
           <svg
