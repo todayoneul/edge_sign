@@ -417,7 +417,7 @@ E0~E7 8개 구성에 대한 검출 mAP / 추적 MOTA / OCR Top-1 통합 비교. 
 **분석:**
 - **W8A8 / SmoothQuant**: 검출 mAP 손실 ≤ 0.1%p, 추적 MOTA 손실 ≤ 5.1%로 실질적 무손실 — Pareto 최적 후보.
 - **W4A16**: 검출 Recall 0.531 → 0.480 → FN 증가 → MOTA −40.3%, IDF1 −37.6%. 실용 한계.
-- **IDSW**: v2 test가 v1 대비 GT 약 20배(주간 도심 시퀀스 포함)로 어려워져 절대 IDSW 28~44 발생. ByteTrack은 여전히 IDSW 비율이 낮음(0.8~1.3% of GT).
+- **IDSW**: v2 test는 GT 객체 수가 v1 대비 약 20배(주간 도심 시퀀스 추가)로 절대 IDSW가 크게 늘어날 수 있는 조건이지만, ByteTrack은 28~44건에 그침 — GT 대비 0.8~1.3%로 추적 연속성 양호.
 - **미학습 ReID(E6)**: BoT-SORT가 v2 주간 군집 환경에서 FP를 781까지 폭증시킴(E1의 ~19배). 미학습 ReID가 외형 유사도를 잘못 해석하여 false association 다발 → MOTA 0.068. **ReID 학습이 BoT-SORT의 전제 조건**임을 v2에서 다시 확인.
 
 #### 단계별 양자화 민감도 요약
