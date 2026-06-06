@@ -6,7 +6,7 @@
 
 ## 실시간 시연
 
-**▶ 지금 바로 체험 (설치 없이): https://huggingface.co/spaces/gyann/edge-sign**
+**huggingface 온라인 체험: https://huggingface.co/spaces/gyann/edge-sign**
 브라우저에서 검출·추적·한국어 인식과 **서버 ⇄ 온디바이스(WebGPU)** · **FP32 ⇄ INT8** 토글, 장면 Q&A 직접 체험 가능.
 
 https://github.com/user-attachments/assets/3c24ca38-2660-4fdf-9bea-d1e9ef0c2e95

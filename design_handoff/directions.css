@@ -1,0 +1,143 @@
+/* Direction-specific overrides — layered on top of mockup.css (.es base) */
+
+/* ════════════════════════════════════════════════════════════
+   A — 랩 노트북 (Lab Notebook): calm white, hairline frame,
+   discovery-forward CTA, surfaced Scene Q&A rail.
+   ════════════════════════════════════════════════════════════ */
+.dir-a .es-head { padding: 20px 30px; }
+.dir-a .es-stage { padding: 28px 30px; }
+.dir-a .es-rail { width: 372px; }
+.dir-a .es-qa { gap: 13px; padding: 20px; }
+
+/* ════════════════════════════════════════════════════════════
+   B — 계측기 (Instrument): mono-forward, edge ticks, channel
+   readout baseline, command-line query.
+   ════════════════════════════════════════════════════════════ */
+.dir-b { font-feature-settings: "tnum" 1; }
+.dir-b .es-head { background: var(--surface); border-bottom: 1px solid var(--line-2); }
+.dir-b .es-stage { gap: 0; padding: 0; }
+.dir-b .es-stage-inner { flex: 1; min-height: 0; display: flex; flex-direction: column;
+  gap: 14px; padding: 24px 26px; }
+.dir-b .es-viewport { border-radius: 10px; border-color: var(--line-3); }
+
+/* instrument channel readout — replaces empty KPI zeros with a calibrated baseline */
+.dir-b .es-readout {
+  display: flex; align-items: stretch; gap: 0; flex-shrink: 0;
+  border: 1px solid var(--line-2); border-radius: 10px; overflow: hidden;
+  background: var(--surface);
+}
+.dir-b .es-readout .ch {
+  flex: 1; padding: 12px 18px; border-right: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: 5px;
+}
+.dir-b .es-readout .ch:last-child { border-right: 0; }
+.dir-b .es-readout .lab {
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ink-3); display: flex; align-items: center; gap: 7px;
+}
+.dir-b .es-readout .lab .sw { width: 9px; height: 9px; border-radius: 2px; }
+.dir-b .es-readout .val {
+  font-family: var(--mono); font-size: 26px; font-weight: 600; color: var(--ink-4);
+  letter-spacing: 0.02em;
+}
+.dir-b .es-readout .val.standby { color: var(--ink-4); }
+.dir-b .es-readout .unit { font-size: 14px; color: var(--ink-4); font-weight: 400; }
+
+/* edge ruler ticks on the viewport */
+.dir-b .es-ruler { position: absolute; z-index: 3; pointer-events: none; }
+.dir-b .es-ruler.top { top: 0; left: 0; right: 0; height: 18px;
+  background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.20) 0 1px, transparent 1px 44px);
+}
+.dir-b .es-ruler.left { top: 0; bottom: 0; left: 0; width: 18px;
+  background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.20) 0 1px, transparent 1px 44px);
+}
+
+/* command-line query at rail bottom */
+.dir-b .es-cmd {
+  margin-top: auto; border-top: 1px solid var(--line);
+  padding: 16px 18px; display: flex; flex-direction: column; gap: 11px;
+}
+.dir-b .es-cmd .cmdline {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 14.5px; color: var(--ink-2);
+  padding: 14px 15px; background: #0d0f13; border-radius: 9px; color: #d7dae0;
+}
+.dir-b .es-cmd .cmdline .prompt { color: var(--sign); font-weight: 600; }
+.dir-b .es-cmd .cmdline .cur { width: 9px; height: 18px; background: #d7dae0;
+  margin-left: auto; opacity: 0.7; }
+
+/* ════════════════════════════════════════════════════════════
+   C — 페이퍼 / figure (Editorial): numbered sections, figure
+   caption, generous whitespace, paper colour key.
+   ════════════════════════════════════════════════════════════ */
+.dir-c { --paper: #ffffff; }
+.dir-c .es-head { padding: 22px 38px; border-bottom: 1px solid var(--ink); }
+.dir-c .es-main { padding: 0; }
+.dir-c .es-stage { padding: 30px 38px; gap: 14px; }
+.dir-c .es-rail { width: 388px; border-left: 1px solid var(--ink); }
+.dir-c .secno {
+  font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.1em;
+  color: var(--ink-3); display: flex; align-items: baseline; gap: 11px;
+  padding-bottom: 9px;
+}
+.dir-c .secno b { color: var(--ink); font-size: 14px; letter-spacing: 0.04em; }
+.dir-c .secno .en { margin-left: auto; text-transform: uppercase; letter-spacing: 0.16em; }
+.dir-c .es-viewport { border-radius: 4px; border: 1px solid var(--ink); }
+.dir-c .figcap {
+  font-family: var(--mono); font-size: 12.5px; color: var(--ink-3); letter-spacing: 0.02em;
+  display: flex; gap: 9px; padding-top: 2px;
+}
+.dir-c .figcap b { color: var(--ink-2); font-weight: 600; }
+.dir-c .es-rsec { border-bottom: 1px solid var(--ink); }
+.dir-c .es-legend .row { border-bottom: 1px solid var(--line-2); }
+
+/* ════════════════════════════════════════════════════════════
+   D — 정제된 콘솔 (Refined console): de-control-roomed, source
+   picker relocated to viewport top-right, calm idle footer.
+   ════════════════════════════════════════════════════════════ */
+.dir-d .es-stage { gap: 16px; }
+.dir-d .es-source-bar {
+  position: absolute; top: 16px; right: 16px; z-index: 4;
+}
+.dir-d .es-rail .es-rtabs {
+  display: flex; gap: 6px; padding: 14px 16px; border-bottom: 1px solid var(--line);
+}
+.dir-d .es-rtabs button {
+  flex: 1; font-family: var(--sans); font-size: 14.5px; font-weight: 500;
+  min-height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  background: transparent; color: var(--ink-3); border: 1px solid transparent;
+  border-radius: 10px; cursor: pointer;
+}
+.dir-d .es-rtabs button svg { width: 18px; height: 18px; }
+.dir-d .es-rtabs button[data-on] { background: var(--surface-3); color: var(--ink); }
+.dir-d .es-rtabs button .pip {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--edge);
+}
+.dir-d .es-foot .item.idle b { color: var(--ink-3); }
+
+/* ════════════════════════════════════════════════════════════
+   Logo lockup set
+   ════════════════════════════════════════════════════════════ */
+.es .logo-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px;
+  padding: 24px; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 16px;
+}
+.es .logo-card {
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  padding: 30px 18px 22px; text-align: center;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 12px;
+}
+.es .logo-card + .logo-card { border-left: 1px solid var(--line); }
+.es .logo-mark { width: 56px; height: 56px; color: var(--ink); display: block; }
+.es .logo-mark svg { width: 56px; height: 56px; }
+.es .logo-word { display: flex; flex-direction: column; gap: 5px; line-height: 1; }
+.es .logo-word b { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+.es .logo-word span {
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-3);
+}
+.es .logo-note {
+  font-size: 13px; color: var(--ink-2); line-height: 1.45; margin-top: 4px;
+  letter-spacing: -0.01em;
+}
