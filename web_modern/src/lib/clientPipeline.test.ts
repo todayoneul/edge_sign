@@ -6,6 +6,7 @@ import { describe, it, expect } from "vitest";
 import {
   imageDataToNCHW,
   postprocessDetections,
+  decodeEndToEnd,
   scaleDetections,
   preprocessClsRoi,
   softmax,
@@ -68,6 +69,28 @@ describe("clientPipeline 순수 함수", () => {
   it("scaleDetections: 640 좌표 → 원본 스케일", () => {
     const scaled = scaleDetections([{ bbox: [320, 320, 640, 640], score: 0.9, cls: 0 }], 1280, 1280);
     expect(scaled[0].bbox).toEqual([640, 640, 1280, 1280]);
+  });
+
+  it("decodeEndToEnd: YOLO26 [1,N,6] 코너+conf+cls, NMS 없이 conf 필터", () => {
+    // 행0 검출(conf 0.62, cls1, 박스 코너) · 행1 배경(conf 0.1) · 행2 음수 박스 → 0 clamp
+    const data = new Float32Array([
+      2, 240, 19, 282, 0.62, 1, //
+      10, 10, 20, 20, 0.1, 0, //
+      -4, -8, 30, 40, 0.5, 0, //
+    ]);
+    const dets = decodeEndToEnd(data, [1, 3, 6]);
+    expect(dets).toHaveLength(2); // 0.1 행은 임계값(0.25) 미만 제거
+    expect(dets[0].cls).toBe(1);
+    expect(dets[0].score).toBeCloseTo(0.62);
+    expect(dets[0].bbox).toEqual([2, 240, 19, 282]); // 코너 좌표 그대로(스케일 전)
+    expect(dets[1].bbox).toEqual([0, 0, 30, 40]); // 음수 → 0 clamp
+  });
+
+  it("decodeEndToEnd: cls는 정수 반올림, [N,6] 2D dims도 허용", () => {
+    const data = new Float32Array([5, 5, 50, 50, 0.8, 0.999]);
+    const dets = decodeEndToEnd(data, [1, 6]);
+    expect(dets).toHaveLength(1);
+    expect(dets[0].cls).toBe(1); // 0.999 → round → 1
   });
 });
 

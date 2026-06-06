@@ -108,6 +108,43 @@ function nmsPerClass(boxes: Detection[], iouThres: number): Detection[] {
   return out;
 }
 
+// ── YOLO26 NMS-free end-to-end 디코딩 ────────────────────────────────────────
+/** 검출기 출력 포맷. v8=[1,4+nc,8400] cxcywh+클래스점수(NMS 필요), yolo26=[1,N,6] 코너+conf+cls(NMS 불필요). */
+export type DetFormat = "v8" | "yolo26";
+
+/**
+ * YOLO26 end-to-end 출력 디코딩. dims [1,N,6] 또는 [N,6], 각 행 =
+ * [x1,y1,x2,y2,conf,cls] (640 좌표, 코너형, 정수 cls). one2one 헤드가 이미
+ * 중복 제거 → NMS 불필요, conf 필터만. 박스 하한 0 clamp.
+ */
+export function decodeEndToEnd(
+  data: ArrayLike<number>,
+  dims: readonly number[],
+  confThres = DET_CONF_THRES,
+): Detection[] {
+  let N: number;
+  if (dims.length === 3 && dims[2] === 6) N = dims[1];
+  else if (dims.length === 2 && dims[1] === 6) N = dims[0];
+  else return [];
+  const out: Detection[] = [];
+  for (let a = 0; a < N; a++) {
+    const o = a * 6;
+    const conf = data[o + 4];
+    if (conf <= confThres) continue;
+    out.push({
+      bbox: [
+        Math.max(0, data[o]),
+        Math.max(0, data[o + 1]),
+        Math.max(0, data[o + 2]),
+        Math.max(0, data[o + 3]),
+      ],
+      score: conf,
+      cls: Math.round(data[o + 5]),
+    });
+  }
+  return out;
+}
+
 // ── 검출 좌표(640) → 원본 프레임 좌표 스케일 ─────────────────────────────────
 export function scaleDetections(dets: Detection[], srcW: number, srcH: number): Detection[] {
   const sx = srcW / DET_INPUT;
@@ -195,6 +232,7 @@ export class ClientPipeline {
   private ort: OrtNamespace | null = null;
   private inputName = "images";
   private outputName = "output0";
+  private detFormat: DetFormat = "v8";
   private tracker = new ByteTracker({ frameRate: 30 });
   private frameId = 0;
   activeEP = "—";
@@ -205,9 +243,18 @@ export class ClientPipeline {
   // temporal 안정화: trackId → (label → 누적 conf) (서버 _stable_recognition)
   private trackBuf = new Map<number, Map<string, number>>();
 
-  /** ORT 네임스페이스 + 모델 바이트로 세션 생성. EP 순서대로 워밍업 검증 후 확정. */
-  async load(ort: OrtNamespace, modelBytes: Uint8Array, eps: string[]): Promise<void> {
+  /**
+   * ORT 네임스페이스 + 모델 바이트로 세션 생성. EP 순서대로 워밍업 검증 후 확정.
+   * @param format 출력 디코딩 방식. "v8"(기본, [1,4+nc,8400]+NMS) | "yolo26"([1,N,6] NMS-free).
+   */
+  async load(
+    ort: OrtNamespace,
+    modelBytes: Uint8Array,
+    eps: string[],
+    format: DetFormat = "v8",
+  ): Promise<void> {
     this.ort = ort;
+    this.detFormat = format;
     if (ort.env?.wasm) ort.env.wasm.numThreads = 1;
     let lastErr: unknown = null;
     for (const ep of eps) {
@@ -304,7 +351,10 @@ export class ClientPipeline {
     const tDetect = performance.now();
 
     const o = out[this.outputName];
-    let dets = postprocessDetections(o.data, o.dims);
+    let dets =
+      this.detFormat === "yolo26"
+        ? decodeEndToEnd(o.data, o.dims)
+        : postprocessDetections(o.data, o.dims);
     dets = scaleDetections(dets, srcW, srcH);
 
     const stracks = this.tracker.update(dets);
