@@ -687,7 +687,7 @@ uvicorn src.pipeline.app:app --port 8000
 
 ![Quantization Collapse Analysis](assets/v3/quant_collapse_analysis.png)
 
-1. **OCR W4A16 붕괴 = 비트폭(가중치) 문제** 동일 스킴에서 비트폭만 INT8→INT4로 낮추면 전 레이어 가중치 SQNR이 균일하게 **~25 dB** 하락하고, 고-fan-in 1×1 conv(`Conv_85` 256→256, `fc_conv` 256→2350)가 **12~13 dB**까지 추락(사용 가능 하한 ~20 dB 미만). 깊은 스택을 통과하며 누적된 오차가 2,350-way argmax를 무너뜨림. → 인식기엔 INT8(SQNR 37~44 dB, 안전)이 정답이고 W4A16은 사용하지 않음.
+1. **OCR W4A16 붕괴 = 비트폭(가중치) 문제** 동일 스킴에서 비트폭만 INT8→INT4로 낮추면 전 레이어 가중치 SQNR이 균일하게 **~25 dB** 하락하고, 고-fan-in 1×1 conv(`Conv_85` 256→256, `fc_conv` 256→2350)가 **12~13 dB**까지 추락(사용 가능 하한 ~ 20 dB 미만). 깊은 스택을 통과하며 누적된 오차가 2,350-way argmax를 무너뜨림. → 인식기엔 INT8(SQNR 37 ~ 44 dB, 안전)이 정답이고 W4A16은 사용하지 않음.
 
 2. **검출 헤드 INT8 붕괴 = 가중치 문제가 *아니다*** 통념과 달리 검출 헤드 가중치는 backbone만큼(오히려 더) 잘 양자화됨 — 헤드 INT8 SQNR **34.1 dB ≥ backbone 32.8 dB**. "헤드 가중치가 어렵다"는 가설은 **기각**. 진짜 원인은 **활성화-측**: 헤드 가중치의 초과첨도가 **49**(backbone 4)로 극단적 heavy-tail이라 per-tensor **활성화** 스케일이 소수 outlier에 끌려가 cls 분기의 분해능을 잃음(헤드 QDQ만 제외하면 검출이 복원되는 [§8 온디바이스 교훈](#8-실시간-시연-시스템-및-웹-배포-아키텍처)의 관찰과 일치). DFL 적분(softmax-기대값) 자체는 INT8 로짓 잡음에 강건(좌표오차 중앙값 **0.0015 bin**)하므로 DFL 수식도 원인이 아님.
 
