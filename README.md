@@ -417,8 +417,8 @@ E0~E7 8개 구성에 대한 검출 mAP / 추적 MOTA / OCR Top-1 통합 비교. 
 **분석:**
 - **W8A8 / SmoothQuant**: 검출 mAP 손실 ≤ 0.1%p, 추적 MOTA 손실 ≤ 5.1%로 실질적 무손실 — Pareto 최적 후보.
 - **W4A16**: 검출 Recall 0.531 → 0.480 → FN 증가 → MOTA −40.3%, IDF1 −37.6%. 실용 한계.
-- **IDSW**: v2 test는 GT 객체 수가 v1 대비 약 20배(주간 도심 시퀀스 추가)로 절대 IDSW가 크게 늘어날 수 있는 조건이지만, ByteTrack은 28~44건에 그침 — GT 대비 0.8~1.3%로 추적 연속성 양호.
-- **미학습 ReID(E6)**: BoT-SORT가 v2 주간 군집 환경에서 FP를 781까지 폭증시킴(E1의 ~19배). 미학습 ReID가 외형 유사도를 잘못 해석하여 false association 다발 → MOTA 0.068. **ReID 학습이 BoT-SORT의 전제 조건**임을 v2에서 다시 확인.
+- **IDSW**: v2 test는 GT 객체 수가 v1 대비 약 20배(주간 도심 시퀀스 추가)로 절대 IDSW가 크게 늘어날 수 있는 조건이지만, ByteTrack은 28 ~ 44건에 그침 — GT 대비 0.8 ~ 1.3%로 추적 연속성 양호.
+- **미학습 ReID(E6)**: BoT-SORT가 v2 주간 군집 환경에서 FP를 781까지 폭증시킴(E1의 ~ 19배). 미학습 ReID가 외형 유사도를 잘못 해석하여 false association 다발 → MOTA 0.068. **ReID 학습이 BoT-SORT의 전제 조건**임을 v2에서 다시 확인.
 
 #### 단계별 양자화 민감도 요약
 
@@ -642,7 +642,7 @@ flowchart LR
 - **INT8 ≠ 브라우저 가속.** WebGPU는 INT8을 아예 실행하지 못하고(미지원 op), WASM INT8은 ~2 FPS로 실시간 불가. INT8은 *서버 CPU*에서만 유효.
 - **FP16도 만능이 아님.** 크기는 절반이지만 ORT-Web의 fp16 커널이 미성숙해 FP32/WebGPU보다 오히려 느림. 브라우저 실시간의 레버는 *양자화*가 아니라 **WebGPU + 모델 아키텍처**.
 - **검출 헤드는 INT8에 취약.** YOLOv8 검출 헤드(DFL)까지 INT8화하면 출력 CosSim이 0.9995여도 **검출이 0으로 붕괴**. backbone만 INT8·헤드는 FP32로 남겨야 보존. → **CosSim 같은 텐서 유사도에 속지 말고 실프레임 검출 수·conf로 검증**.
-- **소형 모델은 INT8이 손해.** OCR·분류기(수십~수백 KB)는 INT8 `ConvInteger` 오버헤드가 연산 절감을 넘어 오히려 느려짐 → FP32 유지.
+- **소형 모델은 INT8이 손해.** OCR·분류기(수십 ~ 수백 KB)는 INT8 `ConvInteger` 오버헤드가 연산 절감을 넘어 오히려 느려짐 → FP32 유지.
 
 **결론 — 환경별 최적 정밀도:**
 
