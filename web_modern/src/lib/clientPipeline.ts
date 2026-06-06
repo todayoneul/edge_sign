@@ -223,7 +223,10 @@ export interface OrtNamespace {
   InferenceSession: {
     create(model: Uint8Array, opts: Record<string, unknown>): Promise<OrtSession>;
   };
-  env?: { wasm?: { numThreads?: number } };
+  env?: {
+    wasm?: { numThreads?: number };
+    webgpu?: { powerPreference?: "high-performance" | "low-power" };
+  };
 }
 
 // ── ClientPipeline — 검출 세션 + ByteTrack 통합 ───────────────────────────────
@@ -256,6 +259,11 @@ export class ClientPipeline {
     this.ort = ort;
     this.detFormat = format;
     if (ort.env?.wasm) ort.env.wasm.numThreads = 1;
+    // 하이브리드 GPU(노트북) 환경에서 내장 GPU 대신 외장(고성능) GPU 선택 강제.
+    // 미지정 시 브라우저가 저전력=내장을 골라 추론이 수배~수십배 느려짐.
+    if (ort.env) {
+      ort.env.webgpu = { ...ort.env.webgpu, powerPreference: "high-performance" };
+    }
     let lastErr: unknown = null;
     for (const ep of eps) {
       try {
