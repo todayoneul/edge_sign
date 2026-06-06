@@ -7,9 +7,7 @@
 
 ## 🎬 실시간 시연 (Live Demo)
 
-<video src="https://github.com/todayoneul/edge_sign/raw/main/demo.mp4" controls muted loop width="100%"></video>
-
-▶️ 영상이 바로 재생되지 않으면 **[demo.mp4 열기](https://github.com/todayoneul/edge_sign/raw/main/demo.mp4)** (H.264 · 1920×1080 · 55초).
+https://github.com/user-attachments/assets/3c24ca38-2660-4fdf-9bea-d1e9ef0c2e95
 
 > 웹 콘솔에 도로 영상을 입력하면 **검출 → 추적 → 한국어 인식**이 실시간으로 동작하는 시연이다.
 > (단일 프레임 정성 결과는 [7장 도메인 적응](#7-phase-3--도메인-적응-신호등-분리-검출-및-한국어-인식)의 청량리역 사거리 추론 샘플에서도 확인할 수 있다.)
