@@ -16,7 +16,6 @@ import sys
 from pathlib import Path
 
 import onnx
-from onnxconverter_common import float16
 
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
@@ -41,12 +40,19 @@ def export_fp32(weights: str, imgsz: int) -> None:
     print(f"[fp32] {FP32.name} ({_mb(FP32):.1f}MB)")
 
 
-def export_fp16() -> None:
-    m = onnx.shape_inference.infer_shapes(onnx.load(str(FP32)))
-    m16 = float16.convert_float_to_float16(m, keep_io_types=True)
-    del m16.graph.value_info[:]
-    onnx.save(m16, str(FP16))
-    print(f"[fp16] {FP16.name} ({_mb(FP16):.1f}MB)")
+def export_fp16(weights: str, imgsz: int) -> None:
+    # 네이티브 half export 사용. (post-hoc onnxconverter_common 변환은 YOLO26 end-to-end
+    # 헤드의 최종 조립 Concat에서 fp16/fp32 mixed-type → ORT 로드 실패. native는 일관 타입.)
+    import torch
+    from ultralytics import YOLO
+
+    if not torch.cuda.is_available():
+        raise SystemExit("[fp16] half ONNX export는 CUDA 필요 — GPU 환경에서 실행하라.")
+    p = YOLO(weights).export(
+        format="onnx", half=True, device=0, imgsz=imgsz, opset=14, dynamic=False, simplify=True
+    )
+    Path(p).replace(FP16)
+    print(f"[fp16] {FP16.name} ({_mb(FP16):.1f}MB, fp16 IO)")
 
 
 def export_int8(quant_head: bool, n_calib: int = 150) -> None:
@@ -121,7 +127,7 @@ def main() -> None:
     ap.add_argument("--exclude_head", action="store_true", help="INT8에서 헤드 제외(비교용)")
     args = ap.parse_args()
     export_fp32(args.weights, args.imgsz)
-    export_fp16()
+    export_fp16(args.weights, args.imgsz)
     export_int8(quant_head=not args.exclude_head)
     export_w4a16(args.weights)
     print("[done] 4 variants in model_space/")

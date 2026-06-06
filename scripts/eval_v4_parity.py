@@ -21,7 +21,8 @@ VAL = ROOT / "data" / "yolo_signs_v2" / "images" / "val"
 VARIANTS = {
     "fp32": "yolo_v4_signs_fp32.onnx",
     "fp16": "yolo_v4_signs_fp16.onnx",
-    "int8": "yolo_v4_signs_int8_static.onnx",
+    "int8_fullhead": "yolo_v4_signs_int8_static.onnx",  # 헤드 포함 → 붕괴 시연
+    "int8_headexcl": "yolo_v4_signs_int8_head_excluded.onnx",  # 헤드 제외 → 배포용
     "w4a16": "yolo_v4_signs_w4a16.onnx",
 }
 CONF = 0.25
@@ -61,15 +62,16 @@ def main() -> None:
             print(f"[skip] {k}: 로드 실패 — {str(e).splitlines()[-1][:90]}")
     if not sessions:
         raise SystemExit("variant ONNX가 없음 — 먼저 export_v4_variants.py 실행")
-    name = next(iter(sessions.values())).get_inputs()[0].name
     print(f"{'variant':8} {'avg_det':>8} {'avg_conf':>9}  (n={len(paths)} frames, conf>{CONF})")
     for k, sess in sessions.items():
+        inp = sess.get_inputs()[0]
+        dt = np.float16 if "float16" in inp.type else np.float32
         dets, confs = [], []
         for p in paths:
             img = cv2.imread(str(p))
             if img is None:
                 continue
-            out = sess.run(None, {name: _pre(img)})[0]
+            out = sess.run(None, {inp.name: _pre(img).astype(dt)})[0]
             d, c = _decode(out)
             dets.append(d)
             confs.append(c)
