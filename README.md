@@ -28,6 +28,7 @@ Edge-Sign은 엣지 디바이스에서 실시간으로 한글 간판과 교통�
 | **Phase 1** | 압축 방법론 확립 (분류 백본) | 6개 양자화 기법 구현·비교. W8A8 SmoothQuant Final Score **0.8068** 최고. 1-Bit(1.99 MB)에서 정보이론적 한계 정량화 |
 | **Phase 2** | 파이프라인 단계별 양자화 민감도 | YOLOv8s 검출 + ByteTrack + 분기 인식, E0~E7 8개 구성. 검출기 W8A8 **무손실** · 인식기 W4A16 **−43.9%p 붕괴** → 인식기가 최대 병목임을 규명. INT8 Static **56.3 FPS** |
 | **Phase 3** | 도메인 적응 및 실시간 시연 | 신호등 분리 검출(mAP **0.776**) + 한국어 14클래스 분류기(val **80.3%**) + 임의 입력 범용 파이프라인 + GPU 가속 + LLM 주행 Q&A |
+| **온디바이스·프로덕션** | 브라우저 WebGPU 추론 · 양자화 A/B · 단일 React 콘솔 | INT8은 WebGPU 불가 → **FP32/WebGPU 62 FPS** 온디바이스 달성. 검출 헤드 INT8 붕괴(CosSim 무용) 규명. HF Spaces(Docker) 배포 |
 
 **Phase 2 정량 성과 (v2 Stratified Split, 2026-05-30 깨끗한 환경 재측정):**
 
@@ -289,57 +290,32 @@ val·test 모두 두 도메인을 포함하도록 한다.
 기존 (크기 내림차순) 방식은 train(주간 6)/val(야간 1)/test(야간 2) 구성이 되어
 주간 도메인에 대한 검증이 누락되는 문제가 있어 v2 분할로 개선하였다.
 
-| 시퀀스 | 해상도 | 주야간 | 분할 (v2 stratified) | 분할 (v1 size-desc, deprecated) |
-| :--- | :---: | :---: | :---: | :---: |
-| c_validation_1280_720_daylight_1 | 1280x720 | 주간 | train | train |
-| c_validation_1280_720_daylight_2 | 1280x720 | 주간 | train | train |
-| c_validation_1280_720_daylight_3 | 1280x720 | 주간 | train | train |
-| c_validation_1920_1200_daylight_1 | 1920x1200 | 주간 | train | train |
-| d_validation_1920_1080_daylight_1 | 1920x1080 | 주간 | val | train |
-| d_validation_1920_1080_daylight_2 | 1920x1080 | 주간 | test | train |
-| c_validation_1280_720_night_1 | 1280x720 | 야간 | train | test |
-| d_validation_1920_1080_night_1 | 1920x1080 | 야간 | val | val |
-| c_validation_1920_1200_night_1 | 1920x1200 | 야간 | test | test |
+| 시퀀스 | 해상도 | 주야간 | 분할 (v2 stratified) |
+| :--- | :---: | :---: | :---: |
+| c_validation_1280_720_daylight_1 | 1280x720 | 주간 | train |
+| c_validation_1280_720_daylight_2 | 1280x720 | 주간 | train |
+| c_validation_1280_720_daylight_3 | 1280x720 | 주간 | train |
+| c_validation_1920_1200_daylight_1 | 1920x1200 | 주간 | train |
+| d_validation_1920_1080_daylight_1 | 1920x1080 | 주간 | val |
+| d_validation_1920_1080_daylight_2 | 1920x1080 | 주간 | test |
+| c_validation_1280_720_night_1 | 1280x720 | 야간 | train |
+| d_validation_1920_1080_night_1 | 1920x1080 | 야간 | val |
+| c_validation_1920_1200_night_1 | 1920x1200 | 야간 | test |
 
 **v2 분할 구성:** train 5(주간 4 + 야간 1) / val 2(주간 1 + 야간 1) / test 2(주간 1 + 야간 1).
 test 시퀀스는 연속 프레임을 보존하여 ByteTrack 추적 평가(MOTA/IDF1/HOTA) 및 웹 시연에 활용한다.
 
-> 본 README에 보고된 E0~E7 정량 결과는 **v1 분할 기준**으로 학습·평가되었다(2026-05-28 시점).
-> v2 stratified 분할은 `scripts/extract_frames.py`에 반영되었으며, 차기 재학습 시 적용된다.
-> v1 결과 해석 시 val·test의 야간 편향(주간 도메인 미검증)을 고려할 것.
+> 본 README의 E0~E7 정량 결과는 모두 **v2 stratified 분할** 기준이다(2026-05-30 깨끗한 환경 재측정).
+> 주야간 두 도메인을 train/val/test에 균등 배분하여 v1(크기 내림차순)의 주간 검증 누락을 해소하였다.
 
 #### 처리 파이프라인
 
 ```
-AIhub/신호등-도로표지판 인지 영상(수도권)/Validation/
-  [원천]*.tar  (JPG 프레임)  +  [라벨]*.tar  (JSON 어노테이션)
-         |
-         v
-scripts/extract_frames.py  --sample_rate 6
-  # 매 6번째 프레임 서브샘플 (30fps -> 5fps 시뮬레이션)
-  # 시퀀스 크기 기준 자동 분할: train 6 / val 1 / test 2
-  # 추출 결과: 18,488 프레임 (train 18,146 / val 184 / test 158)
-         |
-         +-- data/aihub_traffic/train/images/{seq}/  +  labels/{seq}/
-         +-- data/aihub_traffic/val/images/{seq}/    +  labels/{seq}/
-         +-- data/aihub_traffic/test/images/{seq}/   +  labels/{seq}/
-                                                     (ByteTrack 추적 평가용)
-         |
-         v
-src/detect/prepare_dataset.py --source aihub_traffic   # JSON xyxy -> YOLO
-src/detect/prepare_dataset.py --source aihub_signboard # COCO xywh -> YOLO
-src/detect/prepare_dataset.py --source gtsdb           # PPM/gt.txt -> YOLO
-         |
-         v  (--source all 로 3개 합산)
-data/yolo_signs/
-  +-- images/train/  26,866 JPGs   (GTSDB + AI Hub traffic + AI Hub signboard)
-  +-- images/val/     4,667 JPGs
-  +-- labels/train/  26,866 .txt   (YOLO format: class cx cy bw bh)
-  +-- labels/val/     4,667 .txt
-  +-- dataset.yaml                 (nc=2, names: traffic_sign / signboard)
-         |
-         v
-YOLOv8n 학습  ->  src/detect/yolo_train.py
+[원천]*.tar + [라벨]*.tar (JPG 프레임, 동영상 아님)
+  → scripts/extract_frames.py --sample_rate 6   # 30→5fps 서브샘플, 시퀀스 단위 분할
+  → src/detect/prepare_dataset.py --source all   # JSON/COCO/PPM → YOLO, 3개 소스 합산
+  → data/yolo_signs/ (train 26,866 / val 4,667, nc=2: traffic_sign·signboard)
+  → src/detect/yolo_train.py                     # YOLOv8 학습
 ```
 
 ---
@@ -655,19 +631,30 @@ flowchart LR
 참조 구현: `web_modern/` (React/Vite 검출·추적·Q&A 콘솔, 라이트/다크 토글 · 헤더 'OCR 데모' → `/detection/ocr/`),
 `web_modern/src/lib/{byteTrack,clientPipeline}.ts`(온디바이스), `src/pipeline/{app,sources,session}.py`
 
-#### 온디바이스 타당성 스파이크 (`/detection/spike/`)
+#### 온디바이스 경량화 — 문제점과 장단점 (`/detection/spike/`)
 
-브라우저 추론 실현 가능성을 모델·EP 조합별로 실측한 결과:
+브라우저에서 검출기를 직접 추론할 때, 정밀도·런타임(EP) 조합별 실측 결과다.
 
 | 검출기 | EP | FPS | 비고 |
 |--------|----|----:|------|
 | FP32 (43MB) | **WebGPU** | **62** | 실시간 충분 — 온디바이스 기본 |
-| FP16 (22MB) | WebGPU | 24 | 크기 절반, 속도는 더 느림(ORT-Web fp16 커널 미성숙) |
+| FP16 (22MB) | WebGPU | 24 | 크기 절반이나 더 느림 (ORT-Web fp16 커널 미성숙) |
 | INT8 (18MB) | WASM | 2.2 | 실시간 불가 |
-| INT8 | WebGPU | — | **실행 불가**(`int32 DequantizeLinear` 미지원) |
+| INT8 | WebGPU | — | **실행 불가** (`int32 DequantizeLinear` 미지원) |
 
-> **핵심 발견:** 브라우저 엣지의 레버는 *양자화(INT8)*가 아니라 **WebGPU + 모델 아키텍처**다.
-> INT8은 브라우저 WebGPU에서 동작하지 않으며, 실시간 온디바이스 추론은 FP32/WebGPU로 달성된다.
+"양자화 = 엣지에서 빠름"이라는 직관과 달리, 실제 경량화는 **배포 런타임에 따라 정반대로** 작동했다. 네 가지가 핵심 교훈이다.
+
+- **INT8 ≠ 브라우저 가속.** WebGPU는 INT8을 아예 실행하지 못하고(미지원 op), WASM INT8은 ~2 FPS로 실시간 불가다. INT8은 *서버 CPU*에서만 정답이다.
+- **FP16도 만능이 아니다.** 크기는 절반이지만 ORT-Web의 fp16 커널이 미성숙해 FP32/WebGPU보다 오히려 느리다. 브라우저 실시간의 레버는 *양자화*가 아니라 **WebGPU + 모델 아키텍처**다.
+- **검출 헤드는 INT8에 취약하다.** YOLOv8 검출 헤드(DFL)까지 INT8화하면 출력 CosSim이 0.9995여도 **검출이 0으로 붕괴**한다. 백본만 INT8·헤드는 FP32로 남겨야 보존된다. → **CosSim 같은 텐서 유사도에 속지 말고 실프레임 검출 수·conf로 검증**해야 한다.
+- **소형 모델은 INT8이 손해다.** OCR·분류기(수십~수백 KB)는 INT8 `ConvInteger` 오버헤드가 연산 절감을 넘어 오히려 느려진다 → FP32 유지.
+
+**결론 — 환경별 최적 정밀도:**
+
+| 배포 환경 | 검출기 | 인식기(소형) | 근거 |
+| :--- | :--- | :--- | :--- |
+| 브라우저 온디바이스 | **FP32 / WebGPU** | FP32 | WebGPU INT8 불가 · fp16 커널 미성숙 |
+| 서버 CPU | **INT8 Static QDQ**(헤드 제외) | FP32 | INT8 Conv 2.4× 가속 · 헤드는 붕괴 방지 |
 
 ### 8.1. 서버 동작 검증
 
@@ -691,6 +678,13 @@ uvicorn src.pipeline.app:app --port 8000
 #  → http://localhost:8000/detection/  브라우저 접속
 #  비호환 코덱/URL/이미지는 자동으로 서버 디코딩 경로로 폴백
 ```
+
+### 8.2. 프로덕션 고도화 및 다음 단계
+
+- **양자화 A/B 실측 토글**: 서버가 v3 검출기의 FP32와 INT8 Static QDQ(헤드 제외)를 동시 로드하여 웹에서 실시간 전환·비교한다. INT8은 44.8 → **18.0 MB(2.49× 축소)**, 실프레임 검출 11/12 일치·conf 동일로 near-lossless.
+- **프론트 단일화**: 데모 콘솔을 React 19 + Vite + TS(`web_modern/`)로 통합하고 `서버 ⇄ 온디바이스` 토글·단계별 `stage_ms` 계측·BYOK Q&A를 제공한다.
+- **코드 품질·배포**: `ruff` · `mypy`(`src/pipeline` strict) · `loguru` · `pytest` 게이트, HF Spaces(Docker, CPU) 패키징.
+- **다음 단계 (진행 중)**: 검출기를 **YOLO26**(NMS-free · DFL 제거)으로 교체하여 위 "검출 헤드 INT8 붕괴" 제약을 구조적으로 없애고, 헤드까지 풀 INT8 양자화한 모델을 **폰 온디바이스(WebGPU)**에서 정밀도 사다리(FP32→FP16→INT8→W4A16)로 시연한다.
 
 ---
 
