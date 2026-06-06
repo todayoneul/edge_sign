@@ -819,3 +819,20 @@ header { padding: var(--sp-4) var(--sp-6); }
 .qa-surface { border-top: 1px solid var(--line); background: var(--surface); }
 /* 칩: 항상 표면화된 패널에 맞춰 줄바꿈 허용 */
 .qa-surface .quick-chips { flex-wrap: wrap; }
+
+/* BYOK 접이식 — 기본 숨김, 작은 한 줄 토글(UI 방해 최소화) */
+.byok-mini { border-top: 1px solid var(--line); }
+.byok-toggle {
+  width: 100%; display: flex; align-items: center; gap: var(--sp-2);
+  padding: 9px var(--sp-4); background: transparent; border: 0; cursor: pointer;
+  font-family: var(--f-mono); font-size: 0.74rem; letter-spacing: 0.04em;
+  color: var(--ink-3); transition: color var(--dur), background var(--dur);
+}
+.byok-toggle:hover { color: var(--ink-2); background: var(--surface-2); }
+.byok-toggle > svg { width: 14px; height: 14px; opacity: 0.85; flex-shrink: 0; }
+.byok-dot { width: 6px; height: 6px; border-radius: 50%; margin-left: auto; flex-shrink: 0; }
+.byok-dot.ok { background: var(--c-sign); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-sign) 20%, transparent); }
+.byok-dot.off { background: var(--ink-4); }
+.byok-chev { transition: transform var(--dur); }
+.byok-chev.open { transform: rotate(180deg); }
+.byok-body { padding: 2px var(--sp-4) var(--sp-3); display: flex; flex-direction: column; gap: var(--sp-2); }

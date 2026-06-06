@@ -34,6 +34,7 @@ const QAPanel = forwardRef<HTMLTextAreaElement>((_, chatRef) => {
   const [msgs, setMsgs] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState("");
   const [byokVisible, setByokVisible] = useState(false);
+  const [byokOpen, setByokOpen] = useState(false);
   const logRef = useRef<HTMLDivElement>(null);
   const internalRef = useRef<HTMLTextAreaElement>(null);
   // Merge forwarded ref with internal ref
@@ -202,40 +203,57 @@ const QAPanel = forwardRef<HTMLTextAreaElement>((_, chatRef) => {
         </button>
       </div>
 
-      {/* BYOK */}
-      <div className="byok">
-        <div className="byok-label">
-          <span>Groq API 키 (BYOK)</span>
-          <span className={`byok-state ${byokKey ? "ok" : "off"}`} id="byok-state">
-            {byokKey ? "저장됨" : "미설정"}
-          </span>
-        </div>
-        <div className="byok-field">
-          <input
-            id="byok-input"
-            type={byokVisible ? "text" : "password"}
-            placeholder="gsk_..."
-            value={byokKey}
-            onChange={(e) => setByok(e.target.value.trim())}
-            autoComplete="off"
-            spellCheck={false}
-          />
-          <button
-            id="byok-show"
-            className="btn btn-ghost"
-            type="button"
-            onClick={() => setByokVisible((v) => !v)}
-            style={{ minHeight: 42, padding: "0 var(--sp-3)", fontSize: "0.72rem", fontFamily: "var(--f-mono)", flexShrink: 0 }}
-          >
-            {byokVisible ? "숨김" : "표시"}
-          </button>
-        </div>
-        <p className="byok-help">
-          키 없이도 서버 기본 키를 사용합니다.{" "}
-          <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer">
-            Groq 콘솔
-          </a>에서 발급.
-        </p>
+      {/* BYOK — 기본 접힘(키 없이도 서버 기본 키로 동작). 작은 토글로 노출. */}
+      <div className="byok-mini">
+        <button
+          type="button"
+          className="byok-toggle"
+          aria-expanded={byokOpen}
+          onClick={() => setByokOpen((o) => !o)}
+          title="Groq API 키 직접 입력(선택)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="8" cy="15" r="4" />
+            <path d="M10.8 12.2 20 3M16 7l3 3M14 9l2 2" />
+          </svg>
+          <span>Groq API 키</span>
+          <span className={`byok-dot ${byokKey ? "ok" : "off"}`} title={byokKey ? "키 저장됨" : "서버 기본 키 사용 중"} />
+          <svg className={`byok-chev${byokOpen ? " open" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
+
+        {byokOpen && (
+          <div className="byok-body">
+            <div className="byok-field">
+              <input
+                id="byok-input"
+                type={byokVisible ? "text" : "password"}
+                placeholder="gsk_…"
+                value={byokKey}
+                onChange={(e) => setByok(e.target.value.trim())}
+                autoComplete="off"
+                spellCheck={false}
+              />
+              <button
+                id="byok-show"
+                className="btn btn-ghost"
+                type="button"
+                onClick={() => setByokVisible((v) => !v)}
+                style={{ minHeight: 40, padding: "0 var(--sp-3)", fontSize: "0.72rem", fontFamily: "var(--f-mono)", flexShrink: 0 }}
+              >
+                {byokVisible ? "숨김" : "표시"}
+              </button>
+            </div>
+            <p className="byok-help">
+              키 없이도 서버 기본 키로 동작합니다.{" "}
+              <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer">
+                Groq 콘솔
+              </a>
+              에서 발급.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
