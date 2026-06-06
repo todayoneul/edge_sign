@@ -7,10 +7,10 @@ import LogoMark from "./LogoMark";
 
 interface Props {
   onFile: () => void;
-  onWebcam: () => void;
+  onSample: () => void;
 }
 
-export default function Hero({ onFile, onWebcam }: Props) {
+export default function Hero({ onFile, onSample }: Props) {
   return (
     <div id="hero">
       <span className="hero-mark" aria-hidden="true">
@@ -30,7 +30,21 @@ export default function Hero({ onFile, onWebcam }: Props) {
       </p>
 
       <div className="hero-cta">
-        <button className="btn btn-primary" id="hero-file" onClick={onFile}>
+        <button className="btn btn-primary" id="hero-sample" onClick={onSample}>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M8 5v14l11-7z" />
+          </svg>
+          샘플 영상으로 체험
+        </button>
+
+        <button className="btn btn-ghost" id="hero-file" onClick={onFile}>
           <svg
             viewBox="0 0 24 24"
             fill="none"
@@ -41,26 +55,11 @@ export default function Hero({ onFile, onWebcam }: Props) {
           >
             <path d="M5 4h5l2 3h7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" />
           </svg>
-          동영상 열기
-        </button>
-
-        <button className="btn btn-ghost" id="hero-webcam" onClick={onWebcam}>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect x="2" y="6" width="14" height="12" rx="2" />
-            <path d="M16 10l5-3v10l-5-3" />
-          </svg>
-          웹캠 시작
+          내 영상 열기
         </button>
       </div>
 
-      <p className="hero-hint">영상을 드래그·업로드하거나 웹캠으로 바로 체험하세요</p>
+      <p className="hero-hint">샘플은 서울 도심 주행 클립입니다 · 내 영상을 끌어다 놓아도 됩니다</p>
     </div>
   );
 }

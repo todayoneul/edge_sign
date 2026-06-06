@@ -14,7 +14,7 @@ import { useStore } from "../store";
 
 interface Props {
   playing: boolean;
-  onWebcam: () => void;
+  onSample: () => void;
   onFile: (f: File) => void;
   onStop: () => void;
   /** URL/이미지 서버 인제스트 */
@@ -25,7 +25,7 @@ interface Props {
 
 export default function Controls({
   playing,
-  onWebcam,
+  onSample,
   onFile,
   onStop,
   onUrl,
@@ -54,7 +54,7 @@ export default function Controls({
     <>
       {/* ── 컨트롤 바 ── */}
       <div className="controls">
-        <button className="btn btn-ghost" id="webcam-btn" onClick={onWebcam}>
+        <button className="btn btn-ghost" id="sample-btn" onClick={onSample}>
           <svg
             viewBox="0 0 24 24"
             fill="none"
@@ -63,10 +63,9 @@ export default function Controls({
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            <rect x="2" y="6" width="14" height="12" rx="2" />
-            <path d="M16 10l5-3v10l-5-3" />
+            <path d="M8 5v14l11-7z" />
           </svg>
-          웹캠
+          샘플
         </button>
 
         <button

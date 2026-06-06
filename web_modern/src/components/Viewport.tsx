@@ -388,32 +388,6 @@ export default function Viewport() {
     }
   }, [sourceKind]);
 
-  // ── startWebcam ───────────────────────────────────────────────────────────
-  const startWebcam = useCallback(async () => {
-    stopAll();
-    try {
-      const ms = await navigator.mediaDevices.getUserMedia({
-        video: { width: 640, height: 480 },
-        audio: false,
-      });
-      streamRef.current = ms;
-      const video = videoRef.current!;
-      video.srcObject = ms;
-      video.style.display = "";
-      await video.play();
-      sentDimsRef.current = { w: 640, h: 480 };
-      setMode("client");
-      setIsPlaying(true);
-      setLoaded(true);
-      setSeekbarVisible(true);
-      setStageStatus("웹캠 — 실시간 스트리밍 중");
-      setStageStatusLive(true);
-      void startCaptureInference();
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setStageStatus(`웹캠 접근 실패: ${msg}`);
-    }
-  }, [stopAll, startCaptureInference]);
 
   // ── loadVideoFile ─────────────────────────────────────────────────────────
   const loadVideoFile = useCallback(
@@ -460,6 +434,18 @@ export default function Viewport() {
     },
     [stopAll, startIngest, startCaptureInference, playbackRate],
   );
+
+  // ── loadSample — 내장 동(同)도메인 샘플 클립 로드 (웹캠 대체, 누구나 바로 체험) ──
+  const loadSample = useCallback(() => {
+    setStageStatus("샘플 영상 불러오는 중…");
+    fetch(import.meta.env.BASE_URL + "sample/seoul_daylight.mp4")
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.blob();
+      })
+      .then((b) => loadVideoFile(new File([b], "seoul_daylight.mp4", { type: "video/mp4" })))
+      .catch((e) => setStageStatus(`샘플 로드 실패: ${e}`));
+  }, [loadVideoFile]);
 
   // ── handleUrl (Controls URL 입력 → 서버 인제스트) ────────────────────────
   const handleUrl = useCallback(
@@ -717,7 +703,7 @@ export default function Viewport() {
             onFile={() =>
               (document.getElementById("file-input") as HTMLInputElement | null)?.click()
             }
-            onWebcam={startWebcam}
+            onSample={loadSample}
           />
         )}
 
@@ -754,7 +740,7 @@ export default function Viewport() {
       {/* ── 소스 선택 바 ── */}
       <Controls
         playing={isPlaying}
-        onWebcam={startWebcam}
+        onSample={loadSample}
         onFile={loadVideoFile}
         onStop={stopAll}
         onUrl={handleUrl}
