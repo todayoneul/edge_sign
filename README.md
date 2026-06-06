@@ -684,12 +684,12 @@ uvicorn src.pipeline.app:app --port 8000
 #  비호환 코덱/URL/이미지는 자동으로 서버 디코딩 경로로 폴백
 ```
 
-### 8.2. 프로덕션 고도화 및 다음 단계
+### 8.2. 프로덕션 고도화 및 향후 확장
 
 - **양자화 A/B 실측 토글**: 서버가 v3 검출기의 FP32와 INT8 Static QDQ(헤드 제외)를 동시 로드하여 웹에서 실시간 전환·비교한다. INT8은 44.8 → **18.0 MB(2.49× 축소)**, 실프레임 검출 11/12 일치·conf 동일로 near-lossless.
 - **프론트 단일화**: 데모 콘솔을 React 19 + Vite + TS(`web_modern/`)로 통합하고 `서버 ⇄ 온디바이스` 토글·단계별 `stage_ms` 계측·BYOK Q&A를 제공한다.
 - **코드 품질·배포**: `ruff` · `mypy`(`src/pipeline` strict) · `loguru` · `pytest` 게이트, HF Spaces(Docker, CPU) 패키징.
-- **다음 단계 (진행 중)**: 검출기를 **YOLO26**(NMS-free · DFL 제거)으로 교체하여 위 "검출 헤드 INT8 붕괴" 제약을 구조적으로 없애고, 헤드까지 풀 INT8 양자화한 모델을 **폰 온디바이스(WebGPU)**에서 정밀도 사다리(FP32→FP16→INT8→W4A16)로 시연한다.
+> **향후 확장 (Future Work — 본 저장소의 보고 결과에는 미포함):** 검출기를 **YOLO26**(NMS-free · DFL 제거)으로 교체하면 위 "검출 헤드 INT8 붕괴" 제약을 구조적으로 없애 헤드까지 풀 INT8 양자화가 가능하다. 이를 **폰 온디바이스(WebGPU)** 에서 정밀도 사다리(FP32→FP16→INT8→W4A16)로 시연하는 확장을 별도로 진행하고 있다. 현재 README의 모든 정량 결과·시연은 **v3(YOLOv8s) 파이프라인** 기준이다.
 
 ---
 
