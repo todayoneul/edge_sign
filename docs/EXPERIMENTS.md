@@ -370,3 +370,17 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
 - Detect 헤드(`/model.22/*` cv2·cv3·dfl)까지 INT8화하면 신뢰도가 임계값 아래로 붕괴.
 - `nodes_to_exclude`로 헤드를 FP32 유지(백본만 INT8) → 검출 보존. **실프레임 검출 수/conf로 검증해야 함.**
 - 동적 INT8(ConvInteger)은 CPU EP 미지원 → A/B는 반드시 **static(QDQ)**. 생성: `scripts/quantize_v3_detector.py`.
+
+---
+
+## Phase 12: 붕괴 '원인' 분석 — data-free 메커니즘 정량화 (2026-06-06)
+
+평가 피드백("망가졌다는 관찰만, 왜는 없다")에 대응. 데이터셋 없이 ONNX 가중치 + 구조 시뮬레이션만으로 분석(`scripts/analyze_quant_collapse.py`). **결론: OCR 붕괴와 검출 헤드 붕괴는 원인이 다르다.**
+
+| 붕괴 지점 | 진짜 원인 | 핵심 근거 | 처방 |
+|:---|:---|:---|:---|
+| OCR W4A16 | 비트폭(가중치) | INT8→INT4 전 레이어 균일 −25 dB, 고-fanin 1×1 conv(`Conv_85`,`fc_conv`) SQNR 12~13 dB(<20) | 인식기 INT8 유지 |
+| 검출 헤드 INT8 | **활성화(가중치 아님)** | 헤드 INT8 SQNR 34.1 ≥ 백본 32.8 dB → 가중치 가설 기각. 헤드 가중치 초과첨도 49(백본 4)·DFL 좌표오차 0.0015 bin(강건) | 헤드 QDQ 제외 / 구조적 DFL 제거(YOLO26) |
+| 검증 함정 | CosSim 맹점 | box 회귀가 헤드출력 L2 ~100% 지배 → CosSim≈1.000인데 검출 유지율 0% | 텐서 유사도 금지, 실프레임 검출수·conf로 검증 |
+
+**의의:** ① 검출 헤드 붕괴가 '가중치 난이도'가 아님을 데이터로 입증(통념 반전). ② DFL 적분 자체는 INT8에 강건함을 보여 DFL 수식이 아니라 활성화-측·임계값 취약성이 원인임을 좁힘 → Future Work YOLO26(DFL 제거)에 근거 제공. ③ Phase 11의 "CosSim 0.9995 검출 0" 현상을 구조적으로 설명.

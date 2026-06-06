@@ -109,6 +109,7 @@ CNN_Quant/
 │   ├── export_fp16_detector.py  # [SP-C] v3 검출기 FP32→FP16 ONNX(22MB) — 브라우저 WebGPU용
 │   │                            #   (스파이크 실측: INT8은 WebGPU 불가, fp16은 지원·크기 절반)
 │   ├── export_bytetrack_golden.py # [SP-C] ByteTrack 골든 출력 생성 → byteTrack.ts 검증 fixture
+│   ├── analyze_quant_collapse.py # [Phase 12] 붕괴 '원인' 분석(data-free) — OCR=비트폭/헤드=활성화 규명, README §8.3
 │   └── archive/                 # 종료된 Phase 1·4·5 실험·플롯·벤치마크·다운로드 스크립트 보관
 │                                #   (plot_pareto/sensitivity/v2_extras/detection_samples,
 │                                #    benchmark_pipeline, quantize_onnx_real, download_*, export_* 등)

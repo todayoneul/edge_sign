@@ -33,7 +33,7 @@ https://github.com/user-attachments/assets/3c24ca38-2660-4fdf-9bea-d1e9ef0c2e95
 
 **정직한 한계** — 추적 MOTA 절대값은 **0.295**로 높지 않다(주·야간·다중클래스·소형객체·저(低)프레임 도심 시퀀스의 난(難)조건). 본 연구의 측정 변수는 절대 성능이 아니라 **양자화에 따른 상대 열화**다. "Edge"는 브라우저/WASM/WebGPU·서버 CPU 런타임 기준이며, Jetson/Pi 등 전용 하드웨어 실측은 범위 밖이다.
 
-**배포 결과** — 총 모델 22.3 MB → **5.6 MB**(4.0× 압축, 목표 15 MB 대비 2.7배 여유), CPU **56 FPS**(목표 30의 1.9배), 브라우저 WebGPU 온디바이스 동작, HF Spaces(Docker) 패키징. ▶ [실시간 시연](#-실시간-시연-live-demo) · [온디바이스 경량화 교훈](#8-실시간-시연-시스템-및-웹-배포-아키텍처) · [재현 가이드](#9-재현-가이드-reproduction-guide)
+**배포 결과** — 총 모델 22.3 MB → **5.6 MB**(4.0× 압축, 목표 15 MB 대비 2.7배 여유), CPU **56 FPS**(목표 30의 1.9배), 브라우저 WebGPU 온디바이스 동작, HF Spaces(Docker) 패키징. ▶ [실시간 시연](#-실시간-시연-live-demo) · [붕괴 원인 분석](#83-붕괴-원인-분석-왜-망가지는가) · [온디바이스 교훈](#8-실시간-시연-시스템-및-웹-배포-아키텍처) · [재현 가이드](#9-재현-가이드-reproduction-guide)
 
 ---
 
@@ -111,6 +111,7 @@ E3(W8A8 All, 빨강)이 MOTA Pareto, E5(SmoothQuant+W8A8, 주황)가 OCR Pareto 
 - [7. Phase 3 — 도메인 적응: 신호등 분리 검출 및 한국어 인식](#7-phase-3--도메인-적응-신호등-분리-검출-및-한국어-인식)
   - [7.1 신호등 분리 검출기](#71-신호등을-별도-클래스로-분리한-검출기) · [7.2 한국어 분류기](#72-한국-표지판신호등-분류기-14클래스) · [7.3 추론 가속·Q&A](#73-추론-가속-및-주행-qa)
 - [8. 실시간 시연 시스템 및 웹 배포 아키텍처](#8-실시간-시연-시스템-및-웹-배포-아키텍처)
+  - [8.3 붕괴 원인 분석 (왜 망가지는가)](#83-붕괴-원인-분석-왜-망가지는가)
 - [9. 재현 가이드 (Reproduction Guide)](#9-재현-가이드-reproduction-guide)
 - [부록 A. 옴니모달(VLM) 탐색적 실험 (Phase 1 branch)](#부록-a-옴니모달vlm-탐색적-실험-phase-1-branch)
 
@@ -713,6 +714,26 @@ uvicorn src.pipeline.app:app --port 8000
 - **코드 품질·배포**: `ruff` · `mypy`(`src/pipeline` strict) · `loguru` · `pytest` 게이트, HF Spaces(Docker, CPU) 패키징.
 > **향후 확장 (Future Work — 본 저장소의 보고 결과에는 미포함):** 검출기를 **YOLO26**(NMS-free · DFL 제거)으로 교체하면 위 "검출 헤드 INT8 붕괴" 제약을 구조적으로 없애 헤드까지 풀 INT8 양자화가 가능하다. 이를 **폰 온디바이스(WebGPU)** 에서 정밀도 사다리(FP32→FP16→INT8→W4A16)로 시연하는 확장을 별도로 진행하고 있다. 현재 README의 모든 정량 결과·시연은 **v3(YOLOv8s) 파이프라인** 기준이다.
 
+### 8.3. 붕괴 원인 분석 (왜 망가지는가)
+
+"망가졌다"는 관찰을 넘어, **데이터셋 없이 ONNX 가중치와 구조 시뮬레이션만으로** 붕괴 메커니즘을 정량화했다(`scripts/analyze_quant_collapse.py`, 재현 가능). 결론부터: **OCR 붕괴와 검출 헤드 붕괴는 원인이 다르다.**
+
+![Quantization Collapse Analysis](assets/v3/quant_collapse_analysis.png)
+
+1. **OCR W4A16 붕괴 = 비트폭(가중치) 문제 — 맞다.** 동일 스킴에서 비트폭만 INT8→INT4로 낮추면 전 레이어 가중치 SQNR이 균일하게 **~25 dB** 하락하고, 고-fan-in 1×1 conv(`Conv_85` 256→256, `fc_conv` 256→2350)가 **12~13 dB**까지 추락한다(사용 가능 하한 ~20 dB 미만). 깊은 스택을 통과하며 누적된 오차가 2,350-way argmax를 무너뜨린다. → 인식기엔 INT8(SQNR 37~44 dB, 안전)이 정답이고 W4A16은 쓰지 않는다.
+
+2. **검출 헤드 INT8 붕괴 = 가중치 문제가 *아니다* — 반전.** 통념과 달리 검출 헤드 가중치는 백본만큼(오히려 더) 잘 양자화된다 — 헤드 INT8 SQNR **34.1 dB ≥ 백본 32.8 dB**. 즉 "헤드 가중치가 어렵다"는 가설은 **기각**된다. 진짜 원인은 **활성화-측**이다: 헤드 가중치의 초과첨도가 **49**(백본 4)로 극단적 heavy-tail이라 per-tensor **활성화** 스케일이 소수 outlier에 끌려가 cls 분기의 분해능을 잃는다(헤드 QDQ만 제외하면 검출이 복원되는 [§8 온디바이스 교훈](#8-실시간-시연-시스템-및-웹-배포-아키텍처)의 관찰과 일치). 또 DFL 적분(softmax-기대값) 자체는 INT8 로짓 잡음에 강건(좌표오차 중앙값 **0.0015 bin**)하므로 DFL 수식도 원인이 아니다.
+
+3. **그래서 CosSim 0.9995가 "검출 0"과 공존한다.** 헤드 출력 (1, 4+nc, 8400)의 L2 에너지는 box 회귀값이 거의 전부(~100%)를 차지한다. 검출을 좌우하는 소수 cls 로짓이 죽어도 전역 방향(CosSim)은 거의 1로 유지된다 — 합성 재현에서 **CosSim ≈ 1.000인데 검출 유지율 0%**. CosSim 같은 텐서 유사도는 '임계값 통과'라는 국소 결정에 **구조적으로 둔감**하므로, 양자화 검증은 반드시 **실프레임 검출 수·conf**로 해야 한다.
+
+| 붕괴 지점 | 진짜 원인 | 핵심 근거 수치 | 처방 |
+| :--- | :--- | :--- | :--- |
+| OCR W4A16 | 비트폭(가중치) | INT4 SQNR 12~13 dB (INT8 대비 −25 dB) | 인식기 INT8 유지 |
+| 검출 헤드 INT8 | 활성화(가중치 아님) | 헤드 INT8 SQNR 34 ≥ 백본 33 dB · 초과첨도 49 · DFL 0.0015 bin | 헤드 QDQ 제외 / 구조적으론 DFL 제거(→ YOLO26) |
+| 검증 함정 | CosSim의 맹점 | CosSim ≈ 1.000 · 검출 유지율 0% | 텐서 유사도 금지, 실프레임 검출수·conf로 검증 |
+
+> 이 분석이 [Future Work](#82-프로덕션-고도화-및-향후-확장)의 YOLO26(DFL·NMS 제거) 방향에 **근거**를 준다: 헤드 붕괴는 가중치가 아니라 DFL 구조가 만든 활성화-측·임계값 취약성이므로, DFL을 구조적으로 없애면 헤드까지 INT8 양자화 가능성이 열린다.
+
 ---
 
 ## 9. 재현 가이드 (Reproduction Guide)
@@ -788,6 +809,9 @@ python src/quant/run_experiments.py    # E1 W8A8 / E4 W4A16 / E5 SmoothQuant
 # 추적 ablation (검출기 양자화 -> 추적 MOTA 영향)
 python src/track/run_tracking_ablation.py             # E1/E4/E5 순차 실행
 python src/track/eval_tracking.py --onnx <path.onnx> # 단일 모델 평가
+
+# 붕괴 '원인' 분석 (§8.3) — 데이터셋 불필요, ONNX 가중치만으로 재현
+python scripts/analyze_quant_collapse.py             # → assets/v3/quant_collapse_analysis.png
 ```
 
 ### Phase 2 — E2E 파이프라인
