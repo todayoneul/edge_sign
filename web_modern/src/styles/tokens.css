@@ -7,12 +7,12 @@
   --f-sans: 'Fira Sans', 'Pretendard', system-ui, sans-serif;
   --f-mono: 'Fira Code', 'Spline Sans Mono', ui-monospace, monospace;
 
-  /* 검출 데이터 전용 시그널색 (테마 공통) */
-  --c-sign:  #22c55e;   /* 교통표지판 */
-  --c-light: #ef4444;   /* 신호등 */
-  --c-board: #f59e0b;   /* 간판 */
+  /* 검출 데이터 전용 시그널색 (테마 공통) — Direction A "랩 노트북" 채도 통일 */
+  --c-sign:  #18a268;   /* 교통표지판 */
+  --c-light: #e23b3b;   /* 신호등 */
+  --c-board: #cf8a09;   /* 간판 */
   /* 온디바이스(브라우저 GPU/compute) 액센트 — 추론 위치 강조 */
-  --c-edge:  #7c8cff;
+  --c-edge:  #4b57d6;
   --c-edge-ink: #ffffff;
 
   /* 간격 스케일 (8px 리듬) */
@@ -46,25 +46,25 @@ html[data-theme="dark"] {
   --spark:     #52525b;
 }
 
-/* ── 라이트 (기본) — 프리미엄 중립 팔레트, WCAG AA 대비 ──────────── */
+/* ── 라이트 (기본) — Direction A "랩 노트북" 종이/중립 팔레트 ──────── */
 html[data-theme="light"] {
-  --bg:        #f5f6f8;   /* 부드러운 오프화이트 캔버스 */
+  --bg:        #fbfbf9;   /* 종이 배경 */
   --surface:   #ffffff;   /* 카드/패널 */
-  --surface-2: #f1f3f5;
-  --surface-3: #e7eaee;
-  --ink:       #16181d;   /* 본문 — #fff 대비 ~15:1 */
-  --ink-2:     #485161;
-  --ink-3:     #6b7280;
-  --ink-4:     #9aa3af;
-  --line:      #e6e8ec;
-  --line-2:    #d3d8df;
-  --invert-bg: #16181d;
+  --surface-2: #f4f5f3;   /* 입력/칩 배경 */
+  --surface-3: #eaecee;   /* hover */
+  --ink:       #15171b;   /* 본문 */
+  --ink-2:     #4b525d;   /* 보조 텍스트 */
+  --ink-3:     #828a95;   /* 레이블/캡션 */
+  --ink-4:     #aab0ba;   /* 플레이스홀더 */
+  --line:      #e7e9ec;   /* 주 구분선 */
+  --line-2:    #d6dade;   /* 보조 구분선 */
+  --invert-bg: #15171b;
   --invert-ink:#ffffff;
-  --viewport:  #0d0f13;   /* 영상 영역은 어둡게(대비) */
+  --viewport:  #0b0d11;   /* 영상 스테이지(바운딩박스 대비) */
   --scrim:     rgba(16,18,24,0.5);
-  --focus:     rgba(37,99,235,0.55);
+  --focus:     rgba(75,87,214,0.55);
   --shadow:    0 1px 2px rgba(16,18,24,0.05), 0 12px 28px -16px rgba(16,18,24,0.22);
-  --spark:     #9aa3af;
+  --spark:     #aab0ba;
 }
 
 /* ── 글래스 토큰 ──────────────────────────────────────── */

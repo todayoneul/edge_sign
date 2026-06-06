@@ -3,6 +3,8 @@
  * web/detection/index.html #hero 포팅
  */
 
+import LogoMark from "./LogoMark";
+
 interface Props {
   onFile: () => void;
   onWebcam: () => void;
@@ -12,26 +14,19 @@ export default function Hero({ onFile, onWebcam }: Props) {
   return (
     <div id="hero">
       <span className="hero-mark" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none">
-          <path
-            d="M12 2.5 21.5 12 12 21.5 2.5 12 12 2.5Z"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinejoin="round"
-          />
-          <circle cx="12" cy="12" r="3" fill="var(--c-sign)" />
-        </svg>
+        <LogoMark size={50} color="rgba(255,255,255,0.85)" />
       </span>
 
       <h2>
-        주행 인지를
+        <span className="eyebrow">On-device perception</span>
+        주행 장면을
         <br />
-        엣지에서, 실시간으로.
+        엣지에서 직접 분석합니다
       </h2>
 
       <p className="lead">
-        검출 · 추적 · 인식 파이프라인을 <b>브라우저(WebGPU)에서 직접</b>. 표지판 · 신호등 · 간판을
-        동시에 감지하고, 장면을 그대로 질문하세요.
+        표지판 · 신호등 · 간판을 <b>브라우저(WebGPU)</b>에서 동시에 검출 · 추적 · 인식합니다.{" "}
+        <span className="acc">서버 전송 없이</span>, 영상은 기기 밖으로 나가지 않습니다.
       </p>
 
       <div className="hero-stats">

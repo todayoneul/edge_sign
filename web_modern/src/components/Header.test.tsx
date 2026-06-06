@@ -48,22 +48,23 @@ afterEach(() => {
     totalDetections: 0,
     telemetry: { fps: 0, inferenceMs: 0 },
     connected: false,
+    playing: false,
   });
 });
 
-test("Header 렌더: 활성 트랙 KPI가 0으로 시작", () => {
+test("Header 렌더: idle(미재생) 시 KPI 격자 숨김 + '분석 준비됨' 뱃지", () => {
   render(<Header onToggleTheme={() => {}} />);
-  // 초기에는 tracks=0 (kpi-tracks ID로 조회)
-  const kpiEl = document.getElementById("kpi-tracks");
-  expect(kpiEl).not.toBeNull();
-  expect(kpiEl!.textContent).toBe("0");
+  // Direction A: idle엔 KPI 격자 대신 ready 뱃지 노출
+  expect(document.getElementById("kpi-tracks")).toBeNull();
+  expect(screen.getByText("분석 준비됨")).toBeTruthy();
 });
 
-test("Header 렌더: store에 tracks 주입 시 KPI 갱신", () => {
+test("Header 렌더: 재생 중 store에 tracks 주입 시 KPI 갱신", () => {
   render(<Header onToggleTheme={() => {}} />);
 
   act(() => {
     useStore.setState({
+      playing: true,
       tracks: [
         { id: 1, class: 0, class_name: "traffic_sign", conf: 0.9, bbox: [0, 0, 10, 10] },
         { id: 2, class: 1, class_name: "traffic_light", conf: 0.8, bbox: [5, 5, 15, 15] },
@@ -72,7 +73,7 @@ test("Header 렌더: store에 tracks 주입 시 KPI 갱신", () => {
     });
   });
 
-  // 활성 트랙 KPI (#kpi-tracks) 값이 3이어야 함
+  // 재생 중에는 활성 트랙 KPI (#kpi-tracks) 값이 3이어야 함
   const kpiEl = document.getElementById("kpi-tracks");
   expect(kpiEl).not.toBeNull();
   expect(kpiEl!.textContent).toBe("3");

@@ -8,6 +8,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useStore } from "../store";
+import LogoMark from "./LogoMark";
 
 interface Props {
   onToggleTheme: () => void;
@@ -78,6 +79,7 @@ export default function Header({ onToggleTheme, onOpenShortcuts }: Props) {
   const totalDetections = useStore((s) => s.totalDetections);
   const connected = useStore((s) => s.connected);
   const pipelineMode = useStore((s) => s.pipelineMode);
+  const playing = useStore((s) => s.playing);
   const variant = useStore((s) => s.telemetry.variant);
   const [fpsHistory, setFpsHistory] = useState<number[]>([]);
 
@@ -106,24 +108,17 @@ export default function Header({ onToggleTheme, onOpenShortcuts }: Props) {
     <header>
       {/* 브랜드 */}
       <div className="brand">
-        <span className="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none">
-            <path
-              d="M12 2.5 21.5 12 12 21.5 2.5 12 12 2.5Z"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinejoin="round"
-            />
-            <circle cx="12" cy="12" r="3" fill="var(--c-sign)" />
-          </svg>
-        </span>
+        <LogoMark size={34} />
         <span className="brand-text">
-          <h1>Edge&#8209;Sign Console</h1>
-          <span className="sub">주행 인지 관제</span>
+          <h1>
+            Edge<span className="accent">·</span>Sign
+          </h1>
+          <span className="sub">온디바이스 주행 인지</span>
         </span>
       </div>
 
-      {/* KPI 클러스터 */}
+      {/* KPI 클러스터 — 분석 중에만 노출(idle 0.0 잡음 제거) */}
+      {playing && (
       <div className="kpis" role="group" aria-label="실시간 지표">
         <div className="kpi">
           <span className="kpi-label">처리 FPS</span>
@@ -160,9 +155,18 @@ export default function Header({ onToggleTheme, onOpenShortcuts }: Props) {
           </div>
         </div>
       </div>
+      )}
 
       {/* 오른쪽: 추론 엔진 + 상태 필 + 버튼들 */}
       <div className="header-right">
+        {/* 분석 준비됨 — idle 상태에서만 (KPI 격자 대체) */}
+        {!playing && (
+          <span className="ready-badge">
+            <span className="dot" />
+            분석 준비됨
+          </span>
+        )}
+
         {/* 추론 위치 인디케이터 — 서버 vs 브라우저 온디바이스(WebGPU) */}
         <span
           className={`engine-pill${onDevice ? " ondevice" : ""}`}

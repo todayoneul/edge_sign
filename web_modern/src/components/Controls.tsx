@@ -9,7 +9,7 @@
  * 모드②(URL/image/incompatible) → useSession 서버 인제스트
  */
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { useStore } from "../store";
 
 interface Props {
@@ -33,7 +33,6 @@ export default function Controls({
   stageStatusLive = false,
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [urlValue, setUrlValue] = useState("");
   const pipelineMode = useStore((s) => s.pipelineMode);
   const setPipelineMode = useStore((s) => s.setPipelineMode);
   const ondeviceModel = useStore((s) => s.ondeviceModel);
@@ -49,11 +48,6 @@ export default function Controls({
     } else {
       onFile(f);
     }
-  }
-
-  function submitUrl() {
-    const u = urlValue.trim();
-    if (u) onUrl?.(u);
   }
 
   return (
@@ -122,44 +116,6 @@ export default function Controls({
             e.target.value = "";
           }}
         />
-
-        {/* URL 입력 (T7 stub) */}
-        <input
-          type="text"
-          id="url-input"
-          placeholder="영상 URL / RTSP / YouTube"
-          value={urlValue}
-          onChange={(e) => setUrlValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") submitUrl();
-          }}
-          style={{
-            flex: "0 1 220px",
-            minWidth: 140,
-            background: "var(--surface-2)",
-            border: "1px solid var(--line-2)",
-            borderRadius: "var(--r-sm)",
-            padding: "7px 10px",
-            color: "var(--ink)",
-            fontFamily: "var(--f-mono)",
-            fontSize: "0.72rem",
-            outline: "none",
-          }}
-        />
-        <button className="btn btn-ghost" id="url-btn" onClick={submitUrl}>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1" />
-            <path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1" />
-          </svg>
-          URL
-        </button>
 
         {/* 추론 위치 토글: 서버 WS ⇄ 브라우저 온디바이스(WebGPU). 다음 소스 시작 시 적용. */}
         <div

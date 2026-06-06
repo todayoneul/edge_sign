@@ -760,3 +760,46 @@ main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
   .kpi { min-width: 0; flex: 1; }
   #footer .ftr-keys { display: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   Direction A — "랩 노트북" 개편 오버라이드
+   (AI/관제 분위기 제거 · 글자 확대 · idle 클린)
+   ══════════════════════════════════════════════════════════════════ */
+
+/* 헤더: 여유 패딩 + 워드마크 확대 */
+header { padding: var(--sp-4) var(--sp-6); }
+.brand-text h1 { font-size: 1.18rem; letter-spacing: -0.015em; }
+.brand-text h1 .accent { color: var(--c-sign); }
+.brand-text .sub { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.22em; }
+
+/* 분석 준비됨 뱃지 (idle, KPI 격자 대체) */
+.ready-badge {
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+  font-family: var(--f-mono); font-size: 0.78rem; font-weight: 500;
+  letter-spacing: 0.04em; color: var(--ink-2); white-space: nowrap;
+  padding: 7px 13px; border: 1px solid var(--line-2); border-radius: 9px;
+}
+.ready-badge .dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--c-sign);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-sign) 22%, transparent);
+}
+
+/* 히어로: 큰 타이포 + eyebrow + 마크 박스 제거 */
+.hero-mark { border: 0; width: auto; height: auto; border-radius: 0; }
+#hero { gap: var(--sp-4); }
+#hero h2 {
+  font-size: clamp(2rem, 4.6vw, 2.9rem); font-weight: 600;
+  letter-spacing: -0.025em; line-height: 1.09; margin-top: var(--sp-2);
+}
+#hero h2 .eyebrow {
+  display: block; font-family: var(--f-mono); font-size: 0.9rem; font-weight: 500;
+  letter-spacing: 0.26em; text-transform: uppercase;
+  color: rgba(255,255,255,0.42); margin-bottom: var(--sp-4);
+}
+#hero p.lead { font-size: 1.16rem; line-height: 1.62; max-width: 46ch; color: rgba(255,255,255,0.66); }
+#hero p.lead b { color: #fff; }
+#hero p.lead .acc { color: #9aa6ff; font-weight: 500; }
+
+/* 버튼·레일 본문 확대 (가독성) */
+.btn { font-size: 0.95rem; min-height: 52px; }
+.legend-row, .panel-row { font-size: 0.96rem; }
