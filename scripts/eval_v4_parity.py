@@ -49,11 +49,16 @@ def main() -> None:
     ap.add_argument("--n", type=int, default=20)
     args = ap.parse_args()
     paths = sorted(VAL.glob("*.jpg"))[: args.n]
-    sessions = {
-        k: ort.InferenceSession(str(MS / v), providers=["CPUExecutionProvider"])
-        for k, v in VARIANTS.items()
-        if (MS / v).exists()
-    }
+    sessions = {}
+    for k, v in VARIANTS.items():
+        if not (MS / v).exists():
+            continue
+        try:
+            sessions[k] = ort.InferenceSession(
+                str(MS / v), providers=["CPUExecutionProvider"]
+            )
+        except Exception as e:  # noqa: BLE001 — 로드 실패 variant는 건너뛰고 보고
+            print(f"[skip] {k}: 로드 실패 — {str(e).splitlines()[-1][:90]}")
     if not sessions:
         raise SystemExit("variant ONNX가 없음 — 먼저 export_v4_variants.py 실행")
     name = next(iter(sessions.values())).get_inputs()[0].name

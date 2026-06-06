@@ -59,8 +59,9 @@ def export_int8(quant_head: bool, n_calib: int = 150) -> None:
 
     from scripts.quantize_v3_detector import FlatYoloCalib  # 캘리브레이션 리더 재사용
 
-    # YOLO26은 DFL 없음 → 기본 풀헤드 양자화(exclude=[]). 헤드 제외 비교가 필요하면 노드명으로 지정.
-    exclude: list[str] = []
+    # [실측 정정] YOLO26은 NMS-free(one2one)일 뿐 DFL-style box 헤드를 유지한다.
+    # 풀헤드 INT8(quant_head=True)는 v3와 동일하게 검출 0으로 붕괴(eval_v4_parity로 확인).
+    # 배포용은 헤드(model.<최대인덱스>)를 제외해야 fp32 수준 검출이 복원된다.
     prep = MS / "_prep_v4.onnx"
     quant_pre_process(
         input_model_path=str(FP32),
@@ -69,6 +70,19 @@ def export_int8(quant_head: bool, n_calib: int = 150) -> None:
         skip_onnx_shape=False,
         skip_symbolic_shape=True,
     )
+    exclude: list[str] = []
+    if not quant_head:
+        import re
+
+        g = onnx.load(str(prep)).graph
+        idxs = {
+            int(m.group(1))
+            for n in g.node
+            if (m := re.search(r"model\.(\d+)", n.name or ""))
+        }
+        head = f"model.{max(idxs)}"  # 검출 헤드 모듈
+        exclude = [n.name for n in g.node if head in (n.name or "")]
+        print(f"[int8] 헤드({head}) 제외 노드 {len(exclude)}개")
     quantize_static(
         model_input=str(prep),
         model_output=str(INT8),

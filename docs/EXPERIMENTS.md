@@ -383,4 +383,17 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
 | 검출 헤드 INT8 | **활성화(가중치 아님)** | 헤드 INT8 SQNR 34.1 ≥ 백본 32.8 dB → 가중치 가설 기각. 헤드 가중치 초과첨도 49(백본 4)·DFL 좌표오차 0.0015 bin(강건) | 헤드 QDQ 제외 / 구조적 DFL 제거(YOLO26) |
 | 검증 함정 | CosSim 맹점 | box 회귀가 헤드출력 L2 ~100% 지배 → CosSim≈1.000인데 검출 유지율 0% | 텐서 유사도 금지, 실프레임 검출수·conf로 검증 |
 
-**의의:** ① 검출 헤드 붕괴가 '가중치 난이도'가 아님을 데이터로 입증(통념 반전). ② DFL 적분 자체는 INT8에 강건함을 보여 DFL 수식이 아니라 활성화-측·임계값 취약성이 원인임을 좁힘 → Future Work YOLO26(DFL 제거)에 근거 제공. ③ Phase 11의 "CosSim 0.9995 검출 0" 현상을 구조적으로 설명.
+**의의:** ① 검출 헤드 붕괴가 '가중치 난이도'가 아님을 데이터로 입증(통념 반전). ② DFL 적분 자체는 INT8에 강건함을 보여 DFL 수식이 아니라 활성화-측·임계값 취약성이 원인임을 좁힘. ③ Phase 11의 "CosSim 0.9995 검출 0" 현상을 구조적으로 설명.
+
+### YOLO26로 가설 검증 (예비, negative result → 강한 확증)
+
+위 "헤드 붕괴=활성화-측" 가설을 YOLO26로 직접 시험. YOLO26-n 재학습(`scripts/train_v4_detector.py`, 40ep imgsz1280, **mAP50 0.748**, best.pt 5.4 MB) → 4정밀도 export(`export_v4_variants.py`) → 실프레임 패리티(`eval_v4_parity.py`, val 25프레임, conf>0.25, 출력 (1,300,6) NMS-free).
+
+| variant | avg_det | avg_conf | size | 비고 |
+|:---|:---:|:---:|:---:|:---|
+| fp32 | 1.7 | 0.564 | 9.8 MB | 기준 |
+| INT8 **풀헤드** | **0.0** | 0.000 | 3.1 MB | v3와 동일하게 검출 붕괴 |
+| INT8 **헤드 제외** | **1.7** | 0.525 | 3.4 MB | fp32 수준 복원 (2.9×↓) |
+| W4A16(fake-quant) | 0.6 | 0.165 | 9.8 MB | 저하 |
+
+**핵심:** YOLO26의 혁신은 **NMS-free(one2one 헤드)**일 뿐 — head 모듈(`model.23`)은 `one2one_cv2`(box, DFL-style)+`one2one_cv3`(cls)로 **DFL을 유지**한다(학습 로그에 `dfl_loss` 존재). 따라서 풀헤드 INT8은 v3와 똑같이 0으로 붕괴 → "모델 교체로 헤드 INT8 해결" 가설을 **기각**, §8.3의 활성화-측 진단을 **확증**. 처방은 동일하게 헤드 제외(QDQ exclude `model.23`). (정정: `export_v4_variants.py`의 `--exclude_head`가 실제 노드 제외를 안 하던 버그 수정.)
