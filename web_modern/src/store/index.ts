@@ -57,7 +57,8 @@ interface State {
 export const useStore = create<State>((set, get) => ({
   connected: false,
   sourceKind: "none",
-  pipelineMode: "server",
+  // 기본 온디바이스(WebGPU) — 공개 데모가 무료 CPU 서버에 의존하지 않고 방문자 GPU에서 추론(빠름).
+  pipelineMode: "ondevice",
   ondeviceModel: "fp32",
   playing: false,
   tracks: [],
