@@ -9,9 +9,11 @@
 **huggingface 온라인 체험: https://huggingface.co/spaces/gyann/edge-sign**
 브라우저에서 검출·추적·한국어 인식과 **서버 ⇄ 온디바이스(WebGPU)** · **FP32 ⇄ INT8** 토글, 장면 Q&A 직접 체험 가능.
 
-https://github.com/user-attachments/assets/3c24ca38-2660-4fdf-9bea-d1e9ef0c2e95
-test 가능한 동영상은 아래 링크를 통해 train에 전혀 사용하지 않은 영상 data 다운로드 가능(시연 동영상도 아래 링크 data)
-https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=597
+https://github.com/user-attachments/assets/3c24ca38-2660-4fdf-9bea-d1e9ef0c2e95    
+
+test 가능한 동영상은 아래 링크를 통해 train에 전혀 사용하지 않은 영상 data 다운로드 가능(시연 동영상도 아래 링크 data)    
+https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=597    
+
 
 **미리보기 — 청량리역 사거리 (단일 프레임 추론):**
 
