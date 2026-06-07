@@ -1,3 +1,6 @@
+
+
+
 # Edge-Sign: 초경량 온디바이스 간판·표지판 인식 시스템
 
 > 웹 브라우저에 영상을 넣으면 **검출 → 추적 → 인식**이 실시간으로 동작하고,
@@ -19,8 +22,8 @@
 > 샘플 클립은 [**v1.0.1 릴리스**](https://github.com/todayoneul/edge_sign/releases/tag/v1.0.1)에서도
 > 내려받을 수 있다 — [주간 도심](https://github.com/todayoneul/edge_sign/releases/download/v1.0.1/seoul_daylight.mp4) ·
 > [도로주행](https://github.com/todayoneul/edge_sign/releases/download/v1.0.1/seoul_drive.mp4).
-
-https://github.com/user-attachments/assets/3c24ca38-2660-4fdf-9bea-d1e9ef0c2e95    
+    
+https://github.com/user-attachments/assets/5183de0d-e971-4285-9a86-a29306594c08
 
 test 가능한 동영상은 아래 링크를 통해 train에 전혀 사용하지 않은 영상 data 다운로드 가능(시연 동영상도 아래 링크 data)    
 https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=597    
