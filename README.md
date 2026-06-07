@@ -51,7 +51,7 @@ https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=59
 
 **정직한 한계** — 추적 MOTA 절대값 **0.295**는 높지 않음(주·야간·다중클래스·소형객체·저프레임 도심 시퀀스라는 난조건). 본 연구의 측정 변수는 절대 성능이 아니라 **양자화에 따른 상대 열화**. "Edge"는 브라우저/WASM/WebGPU·서버 CPU 런타임 기준이며, Jetson/Pi 등 전용 하드웨어 실측은 범위 밖.
 
-**배포 결과** — 총 모델 22.3 MB → **5.6 MB**(4.0× 압축, 목표 15 MB 대비 2.7배 여유), CPU **56 FPS**(목표 30의 1.9배) 달성. 브라우저 WebGPU 온디바이스 동작, HF Spaces(Docker) 패키징. ▶ [실시간 시연](#-실시간-시연-live-demo) · [붕괴 원인 분석](#83-붕괴-원인-분석-왜-망가지는가) · [온디바이스 교훈](#8-실시간-시연-시스템-및-웹-배포-아키텍처) · [재현 가이드](#9-재현-가이드-reproduction-guide)
+**배포 결과** — 총 모델 22.3 MB → **실측 INT8 11.7 MB**(2.42× 가속, 목표 15 MB 충족) · 이론 INT 최소 **5.6 MB**(4.0× 압축), CPU **56 FPS**(목표 30의 1.9배) 달성. 브라우저 WebGPU 온디바이스 동작, HF Spaces(Docker) 패키징. ▶ [실시간 시연](#-실시간-시연-live-demo) · [붕괴 원인 분석](#83-붕괴-원인-분석-왜-망가지는가) · [온디바이스 교훈](#8-실시간-시연-시스템-및-웹-배포-아키텍처) · [재현 가이드](#9-재현-가이드-reproduction-guide)
 
 ---
 
@@ -83,7 +83,7 @@ Edge-Sign은 엣지 디바이스에서 실시간으로 신호등과 교통표지
 | CPU FPS | 23.3 | 24.1 | **56.3** (2.42× 가속) |
 
 - **양자화 무손실**: 검출기 W8A8 PTQ에서 mAP/MOTA/OCR 손실률 ≤ 1.4%, 사실상 무손실.
-- **크기 목표 초과**: 5.6 MB, 목표 15 MB 대비 **2.7배 여유** — 모바일/IoT 배포 가능 수준.
+- **크기 목표 충족**: 실측 INT8 Static **11.7 MB**(이론 INT 최소 5.6 MB), 목표 15 MB 이내 — 모바일/IoT 배포 가능 수준.
 - **속도 목표 초과**: Static INT8 QDQ로 56.3 FPS @ CPU, 30 FPS 목표 대비 **1.88배 초과**.
 - **재현 명령**:
   `python scripts/archive/quantize_onnx_real.py && python scripts/archive/benchmark_pipeline.py --pipe_only`
