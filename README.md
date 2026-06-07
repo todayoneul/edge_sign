@@ -9,7 +9,7 @@
 
 ## 실시간 시연
 
-**huggingface 온라인 체험:  https://gyann-edge-sign.hf.space/detection/**
+**huggingface 온라인 체험: https://huggingface.co/spaces/gyann/edge-sign**
 브라우저에서 검출·추적·한국어 인식과 **서버 ⇄ 온디바이스(WebGPU)** · **FP32 ⇄ INT8** 토글, 장면 Q&A 직접 체험 가능.
 
 > **체험 가이드 — 입력 코덱이 경로를 가름.** 내장 **샘플 2종**(① 주간 도심 ② 도로주행, 모두
