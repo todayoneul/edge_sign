@@ -21,12 +21,21 @@ import base64
 import json
 import sys
 import time
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Awaitable, Callable
 from pathlib import Path
 
 import cv2
 import numpy as np
-from fastapi import FastAPI, File, Form, UploadFile, WebSocket, WebSocketDisconnect
+from fastapi import (
+    FastAPI,
+    File,
+    Form,
+    Request,
+    Response,
+    UploadFile,
+    WebSocket,
+    WebSocketDisconnect,
+)
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -114,6 +123,24 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# 캐시 정책 — SPA 진입 HTML은 항상 재검증(no-cache)해 배포 즉시 반영되게 한다.
+#   (index.html에 캐시가 걸리면 옛 번들 해시를 계속 가리켜 "배포해도 옛 화면"이 됨.
+#    HF Space 래퍼 iframe에서 특히 두드러짐.) 반대로 해시 박힌 정적 자산은 영구 캐시 —
+#   파일명이 빌드마다 바뀌므로 immutable 캐시가 안전하고 재방문 로딩도 빨라진다.
+@app.middleware("http")
+async def _cache_control(
+    request: Request, call_next: Callable[[Request], Awaitable[Response]]
+) -> Response:
+    response = await call_next(request)
+    path = request.url.path
+    if path.startswith("/detection/assets/"):
+        response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+    elif path == "/" or path.startswith("/detection"):
+        response.headers["Cache-Control"] = "no-cache"
+    return response
+
 
 # 정적 파일 — /detection/ 은 React 빌드(web_modern/dist)를 서빙.
 # dist 부재 시(빌드 전) 안내 로그만 남기고 마운트 생략 → API/WS는 정상 동작.
