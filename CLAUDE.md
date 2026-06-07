@@ -33,6 +33,8 @@ Edge-Sign은 엣지 디바이스에서 실시간으로 한글 간판과 교통�
 ```
 CNN_Quant/
 ├── CLAUDE.md                    # 이 파일 - 프로젝트 진입점
+├── LICENSE                      # AGPL-3.0 (검출기 ultralytics 의존 → 전체 AGPL)
+├── THIRD_PARTY_NOTICES.md       # 제3자 출처·라이선스 색인 (ByteTrack·DeepSORT·YOLO·SmoothQuant 등)
 ├── docs/
 │   ├── ROADMAP.md               # 단계별 로드맵 + 진행 상태
 │   ├── ARCHITECTURE.md          # 파이프라인 아키텍처 + 설계 결정

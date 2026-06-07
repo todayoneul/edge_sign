@@ -6,7 +6,7 @@ colorTo: green
 sdk: docker
 app_port: 7860
 pinned: false
-license: mit
+license: agpl-3.0
 short_description: 온디바이스 주행 인지 — 검출·추적·인식 + 양자화 A/B 실시간 데모
 ---
 
@@ -44,3 +44,9 @@ docker build -t edge-sign .
 docker run --rm -p 7860:7860 edge-sign
 # http://localhost:7860/detection/
 ```
+
+## 라이선스
+검출기에 **Ultralytics YOLOv8(AGPL-3.0)** 을 사용하므로 이 Space와 본 리포지터리는
+**AGPL-3.0** 으로 배포한다. 네트워크 서비스로 제공되는 경우 AGPL-3.0의 네트워크 조항에 따라
+이용자에게 대응 소스를 제공해야 한다. 제3자 구성요소의 출처·라이선스 전체 목록은 리포지터리
+루트의 `THIRD_PARTY_NOTICES.md` 를 참조한다. (상용 사용 시 Ultralytics Enterprise License 별도 검토.)

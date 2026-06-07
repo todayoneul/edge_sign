@@ -1,3 +1,13 @@
+"""
+ConvNeXtV2 W8A8 SmoothQuant PTQ.
+
+출처/라이선스 (루트 THIRD_PARTY_NOTICES.md):
+  - SmoothQuant 기법: Xiao et al., ICML 2023 (arXiv 2211.10438)
+    참조 구현 github.com/mit-han-lab/smoothquant (MIT) — 본 파일은 기법 재구현
+  - 백본 convnextv2_nano: timm(Apache-2.0). FAIR ConvNeXtV2 사전학습 가중치 일부는
+    CC BY-NC 4.0(비상업)이므로 상용화 시 가중치 라이선스 확인 필요.
+"""
+
 import argparse
 import os
 

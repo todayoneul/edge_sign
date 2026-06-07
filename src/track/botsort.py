@@ -4,6 +4,11 @@ BoT-SORT 구현 — ByteTrack + Camera Motion Compensation + ReID 외형 매칭
 Aharon et al., "BoT-SORT: Robust Associations Multi-Pedestrian Tracking", 2022.
 https://arxiv.org/abs/2206.14651
 
+출처/라이선스 (루트 THIRD_PARTY_NOTICES.md):
+  - CMC/ReID 결합 매칭 구조: BoT-SORT 재구현 — github.com/NirAharon/BoT-SORT (MIT)
+  - 칼만·STrack 등 기반 구성요소는 src/track/bytetrack.py 재사용
+    (DeepSORT GPL-3.0 파생 칼만 포함 — bytetrack.py 주석 참조)
+
 ByteTrack 대비 추가 구성 요소:
   1. Camera Motion Compensation (CMC): ORB 희소 광류 → 호모그래피 → Kalman 상태 보정
   2. ReID 외형 특징: track 별 임베딩 버퍼 → IoU + 코사인 유사도 결합 매칭

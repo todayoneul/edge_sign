@@ -3,6 +3,10 @@ YOLOv8-Nano 학습/평가 스크립트.
 
 Edge-Sign v2 검출기: 교통표지판(traffic_sign) + 간판(signboard) 2-클래스 검출.
 
+출처/라이선스 (루트 THIRD_PARTY_NOTICES.md):
+  학습·평가·내보내기에 ultralytics(YOLOv8) 사용 — github.com/ultralytics/ultralytics
+  라이선스 AGPL-3.0. 네트워크 서비스로 배포 시 전염(소스 공개) 조항에 주의할 것.
+
 사용법:
   # 학습
   python src/detect/yolo_train.py --mode train --epochs 100

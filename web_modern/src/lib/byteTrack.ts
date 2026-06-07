@@ -4,6 +4,11 @@
  * Zhang et al., "ByteTrack: Multi-Object Tracking by Associating Every Detection Box",
  * ECCV 2022. 8-dim constant-velocity Kalman + BYTE 2단계 IoU 매칭 + 트랙 생명주기.
  *
+ * 출처/라이선스 (루트 THIRD_PARTY_NOTICES.md):
+ *   - 연관 로직·STrack: ByteTrack 재구현 — github.com/ifzhang/ByteTrack (MIT)
+ *   - Kalman: DeepSORT kalman_filter.py 파생 — github.com/nwojke/deep_sort (GPL-3.0)
+ *   bytetrack.py 포팅이므로 동일한 출처를 상속한다.
+ *
  * 브라우저 온디바이스 파이프라인(검출=ORT-Web, 추적=이 모듈, 인식=ORT-Web)의 추적 단계.
  * 서버 e2e_pipeline 과 동일한 트랙 ID/박스 거동을 목표로 하며, golden 테스트로 검증한다
  * (byteTrack.test.ts ↔ scripts/export_bytetrack_golden.py).

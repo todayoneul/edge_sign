@@ -135,6 +135,7 @@ typer-slim==0.20.0
 typing-inspection==0.4.2
 typing_extensions
 tzdata==2026.2
+ultralytics==8.4.56            # YOLOv8 검출기 (AGPL-3.0 — THIRD_PARTY_NOTICES.md 참조)
 urllib3==2.6.3
 uvicorn==0.46.0
 watchdog==6.0.0

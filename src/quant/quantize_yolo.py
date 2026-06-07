@@ -4,6 +4,13 @@ YOLOv8s 검출기 양자화 스크립트.
 Phase 1의 base_W8A8.py / multimodal_w8a8_smoothquant.py 패턴을 YOLOv8에 포팅.
 PyTorch 레벨 fake-quantization 후 ONNX 내보내기.
 
+출처/라이선스 (루트 THIRD_PARTY_NOTICES.md):
+  - 모델 로드/내보내기는 ultralytics(YOLOv8) 사용 — github.com/ultralytics/ultralytics
+    (AGPL-3.0: 네트워크 배포 시 전염 조항 주의)
+  - smoothquant 모드: SmoothQuant(Xiao et al., ICML 2023) 기법 재구현
+    참조 github.com/mit-han-lab/smoothquant (MIT)
+  - W8A8/W4A16 PTQ 코어 로직은 본 프로젝트 자체 구현(Phase 1 재사용)
+
 지원 모드:
   w8a8     — W8A8 PTQ (per-channel MinMax, Phase 1 base_W8A8 동일 방식)
   w4a16    — W4A16 PTQ (4-bit 가중치 / 16-bit 활성화)

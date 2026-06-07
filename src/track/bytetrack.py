@@ -4,6 +4,13 @@ ByteTrack 구현 — Edge-Sign v2 추적 모듈
 Zhang et al., "ByteTrack: Multi-Object Tracking by Associating Every Detection Box", ECCV 2022.
 https://arxiv.org/abs/2110.06864
 
+출처/라이선스 (자세한 내용은 루트 THIRD_PARTY_NOTICES.md):
+  - 연관(BYTE) 로직·STrack·트랙 생명주기: ByteTrack 재구현
+      참조 https://github.com/ifzhang/ByteTrack (MIT)
+  - KalmanFilter 클래스: DeepSORT kalman_filter.py 파생
+      (표준편차 가중치 1/20·1/160, initiate/predict/project/gating 구성 동일)
+      참조 https://github.com/nwojke/deep_sort (GPL-3.0)
+
 핵심 아이디어:
   - 고신뢰(high-conf) 검출 → 1차 IoU 매칭
   - 미매칭 트랙 + 저신뢰(low-conf) 검출 → 2차 IoU 매칭  (BYTE 전략)
@@ -35,6 +42,10 @@ import numpy as np
 class KalmanFilter:
     """
     8-차원 칼만 필터.
+
+    출처: DeepSORT의 kalman_filter.py(nwojke/deep_sort, GPL-3.0)에서 파생.
+    상수·표준편차 구성·project/gating_distance 구조가 원본과 동일하다.
+    THIRD_PARTY_NOTICES.md 참조.
 
     상태 벡터 x = [cx, cy, ar, h, vcx, vcy, var, vh]
       cx, cy : 바운딩박스 중심 좌표
