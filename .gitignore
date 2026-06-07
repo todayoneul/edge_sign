@@ -20,3 +20,5 @@ node_modules/
 web_modern/dist/
 # Phase12 데모 원본(89MB, 압축본 demo.mp4만 커밋)
 demo_src_1080p.mp4
+# 샘플 원본(299MB) — web_modern/public/sample/seoul_drive.mp4(9s 720p)로만 커밋
+샘플영상.mp4

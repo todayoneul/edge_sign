@@ -11,10 +11,12 @@
 
 import { useRef } from "react";
 import { useStore } from "../store";
+import { SAMPLES } from "../lib/samples";
 
 interface Props {
   playing: boolean;
-  onSample: () => void;
+  /** file 미지정 시 첫 샘플. 칩별로 명시 파일명 전달. */
+  onSample: (file?: string) => void;
   onFile: (f: File) => void;
   onStop: () => void;
   /** URL/이미지 서버 인제스트 */
@@ -54,19 +56,28 @@ export default function Controls({
     <>
       {/* ── 컨트롤 바 ── */}
       <div className="controls">
-        <button className="btn btn-ghost" id="sample-btn" onClick={onSample}>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+        {/* 내장 샘플 칩(H.264, 온디바이스로 매끄럽게 도는 기준 입력) */}
+        {SAMPLES.map((s, i) => (
+          <button
+            key={s.file}
+            className="btn btn-ghost"
+            id={i === 0 ? "sample-btn" : undefined}
+            onClick={() => onSample(s.file)}
+            title={`샘플: ${s.label}`}
           >
-            <path d="M8 5v14l11-7z" />
-          </svg>
-          샘플
-        </button>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            {s.label}
+          </button>
+        ))}
 
         <button
           className="btn btn-ghost"

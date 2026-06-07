@@ -59,7 +59,9 @@ export default function Hero({ onFile, onSample }: Props) {
         </button>
       </div>
 
-      <p className="hero-hint">샘플은 서울 도심 주행 클립입니다 · 내 영상을 끌어다 놓아도 됩니다</p>
+      <p className="hero-hint">
+        샘플 2종(주간 도심 · 도로주행) · 내 영상(H.264 mp4)을 끌어다 놓아도 됩니다
+      </p>
     </div>
   );
 }

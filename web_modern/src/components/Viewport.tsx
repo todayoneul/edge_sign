@@ -25,6 +25,7 @@ import { useClientPipeline } from "../hooks/useClientPipeline";
 import { useSession } from "../hooks/useSession";
 import { useHotkeys } from "../hooks/useHotkeys";
 import { renderTracks } from "../lib/draw";
+import { SAMPLES } from "../lib/samples";
 import SeekBar from "./SeekBar";
 import Hero from "./Hero";
 import Controls from "./Controls";
@@ -413,10 +414,18 @@ export default function Viewport() {
 
       let fellBack = false;
       // 폴백: 비호환 코덱 or play() 거부 → 서버 인제스트 (app.js fallback)
+      // 브라우저가 디코딩 못 하는 코덱(MPEG-4 Part2/HEVC 등)은 온디바이스 경로가
+      // 불가능(온디바이스도 <video> 디코딩에 의존)하므로 서버 디코딩이 유일한 길.
+      // 공개 데모 서버는 CPU 전용이라 느릴 수 있어, 폴백 사실을 명확히 알린다.
       const fallback = () => {
         if (fellBack) return;
         fellBack = true;
         video.onerror = null;
+        pushToast(
+          "이 코덱은 브라우저에서 직접 재생 불가 → 서버 디코딩(CPU)으로 전환. " +
+            "부드러운 체험은 샘플·웹캠·H.264 mp4를 권장합니다.",
+          "warn",
+        );
         const f = pendingFileRef.current;
         if (f) void startIngest("video", f, f.name);
       };
@@ -432,20 +441,24 @@ export default function Viewport() {
         void startCaptureInference();
       }).catch(fallback);
     },
-    [stopAll, startIngest, startCaptureInference, playbackRate],
+    [stopAll, startIngest, startCaptureInference, playbackRate, pushToast],
   );
 
   // ── loadSample — 내장 동(同)도메인 샘플 클립 로드 (웹캠 대체, 누구나 바로 체험) ──
-  const loadSample = useCallback(() => {
-    setStageStatus("샘플 영상 불러오는 중…");
-    fetch(import.meta.env.BASE_URL + "sample/seoul_daylight.mp4")
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.blob();
-      })
-      .then((b) => loadVideoFile(new File([b], "seoul_daylight.mp4", { type: "video/mp4" })))
-      .catch((e) => setStageStatus(`샘플 로드 실패: ${e}`));
-  }, [loadVideoFile]);
+  // file 미지정 시 첫 샘플(주간 도심). 모두 H.264라 온디바이스로 매끄럽게 돈다.
+  const loadSample = useCallback(
+    (file: string = SAMPLES[0].file) => {
+      setStageStatus("샘플 영상 불러오는 중…");
+      fetch(import.meta.env.BASE_URL + "sample/" + file)
+        .then((r) => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.blob();
+        })
+        .then((b) => loadVideoFile(new File([b], file, { type: "video/mp4" })))
+        .catch((e) => setStageStatus(`샘플 로드 실패: ${e}`));
+    },
+    [loadVideoFile],
+  );
 
   // ── handleUrl (Controls URL 입력 → 서버 인제스트) ────────────────────────
   const handleUrl = useCallback(
@@ -703,7 +716,7 @@ export default function Viewport() {
             onFile={() =>
               (document.getElementById("file-input") as HTMLInputElement | null)?.click()
             }
-            onSample={loadSample}
+            onSample={() => loadSample()}
           />
         )}
 
