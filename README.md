@@ -25,7 +25,7 @@
     
 https://github.com/user-attachments/assets/5183de0d-e971-4285-9a86-a29306594c08
 
-test 가능한 동영상은 아래 링크를 통해 train에 전혀 사용하지 않은 영상 data 다운로드 가능(시연 동영상도 아래 링크 data)    
+test 가능한 동영상은 아래 링크를 통해 train에 전혀 사용하지 않은 영상 data 다운로드 가능
 https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=597    
 
 
