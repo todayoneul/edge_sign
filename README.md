@@ -861,3 +861,24 @@ CLIP(openai/clip-vit-base-patch32)의 의미론적 공간을 1-Bit ConvNeXt-Nano
 | **Recall@10** | **41.60%** | 38.90% (−2.70%p) |
 
 극단적 1-Bit 희소성 환경에서는 단순한 Linear Head가 복잡한 MLP보다 강건.
+
+---
+
+## 라이선스 및 출처
+
+본 프로젝트는 검출기로 **Ultralytics YOLOv8(AGPL-3.0)** 을 사용하므로 전체를 **AGPL-3.0** 으로 배포한다. 전문은 루트 [`LICENSE`](./LICENSE) 참조. FastAPI/HF Space 등 네트워크 서비스로 제공되는 경우 AGPL-3.0의 네트워크 조항에 따라 이용자에게 대응 소스를 제공해야 한다. (상용 사용 시 Ultralytics Enterprise License 별도 검토.)
+
+### 제3자 구성요소
+
+핵심 외부 연구·구현은 재구현/포팅이며, 전체 출처·라이선스 목록은 [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md) 에 정리되어 있다.
+
+| 구성요소 | 사용 위치 | 라이선스 |
+| :--- | :--- | :---: |
+| **Ultralytics YOLOv8** | 검출기 학습·추론·내보내기 | AGPL-3.0 |
+| **ByteTrack** (연관 로직·STrack) | `src/track/bytetrack.py`, `web_modern/.../byteTrack.ts` | MIT |
+| **DeepSORT** (칼만 필터 파생) | `src/track/bytetrack.py` (`KalmanFilter`) | GPL-3.0 |
+| **BoT-SORT** (CMC·ReID 매칭) | `src/track/botsort.py` | MIT |
+| **SmoothQuant** (기법 재구현) | `src/multimodal_w8a8_smoothquant.py`, `src/quant/quantize_yolo.py` | MIT |
+| **ConvNeXt V2 / timm** (백본) | Phase 1 분류 | Apache-2.0 / 가중치 일부 CC BY-NC 4.0 |
+
+> ConvNeXt V2 사전학습 가중치 일부는 비상업(CC BY-NC 4.0)이므로 상용화 시 사용 체크포인트의 라이선스를 개별 확인할 것. 데이터셋(GTSDB/GTSRB·AI Hub)은 각 제공처 약관을 따르며 본 저장소에 포함하지 않는다.
