@@ -12,12 +12,12 @@
 **huggingface 온라인 체험:  https://gyann-edge-sign.hf.space/detection/**
 브라우저에서 검출·추적·한국어 인식과 **서버 ⇄ 온디바이스(WebGPU)** · **FP32 ⇄ INT8** 토글, 장면 Q&A 직접 체험 가능.
 
-> **체험 가이드 — 입력 코덱이 경로를 가른다.** 내장 **샘플 2종**(① 주간 도심 ② 도로주행, 모두
-> H.264 720p)과 웹캠은 브라우저가 바로 디코딩하므로 **온디바이스(WebGPU)** 로 매끄럽게 돈다.
+> **체험 가이드 — 입력 코덱이 경로를 가름.** 내장 **샘플 2종**(① 주간 도심 ② 도로주행, 모두
+> H.264 720p)과 웹캠은 브라우저가 바로 디코딩하므로 **온디바이스(WebGPU)** 로 매끄럽게 구동.
 > 직접 올린 영상이 **MPEG-4 Part 2·HEVC 등 브라우저 비호환 코덱**이면 온디바이스 경로 자체가
 > 불가능(온디바이스도 `<video>` 디코딩에 의존)해 **서버 디코딩으로 자동 폴백**하며, 공개 데모
 > 서버는 **CPU 전용**이라 끊길 수 있다(폴백 시 안내 토스트 표시). 부드러운 체험은
-> **샘플 · 웹캠 · H.264 mp4**를 권장한다.
+> **샘플 · 웹캠 · H.264 mp4**를 권장.
 >
 > 샘플 클립은 [**v1.0.1 릴리스**](https://github.com/todayoneul/edge_sign/releases/tag/v1.0.1)에서도
 > 내려받을 수 있다 — [주간 도심](https://github.com/todayoneul/edge_sign/releases/download/v1.0.1/seoul_daylight.mp4) ·
@@ -592,7 +592,7 @@ Phase 2 검출기는 신호등을 `traffic_sign`에 통합하여 색상 판별 �
 | :---: | :---: | :---: |
 | Precision–Recall 곡선 | F1 곡선 (confidence threshold별) | 정규화 혼동 행렬 |
 
-PR 곡선은 클래스별 mAP@0.5 = 0.819(traffic_sign) / 0.735(traffic_light) 영역을, Precision=0.794·Recall=0.739를 보인다.
+PR 곡선은 클래스별 mAP@0.5 = 0.819(traffic_sign) / 0.735(traffic_light) 영역, Precision=0.794·Recall=0.739.
 
 ### 7.2. 한국 표지판/신호등 분류기 (14클래스)
 
@@ -880,11 +880,11 @@ CLIP(openai/clip-vit-base-patch32)의 의미론적 공간을 1-Bit ConvNeXt-Nano
 
 ## 라이선스 및 출처
 
-본 프로젝트는 검출기로 **Ultralytics YOLOv8(AGPL-3.0)** 을 사용하므로 전체를 **AGPL-3.0** 으로 배포한다. 전문은 루트 [`LICENSE`](./LICENSE) 참조. FastAPI/HF Space 등 네트워크 서비스로 제공되는 경우 AGPL-3.0의 네트워크 조항에 따라 이용자에게 대응 소스를 제공해야 한다. (상용 사용 시 Ultralytics Enterprise License 별도 검토.)
+본 프로젝트는 검출기로 **Ultralytics YOLOv8(AGPL-3.0)** 을 사용하므로 전체를 **AGPL-3.0** 으로 배포. 전문은 루트 [`LICENSE`](./LICENSE) 참조. FastAPI/HF Space 등 네트워크 서비스로 제공되는 경우 AGPL-3.0의 네트워크 조항에 따라 이용자에게 대응 소스 제공 필요. (상용 사용 시 Ultralytics Enterprise License 별도 검토.)
 
 ### 제3자 구성요소
 
-핵심 외부 연구·구현은 재구현/포팅이며, 전체 출처·라이선스 목록은 [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md) 에 정리되어 있다.
+핵심 외부 연구·구현은 재구현/포팅이며, 전체 출처·라이선스 목록은 [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md) 에 정리.
 
 | 구성요소 | 사용 위치 | 라이선스 |
 | :--- | :--- | :---: |
@@ -893,6 +893,6 @@ CLIP(openai/clip-vit-base-patch32)의 의미론적 공간을 1-Bit ConvNeXt-Nano
 | **DeepSORT** (칼만 필터 파생) | `src/track/bytetrack.py` (`KalmanFilter`) | GPL-3.0 |
 | **BoT-SORT** (CMC·ReID 매칭) | `src/track/botsort.py` | MIT |
 | **SmoothQuant** (기법 재구현) | `src/multimodal_w8a8_smoothquant.py`, `src/quant/quantize_yolo.py` | MIT |
-| **ConvNeXt V2 / timm** (백본) | Phase 1 분류 | Apache-2.0 / 가중치 일부 CC BY-NC 4.0 |
+| **ConvNeXt V2 / timm** (backbone) | Phase 1 분류 | Apache-2.0 / 가중치 일부 CC BY-NC 4.0 |
 
-> ConvNeXt V2 사전학습 가중치 일부는 비상업(CC BY-NC 4.0)이므로 상용화 시 사용 체크포인트의 라이선스를 개별 확인할 것. 데이터셋(GTSDB/GTSRB·AI Hub)은 각 제공처 약관을 따르며 본 저장소에 포함하지 않는다.
+> ConvNeXt V2 사전학습 가중치 일부는 비상업(CC BY-NC 4.0)이므로 상용화 시 사용 체크포인트의 라이선스를 개별 확인할 것. 데이터셋(GTSDB/GTSRB·AI Hub)은 각 제공처 약관을 따르며 본 저장소에 미포함.
