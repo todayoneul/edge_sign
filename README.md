@@ -15,6 +15,10 @@
 > 불가능(온디바이스도 `<video>` 디코딩에 의존)해 **서버 디코딩으로 자동 폴백**하며, 공개 데모
 > 서버는 **CPU 전용**이라 끊길 수 있다(폴백 시 안내 토스트 표시). 부드러운 체험은
 > **샘플 · 웹캠 · H.264 mp4**를 권장한다.
+>
+> 샘플 클립은 [**v1.0.1 릴리스**](https://github.com/todayoneul/edge_sign/releases/tag/v1.0.1)에서도
+> 내려받을 수 있다 — [주간 도심](https://github.com/todayoneul/edge_sign/releases/download/v1.0.1/seoul_daylight.mp4) ·
+> [도로주행](https://github.com/todayoneul/edge_sign/releases/download/v1.0.1/seoul_drive.mp4).
 
 https://github.com/user-attachments/assets/3c24ca38-2660-4fdf-9bea-d1e9ef0c2e95    
 
