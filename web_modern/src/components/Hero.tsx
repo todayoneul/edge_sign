@@ -4,10 +4,12 @@
  */
 
 import LogoMark from "./LogoMark";
+import { SAMPLES } from "../lib/samples";
 
 interface Props {
   onFile: () => void;
-  onSample: () => void;
+  /** 샘플 클립 로드 — file로 어떤 샘플인지 지정 */
+  onSample: (file: string) => void;
 }
 
 export default function Hero({ onFile, onSample }: Props) {
@@ -30,19 +32,26 @@ export default function Hero({ onFile, onSample }: Props) {
       </p>
 
       <div className="hero-cta">
-        <button className="btn btn-primary" id="hero-sample" onClick={onSample}>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+        {SAMPLES.map((s, i) => (
+          <button
+            key={s.file}
+            className={`btn ${i === 0 ? "btn-primary" : "btn-ghost"}`}
+            id={i === 0 ? "hero-sample" : undefined}
+            onClick={() => onSample(s.file)}
           >
-            <path d="M8 5v14l11-7z" />
-          </svg>
-          샘플 영상으로 체험
-        </button>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            {s.label}
+          </button>
+        ))}
 
         <button className="btn btn-ghost" id="hero-file" onClick={onFile}>
           <svg
@@ -60,7 +69,7 @@ export default function Hero({ onFile, onSample }: Props) {
       </div>
 
       <p className="hero-hint">
-        샘플 2종(주간 도심 · 도로주행) · 내 영상(H.264 mp4)을 끌어다 놓아도 됩니다
+        두 샘플 모두 서울 도심 주행 클립 · 내 영상(H.264 mp4)을 끌어다 놓아도 됩니다
       </p>
     </div>
   );

@@ -716,7 +716,7 @@ export default function Viewport() {
             onFile={() =>
               (document.getElementById("file-input") as HTMLInputElement | null)?.click()
             }
-            onSample={() => loadSample()}
+            onSample={loadSample}
           />
         )}
 
