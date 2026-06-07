@@ -70,8 +70,8 @@ Edge-Sign은 엣지 디바이스에서 실시간으로 한글 간판과 교통�
 - **재현 명령**:
   `python scripts/archive/quantize_onnx_real.py && python scripts/archive/benchmark_pipeline.py --pipe_only`
 
-최적 구성: `yolov8s_signs_w8a8.onnx`(5.4 MB) + ByteTrack + KoreanOCRNet W8A8 + TrafficSignNet W8A8.
-실시간 가속이 필요한 경우 동일 구성을 Static INT8 QDQ로 양자화하여 사용.
+최적 구성: `yolov8s_signs_w8a8.onnx`(이론 INT8 배포 시 ~5.4 MB — 디스크의 fake-quant ONNX 자체는 FP32와 동일한 ~44.7 MB) + ByteTrack + KoreanOCRNet W8A8 + TrafficSignNet W8A8.
+실시간 가속이 필요한 경우 동일 구성을 Static INT8 QDQ(`yolov8s_signs_int8_static.onnx`, 11.7 MB)로 양자화하여 사용.
 
 Phase 2의 양자화 결론을 실제 도로 도메인에 적용한 결과(신호등 분리 검출, 한국어 인식, 범용 실시간 입력)는 [7. Phase 3 — 도메인 적응](#7-phase-3--도메인-적응-신호등-분리-검출-및-한국어-인식) 참조.
 
@@ -168,7 +168,7 @@ pip install -r requirements.txt
 
 | 데이터셋 | 원본 형식 | 규모 | 용도 |
 | :--- | :--- | :--- | :--- |
-| [AI Hub 신호등·도로표지판 인지 영상(수도권)](https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=188) | TAR 아카이브 (JPG 프레임) | 9 시퀀스 / 110,900 프레임 (37 GB) | YOLOv8n 검출 학습 |
+| [AI Hub 신호등·도로표지판 인지 영상(수도권)](https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=188) | TAR 아카이브 (JPG 프레임) | 9 시퀀스 / 110,900 프레임 (37 GB) | YOLOv8s 검출 학습 |
 | [AI Hub 야외 실제 촬영 한글 이미지](https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=105) | JPG + JSON (압축 해제 완료) | Training 25,837 / Validation 4,304장 | 간판 signboard 검출 |
 | [GTSDB](https://benchmark.ini.rub.de/gtsdb_news.html) | PPM + gt.txt | 900장 (train 720 / val 180) | 교통표지판 검출 보강 |
 
@@ -237,12 +237,17 @@ $$\text{Final Score} = 0.6 \times \text{PerfNorm} + 0.2 \times \text{SpeedNorm} 
 ```mermaid
 flowchart TB
     IN["영상 입력 — 대시캠 / 거리 영상 / 웹캠 (640×480)"]
-    DET["<b>1단계 · YOLOv8-Nano 검출기</b> — 3.2M params, FP16 ~6.3 MB<br/>클래스: signboard / traffic_sign<br/>입력 640×640 RGB → 출력 bbox · confidence · class"]
+    DET["<b>1단계 · YOLOv8-Small 검출기</b> — 11.2M params, FP32 ONNX ~44.7 MB<br/>클래스: signboard / traffic_sign<br/>입력 640×640 RGB → 출력 bbox · confidence · class"]
     TRK["<b>2단계 · ByteTrack 추적기</b> — 모델 파라미터 없음 (Kalman + IoU)<br/>ablation: BoT-SORT + ReID (E6: OSNet-x0.25 ReID 양자화)"]
     REC["<b>3단계 · 클래스별 분기 인식기</b><br/>signboard → KoreanOCRNet (700K, 2350 한글, ROI 64×64 gray)<br/>traffic_sign → TrafficSignNet (65K, 43 교통표지판, ROI 32×32 RGB)"]
     OUT["<b>결과 조합 + 오버레이 출력</b><br/>Track ID + bbox · 간판 OCR 텍스트 · 표지판 분류 레이블"]
     IN --> DET --> TRK --> REC --> OUT
 ```
+
+> 위 구성은 **Phase 2 설계 기준**(검출 클래스 `signboard/traffic_sign`, 표지판 인식기 `TrafficSignNet` 43클래스)이며,
+> 라이브 데모에 실제 배포된 v3 파이프라인은 [§7](#7-phase-3--도메인-적응-신호등-분리-검출-및-한국어-인식)에서
+> 검출 클래스를 `traffic_sign/traffic_light`로, 표지판 인식기를 한국 도메인 `KoreanSignNet`(14클래스)으로 교체했다.
+> 2-스테이지 분리 구조·양자화 비대칭 적용이라는 설계 철학(아래 §5.2)은 그대로 유지된다.
 
 ### 5.2. 설계 철학: 왜 단일 YOLO가 아니라 2-스테이지 분리 구조인가
 
@@ -278,7 +283,7 @@ YOLO의 분류 헤드는 "여기에 표지판/간판이 있다"를 빠르게 찾
 
 | 구성 요소 | 선택 모델 | 선택 근거 |
 | :--- | :--- | :--- |
-| 검출기 | YOLOv8-Nano (3.2M) | Ultralytics ONNX·양자화 지원 성숙. 엣지 예산 충족 |
+| 검출기 | YOLOv8-Small (11.2M) | Ultralytics ONNX·양자화 지원 성숙. 양자화로 5~12 MB까지 압축되므로 엣지 예산 충족 |
 | 추적기 (기본) | ByteTrack | 추가 파라미터 없음. 검출기 양자화 효과를 순수하게 분리 가능 |
 | 추적기 (ablation) | BoT-SORT + OSNet-x0.25 | ReID backbone 양자화 효과를 E6 실험에서 측정 |
 | 간판 OCR | KoreanOCRNet (700K) | Phase 1 양자화 실험 완료. 신규 학습 불필요 |
@@ -556,6 +561,20 @@ Phase 2 검출기는 신호등을 `traffic_sign`에 통합하여 색상 판별 �
 | 신호등 처리 | 표지판과 미분리 → 색상 불가 | **별도 검출 → 색상 분류 가능** |
 
 > ep29에서 best(mAP@0.5=0.776) 도달 후 5 epoch 연속 하락으로 조기종료(`patience=20`). 다운스트림(ONNX export · INT8 양자화 · E2E)은 모두 ep29 `best.pt` 기준. 신호등 분리로 클래스 구성이 Phase 2와 달라 mAP 직접 비교 불가.
+
+#### 검출 학습 곡선 및 검증 분석 (ep29 `best.pt` 재검증, imgsz=1280)
+
+조기종료로 원 학습 런에 누락되었던 플롯을 ep29 `best.pt` 기준 재검증으로 재생성(mAP@0.5 = 0.7767 ≈ 0.776, 표의 수치와 일치 확인).
+
+![v3 학습 곡선](assets/v3/v3_training_curves.png)
+
+클래스별 PR 곡선, F1 곡선, 정규화 혼동 행렬:
+
+| ![PR Curve](assets/v3/v3_detection_pr_curve.png) | ![F1 Curve](assets/v3/v3_detection_f1_curve.png) | ![Confusion Matrix](assets/v3/v3_confusion_matrix.png) |
+| :---: | :---: | :---: |
+| Precision–Recall 곡선 | F1 곡선 (confidence threshold별) | 정규화 혼동 행렬 |
+
+PR 곡선은 클래스별 mAP@0.5 = 0.819(traffic_sign) / 0.735(traffic_light) 영역을, Precision=0.794·Recall=0.739를 보인다.
 
 ### 7.2. 한국 표지판/신호등 분류기 (14클래스)
 

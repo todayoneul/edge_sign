@@ -18,12 +18,12 @@ Edge-Sign은 엣지 디바이스에서 실시간으로 한글 간판과 교통�
 - ONNX 추출 및 CPU 추론 검증 완료
 
 ### Phase 2 (진행 중): 검출 + 추적 + 인식 파이프라인
-- YOLOv8-Nano 검출기 + ByteTrack 추적기 + 분기 인식기
+- YOLOv8-Small 검출기 + ByteTrack 추적기 + 분기 인식기
 - 파이프라인 각 단계별 양자화 실험 (8개 구성)
 - 웹 실시간 시연
 
 ### Phase 3 (계획): 주행 Q&A 결론 데모
-- 엣지 파이프라인(YOLOv8n-INT8 + OCR-INT8) → 구조화 JSON → Groq LLM API → 자연어 답변
+- 엣지 파이프라인(YOLOv8s-INT8 + OCR-INT8) → 구조화 JSON → Groq LLM API → 자연어 답변
 - 논문/발표 결론 섹션 시연 시스템
 
 ---
@@ -51,7 +51,7 @@ CNN_Quant/
 │   │
 │   ├── detect/                  # [Phase 2] 검출 모듈
 │   │   ├── prepare_dataset.py   # GTSDB/AI Hub 프레임 → YOLO 포맷 변환
-│   │   ├── yolo_train.py        # YOLOv8n 학습/평가/추론
+│   │   ├── yolo_train.py        # YOLOv8s 학습/평가/추론
 │   │   ├── export_yolo_onnx.py  # ONNX 내보내기 + INT8 양자화
 │   │   └── train_traffic_sign_net.py  # TrafficSignNet GTSDB 학습 + ONNX 내보내기
 │   ├── track/                   # [Phase 2] 추적 모듈
@@ -151,7 +151,7 @@ python src/detect/prepare_dataset.py --source aihub_signboard # 야외 한글 �
 python src/detect/prepare_dataset.py --source all             # 전체 합산
 
 # Phase 2 - 검출 학습
-python src/detect/yolo_train.py --mode train --epochs 100  # YOLOv8n 학습
+python src/detect/yolo_train.py --mode train --epochs 100  # YOLOv8s 학습
 python src/detect/yolo_train.py --mode val                  # 평가
 python src/detect/export_yolo_onnx.py --weights best.pt     # ONNX 내보내기
 

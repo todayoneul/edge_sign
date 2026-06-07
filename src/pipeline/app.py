@@ -76,7 +76,7 @@ def _resolve_variants() -> tuple[dict[str, str], str]:
         v3_int8 = ms / "yolov8s_signs_v3_int8_static.onnx"
         if v3_int8.exists():
             variants["int8"] = str(v3_int8)
-        return variants, "v3"  # 0=sign, 1=light, 2=signboard
+        return variants, "v3"  # 0=traffic_sign, 1=traffic_light (data/yolo_signs_v2, nc=2)
     # v2 폴백 (신호등 미분리)
     return {"w8a8": str(ms / "yolov8s_signs_w8a8.onnx")}, "v2"
 
