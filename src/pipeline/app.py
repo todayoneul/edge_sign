@@ -86,6 +86,16 @@ YOLO_ONNX = next(iter(YOLO_VARIANTS.values()), "")  # status 표시용 대표 �
 OCR_ONNX = str(ROOT / "model_space" / "korean_ocr_net_w8a8.onnx")
 # 분류기는 FP32 사용 (114KB로 작음 + 동적 INT8은 CPU EP ConvInteger 미지원)
 TSIGN_ONNX = str(ROOT / "model_space" / "korean_sign_net_fp32.onnx")
+
+# 서버 스트림(코덱 폴백 경로) 튜닝 — CPU 전용(HF Space)에서 "볼 만한" 재생을 위한 노브.
+#   비호환 코덱(MPEG-4/HEVC)·URL·이미지는 서버 디코딩이 유일한 길이고, HF는 CPU 전용이라
+#   fp32 풀해상도로는 끊긴다. 아래 3개로 완화: ① INT8 기본 ② 송출 다운스케일 ③ 실시간 스킵.
+_CPU_ONLY = _os.environ.get("EDGE_SIGN_CPU_ONLY", "") not in ("", "0", "false", "False")
+# 송출 목표 FPS(상한) — 실시간 추종 프레임 스킵의 기준.
+STREAM_FPS = float(_os.environ.get("EDGE_SIGN_STREAM_FPS", "30") or "30")
+# 송출 프레임 폭 상한(px) — CPU JPEG 인코딩·대역폭 절감. 검출은 내부 640 리사이즈라 영향 미미.
+#   CPU 전용이면 기본 960, GPU/로컬이면 0(비활성).
+STREAM_MAX_W = int(_os.environ.get("EDGE_SIGN_STREAM_MAX_W", "960" if _CPU_ONLY else "0") or "0")
 # 프론트 정적 서빙 — React 빌드(web_modern/dist)만 서빙.
 # dist는 `cd web_modern && npm run build`(또는 Docker 빌더 스테이지)로 생성한다.
 # Phase 1 OCR 캔버스 데모는 web_modern/public/ocr → dist/ocr 로 함께 번들되어
@@ -136,6 +146,11 @@ async def startup() -> None:
         det_taxonomy=DET_TAXONOMY,
     )
     logger.info(f"파이프라인 초기화 완료 (택소노미={DET_TAXONOMY}, variant={list(YOLO_VARIANTS)})")
+    # CPU 전용(HF Space) 기본 검출기는 INT8 — CPU에서 ~2.4× 빠르고 near-lossless(헤드 제외 static).
+    # 변형 목록엔 fp32가 먼저라 웹 A/B 토글의 'FP32→INT8' 서사는 유지되고, 기본 활성만 INT8.
+    if _CPU_ONLY and "int8" in YOLO_VARIANTS:
+        pipeline.set_variant("int8")
+        logger.info("CPU 전용 — 서버 기본 검출기 INT8 설정 (CPU ~2.4×, near-lossless)")
 
 
 @app.on_event("shutdown")
@@ -302,7 +317,7 @@ async def ws_session(websocket: WebSocket) -> None:
             pass
 
     ctrl_task = asyncio.create_task(handle_controls())
-    target_dt = 1.0 / 30.0
+    target_dt = 1.0 / max(STREAM_FPS, 1.0)  # 송출 목표 간격(FPS 캡)
     miss = 0  # 연속 read 실패 카운트 (라이브 글리치 흡수)
     try:
         while not ctrl_task.done():
@@ -324,6 +339,12 @@ async def ws_session(websocket: WebSocket) -> None:
                     await asyncio.sleep(0.03)
                     continue
             miss = 0
+            # ② 송출 다운스케일 — 폭 상한 초과 시 축소(CPU 인코딩·대역폭 절감).
+            #    검출 입력은 내부 640 리사이즈라 품질 영향 미미. 좌표는 축소 프레임 기준으로
+            #    일관(전송 w/h도 축소값) → 클라 오버레이 레터박스 계산과 일치.
+            if STREAM_MAX_W and frame.shape[1] > STREAM_MAX_W:
+                _sc = STREAM_MAX_W / frame.shape[1]
+                frame = cv2.resize(frame, (STREAM_MAX_W, max(1, round(frame.shape[0] * _sc))))
             result = pipeline.process_frame(frame)
             # 원본 프레임 + 좌표 JSON만 전송 → 박스/라벨은 클라이언트가 그림(클라 모드와 동일,
             # 한글 라벨·둥근 박스·pill 렌더링 일치). cv2 putText는 한글 미지원이라 서버 draw 미사용.
@@ -351,6 +372,14 @@ async def ws_session(websocket: WebSocket) -> None:
             )
             await websocket.send_bytes(buf.tobytes())
             elapsed = time.perf_counter() - t0
+            # ③ 실시간 추종 — 추론이 목표 간격보다 느리면(CPU 병목) 뒤처진 만큼 디코드-only
+            #    프레임을 버려 영상이 slow-motion 대신 실시간으로 흐르게 한다. seekable + 정상속도
+            #    에서만, 폭주 방지 위해 한 번에 최대 4프레임 스킵.
+            behind = elapsed - target_dt
+            if behind > 0 and sess.source.is_seekable and sess.speed >= 1.0:
+                for _ in range(min(int(behind / target_dt), 4)):
+                    if sess.source.read() is None:
+                        break
             await asyncio.sleep(max(0, target_dt / max(sess.speed, 0.1) - elapsed))
     except Exception:
         # disconnect(WebSocketDisconnect) 외에 죽은 소켓 send 예외(RuntimeError 등)도 흡수
