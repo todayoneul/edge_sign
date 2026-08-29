@@ -44,6 +44,21 @@ Edge-Sign은 도로 영상에서 **교통표지판과 신호등을 실시간으�
 - YOLO 검출 헤드는 full INT8에서 붕괴할 수 있어, tensor cosine similarity보다 **실제 detection count / confidence** 검증이 중요했습니다.
 - 최종 배포는 환경에 따라 **Browser: FP32/WebGPU**, **Server CPU: INT8 Static QDQ**로 분리했습니다.
 
+## 데이터 파이프라인 & 품질 관리
+
+모델 결과의 신뢰도는 데이터 품질에서 나온다고 보고, 구축·정제·분할·검증 전 구간을 직접 설계했습니다.
+
+| 단계 | 핵심 작업 | 결과 |
+|---|---|---|
+| **구축** | 이기종 3개 공개 데이터셋(GTSDB·AI Hub 2종)의 상이한 어노테이션 스키마(xyxy·COCO xywh·gt.txt)를 단일 YOLO 포맷으로 정규화 통합 | train 26,866 / val 4,667 |
+| **정제·필터링** | 인접 프레임 서브샘플(30→5fps)로 중복 제거, type-불명·비대상 어노테이션 필터링 | 110,900 → 18,488 프레임 |
+| **분할** | 촬영 시퀀스(TAR) 단위 분할로 인접 프레임의 train/val 데이터 리크 차단 | leak-free split |
+| **품질 관리** | 초기 분할의 주간 검증 누락(도메인 편향)을 발견 → 주·야간 stratified 재분할 | 신뢰 가능한 기준선 mAP 0.587 |
+
+- **검증 지표의 맹점 제거:** 출력 CosSim 0.9995인데 실제 검출 0건인 함정을 발견 → 텐서 유사도 대신 **실프레임 detection count·confidence**를 판정 기준으로 채택.
+- **원인 기반 실패 분석:** 붕괴를 관찰에 그치지 않고 원인별로 분해 — OCR은 비트폭(고-fan-in 레이어 SQNR 12–13 dB), 검출 헤드는 활성화 이상치(초과첨도 49). (`scripts/analyze_quant_collapse.py`)
+- **학습 = 추론 전처리 일치:** 분류기 학습·추론 전처리 불일치로 인한 분포 shift를 제거해 val 정확도 80.3% 확보.
+
 ## Architecture
 
 ```mermaid
