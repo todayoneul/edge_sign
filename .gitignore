@@ -6,6 +6,7 @@
 !README.md
 !CLAUDE.md
 !docs/*.md
+!paper_evidence/*.md
 /data
 .vscode
 /AIhub
