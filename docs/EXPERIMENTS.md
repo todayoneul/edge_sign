@@ -397,3 +397,22 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
 | W4A16(fake-quant) | 0.6 | 0.165 | 9.8 MB | 저하 |
 
 **핵심:** YOLO26의 혁신은 **NMS-free(one2one 헤드)**일 뿐 — head 모듈(`model.23`)은 `one2one_cv2`(box, DFL-style)+`one2one_cv3`(cls)로 **DFL을 유지**한다(학습 로그에 `dfl_loss` 존재). 따라서 풀헤드 INT8은 v3와 똑같이 0으로 붕괴 → "모델 교체로 헤드 INT8 해결" 가설을 **기각**, §8.3의 활성화-측 진단을 **확증**. 처방은 동일하게 헤드 제외(QDQ exclude `model.23`). (정정: `export_v4_variants.py`의 `--exclude_head`가 실제 노드 제외를 안 하던 버그 수정.)
+
+---
+
+## TIIS 독립 test evidence (2026-09-24, `paper/tiis-evidence-revalidation`)
+
+위 Phase 11/12 표는 당시 validation/소수 프레임의 예비 기록이며, 아래 독립 test와 직접 이어 붙일 수 없다. 특히 `runs/detect/edge_sign_v4/results.csv`의 최고 **training validation mAP@0.5=0.75611**(epoch 28)은 위의 0.748과 충돌한다. Export된 640 입력 ONNX의 test mAP와도 다른 지표다.
+
+| YOLO26 ONNX, 동일 test 2,417장 | mAP@0.5 | mAP@0.5:0.95 | Precision | Recall | conf≥0.25 검출 |
+|---|---:|---:|---:|---:|---:|
+| FP32 | 0.499865 | 0.242181 | 0.754608 | 0.423213 | 3,798 |
+| full INT8 QDQ | 0 | 0 | 0 | 0 | 0 |
+| head-excluded INT8 QDQ | 0.482600 | 0.235028 | 0.760033 | 0.402688 | 3,588 |
+
+- `model.23` Q/DQ 노드 수: full 216, head-excluded 0. 전체 test에서 full QDQ는 conf≥0.001 박스도 0개다.
+- FP32 대비 raw output cosine 평균은 full **0.627166**, head-excluded **0.848464**. 기존 0.9995 관찰은 다른 조건의 historical observation이며 새 결과로 재현됐다고 할 수 없다. Head 전체와 특정 branch의 원인은 이 비교만으로 특정하지 못한다.
+- CPU detector-only 평균: FP32 **16.115 ms**, head-excluded QDQ **21.553 ms**. 브라우저 WASM head-excluded **9.285 FPS**; WebGPU QDQ는 unsupported.
+- 독립 GT ROI KoreanSignNet FP32 Top-1 **0.808152**(6,771개). 수동 identity GT가 없어 MOTA/IDF1/HOTA를 새로 산출하지 않았다.
+
+원시 prediction·trace·config, Figure, 정확한 측정 범위와 claim 판정은 [TIIS_EVIDENCE_REPORT.md](../paper_evidence/reports/TIIS_EVIDENCE_REPORT.md)를 참조한다.

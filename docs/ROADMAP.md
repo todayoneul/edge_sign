@@ -322,3 +322,19 @@
 - [ ] 연구 보고서 (실험 결과 + 분석)
 - [x] 시연 시스템 (웹 앱 — 범용 실시간 입력, Phase 7·10 기반) (2026-05-31)
 - [ ] 코드 정리 + 문서 최종 업데이트 (진행 중 — README/ROADMAP/EXPERIMENTS v3 동기화 2026-06-01)
+
+---
+
+## TIIS 논문 evidence 재검증 (2026-09-24, `paper/tiis-evidence-revalidation`)
+
+- [x] 기존 체크아웃/main과 분리한 브랜치에서 PDF 9쪽 기준으로 원시 artifact 감사
+- [x] train 12,375 / calibration 150 / 독립 sequence test 2,417장 manifest와 누출 검사
+- [x] YOLO26 FP32/full QDQ/head-excluded QDQ 전 test 프레임 예측과 AP 재측정
+- [x] ORT CPU·Chrome WASM/WebGPU 반복 latency trace, 지원 실패 사유 기록
+- [x] KoreanSignNet GT ROI 14-class 평가, detector→ByteTrack→recognizer 순차 파이프라인 측정
+- [x] 수동 tracking identity GT 부재 확인; pseudo-GT MOTA를 논문 주 결과에서 제외
+- [x] 새 raw evidence 기반 Figure 1–5, 표, [TIIS evidence 보고서](../paper_evidence/reports/TIIS_EVIDENCE_REPORT.md)
+- [ ] 카메라/렌더 포함 최종 배포 30 FPS와 accuracy retention 목표를 사전 정의 후 재검증
+- [ ] 야간/다른 장소 test 확장 및 가능한 경우 manual identity GT 구축
+
+과거 phase의 validation·예비 FPS·pseudo-GT 수치는 이번 독립 test 결과와 평가 범위가 다르다. 본 브랜치의 투고 근거는 `paper_evidence/`를 기준으로 한다.
