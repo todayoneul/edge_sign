@@ -74,6 +74,23 @@ Server ORT CPU는 test 첫 프레임의 이미 디코딩한 BGR을 사용해 war
 
 WebGPU QDQ는 `DequantizeLinear`의 int32 zero-point 커널 오류로 첫 run에서 실패했다. ORT CUDA는 누락된 cuBLAS DLL 때문에 CPU로 폴백해 GPU 수치로 취급하지 않았다. 브라우저 WebGPU adapter 이름은 API에서 노출되지 않아 실제 GPU 할당은 추가 확인이 필요하다. 초기에 FP16 JS 변환 비용이 과다했던 `runtime/browser/` 기록은 삭제하지 않고 pilot으로 보존했다. 위 표는 변환 코드를 고친 **`browser_optimized/`** 기록만 사용한다. CPU와 브라우저의 전처리/실행 환경이 달라 속도 우월성의 직접 비교로 사용하지 않는다.
 
+### 공개 Hugging Face Space 재측정 (2026-09-24; v3 배포 감사)
+
+공개 [Space](https://huggingface.co/spaces/gyann/edge-sign)는 처음 `RUNTIME_ERROR`/`Scheduling failure: unable to schedule`였고, 인증된 계정으로 재시작한 뒤 `RUNNING`, `/api/status` HTTP 200을 확인했다. Space 소스 commit은 `9fc2593358a678a5b1597e978a63778bc909fc31`, 하드웨어는 `cpu-basic`이다. Space repo의 Dockerfile은 Python 3.11을 사용하고 요구사항은 ORT CPU 1.23.2로 고정돼 있으나, 실제 컨테이너의 CPU 모델·thread 수·패키지 버전은 API로 확인할 수 없었다([환경 기록](../runtime/hf_space_v3/ENVIRONMENT.txt)). 두 검출기 ONNX의 실제 입력은 1×3×640×640, 출력은 1×6×8400, opset 14다. **이 Space의 검출기는 YOLOv8s v3**(FP32 또는 head-excluded static QDQ INT8)다. 위의 새 논문 근거인 **YOLO26-n v4와 모델 세대가 다르므로** 이 배포 수치를 v4 속도나 정확도로 옮겨 적지 않는다.
+
+공개 샘플 `seoul_daylight.mp4`(15프레임, 원본 5.28 FPS)를 클라이언트에서 반복하고, 실제 배포 `/ws/stream`에 10 FPS로 제공했다. 각 모델은 tracker reset → warm-up 10프레임 → 측정 50프레임 순서다. 로컬 비디오 디코드/JPEG·base64·JSON 생성, WebSocket 왕복, Space의 JPEG 디코드·검출·ByteTrack·인식·JSON 응답이 포함된다. **브라우저 canvas 렌더링과 웹캠 캡처는 제외**한다. 아래의 수신 FPS는 입력 제공 10 FPS와 다른 값이며, 큐가 쌓이는 상황에서 받은 결과의 간격을 뜻한다.
+
+| Space v3 구성 | 클라이언트 제공 간격 평균 | Space 파이프라인 평균 / p95 | 결과 수신 FPS | 첫 측정 송신→마지막 수신 FPS | 왕복 p50 / p95 |
+|---|---:|---:|---:|---:|---:|
+| head-excluded INT8 | 99.420 ms | 349.238 / 486.895 ms | 2.500 | 2.056 | 12,311 / 19,205 ms |
+| FP32 | 99.249 ms | 456.192 / 580.050 ms | 1.991 | 1.643 | 16,314 / 25,218 ms |
+
+왕복 시간이 초 단위인 이유는 10 FPS 제공 속도가 Space 처리 용량을 넘어 프레임이 전송/처리 큐에 쌓이기 때문이다. Space 내부 파이프라인만 평균 349/456 ms이므로, **현재 공개 v3 Space의 서버 경로는 30 FPS 목표를 충족하지 못한다.** 이는 공유 CPU 환경의 해당 시점 단일 실행이며 다른 하드웨어에 일반화하지 않는다. INT8 선택 구성의 실제 ONNX 크기는 검출기 17,997,724 B + OCR 2,880,185 B + KoreanSignNet 116,860 B = **20,994,769 B**로 15 MB도 초과한다. Space 리포의 모든 배포 ONNX 파일 합계는 88,124,747 B이며, 선택 구성의 크기와 구분한다. 이 실험으로 v3의 검출 정확도를 새로 평가하지 않았다.
+
+원시 근거: INT8 [config](../runtime/hf_space_v3/20260924_int8_final/config.json)·[trace](../runtime/hf_space_v3/20260924_int8_final/trace.jsonl)·[metrics](../runtime/hf_space_v3/20260924_int8_final/metrics.json), FP32 [config](../runtime/hf_space_v3/20260924_fp32_final/config.json)·[trace](../runtime/hf_space_v3/20260924_fp32_final/trace.jsonl)·[metrics](../runtime/hf_space_v3/20260924_fp32_final/metrics.json), [pilot 선택 기록](../runtime/hf_space_v3/PILOT_NOTES.md). 각 최종 trace는 60개 연속 프레임 ID(1–60), 정확히 10개 warm-up/50개 측정 결과와 모델 variant를 보존한다. 다른 에이전트가 두 trace에서 모든 요약 통계와 전송 간격을 독립 재계산해 일치함을 확인했다.
+
+실제 웹 화면에서는 57초 반복 샘플이 재생됐으나 서버 모드의 박스/단계 지표는 표시되지 않았다. Space 원격 `Viewport.tsx`와 이 브랜치의 파일 SHA256이 모두 `fc06d930c2c7a54ee68c17e3db75701048bee657a757e315fa9bfacd53ad033b`다. 해당 코드의 첫 영상 로드 경로는 `isPlaying=false`를 캡처한 `getFrame`을 타이머에 전달해 프레임을 보내지 않는 문제가 있고, 서버 경로는 표시용 FPS도 갱신하지 않는다. 따라서 **브라우저 렌더까지 포함한 FPS는 여전히 NOT VERIFIED**다. 서버 경로가 이미 30 FPS보다 느리다는 판정과 구분한다. 이전 실험의 오류·예비 결과도 삭제하지 않고 `PILOT_NOTES.md`에 제외 이유를 기록했다.
+
 ## 6. Recognition
 
 독립 test JSON의 `type/text/attribute`를 기존 `scripts/prepare_korean_traffic.py`와 같은 14-class 매핑으로 해석했다. 6,772 객체 중 1개는 세부 클래스에 매핑되지 않아 제외했다. GT 박스에 학습 데이터 생성과 같은 8% margin을 주고 32×32 ROI를 만들어 FP32 ONNX를 평가했다. 이는 **oracle-box 분류 정확도**다.
@@ -99,6 +116,8 @@ WebGPU QDQ는 `DequantizeLinear`의 int32 zero-point 커널 오류로 첫 run에
 | YOLO26 head-excluded QDQ + ByteTrack + KoreanSignNet FP32 | 3,416,372 | 116,860 | 3,533,232 | 44.121 | 33.269 | 0.353419 |
 
 QDQ 파이프라인의 조건부 Top-1(매칭된 track 중 fine-class 정답)은 **0.861721**이고, 전체 매핑 GT 기준은 **0.353419**다. 선택/미검출 객체가 빠지는 조건부 수치를 전체 정확도로 쓰지 않는다. 모델은 작아졌지만 FP32 대비 end-to-end correct/GT가 0.021858 낮아졌다. Detector-only benchmark와 전체 파이프라인의 FPS도 서로 다르다.
+
+현재 공개 HF Space는 위 표의 YOLO26 모델을 배포하지 않는다. 해당 v3 Space는 15 MB와 서버 30 FPS를 모두 충족하지 못했지만, 그것을 아래 **v4 모델 조합**의 실패 판정으로 대체하지 않는다.
 
 | 목표 | 판정 | 근거와 한계 |
 |---|---|---|
@@ -127,7 +146,7 @@ QDQ 파이프라인의 조건부 Top-1(매칭된 track 중 fine-class 정답)은
 
 ### P0: 투고 전 우선
 
-1. 목표 accuracy retention의 허용 기준과 실제 배포 workload를 사전 고정하고, 카메라/영상 디코드·전송·렌더를 포함한 같은 장치의 전체 지연을 측정한다. 서버 CPU에서만 30 FPS를 주장하려면 그 범위를 제목/초록에 명시한다.
+1. 목표 accuracy retention의 허용 기준과 실제 배포 workload를 사전 고정한다. YOLO26 v4를 동일 전처리/후처리의 별도 배포 환경에 올려 카메라/영상 디코드·전송·렌더를 포함한 지연을 측정한다. 현재 공개 v3 Space의 서버 영상 경로는 먼저 프레임 전송과 FPS 표시 문제를 수정·검증해야 한다. 서버 CPU에서만 30 FPS를 주장하려면 그 범위를 제목/초록에 명시한다.
 2. Headless 브라우저의 WebGPU adapter 실체를 확인하고 실제 사용자 브라우저에서 반복한다. QDQ WebGPU 지원이 필요하면 모델/ORT Web 버전을 바꾼 **새 구성**을 검증하되 실패 기록을 유지한다.
 3. 야간과 별도 촬영 장소의 독립 test를 확장한다. 현재 night 16장, calibration night 0장이다. Scene/위치 중복도 메타데이터로 점검한다.
 4. 수동 identity GT를 소량이라도 구축하려면 annotation protocol/검수 후 MOTA/IDF1/HOTA를 다시 산출한다. 구축하지 않으면 tracking 정량 주장을 제외한다.

@@ -1,0 +1,71 @@
+{
+  "status": "completed",
+  "traffic_mode": "open_loop",
+  "warmup_count": 1,
+  "measured_count": 4,
+  "send_fps_cap": 10.0,
+  "observed_send_interval_ms": {
+    "n": 3,
+    "mean_ms": 240.78133333144555,
+    "std_ms": 199.5376569015581,
+    "p50_ms": 107.50679999182466,
+    "p95_ms": 481.29615000216285
+  },
+  "elapsed_first_send_to_last_result_s": 2.75401740000234,
+  "end_to_end_completion_fps": 1.4524236484477555,
+  "result_delivery_fps": 2.135303202730405,
+  "metrics": {
+    "client_decode_ms": {
+      "n": 4,
+      "mean_ms": 1.208799996675225,
+      "std_ms": 0.07492098788421582,
+      "p50_ms": 1.2313499973970465,
+      "p95_ms": 1.2799749907571822
+    },
+    "client_jpeg_encode_ms": {
+      "n": 4,
+      "mean_ms": 2.2513500007335097,
+      "std_ms": 0.16387319059823066,
+      "p50_ms": 2.214500003901776,
+      "p95_ms": 2.471434999461053
+    },
+    "round_trip_ms": {
+      "n": 4,
+      "mean_ms": 1899.9840500073333,
+      "std_ms": 321.30669838239805,
+      "p50_ms": 2047.6665000096546,
+      "p95_ms": 2141.7566650103254
+    },
+    "server_inference_ms": {
+      "n": 4,
+      "mean_ms": 401.3,
+      "std_ms": 9.502105029939425,
+      "p50_ms": 404.5,
+      "p95_ms": 409.82
+    },
+    "server_stage_ms": {
+      "detect": {
+        "n": 4,
+        "mean_ms": 356.52500000000003,
+        "std_ms": 44.76038287369758,
+        "p50_ms": 357.85,
+        "p95_ms": 401.97
+      },
+      "recognize": {
+        "n": 4,
+        "mean_ms": 22.7,
+        "std_ms": 34.03432091286676,
+        "p50_ms": 3.8,
+        "p95_ms": 70.15499999999997
+      },
+      "track": {
+        "n": 4,
+        "mean_ms": 22.099999999999998,
+        "std_ms": 31.469906259790477,
+        "p50_ms": 4.35,
+        "p95_ms": 65.78499999999997
+      }
+    }
+  },
+  "mean_track_count": 9.0
+}

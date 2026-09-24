@@ -334,6 +334,9 @@
 - [x] KoreanSignNet GT ROI 14-class 평가, detector→ByteTrack→recognizer 순차 파이프라인 측정
 - [x] 수동 tracking identity GT 부재 확인; pseudo-GT MOTA를 논문 주 결과에서 제외
 - [x] 새 raw evidence 기반 Figure 1–5, 표, [TIIS evidence 보고서](../paper_evidence/reports/TIIS_EVIDENCE_REPORT.md)
+- [x] 공개 HF Space 실행 복구 후 YOLOv8s v3 실제 `/ws/stream` 재측정 (2026-09-24). INT8 결과 수신 2.500 FPS, FP32 1.991 FPS; 독립 에이전트가 최종 trace 재계산 검증. [Space 원시 근거](../paper_evidence/runtime/hf_space_v3/PILOT_NOTES.md)
+- [ ] 공개 웹 화면의 서버 프레임 전송·FPS 표시 오류 수정 후 브라우저 렌더 포함 재측정
+- [ ] 최종 논문 YOLO26 v4 모델을 별도 배포해 동일 입력의 end-to-end 속도 측정. 현재 공개 Space는 v3라 v4 결과로 사용할 수 없음
 - [ ] 카메라/렌더 포함 최종 배포 30 FPS와 accuracy retention 목표를 사전 정의 후 재검증
 - [ ] 야간/다른 장소 test 확장 및 가능한 경우 manual identity GT 구축
 

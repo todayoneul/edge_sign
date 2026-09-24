@@ -415,4 +415,13 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
 - CPU detector-only 평균: FP32 **16.115 ms**, head-excluded QDQ **21.553 ms**. 브라우저 WASM head-excluded **9.285 FPS**; WebGPU QDQ는 unsupported.
 - 독립 GT ROI KoreanSignNet FP32 Top-1 **0.808152**(6,771개). 수동 identity GT가 없어 MOTA/IDF1/HOTA를 새로 산출하지 않았다.
 
+공개 HF Space(`gyann/edge-sign`, `cpu-basic`, source SHA `9fc2593…`)는 YOLOv8s **v3**를 배포한다. 2026-09-24 재시작 후 `/ws/stream`에 공개 샘플 반복 프레임을 실제 10 FPS 간격으로 공급하고 tracker reset, warm-up 10/측정 50으로 측정했다. 별도 에이전트가 최종 두 trace의 전송 간격, 모든 요약 통계, 프레임 ID 1–60, 동일 입력을 재계산했다.
+
+| Space v3 선택 variant | 결과 수신 FPS | Space 파이프라인 평균 ms | 선택 모델 파일 합계 B | 판정 범위 |
+|---|---:|---:|---:|---|
+| head-excluded static QDQ INT8 | 2.500 | 349.238 | 20,994,769 | 현재 CPU Space 서버 경로 15 MB/30 FPS 미달 |
+| FP32 | 1.991 | 456.192 | 47,744,540 | 동일 Space/입력의 비교군 |
+
+이 표는 브라우저 렌더/카메라를 포함하지 않고, YOLO26 v4의 배포 성능도 아니다. 10 FPS 제공보다 Space 처리량이 낮아 왕복 큐 지연이 커졌다. 상세 조건·pilot 제외 이유는 [TIIS_EVIDENCE_REPORT.md](../paper_evidence/reports/TIIS_EVIDENCE_REPORT.md)와 [PILOT_NOTES.md](../paper_evidence/runtime/hf_space_v3/PILOT_NOTES.md)에 기록한다.
+
 원시 prediction·trace·config, Figure, 정확한 측정 범위와 claim 판정은 [TIIS_EVIDENCE_REPORT.md](../paper_evidence/reports/TIIS_EVIDENCE_REPORT.md)를 참조한다.

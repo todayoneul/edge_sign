@@ -9,6 +9,7 @@
 | 모델 계보와 실행 환경 | [model_manifest.csv](models/model_manifest.csv), `environment/` |
 | ORT CPU 및 CUDA 시도 | `runtime/ort/*.{json,csv}` |
 | Chrome WASM 및 WebGPU | `runtime/browser_optimized/*.{json,csv}`; `runtime/browser/`는 FP16 전처리 개선 전 첫 실행으로 보존 |
+| 공개 Hugging Face Space v3 재측정 | `runtime/hf_space_v3/20260924_{int8,fp32}_final/{config.json,metrics.json,trace.jsonl}`; [예비 실행 제외 이유](runtime/hf_space_v3/PILOT_NOTES.md). YOLO26 v4 배포 결과와 구분 |
 | Detector→ByteTrack→KoreanSignNet | `runtime/pipeline_{fp32,head_excluded_qdq}/{config.yaml,metrics.json,trace.csv,predictions.jsonl}` |
 | 독립 시험 프레임의 14-class 인식 | `recognition/fp32_{metrics.json,predictions.jsonl}` |
 | tracking identity GT 감사 | [annotation_audit.json](tracking/annotation_audit.json) |
@@ -17,3 +18,5 @@
 데이터 이미지와 ONNX/.pt 파일은 포함하지 않습니다. `model_manifest.csv`의 경로는 원본 체크아웃의 ignored artifact를 가리키며, 모든 스크립트는 `--artifact-root`로 이 위치를 받습니다. 모델 해시와 manifest 해시가 다르면 결과를 재사용하지 마세요.
 
 실행 예: `python scripts/paper/evaluate_qdq_detection.py --artifact-root C:\Users\leegy\Desktop\CNN_Quant --output 새_결과_디렉터리`. 스크립트는 기존 evidence 출력에 덮어쓰지 않도록 설계했습니다.
+
+실제 공개 Space 확인: `python scripts/paper/benchmark_hf_space.py --variant int8 --warmup 10 --iterations 50 --send-fps 10 --output 새_결과_디렉터리`. 이 스크립트는 공개 샘플 영상만 사용하며 `/ws/stream`의 서버 파이프라인과 네트워크를 측정한다. 브라우저 렌더 FPS로 해석하지 않는다.

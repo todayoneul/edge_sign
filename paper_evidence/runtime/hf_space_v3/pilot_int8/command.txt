@@ -1,0 +1,1 @@
+python scripts/paper/benchmark_hf_space.py --variant int8 --warmup 1 --iterations 2 --send-fps 10.0 --output paper_evidence/runtime/hf_space_v3/pilot_int8
