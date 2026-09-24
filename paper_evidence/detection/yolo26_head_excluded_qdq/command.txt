@@ -1,0 +1,1 @@
+scripts/paper/evaluate_qdq_detection.py --artifact-root C:\Users\leegy\Desktop\CNN_Quant --output paper_evidence/detection

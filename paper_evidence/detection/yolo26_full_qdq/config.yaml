@@ -1,0 +1,33 @@
+{
+  "test_manifest_sha256": "dfd1f54a5de52a3a3c3174c5412c14f2b1ace4f5b02e19ca85bfa3bf4caba219",
+  "frames": 2417,
+  "subset": false,
+  "input_size": [
+    640,
+    640
+  ],
+  "preprocessing": "OpenCV BGR decode; stretch resize 640x640; RGB; float32/255; NCHW",
+  "postprocessing": "exported top-300 xyxy/conf/class; no additional NMS; clip boxes to image",
+  "AP_confidence_floor": 0.001,
+  "task_confidence_threshold": 0.25,
+  "task_IoU_threshold": 0.5,
+  "AP_IoU_thresholds": [
+    0.5,
+    0.55,
+    0.6,
+    0.65,
+    0.7,
+    0.75,
+    0.8,
+    0.85,
+    0.9,
+    0.95
+  ],
+  "execution_provider": "CPUExecutionProvider",
+  "intra_op_threads": 4,
+  "onnxruntime_version": "1.23.2",
+  "model_id": "yolo26_full_qdq",
+  "model_path": "model_space/yolo_v4_signs_int8_static.onnx",
+  "model_sha256": "c4fc17fb230324a0e691c4f2b9c1dd25986cdea27a41525de891b8d0d1d729cd",
+  "model_size_bytes": 3098518
+}
