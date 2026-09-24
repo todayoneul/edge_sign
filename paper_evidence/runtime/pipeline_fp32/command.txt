@@ -1,0 +1,1 @@
+scripts/paper/evaluate_pipeline.py --artifact-root C:\Users\leegy\Desktop\CNN_Quant --detector fp32 --output paper_evidence/runtime/pipeline_fp32

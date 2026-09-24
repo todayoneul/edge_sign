@@ -1,0 +1,70 @@
+{
+  "config": {
+    "run_id": "cpu_full_qdq",
+    "model": "model_space/yolo_v4_signs_int8_static.onnx",
+    "model_sha256": "c4fc17fb230324a0e691c4f2b9c1dd25986cdea27a41525de891b8d0d1d729cd",
+    "model_size_bytes": 3098518,
+    "test_manifest_sha256": "dfd1f54a5de52a3a3c3174c5412c14f2b1ace4f5b02e19ca85bfa3bf4caba219",
+    "frame_image_rel": "data/aihub_traffic/test/images/c_validation_1920_1200_night_1/s01333519.jpg",
+    "input_resolution": [
+      640,
+      640
+    ],
+    "original_resolution": [
+      1920,
+      1200
+    ],
+    "warmup_count": 10,
+    "measured_iterations": 100,
+    "intra_op_threads": 4,
+    "requested_providers": [
+      "CPUExecutionProvider"
+    ],
+    "onnxruntime_version": "1.23.2",
+    "python": "3.10.19",
+    "OS": "Windows-10-10.0.26200-SP0",
+    "CPU": "AMD64 Family 26 Model 68 Stepping 0, AuthenticAMD",
+    "timing_scope": "in-memory BGR frame; preprocess + ONNX session.run + decode; excludes disk decode/download/render",
+    "session_init_ms": 93.89809999265708,
+    "actual_providers": [
+      "CPUExecutionProvider"
+    ],
+    "first_inference_ms": 20.368800003780052
+  },
+  "status": "completed",
+  "metrics": {
+    "preprocess_ms": {
+      "mean_ms": 1.8324819991539698,
+      "std_ms": 0.17874061274950606,
+      "p50_ms": 1.8988500014529563,
+      "p95_ms": 2.0051550047355704,
+      "fps": 545.7079526356523,
+      "n": 100
+    },
+    "inference_ms": {
+      "mean_ms": 17.75097800011281,
+      "std_ms": 1.1667927273628207,
+      "p50_ms": 17.896299999847542,
+      "p95_ms": 19.56635500100674,
+      "fps": 56.33492419367794,
+      "n": 100
+    },
+    "postprocess_ms": {
+      "mean_ms": 0.22015599999576807,
+      "std_ms": 0.04704440960375064,
+      "p50_ms": 0.2505000084056519,
+      "p95_ms": 0.27214500441914424,
+      "fps": 4542.233688926136,
+      "n": 100
+    },
+    "detector_total_ms": {
+      "mean_ms": 19.803615999262547,
+      "std_ms": 1.2924751335057878,
+      "p50_ms": 19.91099998849677,
+      "p95_ms": 21.77195499680238,
+      "fps": 50.495828642468034,
+      "n": 100
+    }
+  },
+  "detection_count": 0
+}

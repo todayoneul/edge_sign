@@ -1,0 +1,70 @@
+{
+  "config": {
+    "run_id": "cpu_fp16",
+    "model": "model_space/yolo_v4_signs_fp16.onnx",
+    "model_sha256": "0028ac54c854b3b021f0a2b7987eab37be66612aa86c1c955846c0db3977e37e",
+    "model_size_bytes": 4971834,
+    "test_manifest_sha256": "dfd1f54a5de52a3a3c3174c5412c14f2b1ace4f5b02e19ca85bfa3bf4caba219",
+    "frame_image_rel": "data/aihub_traffic/test/images/c_validation_1920_1200_night_1/s01333519.jpg",
+    "input_resolution": [
+      640,
+      640
+    ],
+    "original_resolution": [
+      1920,
+      1200
+    ],
+    "warmup_count": 10,
+    "measured_iterations": 100,
+    "intra_op_threads": 4,
+    "requested_providers": [
+      "CPUExecutionProvider"
+    ],
+    "onnxruntime_version": "1.23.2",
+    "python": "3.10.19",
+    "OS": "Windows-10-10.0.26200-SP0",
+    "CPU": "AMD64 Family 26 Model 68 Stepping 0, AuthenticAMD",
+    "timing_scope": "in-memory BGR frame; preprocess + ONNX session.run + decode; excludes disk decode/download/render",
+    "session_init_ms": 71.37639999564271,
+    "actual_providers": [
+      "CPUExecutionProvider"
+    ],
+    "first_inference_ms": 15.939700009766966
+  },
+  "status": "completed",
+  "metrics": {
+    "preprocess_ms": {
+      "mean_ms": 5.091928999463562,
+      "std_ms": 0.788781029429355,
+      "p50_ms": 4.954749994794838,
+      "p95_ms": 6.075764993875055,
+      "fps": 196.3892269718118,
+      "n": 100
+    },
+    "inference_ms": {
+      "mean_ms": 17.385045000119135,
+      "std_ms": 2.6316464289975072,
+      "p50_ms": 18.62799999798881,
+      "p95_ms": 20.381290000659646,
+      "fps": 57.5207024194155,
+      "n": 100
+    },
+    "postprocess_ms": {
+      "mean_ms": 0.21682600025087595,
+      "std_ms": 0.04587183486634443,
+      "p50_ms": 0.1870499982032925,
+      "p95_ms": 0.28480000037234277,
+      "fps": 4611.993021330292,
+      "n": 100
+    },
+    "detector_total_ms": {
+      "mean_ms": 22.693799999833573,
+      "std_ms": 3.0901430244323884,
+      "p50_ms": 23.505600009229966,
+      "p95_ms": 26.54603500777739,
+      "fps": 44.06489878325065,
+      "n": 100
+    }
+  },
+  "detection_count": 2
+}
