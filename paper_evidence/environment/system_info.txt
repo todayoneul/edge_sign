@@ -1,0 +1,13 @@
+platform=Windows-10-10.0.26200-SP0
+machine=AMD64
+cpu=AMD64 Family 26 Model 68 Stepping 0, AuthenticAMD
+logical_cpus=12
+python=3.10.19 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 16:41:31) [MSC v.1929 64 bit (AMD64)]
+onnxruntime=1.23.2
+onnxruntime_providers=['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider']
+onnx=1.21.0
+nvidia_smi=NVIDIA GeForce RTX 5070, 591.86, 12227 MiB
+cublasLt64_12.dll=unavailable: Could not find module 'cublasLt64_12.dll' (or one of its dependencies). Try using the full path with constructor syntax.
+cudnn64_9.dll=loadable
+msedge_version=unavailable: [WinError 2] 지정된 파일을 찾을 수 없습니다
+chrome_version=unavailable: [WinError 2] 지정된 파일을 찾을 수 없습니다

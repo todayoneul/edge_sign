@@ -31,9 +31,15 @@ def _test_frame(root, sequence, stem, cls, value):
     label = base / "labels" / sequence / f"{stem}.json"
     label.parent.mkdir(parents=True, exist_ok=True)
     label.write_text(
-        json.dumps({"image": {"imsize": [8, 8]}, "annotation": [
-            {"class": cls, "box": [1, 1, 6, 6]},
-        ]}), encoding="utf-8"
+        json.dumps(
+            {
+                "image": {"imsize": [8, 8]},
+                "annotation": [
+                    {"class": cls, "box": [1, 1, 6, 6]},
+                ],
+            }
+        ),
+        encoding="utf-8",
     )
 
 
@@ -47,10 +53,12 @@ def test_builds_disjoint_manifests_with_class_counts(tmp_path):
 
     assert summary["splits"]["train"]["images"] == 1
     assert summary["splits"]["calibration"]["objects_by_class"] == {
-        "traffic_sign": 0, "traffic_light": 1,
+        "traffic_sign": 0,
+        "traffic_light": 1,
     }
     assert summary["splits"]["test"]["objects_by_class"] == {
-        "traffic_sign": 1, "traffic_light": 0,
+        "traffic_sign": 1,
+        "traffic_light": 0,
     }
     test = json.loads((out / "test_manifest.jsonl").read_text(encoding="utf-8").splitlines()[0])
     assert test["boxes_xyxy"] == [[1, 1, 6, 6]]

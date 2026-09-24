@@ -70,18 +70,20 @@ def _yolo_records(root: Path, split: str, limit: int | None = None) -> list[dict
         with Image.open(image) as im:
             width, height = im.size
         seq = _sequence(image.stem)
-        records.append({
-            "image_rel": image.relative_to(root).as_posix(),
-            "label_rel": label.relative_to(root).as_posix(),
-            "sequence": seq,
-            "lighting": _lighting(seq),
-            "width": width,
-            "height": height,
-            "classes": classes,
-            "boxes_yolo": boxes,
-            "image_sha256": _hash(image),
-            "source_dataset": SOURCE,
-        })
+        records.append(
+            {
+                "image_rel": image.relative_to(root).as_posix(),
+                "label_rel": label.relative_to(root).as_posix(),
+                "sequence": seq,
+                "lighting": _lighting(seq),
+                "width": width,
+                "height": height,
+                "classes": classes,
+                "boxes_yolo": boxes,
+                "image_sha256": _hash(image),
+                "source_dataset": SOURCE,
+            }
+        )
     return records
 
 
@@ -97,8 +99,12 @@ def _test_records(root: Path, limit: int | None = None) -> tuple[list[dict], lis
         rel = image.relative_to(dataset / "images")
         label = dataset / "labels" / rel.with_suffix(".json")
         if not label.is_file():
-            exclusions.append({"image_rel": image.relative_to(root).as_posix(),
-                               "reason": "missing JSON annotation"})
+            exclusions.append(
+                {
+                    "image_rel": image.relative_to(root).as_posix(),
+                    "reason": "missing JSON annotation",
+                }
+            )
             continue
         try:
             data = json.loads(label.read_text(encoding="utf-8"))
@@ -122,21 +128,22 @@ def _test_records(root: Path, limit: int | None = None) -> tuple[list[dict], lis
                 classes.append(0 if cls_name == "traffic_sign" else 1)
                 boxes.append([x1, y1, x2, y2])
             seq = rel.parent.name
-            records.append({
-                "image_rel": image.relative_to(root).as_posix(),
-                "label_rel": label.relative_to(root).as_posix(),
-                "sequence": seq,
-                "lighting": _lighting(seq),
-                "width": width,
-                "height": height,
-                "classes": classes,
-                "boxes_xyxy": boxes,
-                "image_sha256": _hash(image),
-                "source_dataset": SOURCE,
-            })
+            records.append(
+                {
+                    "image_rel": image.relative_to(root).as_posix(),
+                    "label_rel": label.relative_to(root).as_posix(),
+                    "sequence": seq,
+                    "lighting": _lighting(seq),
+                    "width": width,
+                    "height": height,
+                    "classes": classes,
+                    "boxes_xyxy": boxes,
+                    "image_sha256": _hash(image),
+                    "source_dataset": SOURCE,
+                }
+            )
         except (ValueError, KeyError, TypeError, json.JSONDecodeError) as exc:
-            exclusions.append({"image_rel": image.relative_to(root).as_posix(),
-                               "reason": str(exc)})
+            exclusions.append({"image_rel": image.relative_to(root).as_posix(), "reason": str(exc)})
     if not records:
         raise ValueError("independent test split is empty after validation")
     return records, exclusions
@@ -163,7 +170,10 @@ def _write_jsonl(path: Path, records: list[dict]) -> None:
 
 
 def build_manifests(
-    artifact_root: Path, output: Path, *, n_calib: int = 150,
+    artifact_root: Path,
+    output: Path,
+    *,
+    n_calib: int = 150,
     limit_test: int | None = None,
 ) -> dict:
     if n_calib < 1 or (limit_test is not None and limit_test < 1):
@@ -189,7 +199,8 @@ def build_manifests(
             "train": "existing yolo_signs_v2/images/train, sorted filenames",
             "calibration": f"first {n_calib} sorted yolo_signs_v2/images/val frames",
             "test": "all AI Hub test sequences and frames sorted by relative path"
-                    if limit_test is None else f"first {limit_test} sorted AI Hub test frames (dry run)",
+            if limit_test is None
+            else f"first {limit_test} sorted AI Hub test frames (dry run)",
             "random_seed": None,
             "test_negative_frames_included": True,
         },
@@ -211,11 +222,16 @@ def main() -> None:
     parser.add_argument("--artifact-root", type=Path, required=True)
     parser.add_argument("--output", type=Path, default=Path("paper_evidence/splits"))
     parser.add_argument("--n-calib", type=int, default=150)
-    parser.add_argument("--limit-test", type=int, default=None,
-                        help="dry run using the first N test frames; use a separate output dir")
+    parser.add_argument(
+        "--limit-test",
+        type=int,
+        default=None,
+        help="dry run using the first N test frames; use a separate output dir",
+    )
     args = parser.parse_args()
-    summary = build_manifests(args.artifact_root, args.output,
-                              n_calib=args.n_calib, limit_test=args.limit_test)
+    summary = build_manifests(
+        args.artifact_root, args.output, n_calib=args.n_calib, limit_test=args.limit_test
+    )
     print(json.dumps(summary["splits"], ensure_ascii=False, sort_keys=True))
     print(f"test exclusions: {len(summary['test_exclusions'])}")
 
