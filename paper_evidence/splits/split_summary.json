@@ -1,0 +1,70 @@
+{
+  "leakage_checks": "sequence names and exact JPEG SHA-256 disjoint across all splits",
+  "selection_rule": {
+    "calibration": "first 150 sorted yolo_signs_v2/images/val frames",
+    "random_seed": null,
+    "test": "all AI Hub test sequences and frames sorted by relative path",
+    "test_negative_frames_included": true,
+    "train": "existing yolo_signs_v2/images/train, sorted filenames"
+  },
+  "source_dataset": "AI Hub traffic light and road sign recognition video",
+  "splits": {
+    "calibration": {
+      "images": 150,
+      "images_by_lighting": {
+        "daylight": 150
+      },
+      "objects": 621,
+      "objects_by_class": {
+        "traffic_light": 302,
+        "traffic_sign": 319
+      },
+      "sequence_count": 1,
+      "sequences": [
+        "d_validation_1920_1080_daylight_1"
+      ]
+    },
+    "test": {
+      "images": 2417,
+      "images_by_lighting": {
+        "daylight": 2401,
+        "night": 16
+      },
+      "objects": 6772,
+      "objects_by_class": {
+        "traffic_light": 3406,
+        "traffic_sign": 3366
+      },
+      "sequence_count": 2,
+      "sequences": [
+        "c_validation_1920_1200_night_1",
+        "d_validation_1920_1080_daylight_2"
+      ]
+    },
+    "train": {
+      "images": 12375,
+      "images_by_lighting": {
+        "daylight": 12250,
+        "night": 125
+      },
+      "objects": 43677,
+      "objects_by_class": {
+        "traffic_light": 22040,
+        "traffic_sign": 21637
+      },
+      "sequence_count": 5,
+      "sequences": [
+        "c_validation_1280_720_daylight_1",
+        "c_validation_1280_720_daylight_2",
+        "c_validation_1280_720_daylight_3",
+        "c_validation_1280_720_night_1",
+        "c_validation_1920_1200_daylight_1"
+      ]
+    }
+  },
+  "taxonomy": {
+    "0": "traffic_sign",
+    "1": "traffic_light"
+  },
+  "test_exclusions": []
+}

@@ -6,6 +6,9 @@
 !README.md
 !CLAUDE.md
 !docs/*.md
+!docs/superpowers/plans/*.md
+!paper_evidence/*.md
+!paper_evidence/reports/*.md
 /data
 .vscode
 /AIhub
