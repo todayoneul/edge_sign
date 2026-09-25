@@ -202,6 +202,7 @@ export default function Viewport() {
     if (clientTimerRef.current != null) {
       clearInterval(clientTimerRef.current);
       clientTimerRef.current = null;
+      useStore.setState({ playing: false });
     }
   }, []);
 
@@ -209,7 +210,11 @@ export default function Viewport() {
     stopClientLoop();
     clientTimerRef.current = window.setInterval(() => {
       const video = videoRef.current;
-      if (!video || video.readyState < 2 || video.paused || clientBusyRef.current) return;
+      // store.playing drives the header KPIs; the server modes set it on start/stop,
+      // this loop keeps running while paused, so mirror the video state (write only on change)
+      const active = !!video && video.readyState >= 2 && !video.paused && !video.ended;
+      if (useStore.getState().playing !== active) useStore.setState({ playing: active });
+      if (!video || !active || clientBusyRef.current) return;
       clientBusyRef.current = true;
       const vw = video.videoWidth || 640;
       const vh = video.videoHeight || 480;
