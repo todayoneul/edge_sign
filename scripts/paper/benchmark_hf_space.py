@@ -67,10 +67,12 @@ def _download_video(url: str, path: Path) -> dict:
     return {"url": url, "size_bytes": size, "sha256": digest.hexdigest()}
 
 
-def _space_info(base_url: str, repo_id: str) -> tuple[dict, dict]:
-    response = requests.get(f"{base_url}/api/status", timeout=30)
+def _space_info(base_url: str, repo_id: str, status_path: str) -> tuple[dict, dict]:
+    response = requests.get(f"{base_url}{status_path}", timeout=30)
     response.raise_for_status()
     app_status = response.json()
+    if not repo_id:
+        return app_status, {"repo_id": None, "local_smoke_test": True}
     repo = HfApi().repo_info(repo_id, repo_type="space", files_metadata=True)
     runtime = HfApi().get_space_runtime(repo_id)
     remote_models = {}
@@ -366,7 +368,9 @@ def main() -> None:
     parser.add_argument("--base-url", default="https://gyann-edge-sign.hf.space")
     parser.add_argument("--repo-id", default="gyann/edge-sign")
     parser.add_argument("--sample-video-url")
-    parser.add_argument("--variant", choices=("fp32", "int8"), required=True)
+    parser.add_argument("--variant", choices=("fp32", "int8", "head_excluded_qdq"), required=True)
+    parser.add_argument("--status-path", default="/api/status")
+    parser.add_argument("--ws-path", default="/ws/stream")
     parser.add_argument("--warmup", type=int, default=10)
     parser.add_argument("--iterations", type=int, default=50)
     parser.add_argument("--send-fps", type=float, default=10.0)
@@ -383,13 +387,21 @@ def main() -> None:
     parsed = urlparse(base_url)
     if parsed.scheme not in {"http", "https"} or not parsed.netloc:
         parser.error("base-url must be an HTTP(S) URL")
+    if not args.status_path.startswith("/api/") or not args.ws_path.startswith("/ws/"):
+        parser.error("status-path must start /api/ and ws-path must start /ws/")
     ws_scheme = "wss" if parsed.scheme == "https" else "ws"
-    ws_url = f"{ws_scheme}://{parsed.netloc}/ws/stream"
+    ws_url = f"{ws_scheme}://{parsed.netloc}{args.ws_path}"
     video_url = args.sample_video_url or f"{base_url}/detection/sample/seoul_daylight.mp4"
-    app_status, remote = _space_info(base_url, args.repo_id)
-    if not app_status.get("pipeline"):
-        raise RuntimeError("Space reports pipeline unavailable")
-    if args.variant not in {item["name"] for item in app_status.get("variants", [])}:
+    app_status, remote = _space_info(base_url, args.repo_id, args.status_path)
+    if args.status_path == "/api/status":
+        ready = bool(app_status.get("pipeline"))
+        variants = {item["name"] for item in app_status.get("variants", [])}
+    else:
+        ready = app_status.get("status") == "ready"
+        variants = set(app_status.get("models", {})) - {"recognizer"}
+    if not ready:
+        raise RuntimeError(f"Space reports measurement route unavailable: {app_status}")
+    if args.variant not in variants:
         raise RuntimeError(f"variant {args.variant} not deployed")
     with tempfile.TemporaryDirectory(prefix="edge_sign_hf_benchmark_") as tmp:
         video_path = Path(tmp) / "sample.mp4"
@@ -411,7 +423,8 @@ def main() -> None:
         "run_utc": _now(),
         "base_url": base_url,
         "websocket_url": ws_url,
-        "route": "/ws/stream",
+        "route": args.ws_path,
+        "status_route": args.status_path,
         "variant": args.variant,
         "warmup": args.warmup,
         "iterations": args.iterations,
@@ -440,6 +453,7 @@ def main() -> None:
     (args.output / "command.txt").write_text(
         "python scripts/paper/benchmark_hf_space.py "
         f"--variant {args.variant} --warmup {args.warmup} --iterations {args.iterations} "
+        f"--status-path {args.status_path} --ws-path {args.ws_path} "
         f"--send-fps {args.send_fps} --traffic-mode {args.traffic_mode} "
         f"--output {args.output.as_posix()}\n",
         encoding="utf-8",

@@ -67,6 +67,8 @@ CNN_Quant/
 │   │   ├── sources.py           # [SP1] FrameSource 추상화 (Image/VideoFile/UrlStream) — 모든 코덱 디코딩
 │   │   ├── session.py           # [SP1] 서버 스트림 세션 매니저 (단일 세션 + 재생 제어)
 │   │   ├── app.py               # FastAPI 서버 (WS /ws/stream·/ws/session, /api/ingest, /api/qa SSE)
+│   │   ├── paper_v4.py          # [TIIS] YOLO26 v4 논문 측정 전용 경로 — EDGE_SIGN_PAPER_V4=1일 때만
+│   │   │                        #   /api/paper-v4/status·/ws/paper-v4 등록 (v3 데모 경로와 분리)
 │   │   └── logging_config.py    # [SP-A] 중앙 loguru 설정 + stdlib 인터셉트 (서버 startup 1회 호출)
 │   └── quant/                   # [Phase 2] 파이프라인 양자화
 │       ├── quantize_yolo.py     # W8A8/W4A16/SmoothQuant PTQ 구현
@@ -112,6 +114,8 @@ CNN_Quant/
 │   │                            #   (스파이크 실측: INT8은 WebGPU 불가, fp16은 지원·크기 절반)
 │   ├── export_bytetrack_golden.py # [SP-C] ByteTrack 골든 출력 생성 → byteTrack.ts 검증 fixture
 │   ├── analyze_quant_collapse.py # [Phase 12] 붕괴 '원인' 분석(data-free) — OCR=비트폭/헤드=활성화 규명, README §8.3
+│   ├── paper/                   # [TIIS] 논문 근거 재검증: 분할 고정·QDQ 재평가·런타임·Space 측정
+│   │                            #   (benchmark_hf_space.py는 Python ≥3.11 필요 — 결과는 paper_evidence/)
 │   └── archive/                 # 종료된 Phase 1·4·5 실험·플롯·벤치마크·다운로드 스크립트 보관
 │                                #   (plot_pareto/sensitivity/v2_extras/detection_samples,
 │                                #    benchmark_pipeline, quantize_onnx_real, download_*, export_* 등)

@@ -147,6 +147,8 @@ QDQ 파이프라인의 조건부 Top-1(매칭된 track 중 fine-class 정답)은
 ### P0: 투고 전 우선
 
 1. 목표 accuracy retention의 허용 기준과 실제 배포 workload를 사전 고정한다. YOLO26 v4를 동일 전처리/후처리의 별도 배포 환경에 올려 카메라/영상 디코드·전송·렌더를 포함한 지연을 측정한다. 현재 공개 v3 Space의 서버 영상 경로는 먼저 프레임 전송과 FPS 표시 문제를 수정·검증해야 한다. 서버 CPU에서만 30 FPS를 주장하려면 그 범위를 제목/초록에 명시한다.
+
+   v4 전용 `/ws/paper-v4` 경로와 브라우저 첫 재생 시 프레임 전송 수정은 이 격리 브랜치에서 로컬 기능만 확인했다([배포 준비 기록](SPACE_V4_DEPLOYMENT_READINESS.md)). 공개 Space는 여전히 v3이며 위 표의 v4 배포 30 FPS 판정은 바뀌지 않는다.
 2. Headless 브라우저의 WebGPU adapter 실체를 확인하고 실제 사용자 브라우저에서 반복한다. QDQ WebGPU 지원이 필요하면 모델/ORT Web 버전을 바꾼 **새 구성**을 검증하되 실패 기록을 유지한다.
 3. 야간과 별도 촬영 장소의 독립 test를 확장한다. 현재 night 16장, calibration night 0장이다. Scene/위치 중복도 메타데이터로 점검한다.
 4. 수동 identity GT를 소량이라도 구축하려면 annotation protocol/검수 후 MOTA/IDF1/HOTA를 다시 산출한다. 구축하지 않으면 tracking 정량 주장을 제외한다.
