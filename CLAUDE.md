@@ -116,6 +116,11 @@ CNN_Quant/
 │   ├── analyze_quant_collapse.py # [Phase 12] 붕괴 '원인' 분석(data-free) — OCR=비트폭/헤드=활성화 규명, README §8.3
 │   ├── paper/                   # [TIIS] 논문 근거 재검증: 분할 고정·QDQ 재평가·런타임·Space 측정
 │   │                            #   (benchmark_hf_space.py는 Python ≥3.11 필요 — 결과는 paper_evidence/)
+│   │                            #   runtime_matrix.py(+.html, browser_pipeline.html): 구성요소×정밀도×실행 환경
+│   │                            #   정확도·지연·연산자 배치·브라우저 파이프라인 → summarize/plot_runtime_matrix.py
+│   │                            #   quantize_detector_variants.py·recognizer_variants.py(QDQ 변형 생성, 덮어쓰기 금지)
+│   │                            #   weight_only_ablation.py·bootstrap_retention.py(원인 분석·CI)
+│   │                            #   export_device_bundle.py + run_device_matrix.sh(두 번째 기기 측정)
 │   └── archive/                 # 종료된 Phase 1·4·5 실험·플롯·벤치마크·다운로드 스크립트 보관
 │                                #   (plot_pareto/sensitivity/v2_extras/detection_samples,
 │                                #    benchmark_pipeline, quantize_onnx_real, download_*, export_* 등)
