@@ -1,7 +1,9 @@
 # Hugging Face Space v4 runtime: run record
 
-The **primary** runs are `20260925_head_excluded_qdq_final/` and
-`20260925_fp32_final/`. No pilot runs were made on the Space for v4; the only
+The runs at the v3 protocol's 10 FPS offer are `20260925_head_excluded_qdq_final/`
+and `20260925_fp32_final/`. The saturating runs at a 30 FPS offer, which
+measure capacity, are `20260925_head_excluded_qdq_open30/` and
+`20260925_fp32_open30/`. No pilot runs were made on the Space for v4; the only
 earlier runs were local functional smoke tests (2 warm-up + 4 measured frames)
 that are not stored here and are not used as results.
 
@@ -55,18 +57,43 @@ An independent recomputation from `trace.jsonl` reproduced the pipeline mean
 and p95, round-trip p50 and p95, result delivery FPS, completion FPS and the
 measured send interval exactly.
 
+## Saturating runs: 30 FPS offer (`*_open30/`)
+
+Requested after the 10 FPS runs showed no saturation. Same Space commit, sample,
+tracker reset, 10 warm-up and 50 measured frames; the only change is the offer
+rate (`--send-fps 30.0`). Head-excluded QDQ first, then FP32, on 2026-09-25.
+
+| Variant | Send interval mean | Space pipeline mean / p90 / p95 | Detector mean | Result interval mean | Result delivery FPS | First send → last result FPS | Round trip p50 / p95 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| head-excluded QDQ | 33.2 ms | 58.3 / 73.9 / 76.6 ms | 54.0 ms | 67.1 ms | **14.91** | 10.35 | 2,379 / 3,191 ms |
+| FP32 | 33.7 ms | 84.6 / 102.9 / 103.4 ms | 80.8 ms | 89.7 ms | **11.15** | 8.10 | 3,055 / 4,472 ms |
+
+- The client kept the 33.3 ms offer (video decode + JPEG/base64/JSON about
+  4.3 ms), so the client was not the bottleneck.
+- The Space fell behind: round-trip times grew to seconds as frames queued.
+  Result delivery FPS is therefore the sustained capacity of this server path:
+  **14.9 FPS (QDQ) and 11.2 FPS (FP32), both below 30 FPS.** The QDQ path
+  delivered 1.34× the FP32 rate.
+- Result intervals exceed the pipeline time by about 5–9 ms per frame, which is
+  server-side JPEG decode, JSON and WebSocket handling outside `stage_ms`.
+  Pipeline time also rose from the 10 FPS runs (50.3 → 58.3 ms, 77.6 → 84.6 ms),
+  consistent with contention on the shared `cpu-basic` CPU under load.
+- 50 measured frames is far below the 1,024 queries MLPerf Inference requires
+  for a single-stream 90th-percentile latency; treat p90/p95 as indicative.
+
+The trace recomputation matched the script for delivery FPS in both runs.
+
 ## Interpretation limits
 
-- **The Space was not saturated.** The v4 pipeline (50–78 ms per frame) is
+- **At a 10 FPS offer the Space was not saturated.** The v4 pipeline (50–78 ms per frame) is
   shorter than the 100 ms offer interval, so completion FPS (9.5–9.7) tracks
   the 10 FPS offer. Result delivery FPS above 10 reflects the warm-up queue
   draining at the start of the measured window. These runs therefore do not
   measure the Space's maximum throughput. The v3 runs, whose pipeline took
   349–456 ms, were saturated; the two are not comparable as capacity figures.
-- A server-side pipeline mean of 50.3 ms corresponds to about 20 frames/s for a
-  single stream before any network or client cost, below 30 FPS. A 30 FPS
-  deployment claim would need a pre-registered saturating workload (for
-  example an offer of at least 30 FPS) and the browser path.
+- The saturating 30 FPS runs above measure capacity directly: 14.9 FPS (QDQ)
+  and 11.2 FPS (FP32). A deployment claim that includes the browser path still
+  needs a separate measurement.
 - On this `cpu-basic` Linux container the head-excluded QDQ detector was 1.58×
   faster than FP32 (46.7 vs 73.7 ms). The local Windows ORT CPU benchmark
   (`../ort/`) found the opposite (16.1 vs 21.6 ms). Thread counts, CPU and OS

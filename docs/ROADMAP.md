@@ -338,8 +338,9 @@
 - [x] YOLO26 v4 전용 WebSocket·상태 경로를 격리 브랜치에서 준비하고 로컬 모델·짧은 입력으로 기능 검증. [검증 범위](../paper_evidence/reports/SPACE_V4_DEPLOYMENT_READINESS.md)
 - [x] v4 경로를 공개 Space(commit `f645ad5`, `EDGE_SIGN_PAPER_V4=1`)에 배포하고 v3와 같은 입력·절차로 서버 경로 측정 (2026-09-25). 파이프라인 평균 head-excluded QDQ 50.278 ms, FP32 77.619 ms; 10 FPS 입력에서 미포화. [측정 결과](../paper_evidence/reports/HF_SPACE_V4_MEASUREMENT.md)
 - [ ] 공개 웹 화면의 서버 프레임 전송 수정(`Viewport.tsx`, 이 브랜치에만 있음)을 Space에 반영하고 FPS 표시 오류 수정 후 브라우저 렌더 포함 재측정
-- [ ] v4 서버 경로의 처리량 판정용 입력 속도(예: 30 FPS)를 미리 정해 포화 조건에서 재측정
-- [ ] 카메라/렌더 포함 최종 배포 30 FPS와 accuracy retention 목표를 사전 정의 후 재검증
+- [x] v4 서버 경로를 30 FPS 입력의 포화 조건에서 재측정 (2026-09-25). 처리 한계 head-excluded QDQ 14.908 FPS, FP32 11.152 FPS; 30 FPS 미달. [측정 결과](../paper_evidence/reports/HF_SPACE_V4_MEASUREMENT.md)
+- [x] 정확도·속도·크기 평가 기준안 작성 (FP32 대비 99% 유지, 30 FPS·p90 ≤33.3 ms, 최소 15 FPS, p90 측정 1,024프레임 이상). [기준안](../paper_evidence/reports/EVALUATION_CRITERIA.md)
+- [ ] 기준안 확정 후 1,024프레임 이상으로 서버·브라우저·카메라/렌더 포함 경로를 재측정하고 판정
 - [ ] 야간/다른 장소 test 확장 및 가능한 경우 manual identity GT 구축
 
 과거 phase의 validation·예비 FPS·pseudo-GT 수치는 이번 독립 test 결과와 평가 범위가 다르다. 본 브랜치의 투고 근거는 `paper_evidence/`를 기준으로 한다.
