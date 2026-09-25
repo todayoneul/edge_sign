@@ -1,0 +1,1269 @@
+{
+  "ops_webgpu_ort1220_rec_fp16": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "JsExecutionProvider": {
+        "nodes": 14,
+        "listed": 14,
+        "op_types": {},
+        "all_nodes": true
+      }
+    }
+  },
+  "ops_webgpu_ort1220_rec_fp32": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "JsExecutionProvider": {
+        "nodes": 12,
+        "listed": 12,
+        "op_types": {},
+        "all_nodes": true
+      }
+    }
+  },
+  "ops_webgpu_ort1220_rec_int8_full": {
+    "status": "unsupported",
+    "reason": "10017880",
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 12,
+        "listed": 12,
+        "op_types": {
+          "QuantizeLinear": 12
+        },
+        "all_nodes": false
+      },
+      "JsExecutionProvider": {
+        "nodes": 57,
+        "listed": 57,
+        "op_types": {
+          "DequantizeLinear": 22,
+          "MemcpyFromHost": 12,
+          "MemcpyToHost": 11,
+          "Conv": 5,
+          "MaxPool": 3,
+          "Transpose": 2,
+          "Flatten": 1,
+          "GlobalAveragePool": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1220_rec_int8_full_fbias": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 12,
+        "listed": 12,
+        "op_types": {
+          "QuantizeLinear": 12
+        },
+        "all_nodes": false
+      },
+      "JsExecutionProvider": {
+        "nodes": 57,
+        "listed": 57,
+        "op_types": {
+          "DequantizeLinear": 22,
+          "MemcpyFromHost": 12,
+          "MemcpyToHost": 11,
+          "Conv": 5,
+          "MaxPool": 3,
+          "Transpose": 2,
+          "Flatten": 1,
+          "GlobalAveragePool": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1220_rec_int8_head_excl": {
+    "status": "unsupported",
+    "reason": "8944672",
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 10,
+        "listed": 10,
+        "op_types": {
+          "QuantizeLinear": 10
+        },
+        "all_nodes": false
+      },
+      "JsExecutionProvider": {
+        "nodes": 49,
+        "listed": 49,
+        "op_types": {
+          "DequantizeLinear": 18,
+          "MemcpyFromHost": 10,
+          "MemcpyToHost": 9,
+          "Conv": 5,
+          "MaxPool": 3,
+          "Transpose": 2,
+          "Flatten": 1,
+          "GlobalAveragePool": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1220_rec_int8_head_excl_fbias": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 10,
+        "listed": 10,
+        "op_types": {
+          "QuantizeLinear": 10
+        },
+        "all_nodes": false
+      },
+      "JsExecutionProvider": {
+        "nodes": 49,
+        "listed": 49,
+        "op_types": {
+          "DequantizeLinear": 18,
+          "MemcpyFromHost": 10,
+          "MemcpyToHost": 9,
+          "Conv": 5,
+          "MaxPool": 3,
+          "Transpose": 2,
+          "Flatten": 1,
+          "GlobalAveragePool": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1220_v3_fp16": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 8,
+        "listed": 8,
+        "op_types": {
+          "Split": 8
+        },
+        "all_nodes": false
+      },
+      "JsExecutionProvider": {
+        "nodes": 267,
+        "listed": 267,
+        "op_types": {
+          "Conv": 64,
+          "Sigmoid": 57,
+          "Mul": 57,
+          "Concat": 17,
+          "MemcpyFromHost": 16,
+          "Transpose": 15,
+          "Add": 8,
+          "Reshape": 8,
+          "MemcpyToHost": 8,
+          "Cast": 6,
+          "MaxPool": 3,
+          "Resize": 2,
+          "Slice": 2,
+          "Sub": 2,
+          "Softmax": 1,
+          "Div": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1220_v3_fp32": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "JsExecutionProvider": {
+        "nodes": 245,
+        "listed": 245,
+        "op_types": {},
+        "all_nodes": true
+      }
+    }
+  },
+  "ops_webgpu_ort1220_v3_int8_full": {
+    "status": "unsupported",
+    "reason": "24794648",
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 254,
+        "listed": 254,
+        "op_types": {
+          "QuantizeLinear": 250,
+          "Transpose": 4
+        },
+        "all_nodes": false
+      },
+      "JsExecutionProvider": {
+        "nodes": 1210,
+        "listed": 1210,
+        "op_types": {
+          "DequantizeLinear": 466,
+          "MemcpyFromHost": 254,
+          "MemcpyToHost": 249,
+          "Conv": 64,
+          "Sigmoid": 57,
+          "Mul": 57,
+          "Concat": 17,
+          "Transpose": 11,
+          "Split": 8,
+          "Add": 8,
+          "Reshape": 8,
+          "MaxPool": 3,
+          "Resize": 2,
+          "Slice": 2,
+          "Sub": 2,
+          "Softmax": 1,
+          "Div": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1220_v3_int8_full_fbias": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 254,
+        "listed": 254,
+        "op_types": {
+          "QuantizeLinear": 250,
+          "Transpose": 4
+        },
+        "all_nodes": false
+      },
+      "JsExecutionProvider": {
+        "nodes": 1210,
+        "listed": 1210,
+        "op_types": {
+          "DequantizeLinear": 466,
+          "MemcpyFromHost": 254,
+          "MemcpyToHost": 249,
+          "Conv": 64,
+          "Sigmoid": 57,
+          "Mul": 57,
+          "Concat": 17,
+          "Transpose": 11,
+          "Split": 8,
+          "Add": 8,
+          "Reshape": 8,
+          "MaxPool": 3,
+          "Resize": 2,
+          "Slice": 2,
+          "Sub": 2,
+          "Softmax": 1,
+          "Div": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1220_v3_int8_head_excl": {
+    "status": "unsupported",
+    "reason": "8944728",
+    "placement": {
+      "JsExecutionProvider": {
+        "nodes": 937,
+        "listed": 937,
+        "op_types": {
+          "DequantizeLinear": 339,
+          "MemcpyFromHost": 181,
+          "MemcpyToHost": 176,
+          "Conv": 64,
+          "Sigmoid": 57,
+          "Mul": 57,
+          "Concat": 17,
+          "Transpose": 11,
+          "Split": 8,
+          "Add": 8,
+          "Reshape": 8,
+          "MaxPool": 3,
+          "Resize": 2,
+          "Slice": 2,
+          "Sub": 2,
+          "Softmax": 1,
+          "Div": 1
+        },
+        "all_nodes": false
+      },
+      "CPUExecutionProvider": {
+        "nodes": 181,
+        "listed": 181,
+        "op_types": {
+          "QuantizeLinear": 177,
+          "Transpose": 4
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1220_v3_int8_head_excl_fbias": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "JsExecutionProvider": {
+        "nodes": 937,
+        "listed": 937,
+        "op_types": {
+          "DequantizeLinear": 339,
+          "MemcpyFromHost": 181,
+          "MemcpyToHost": 176,
+          "Conv": 64,
+          "Sigmoid": 57,
+          "Mul": 57,
+          "Concat": 17,
+          "Transpose": 11,
+          "Split": 8,
+          "Add": 8,
+          "Reshape": 8,
+          "MaxPool": 3,
+          "Resize": 2,
+          "Slice": 2,
+          "Sub": 2,
+          "Softmax": 1,
+          "Div": 1
+        },
+        "all_nodes": false
+      },
+      "CPUExecutionProvider": {
+        "nodes": 181,
+        "listed": 181,
+        "op_types": {
+          "QuantizeLinear": 177,
+          "Transpose": 4
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1220_v4_fp16": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 29,
+        "listed": 29,
+        "op_types": {
+          "Split": 12,
+          "Cast": 5,
+          "TopK": 2,
+          "Unsqueeze": 2,
+          "Tile": 2,
+          "GatherElements": 2,
+          "Flatten": 1,
+          "Div": 1,
+          "Mod": 1,
+          "Gather": 1
+        },
+        "all_nodes": false
+      },
+      "JsExecutionProvider": {
+        "nodes": 427,
+        "listed": 427,
+        "op_types": {
+          "Conv": 102,
+          "Mul": 90,
+          "Sigmoid": 88,
+          "MemcpyFromHost": 30,
+          "Transpose": 25,
+          "Concat": 24,
+          "Add": 21,
+          "MemcpyToHost": 16,
+          "Reshape": 12,
+          "MatMul": 4,
+          "MaxPool": 3,
+          "Softmax": 2,
+          "Resize": 2,
+          "Slice": 2,
+          "Cast": 2,
+          "Sub": 1,
+          "ReduceMax": 1,
+          "Flatten": 1,
+          "Unsqueeze": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1220_v4_fp32": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 11,
+        "listed": 11,
+        "op_types": {
+          "TopK": 2,
+          "Unsqueeze": 2,
+          "Tile": 2,
+          "Flatten": 1,
+          "Div": 1,
+          "Mod": 1,
+          "Gather": 1,
+          "Cast": 1
+        },
+        "all_nodes": false
+      },
+      "JsExecutionProvider": {
+        "nodes": 399,
+        "listed": 399,
+        "op_types": {
+          "Conv": 102,
+          "Mul": 90,
+          "Sigmoid": 88,
+          "Transpose": 25,
+          "Concat": 24,
+          "Add": 21,
+          "Split": 12,
+          "Reshape": 12,
+          "MatMul": 4,
+          "MemcpyFromHost": 4,
+          "MaxPool": 3,
+          "Softmax": 2,
+          "Resize": 2,
+          "Slice": 2,
+          "GatherElements": 2,
+          "MemcpyToHost": 2,
+          "Sub": 1,
+          "ReduceMax": 1,
+          "Flatten": 1,
+          "Unsqueeze": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1220_v4_int8_full": {
+    "status": "unsupported",
+    "reason": "8944496",
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 419,
+        "listed": 419,
+        "op_types": {
+          "QuantizeLinear": 404,
+          "Transpose": 4,
+          "TopK": 2,
+          "Unsqueeze": 2,
+          "Tile": 2,
+          "Flatten": 1,
+          "Div": 1,
+          "Mod": 1,
+          "Gather": 1,
+          "Cast": 1
+        },
+        "all_nodes": false
+      },
+      "JsExecutionProvider": {
+        "nodes": 1948,
+        "listed": 1948,
+        "op_types": {
+          "DequantizeLinear": 746,
+          "MemcpyFromHost": 410,
+          "MemcpyToHost": 403,
+          "Conv": 102,
+          "Mul": 90,
+          "Sigmoid": 88,
+          "Concat": 24,
+          "Add": 21,
+          "Transpose": 21,
+          "Split": 12,
+          "Reshape": 12,
+          "MatMul": 4,
+          "MaxPool": 3,
+          "Softmax": 2,
+          "Resize": 2,
+          "Slice": 2,
+          "GatherElements": 2,
+          "Sub": 1,
+          "ReduceMax": 1,
+          "Flatten": 1,
+          "Unsqueeze": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1220_v4_int8_full_fbias": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 419,
+        "listed": 419,
+        "op_types": {
+          "QuantizeLinear": 404,
+          "Transpose": 4,
+          "TopK": 2,
+          "Unsqueeze": 2,
+          "Tile": 2,
+          "Flatten": 1,
+          "Div": 1,
+          "Mod": 1,
+          "Gather": 1,
+          "Cast": 1
+        },
+        "all_nodes": false
+      },
+      "JsExecutionProvider": {
+        "nodes": 1948,
+        "listed": 1948,
+        "op_types": {
+          "DequantizeLinear": 746,
+          "MemcpyFromHost": 410,
+          "MemcpyToHost": 403,
+          "Conv": 102,
+          "Mul": 90,
+          "Sigmoid": 88,
+          "Concat": 24,
+          "Add": 21,
+          "Transpose": 21,
+          "Split": 12,
+          "Reshape": 12,
+          "MatMul": 4,
+          "MaxPool": 3,
+          "Softmax": 2,
+          "Resize": 2,
+          "Slice": 2,
+          "GatherElements": 2,
+          "Sub": 1,
+          "ReduceMax": 1,
+          "Flatten": 1,
+          "Unsqueeze": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1220_v4_int8_head_excl": {
+    "status": "unsupported",
+    "reason": "14662232",
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 327,
+        "listed": 327,
+        "op_types": {
+          "QuantizeLinear": 312,
+          "Transpose": 4,
+          "TopK": 2,
+          "Unsqueeze": 2,
+          "Tile": 2,
+          "Flatten": 1,
+          "Div": 1,
+          "Mod": 1,
+          "Gather": 1,
+          "Cast": 1
+        },
+        "all_nodes": false
+      },
+      "JsExecutionProvider": {
+        "nodes": 1606,
+        "listed": 1606,
+        "op_types": {
+          "DequantizeLinear": 584,
+          "MemcpyFromHost": 320,
+          "MemcpyToHost": 313,
+          "Conv": 102,
+          "Mul": 90,
+          "Sigmoid": 88,
+          "Concat": 24,
+          "Add": 21,
+          "Transpose": 21,
+          "Split": 12,
+          "Reshape": 12,
+          "MatMul": 4,
+          "MaxPool": 3,
+          "Softmax": 2,
+          "Resize": 2,
+          "Slice": 2,
+          "GatherElements": 2,
+          "Sub": 1,
+          "ReduceMax": 1,
+          "Flatten": 1,
+          "Unsqueeze": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1220_v4_int8_head_excl_fbias": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 327,
+        "listed": 327,
+        "op_types": {
+          "QuantizeLinear": 312,
+          "Transpose": 4,
+          "TopK": 2,
+          "Unsqueeze": 2,
+          "Tile": 2,
+          "Flatten": 1,
+          "Div": 1,
+          "Mod": 1,
+          "Gather": 1,
+          "Cast": 1
+        },
+        "all_nodes": false
+      },
+      "JsExecutionProvider": {
+        "nodes": 1606,
+        "listed": 1606,
+        "op_types": {
+          "DequantizeLinear": 584,
+          "MemcpyFromHost": 320,
+          "MemcpyToHost": 313,
+          "Conv": 102,
+          "Mul": 90,
+          "Sigmoid": 88,
+          "Concat": 24,
+          "Add": 21,
+          "Transpose": 21,
+          "Split": 12,
+          "Reshape": 12,
+          "MatMul": 4,
+          "MaxPool": 3,
+          "Softmax": 2,
+          "Resize": 2,
+          "Slice": 2,
+          "GatherElements": 2,
+          "Sub": 1,
+          "ReduceMax": 1,
+          "Flatten": 1,
+          "Unsqueeze": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1300_rec_fp16": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "WebGpuExecutionProvider": {
+        "nodes": 14,
+        "listed": 14,
+        "op_types": {},
+        "all_nodes": true
+      }
+    }
+  },
+  "ops_webgpu_ort1300_rec_fp32": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "WebGpuExecutionProvider": {
+        "nodes": 12,
+        "listed": 12,
+        "op_types": {},
+        "all_nodes": true
+      }
+    }
+  },
+  "ops_webgpu_ort1300_rec_int8_full": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 12,
+        "listed": 12,
+        "op_types": {
+          "QuantizeLinear": 12
+        },
+        "all_nodes": false
+      },
+      "WebGpuExecutionProvider": {
+        "nodes": 57,
+        "listed": 57,
+        "op_types": {
+          "DequantizeLinear": 22,
+          "MemcpyFromHost": 12,
+          "MemcpyToHost": 11,
+          "Conv": 5,
+          "MaxPool": 3,
+          "Transpose": 2,
+          "Flatten": 1,
+          "GlobalAveragePool": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1300_rec_int8_full_fbias": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 12,
+        "listed": 12,
+        "op_types": {
+          "QuantizeLinear": 12
+        },
+        "all_nodes": false
+      },
+      "WebGpuExecutionProvider": {
+        "nodes": 57,
+        "listed": 57,
+        "op_types": {
+          "DequantizeLinear": 22,
+          "MemcpyFromHost": 12,
+          "MemcpyToHost": 11,
+          "Conv": 5,
+          "MaxPool": 3,
+          "Transpose": 2,
+          "Flatten": 1,
+          "GlobalAveragePool": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1300_rec_int8_head_excl": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 10,
+        "listed": 10,
+        "op_types": {
+          "QuantizeLinear": 10
+        },
+        "all_nodes": false
+      },
+      "WebGpuExecutionProvider": {
+        "nodes": 49,
+        "listed": 49,
+        "op_types": {
+          "DequantizeLinear": 18,
+          "MemcpyFromHost": 10,
+          "MemcpyToHost": 9,
+          "Conv": 5,
+          "MaxPool": 3,
+          "Transpose": 2,
+          "Flatten": 1,
+          "GlobalAveragePool": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1300_rec_int8_head_excl_fbias": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 10,
+        "listed": 10,
+        "op_types": {
+          "QuantizeLinear": 10
+        },
+        "all_nodes": false
+      },
+      "WebGpuExecutionProvider": {
+        "nodes": 49,
+        "listed": 49,
+        "op_types": {
+          "DequantizeLinear": 18,
+          "MemcpyFromHost": 10,
+          "MemcpyToHost": 9,
+          "Conv": 5,
+          "MaxPool": 3,
+          "Transpose": 2,
+          "Flatten": 1,
+          "GlobalAveragePool": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1300_v3_fp16": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "WebGpuExecutionProvider": {
+        "nodes": 139,
+        "listed": 139,
+        "op_types": {},
+        "all_nodes": true
+      }
+    }
+  },
+  "ops_webgpu_ort1300_v3_fp32": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "WebGpuExecutionProvider": {
+        "nodes": 133,
+        "listed": 133,
+        "op_types": {},
+        "all_nodes": true
+      }
+    }
+  },
+  "ops_webgpu_ort1300_v3_int8_full": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 254,
+        "listed": 254,
+        "op_types": {
+          "QuantizeLinear": 250,
+          "Transpose": 4
+        },
+        "all_nodes": false
+      },
+      "WebGpuExecutionProvider": {
+        "nodes": 1210,
+        "listed": 1210,
+        "op_types": {
+          "DequantizeLinear": 466,
+          "MemcpyFromHost": 254,
+          "MemcpyToHost": 249,
+          "Conv": 64,
+          "Sigmoid": 57,
+          "Mul": 57,
+          "Concat": 17,
+          "Transpose": 11,
+          "Split": 8,
+          "Add": 8,
+          "Reshape": 8,
+          "MaxPool": 3,
+          "Resize": 2,
+          "Slice": 2,
+          "Sub": 2,
+          "Softmax": 1,
+          "Div": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1300_v3_int8_full_fbias": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 254,
+        "listed": 254,
+        "op_types": {
+          "QuantizeLinear": 250,
+          "Transpose": 4
+        },
+        "all_nodes": false
+      },
+      "WebGpuExecutionProvider": {
+        "nodes": 1210,
+        "listed": 1210,
+        "op_types": {
+          "DequantizeLinear": 466,
+          "MemcpyFromHost": 254,
+          "MemcpyToHost": 249,
+          "Conv": 64,
+          "Sigmoid": 57,
+          "Mul": 57,
+          "Concat": 17,
+          "Transpose": 11,
+          "Split": 8,
+          "Add": 8,
+          "Reshape": 8,
+          "MaxPool": 3,
+          "Resize": 2,
+          "Slice": 2,
+          "Sub": 2,
+          "Softmax": 1,
+          "Div": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1300_v3_int8_head_excl": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "WebGpuExecutionProvider": {
+        "nodes": 913,
+        "listed": 913,
+        "op_types": {
+          "DequantizeLinear": 339,
+          "MemcpyFromHost": 181,
+          "MemcpyToHost": 176,
+          "Conv": 64,
+          "Sigmoid": 45,
+          "Mul": 45,
+          "Concat": 17,
+          "Transpose": 11,
+          "Split": 8,
+          "Add": 8,
+          "Reshape": 8,
+          "MaxPool": 3,
+          "Resize": 2,
+          "Slice": 2,
+          "Sub": 2,
+          "Softmax": 1,
+          "Div": 1
+        },
+        "all_nodes": false
+      },
+      "CPUExecutionProvider": {
+        "nodes": 181,
+        "listed": 181,
+        "op_types": {
+          "QuantizeLinear": 177,
+          "Transpose": 4
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1300_v3_int8_head_excl_fbias": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "WebGpuExecutionProvider": {
+        "nodes": 913,
+        "listed": 913,
+        "op_types": {
+          "DequantizeLinear": 339,
+          "MemcpyFromHost": 181,
+          "MemcpyToHost": 176,
+          "Conv": 64,
+          "Sigmoid": 45,
+          "Mul": 45,
+          "Concat": 17,
+          "Transpose": 11,
+          "Split": 8,
+          "Add": 8,
+          "Reshape": 8,
+          "MaxPool": 3,
+          "Resize": 2,
+          "Slice": 2,
+          "Sub": 2,
+          "Softmax": 1,
+          "Div": 1
+        },
+        "all_nodes": false
+      },
+      "CPUExecutionProvider": {
+        "nodes": 181,
+        "listed": 181,
+        "op_types": {
+          "QuantizeLinear": 177,
+          "Transpose": 4
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1300_v4_fp16": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 9,
+        "listed": 9,
+        "op_types": {
+          "Unsqueeze": 2,
+          "Tile": 2,
+          "Flatten": 1,
+          "Div": 1,
+          "Mod": 1,
+          "Gather": 1,
+          "Cast": 1
+        },
+        "all_nodes": false
+      },
+      "WebGpuExecutionProvider": {
+        "nodes": 228,
+        "listed": 228,
+        "op_types": {
+          "Conv": 102,
+          "Transpose": 25,
+          "Concat": 24,
+          "Add": 21,
+          "Split": 12,
+          "Reshape": 12,
+          "MatMul": 4,
+          "Mul": 3,
+          "MaxPool": 3,
+          "MemcpyFromHost": 3,
+          "Softmax": 2,
+          "Resize": 2,
+          "Slice": 2,
+          "TopK": 2,
+          "GatherElements": 2,
+          "Cast": 2,
+          "MemcpyToHost": 2,
+          "Sub": 1,
+          "Sigmoid": 1,
+          "ReduceMax": 1,
+          "Flatten": 1,
+          "Unsqueeze": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1300_v4_fp32": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 9,
+        "listed": 9,
+        "op_types": {
+          "Unsqueeze": 2,
+          "Tile": 2,
+          "Flatten": 1,
+          "Div": 1,
+          "Mod": 1,
+          "Gather": 1,
+          "Cast": 1
+        },
+        "all_nodes": false
+      },
+      "WebGpuExecutionProvider": {
+        "nodes": 226,
+        "listed": 226,
+        "op_types": {
+          "Conv": 102,
+          "Transpose": 25,
+          "Concat": 24,
+          "Add": 21,
+          "Split": 12,
+          "Reshape": 12,
+          "MatMul": 4,
+          "Mul": 3,
+          "MaxPool": 3,
+          "MemcpyFromHost": 3,
+          "Softmax": 2,
+          "Resize": 2,
+          "Slice": 2,
+          "TopK": 2,
+          "GatherElements": 2,
+          "MemcpyToHost": 2,
+          "Sub": 1,
+          "Sigmoid": 1,
+          "ReduceMax": 1,
+          "Flatten": 1,
+          "Unsqueeze": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1300_v4_int8_full": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 417,
+        "listed": 417,
+        "op_types": {
+          "QuantizeLinear": 404,
+          "Transpose": 4,
+          "Unsqueeze": 2,
+          "Tile": 2,
+          "Flatten": 1,
+          "Div": 1,
+          "Mod": 1,
+          "Gather": 1,
+          "Cast": 1
+        },
+        "all_nodes": false
+      },
+      "WebGpuExecutionProvider": {
+        "nodes": 1951,
+        "listed": 1951,
+        "op_types": {
+          "DequantizeLinear": 746,
+          "MemcpyFromHost": 410,
+          "MemcpyToHost": 404,
+          "Conv": 102,
+          "Mul": 90,
+          "Sigmoid": 88,
+          "Concat": 24,
+          "Add": 21,
+          "Transpose": 21,
+          "Split": 12,
+          "Reshape": 12,
+          "MatMul": 4,
+          "MaxPool": 3,
+          "Softmax": 2,
+          "Resize": 2,
+          "Slice": 2,
+          "TopK": 2,
+          "GatherElements": 2,
+          "Sub": 1,
+          "ReduceMax": 1,
+          "Flatten": 1,
+          "Unsqueeze": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1300_v4_int8_full_fbias": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 417,
+        "listed": 417,
+        "op_types": {
+          "QuantizeLinear": 404,
+          "Transpose": 4,
+          "Unsqueeze": 2,
+          "Tile": 2,
+          "Flatten": 1,
+          "Div": 1,
+          "Mod": 1,
+          "Gather": 1,
+          "Cast": 1
+        },
+        "all_nodes": false
+      },
+      "WebGpuExecutionProvider": {
+        "nodes": 1951,
+        "listed": 1951,
+        "op_types": {
+          "DequantizeLinear": 746,
+          "MemcpyFromHost": 410,
+          "MemcpyToHost": 404,
+          "Conv": 102,
+          "Mul": 90,
+          "Sigmoid": 88,
+          "Concat": 24,
+          "Add": 21,
+          "Transpose": 21,
+          "Split": 12,
+          "Reshape": 12,
+          "MatMul": 4,
+          "MaxPool": 3,
+          "Softmax": 2,
+          "Resize": 2,
+          "Slice": 2,
+          "TopK": 2,
+          "GatherElements": 2,
+          "Sub": 1,
+          "ReduceMax": 1,
+          "Flatten": 1,
+          "Unsqueeze": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1300_v4_int8_head_excl": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 325,
+        "listed": 325,
+        "op_types": {
+          "QuantizeLinear": 312,
+          "Transpose": 4,
+          "Unsqueeze": 2,
+          "Tile": 2,
+          "Flatten": 1,
+          "Div": 1,
+          "Mod": 1,
+          "Gather": 1,
+          "Cast": 1
+        },
+        "all_nodes": false
+      },
+      "WebGpuExecutionProvider": {
+        "nodes": 1571,
+        "listed": 1571,
+        "op_types": {
+          "DequantizeLinear": 584,
+          "MemcpyFromHost": 319,
+          "MemcpyToHost": 313,
+          "Conv": 102,
+          "Mul": 72,
+          "Sigmoid": 70,
+          "Concat": 24,
+          "Add": 21,
+          "Transpose": 21,
+          "Split": 12,
+          "Reshape": 12,
+          "MatMul": 4,
+          "MaxPool": 3,
+          "Softmax": 2,
+          "Resize": 2,
+          "Slice": 2,
+          "TopK": 2,
+          "GatherElements": 2,
+          "Sub": 1,
+          "ReduceMax": 1,
+          "Flatten": 1,
+          "Unsqueeze": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1300_v4_int8_head_excl_fbias": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 325,
+        "listed": 325,
+        "op_types": {
+          "QuantizeLinear": 312,
+          "Transpose": 4,
+          "Unsqueeze": 2,
+          "Tile": 2,
+          "Flatten": 1,
+          "Div": 1,
+          "Mod": 1,
+          "Gather": 1,
+          "Cast": 1
+        },
+        "all_nodes": false
+      },
+      "WebGpuExecutionProvider": {
+        "nodes": 1571,
+        "listed": 1571,
+        "op_types": {
+          "DequantizeLinear": 584,
+          "MemcpyFromHost": 319,
+          "MemcpyToHost": 313,
+          "Conv": 102,
+          "Mul": 72,
+          "Sigmoid": 70,
+          "Concat": 24,
+          "Add": 21,
+          "Transpose": 21,
+          "Split": 12,
+          "Reshape": 12,
+          "MatMul": 4,
+          "MaxPool": 3,
+          "Softmax": 2,
+          "Resize": 2,
+          "Slice": 2,
+          "TopK": 2,
+          "GatherElements": 2,
+          "Sub": 1,
+          "ReduceMax": 1,
+          "Flatten": 1,
+          "Unsqueeze": 1
+        },
+        "all_nodes": false
+      }
+    }
+  }
+}

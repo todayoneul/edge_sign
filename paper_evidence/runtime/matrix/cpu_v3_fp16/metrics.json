@@ -1,0 +1,53 @@
+{
+  "mAP50": 0.5656236439037527,
+  "mAP50_95": 0.28046364007292557,
+  "precision": 0.7604235605559232,
+  "recall": 0.5090076786769049,
+  "detection_count": 4533,
+  "ground_truth_count": 6772,
+  "true_positives": 3447,
+  "false_positives": 1086,
+  "false_negatives": 3325,
+  "per_class": {
+    "traffic_sign": {
+      "AP50": 0.5751068010299463,
+      "AP50_95": 0.31741821963600836,
+      "precision": 0.7592835299257318,
+      "recall": 0.5163398692810458,
+      "detection_count": 2289,
+      "ground_truth_count": 3366
+    },
+    "traffic_light": {
+      "AP50": 0.5561404867775592,
+      "AP50_95": 0.24350906050984275,
+      "precision": 0.7615864527629234,
+      "recall": 0.5017615971814445,
+      "detection_count": 2244,
+      "ground_truth_count": 3406
+    }
+  },
+  "AP_confidence_floor": 0.001,
+  "AP_integration": "Ultralytics-compatible 101-point precision-envelope trapezoid",
+  "task_confidence_threshold": 0.25,
+  "IoU_thresholds": [
+    0.5,
+    0.55,
+    0.6,
+    0.65,
+    0.7,
+    0.75,
+    0.8,
+    0.85,
+    0.9,
+    0.95
+  ],
+  "runtime": "onnxruntime-cpu",
+  "onnxruntime_version": "1.23.2",
+  "threads": 4,
+  "model": "v3_fp16",
+  "model_path": "model_space/yolov8s_signs_v3_fp16.onnx",
+  "model_sha256": "89bd34c6c56cc1ee893134277fd0e3beac0ea1436693f6587adc913412d6d529",
+  "input_dtype": "float32",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "frames_evaluated": 2417
+}

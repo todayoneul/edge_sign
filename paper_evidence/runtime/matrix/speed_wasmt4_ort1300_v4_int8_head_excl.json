@@ -1,0 +1,45 @@
+{
+  "run": "speed_wasmt4_ort1300_v4_int8_head_excl",
+  "model": "v4_int8_head_excl",
+  "ep": "wasm",
+  "mode": "speed",
+  "runtime": "onnxruntime-web",
+  "ort_web_version": "1.30.0",
+  "input_dtype": "float32",
+  "status": "completed",
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+  "hardware_concurrency": 12,
+  "cross_origin_isolated": true,
+  "requested_wasm_threads": 4,
+  "warmup": 20,
+  "iterations": 1024,
+  "effective_wasm_threads": 4,
+  "model_bytes": 3416372,
+  "model_sha256": "a2ddfe7d07adeb3cc58d413a0936ca3833260e99a4af227b01dea4df7326c9eb",
+  "session_init_ms": 1900.5149999856949,
+  "first_inference_ms": 157.54000002145767,
+  "metrics": {
+    "prepare_ms": {
+      "n": 1024,
+      "mean_ms": 8.149550781410653,
+      "std_ms": 1.6081306456058986,
+      "p50_ms": 7.78999999165535,
+      "p90_ms": 10.473499995470048,
+      "p95_ms": 11.744250005483627,
+      "p99_ms": 13.606649990081785,
+      "fps": 122.70614992436481
+    },
+    "inference_ms": {
+      "n": 1024,
+      "mean_ms": 37.2146923825494,
+      "std_ms": 3.602960606020958,
+      "p50_ms": 36.76749999821186,
+      "p90_ms": 41.833000001311305,
+      "p95_ms": 43.919249987602235,
+      "p99_ms": 47.770449996590614,
+      "fps": 26.871107510992537
+    }
+  },
+  "logs": [],
+  "log_lines_total": 0
+}

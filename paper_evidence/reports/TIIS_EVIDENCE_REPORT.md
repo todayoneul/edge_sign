@@ -4,6 +4,13 @@
 
 ## 1. Executive Summary
 
+> **2026-09-26 추가:** 구성요소 × 정밀도 × 실행 환경 매트릭스를 측정했다([RUNTIME_MATRIX.md](RUNTIME_MATRIX.md)). 범위는 다음과 같다.
+> - 변형: 검출기 v3·v4 각 6종, 인식기 6종
+> - 실행 환경: ORT CPU 1·4T, WASM 1·4T, WebGPU 1.22·1.30
+> - 측정: 1,024회 지연, 연산자 배치, 브라우저 수치 일치성, 가중치 전용 ablation, 부트스트랩 CI, 브라우저 파이프라인 배치
+>
+> 논문 초안은 이 결과를 기준으로 다시 썼다([paper_draft_KSII_TIIS_ko.md](../paper_draft_KSII_TIIS_ko.md)). 아래 CPU detector-only 수치(16.115/21.553 ms)는 ORT 기본 스레드 수로 잰 것이고, 새 매트릭스는 스레드 수를 1·4로 고정했다. 두 결과를 섞지 않는다.
+
 - AI Hub 영상의 sequence가 겹치지 않도록 train 12,375장, calibration 150장, test 2,417장을 확정했다. Test는 6,772개 객체(표지판 3,366, 신호등 3,406)를 포함한다. 밤은 **16장뿐**이다.
 - 동일 test/640×640 stretch 전처리/ORT CPU/후처리에서 FP32 mAP@0.5 **0.499865**, full static INT8 QDQ **0**, head-excluded QDQ **0.482600**이다. Full QDQ는 2,417장 전체에서 confidence ≥0.001 검출도 0건이었다. Head 제외는 검출을 되살리지만 FP32보다 mAP@0.5가 0.017266 낮다.
 - CPU detector-only 평균은 FP32 **16.115 ms**, head-excluded QDQ **21.553 ms**였다. 이 로컬 Windows 환경에서는 QDQ가 CPU 가속을 주지 않았다. 브라우저 WASM head-excluded QDQ는 **9.285 FPS**, WebGPU QDQ는 커널 오류로 `unsupported`였다.
@@ -178,6 +185,8 @@ QDQ 파이프라인의 조건부 Top-1(매칭된 track 중 fine-class 정답)은
 3. 야간과 별도 촬영 장소의 독립 test를 확장한다. 현재 night 16장, calibration night 0장이다. Scene/위치 중복도 메타데이터로 점검한다.
 4. 수동 identity GT를 소량이라도 구축하려면 annotation protocol/검수 후 MOTA/IDF1/HOTA를 다시 산출한다. 구축하지 않으면 tracking 정량 주장을 제외한다.
 5. KoreanSignNet 양자화 인식 수치를 논문에 넣으려면 CPU에서 실행되는 실제 QDQ 모델을 새 출력 경로로 만들고 같은 독립 ROI로 평가한다. 기존 `ConvInteger` W8A8 파일을 실행 성공으로 적지 않는다.
+   - **2026-09-26 완료:** `recognizer_variants.py`로 QDQ INT8 4종을 만들어 평가했다. 전체 INT8 Top-1은 0.808448(유지율 100.04%)이다. [RUNTIME_MATRIX.md](RUNTIME_MATRIX.md) 2.1
+   - 2번 항목(WebGPU QDQ)도 원인을 확인했다. ORT-Web 1.30에서는 실행되지만 `QuantizeLinear`가 CPU로 폴백해 49–83배 느리다. 1.22에서는 INT32 bias 역양자화 오류로 실행되지 않는다. [RUNTIME_MATRIX.md](RUNTIME_MATRIX.md) 2.3
 
 ### P1: 원인 분석/확장
 

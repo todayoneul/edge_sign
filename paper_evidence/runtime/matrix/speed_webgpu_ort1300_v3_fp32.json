@@ -1,0 +1,53 @@
+{
+  "run": "speed_webgpu_ort1300_v3_fp32",
+  "model": "v3_fp32",
+  "ep": "webgpu",
+  "mode": "speed",
+  "runtime": "onnxruntime-web",
+  "ort_web_version": "1.30.0",
+  "input_dtype": "float32",
+  "status": "completed",
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+  "hardware_concurrency": 12,
+  "cross_origin_isolated": false,
+  "requested_wasm_threads": 1,
+  "warmup": 20,
+  "iterations": 1024,
+  "adapter": {
+    "vendor": "nvidia",
+    "architecture": "blackwell",
+    "device": "",
+    "description": "",
+    "is_fallback": false,
+    "shader_f16": true
+  },
+  "effective_wasm_threads": 1,
+  "model_bytes": 44747495,
+  "model_sha256": "033615c8ec96a62b36e3c5c3e4bd586403c165f9cb519f4352f3c33e50f8f323",
+  "session_init_ms": 2302.300000011921,
+  "first_inference_ms": 867,
+  "metrics": {
+    "prepare_ms": {
+      "n": 1024,
+      "mean_ms": 7.310742188041331,
+      "std_ms": 0.8455431386777051,
+      "p50_ms": 7.0999999940395355,
+      "p90_ms": 8.400000005960464,
+      "p95_ms": 9.200000017881393,
+      "p99_ms": 10.400000005960464,
+      "fps": 136.78501775589444
+    },
+    "inference_ms": {
+      "n": 1024,
+      "mean_ms": 11.923144530679565,
+      "std_ms": 0.7921375571080409,
+      "p50_ms": 11.800000011920929,
+      "p90_ms": 13,
+      "p95_ms": 13.300000007450581,
+      "p99_ms": 13.87700000733137,
+      "fps": 83.87049216982062
+    }
+  },
+  "logs": [],
+  "log_lines_total": 0
+}

@@ -1,0 +1,54 @@
+[
+  {
+    "variant": "int8_full",
+    "head_quantized": true,
+    "bias": "int32",
+    "source": "model_space/korean_sign_net_fp32.onnx",
+    "source_sha256": "a5d6584c984fe105c04d22f7ae026ba2fc4be4a97eb67a4997a1c03626ae47ca",
+    "output": "model_space/korean_sign_net_int8_qdq_full.onnx",
+    "output_bytes": 41894,
+    "output_sha256": "4d65ecfb63f6f5ae5f190aea0cb47b7c8d2645cea4563d29c45d8eb229a14dcc",
+    "qdq_nodes": 30,
+    "calibration_manifest": "paper_evidence/splits/recognition_calibration_manifest.jsonl",
+    "calibration_rois": 512
+  },
+  {
+    "variant": "int8_full_fbias",
+    "head_quantized": true,
+    "bias": "fp32",
+    "source": "model_space/korean_sign_net_fp32.onnx",
+    "source_sha256": "a5d6584c984fe105c04d22f7ae026ba2fc4be4a97eb67a4997a1c03626ae47ca",
+    "output": "model_space/korean_sign_net_int8_qdq_full_fbias.onnx",
+    "output_bytes": 39032,
+    "output_sha256": "e224de5c778bf6f918d7fc45e59e2acf18fe4a5d0f1076b0e4ddb6b7efac0f55",
+    "qdq_nodes": 25,
+    "calibration_manifest": "paper_evidence/splits/recognition_calibration_manifest.jsonl",
+    "calibration_rois": 512
+  },
+  {
+    "variant": "int8_head_excl",
+    "head_quantized": false,
+    "bias": "int32",
+    "source": "model_space/korean_sign_net_fp32.onnx",
+    "source_sha256": "a5d6584c984fe105c04d22f7ae026ba2fc4be4a97eb67a4997a1c03626ae47ca",
+    "output": "model_space/korean_sign_net_int8_qdq_head_excluded.onnx",
+    "output_bytes": 43313,
+    "output_sha256": "465355ab7454f277879839ee1dc27a43c82f358a422852ff207030fa55a5ab05",
+    "qdq_nodes": 26,
+    "calibration_manifest": "paper_evidence/splits/recognition_calibration_manifest.jsonl",
+    "calibration_rois": 512
+  },
+  {
+    "variant": "int8_head_excl_fbias",
+    "head_quantized": false,
+    "bias": "fp32",
+    "source": "model_space/korean_sign_net_fp32.onnx",
+    "source_sha256": "a5d6584c984fe105c04d22f7ae026ba2fc4be4a97eb67a4997a1c03626ae47ca",
+    "output": "model_space/korean_sign_net_int8_qdq_head_excluded_fbias.onnx",
+    "output_bytes": 40829,
+    "output_sha256": "0e5264b71bc372f4e0ecbf9d320d55dd429a8fedfe96b8b67fa742f088312234",
+    "qdq_nodes": 22,
+    "calibration_manifest": "paper_evidence/splits/recognition_calibration_manifest.jsonl",
+    "calibration_rois": 512
+  }
+]

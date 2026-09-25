@@ -340,7 +340,17 @@
 - [ ] 공개 웹 화면의 서버 프레임 전송 수정(`Viewport.tsx`, 이 브랜치에만 있음)을 Space에 반영하고 FPS 표시 오류 수정 후 브라우저 렌더 포함 재측정
 - [x] v4 서버 경로를 30 FPS 입력의 포화 조건에서 재측정 (2026-09-25). 처리 한계 head-excluded QDQ 14.908 FPS, FP32 11.152 FPS; 30 FPS 미달. [측정 결과](../paper_evidence/reports/HF_SPACE_V4_MEASUREMENT.md)
 - [x] 정확도·속도·크기 평가 기준안 작성 (FP32 대비 99% 유지, 30 FPS·p90 ≤33.3 ms, 최소 15 FPS, p90 측정 1,024프레임 이상). [기준안](../paper_evidence/reports/EVALUATION_CRITERIA.md)
-- [ ] 기준안 확정 후 1,024프레임 이상으로 서버·브라우저·카메라/렌더 포함 경로를 재측정하고 판정
+- [x] 구성요소 × 정밀도 × 실행 환경 매트릭스 (2026-09-25~26). 검출기 12종(v3/v4 × FP32·FP16·INT8 헤드 포함/제외 × INT32/FP32 bias)과 인식기 6종을 대상으로 다음을 측정. 헤드 제외 INT8 유지율 v4 97.0%(99% 미달), v3 98.7%(판정 보류). WebGPU INT8은 `QuantizeLinear` CPU 폴백으로 49–83배 감속. [RUNTIME_MATRIX.md](../paper_evidence/reports/RUNTIME_MATRIX.md)
+  - 독립 test 정확도(v3 첫 평가 포함)
+  - ORT CPU 1·4T, WASM 1·4T, WebGPU(ORT-Web 1.22·1.30) 지연 1,024회
+  - 연산자 배치, 브라우저 수치 일치성
+- [x] KoreanSignNet 실행 가능한 QDQ INT8 4종(`recognizer_variants.py`)과 독립 ROI 평가: 전체 INT8 Top-1 유지율 100.04%
+- [x] 가중치 전용 INT8 ablation: 헤드 붕괴 원인 = 활성값 양자화, v3 위치 손실 = DFL 고정 커널 반올림(제외 시 99.6%)
+- [x] 브라우저 파이프라인 배치 실험: 검출기 WebGPU + 인식기 WASM 16.2 ms(p90 18.0), 전부 WebGPU 17.5–17.8 ms
+- [x] 두 번째 기기(Mac) 측정 번들·스크립트·안내 ([DEVICE_MEASUREMENT_GUIDE.md](../paper_evidence/reports/DEVICE_MEASUREMENT_GUIDE.md))
+- [x] 논문 초안 `paper_evidence/paper_draft_KSII_TIIS_ko.md` (제목: 「도로 영상 인식을 위한 브라우저 기반 엣지 비전의 구성요소·실행 환경별 양자화 실증 분석」)
+- [ ] Mac에서 `run_device_matrix.sh` 본측정 후 기기 간 비교 추가
+- [ ] 기준안 확정 후 카메라/렌더 포함 경로를 재측정하고 판정
 - [ ] 야간/다른 장소 test 확장 및 가능한 경우 manual identity GT 구축
 
 과거 phase의 validation·예비 FPS·pseudo-GT 수치는 이번 독립 test 결과와 평가 범위가 다르다. 본 브랜치의 투고 근거는 `paper_evidence/`를 기준으로 한다.

@@ -1,0 +1,33 @@
+{
+  "run": "accuracy_webgpu_ort1300_v3_fp16",
+  "model": "v3_fp16",
+  "ep": "webgpu",
+  "mode": "accuracy",
+  "runtime": "onnxruntime-web",
+  "ort_web_version": "1.30.0",
+  "input_dtype": "float32",
+  "status": "completed",
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+  "hardware_concurrency": 12,
+  "cross_origin_isolated": false,
+  "requested_wasm_threads": 1,
+  "warmup": 20,
+  "iterations": 1024,
+  "adapter": {
+    "vendor": "nvidia",
+    "architecture": "blackwell",
+    "device": "",
+    "description": "",
+    "is_fallback": false,
+    "shader_f16": true
+  },
+  "effective_wasm_threads": 1,
+  "model_bytes": 22382483,
+  "model_sha256": "89bd34c6c56cc1ee893134277fd0e3beac0ea1436693f6587adc913412d6d529",
+  "session_init_ms": 2336.800000011921,
+  "frames": 2417,
+  "logs": [],
+  "log_lines_total": 0,
+  "mAP50": 0.5650247950983731,
+  "mAP50_95": 0.279343371142455
+}

@@ -1,0 +1,59 @@
+{
+  "mAP50": 0.4982473627238426,
+  "mAP50_95": 0.24183736194695768,
+  "precision": 0.7547568710359408,
+  "recall": 0.4217365623154164,
+  "detection_count": 3784,
+  "ground_truth_count": 6772,
+  "true_positives": 2856,
+  "false_positives": 928,
+  "false_negatives": 3916,
+  "per_class": {
+    "traffic_sign": {
+      "AP50": 0.49353783697699466,
+      "AP50_95": 0.267195029811662,
+      "precision": 0.7570194384449244,
+      "recall": 0.41651812240047537,
+      "detection_count": 1852,
+      "ground_truth_count": 3366
+    },
+    "traffic_light": {
+      "AP50": 0.5029568884706905,
+      "AP50_95": 0.21647969408225337,
+      "precision": 0.7525879917184265,
+      "recall": 0.42689371697005285,
+      "detection_count": 1932,
+      "ground_truth_count": 3406
+    }
+  },
+  "AP_confidence_floor": 0.001,
+  "AP_integration": "Ultralytics-compatible 101-point precision-envelope trapezoid",
+  "task_confidence_threshold": 0.25,
+  "IoU_thresholds": [
+    0.5,
+    0.55,
+    0.6,
+    0.65,
+    0.7,
+    0.75,
+    0.8,
+    0.85,
+    0.9,
+    0.95
+  ],
+  "runtime": "onnxruntime-web",
+  "ep": "webgpu",
+  "ort_web_version": "1.30.0",
+  "model": "v4_fp16",
+  "input_dtype": "float16",
+  "adapter": {
+    "vendor": "nvidia",
+    "architecture": "blackwell",
+    "device": "",
+    "description": "",
+    "is_fallback": false,
+    "shader_f16": true
+  },
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+  "frames_evaluated": 2417
+}

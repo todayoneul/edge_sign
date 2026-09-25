@@ -17,6 +17,12 @@
 | 독립 시험 프레임의 14-class 인식 | `recognition/fp32_{metrics.json,predictions.jsonl}` |
 | tracking identity GT 감사 | [annotation_audit.json](tracking/annotation_audit.json) |
 | 논문용 그림과 표 | `figures/fig1_*.png`–`fig5_*.png`, `tables/` |
+| **논문 초안** | [paper_draft_KSII_TIIS_ko.md](paper_draft_KSII_TIIS_ko.md) — 구성요소·실행 환경별 양자화 실증 분석 |
+| 구성요소 × 정밀도 × 실행 환경 매트릭스 | [RUNTIME_MATRIX.md](reports/RUNTIME_MATRIX.md); `runtime/matrix/`(`summary.json`, `placement.json`, `bootstrap_retention.json`, 실행별 JSON·trace, `*/predictions.jsonl.gz`, `failed_attempts/`) |
+| 새 QDQ 변형의 생성 기록 | `models/quantize_variants_log.json`(검출기), `models/recognizer_variants_log.json`(인식기), `splits/recognition_calibration_manifest.jsonl` |
+| 인식기 변형 정확도 | `recognition/variants/{fp32,fp16,int8_*}_metrics.json`, `predictions.csv` |
+| 논문 그림 6–8 | `figures/fig6_component_sensitivity.png`, `fig7_runtime_latency.png`, `fig8_pipeline_assignment.png` (`scripts/paper/plot_runtime_matrix.py`) |
+| 두 번째 기기 측정 | [DEVICE_MEASUREMENT_GUIDE.md](reports/DEVICE_MEASUREMENT_GUIDE.md) |
 
 데이터 이미지와 ONNX/.pt 파일은 포함하지 않습니다. `model_manifest.csv`의 경로는 원본 체크아웃의 ignored artifact를 가리키며, 모든 스크립트는 `--artifact-root`로 이 위치를 받습니다. 모델 해시와 manifest 해시가 다르면 결과를 재사용하지 마세요.
 
