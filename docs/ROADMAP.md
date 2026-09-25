@@ -337,7 +337,8 @@
 - [x] 공개 HF Space 실행 복구 후 YOLOv8s v3 실제 `/ws/stream` 재측정 (2026-09-24). INT8 결과 수신 2.500 FPS, FP32 1.991 FPS; 독립 에이전트가 최종 trace 재계산 검증. [Space 원시 근거](../paper_evidence/runtime/hf_space_v3/PILOT_NOTES.md)
 - [x] YOLO26 v4 전용 WebSocket·상태 경로를 격리 브랜치에서 준비하고 로컬 모델·짧은 입력으로 기능 검증. [검증 범위](../paper_evidence/reports/SPACE_V4_DEPLOYMENT_READINESS.md)
 - [x] v4 경로를 공개 Space(commit `f645ad5`, `EDGE_SIGN_PAPER_V4=1`)에 배포하고 v3와 같은 입력·절차로 서버 경로 측정 (2026-09-25). 파이프라인 평균 head-excluded QDQ 50.278 ms, FP32 77.619 ms; 10 FPS 입력에서 미포화. [측정 결과](../paper_evidence/reports/HF_SPACE_V4_MEASUREMENT.md)
-- [ ] 공개 웹 화면의 서버 프레임 전송 수정(`Viewport.tsx`, 이 브랜치에만 있음)을 Space에 반영하고 FPS 표시 오류 수정 후 브라우저 렌더 포함 재측정
+- [x] 공개 웹 화면의 서버 프레임 전송 수정(`Viewport.tsx`)을 Space에 반영 (2026-09-26, Space commit `1081b45`). 샘플 영상 서버 모드에서 검출·인식 표시 확인
+- [ ] 헤더 "처리 FPS" 표시 오류(서버 모드 재생 중 0.0) 수정 후 브라우저 렌더 포함 재측정
 - [x] v4 서버 경로를 30 FPS 입력의 포화 조건에서 재측정 (2026-09-25). 처리 한계 head-excluded QDQ 14.908 FPS, FP32 11.152 FPS; 30 FPS 미달. [측정 결과](../paper_evidence/reports/HF_SPACE_V4_MEASUREMENT.md)
 - [x] 정확도·속도·크기 평가 기준안 작성 (FP32 대비 99% 유지, 30 FPS·p90 ≤33.3 ms, 최소 15 FPS, p90 측정 1,024프레임 이상). [기준안](../paper_evidence/reports/EVALUATION_CRITERIA.md)
 - [x] 구성요소 × 정밀도 × 실행 환경 매트릭스 (2026-09-25~26). 검출기 12종(v3/v4 × FP32·FP16·INT8 헤드 포함/제외 × INT32/FP32 bias)과 인식기 6종을 대상으로 다음을 측정. 헤드 제외 INT8 유지율 v4 97.0%(99% 미달), v3 98.7%(판정 보류). WebGPU INT8은 `QuantizeLinear` CPU 폴백으로 49–83배 감속. [RUNTIME_MATRIX.md](../paper_evidence/reports/RUNTIME_MATRIX.md)
