@@ -1,6 +1,8 @@
 # YOLO26 v4 웹 측정 준비 상태 (2026-09-24)
 
-**현재 상태: 로컬 경로 검증 완료, 공개 Hugging Face Space 미배포.** 아래 로컬 smoke는 기능 확인용이며 논문의 배포 FPS가 아니다. 기존 공개 Space는 계속 YOLOv8s v3 소스 commit `9fc2593358a678a5b1597e978a63778bc909fc31`을 실행한다.
+**현재 상태 (2026-09-25 갱신): 공개 Space에 배포하고 측정 완료.** 기존 Space `gyann/edge-sign`의 v3 소스 commit `9fc2593358a678a5b1597e978a63778bc909fc31`에 v4 경로와 v4 모델 두 개만 더한 commit `f645ad510f3fcbdccab4d8cda21d6de62ccaa4e2`을 올리고, Space 변수 `EDGE_SIGN_PAPER_V4=1`로 경로를 켰다. 웹 화면과 v3 경로는 그대로이다. 측정 결과는 [HF_SPACE_V4_MEASUREMENT.md](HF_SPACE_V4_MEASUREMENT.md)에 있다. 아래 로컬 smoke는 기능 확인용이며 논문의 배포 FPS가 아니다.
+
+되돌리기: Space 변수 `EDGE_SIGN_PAPER_V4`를 지우면 v4 경로가 등록되지 않는다. 코드와 모델까지 되돌리려면 Space를 commit `9fc2593`으로 복원한다.
 
 ## 준비한 격리 경로
 
@@ -59,12 +61,12 @@ Codex 작업 중단 후 같은 워크트리에서 다시 확인했다. 수치는
 - `benchmark_hf_space.py`로 두 variant를 각각 warm-up 2 + 측정 4프레임 실행했다. 두 실행 모두 `route=/ws/paper-v4`로 기록됐고, 추적기 초기화로 frame_id가 1–6으로 다시 시작했으며, trace의 variant가 요청과 일치했다.
 - 실행 조건: 측정 스크립트는 `datetime.UTC`를 쓰므로 **Python 3.11 이상**이 필요하다(3.10인 `convnext_env`에서는 import 실패, 클라이언트 Python 3.13으로 실행). Windows Git Bash에서는 `/api/...` 인자가 Windows 경로로 바뀌므로 `MSYS_NO_PATHCONV=1`을 붙인다.
 
-## 공개 Space 측정 전 확인할 것
+## 공개 Space 측정 절차와 진행 상태
 
-1. 현재 공개 Space에 v4 전용 경로를 추가할지 배포 방식을 정한다. 기존 Space의 새 커밋은 재빌드·재시작을 일으킨다. 별도 신규 Space는 계정의 유료 플랜 요건에 걸릴 수 있다.
-2. Space 저장소에 이 브랜치의 `src/pipeline/paper_v4.py`, `app.py`, `.dockerignore`, benchmark 코드와 **해시가 맞는** v4 ONNX 두 파일을 반영하고 `EDGE_SIGN_PAPER_V4=1`로 기동한다. 모델은 논문 Git 저장소에 커밋하지 않는다.
-3. `/api/paper-v4/status`에서 Linux RSS, 실제 CPU/ORT, 파일 해시와 준비 상태를 확인한다. v3 `/api/status`와 `/detection/` 회귀도 확인한다.
-4. 같은 샘플과 protocol로 v4 FP32/QDQ를 각각 10 warm-up + 50회 이상 측정하고 원시 trace를 별도 폴더에 보존한다. 공개 2 vCPU에 다른 방문자가 있으면 혼잡 요인으로 기록한다.
-5. 브라우저의 카메라/영상 캡처 및 렌더까지 포함한 측정은 별도 수행한다. v4 WebSocket 측정만으로 배포 30 FPS를 PASS라고 판정하지 않는다.
+1. [x] 배포 방식: 사용자가 기존 Space에 경로를 추가하는 방식을 선택했다(2026-09-25).
+2. [x] Space 저장소에 `src/pipeline/paper_v4.py`, `app.py`, `.dockerignore`와 **해시가 맞는** v4 ONNX 두 파일을 반영하고 `EDGE_SIGN_PAPER_V4=1`로 기동했다. Space의 `app.py`·`.dockerignore`·`Dockerfile`은 이 브랜치의 변경 전 파일과 같았다. Space의 `bytetrack.py`는 출처 주석만 다르고 로직이 같아 바꾸지 않았다. 웹 화면 수정(`Viewport.tsx`), 테스트, 측정 스크립트는 올리지 않았다. 모델은 논문 Git 저장소에 커밋하지 않는다.
+3. [x] `/api/paper-v4/status`: `ready`, ORT 1.23.2, 스레드 2, Linux, RSS 234.7 MB, 세 모델 해시 일치. v3 `/api/status`(FP32·INT8 변형), `/detection/`, 샘플 영상도 정상이었다.
+4. [x] 같은 샘플과 절차로 v4 head-excluded QDQ와 FP32를 각각 10 warm-up + 50프레임 측정하고 원시 trace를 `runtime/hf_space_v4/`에 보존했다. 측정 중 다른 방문자 유무는 확인할 수 없었다.
+5. [ ] 브라우저의 카메라/영상 캡처 및 렌더까지 포함한 측정은 별도 수행한다. v4 WebSocket 측정만으로 배포 30 FPS를 PASS라고 판정하지 않는다. 10 FPS 입력에서는 Space가 포화되지 않았으므로, 처리량 판정에는 포화 조건의 입력 속도를 미리 정해야 한다.
 
 현재 공개 Space v3 실측은 [HF_SPACE_V3_MEASUREMENT.md](HF_SPACE_V3_MEASUREMENT.md), 논문 주장 판정은 [TIIS_EVIDENCE_REPORT.md](TIIS_EVIDENCE_REPORT.md)에 있다.

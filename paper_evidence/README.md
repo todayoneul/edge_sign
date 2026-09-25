@@ -10,7 +10,8 @@
 | ORT CPU 및 CUDA 시도 | `runtime/ort/*.{json,csv}` |
 | Chrome WASM 및 WebGPU | `runtime/browser_optimized/*.{json,csv}`; `runtime/browser/`는 FP16 전처리 개선 전 첫 실행으로 보존 |
 | 공개 Hugging Face Space v3 재측정 | `runtime/hf_space_v3/20260924_{int8,fp32}_final/{config.json,metrics.json,trace.jsonl}`; [예비 실행 제외 이유](runtime/hf_space_v3/PILOT_NOTES.md). YOLO26 v4 배포 결과와 구분 |
-| YOLO26 v4 배포 준비 | [SPACE_V4_DEPLOYMENT_READINESS.md](reports/SPACE_V4_DEPLOYMENT_READINESS.md). 로컬 smoke만 완료, 공개 Space v4 실측은 아직 없음 |
+| YOLO26 v4 배포 준비 | [SPACE_V4_DEPLOYMENT_READINESS.md](reports/SPACE_V4_DEPLOYMENT_READINESS.md). v4 전용 경로 구현, 출력 형식 감사 반영, v3/v4 설정 차이 |
+| 공개 Hugging Face Space v4 측정 | `runtime/hf_space_v4/20260925_{head_excluded_qdq,fp32}_final/{config.json,metrics.json,trace.jsonl}`; [측정 기록](runtime/hf_space_v4/MEASUREMENT_NOTES.md), [한눈에 보기](reports/HF_SPACE_V4_MEASUREMENT.md). 10 FPS 입력에서 Space 미포화 |
 | Detector→ByteTrack→KoreanSignNet | `runtime/pipeline_{fp32,head_excluded_qdq}/{config.yaml,metrics.json,trace.csv,predictions.jsonl}` |
 | 독립 시험 프레임의 14-class 인식 | `recognition/fp32_{metrics.json,predictions.jsonl}` |
 | tracking identity GT 감사 | [annotation_audit.json](tracking/annotation_audit.json) |

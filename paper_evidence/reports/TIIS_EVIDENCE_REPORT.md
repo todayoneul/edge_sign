@@ -6,7 +6,8 @@
 
 - AI Hub 영상의 sequence가 겹치지 않도록 train 12,375장, calibration 150장, test 2,417장을 확정했다. Test는 6,772개 객체(표지판 3,366, 신호등 3,406)를 포함한다. 밤은 **16장뿐**이다.
 - 동일 test/640×640 stretch 전처리/ORT CPU/후처리에서 FP32 mAP@0.5 **0.499865**, full static INT8 QDQ **0**, head-excluded QDQ **0.482600**이다. Full QDQ는 2,417장 전체에서 confidence ≥0.001 검출도 0건이었다. Head 제외는 검출을 되살리지만 FP32보다 mAP@0.5가 0.017266 낮다.
-- CPU detector-only 평균은 FP32 **16.115 ms**, head-excluded QDQ **21.553 ms**였다. 이 환경에서는 QDQ가 CPU 가속을 주지 않았다. 브라우저 WASM head-excluded QDQ는 **9.285 FPS**, WebGPU QDQ는 커널 오류로 `unsupported`였다.
+- CPU detector-only 평균은 FP32 **16.115 ms**, head-excluded QDQ **21.553 ms**였다. 이 로컬 Windows 환경에서는 QDQ가 CPU 가속을 주지 않았다. 브라우저 WASM head-excluded QDQ는 **9.285 FPS**, WebGPU QDQ는 커널 오류로 `unsupported`였다.
+- 공개 HF Space(`cpu-basic`)에 v4 전용 경로를 추가해 같은 샘플을 10 FPS로 보냈을 때(2026-09-25), 서버 검출→추적→인식 평균은 head-excluded QDQ **50.278 ms**, FP32 **77.619 ms**였다. 이 Space에서는 QDQ 검출기가 FP32보다 **1.58배 빨라** 로컬 Windows 결과와 반대였다. 10 FPS 입력에서 Space가 포화되지 않아 최대 처리량은 측정하지 않았고, 서버 내부 시간만으로도 단일 스트림 약 20 FPS라 30 FPS에는 미치지 못한다.
 - 한국 도로용 YOLO26 head-excluded QDQ + KoreanSignNet FP32의 실제 파일 크기는 **3,533,232 B**다. 2,417장 순차 파이프라인은 메모리 프레임 기준 **44.121 FPS**, 로컬 JPEG 디코딩 포함 **33.269 FPS**다. 카메라/영상 디코딩, 전송, 화면 렌더까지 포함한 배포 30 FPS는 검증하지 않았다.
 - 독립 test의 수동 GT 박스에서 추출한 KoreanSignNet 14-class ROI 6,771개에 대한 FP32 Top-1은 **0.808152**다. 검출과 추적을 통과한 파이프라인의 fine-class 정답은 전체 매핑 가능 GT의 **0.353419**였다. 두 지표는 평가 단위가 다르다.
 - Test JSON에는 프레임 간 identity ID가 없어 기존 pseudo-GT MOTA/IDF1/HOTA를 본 논문의 주 정량 결과에서 제외한다. 15 MB/30 FPS/accuracy retention **동시 달성은 아직 확정할 수 없다**.
@@ -91,6 +92,21 @@ WebGPU QDQ는 `DequantizeLinear`의 int32 zero-point 커널 오류로 첫 run에
 
 실제 웹 화면에서는 57초 반복 샘플이 재생됐으나 서버 모드의 박스/단계 지표는 표시되지 않았다. Space 원격 `Viewport.tsx`와 이 브랜치의 파일 SHA256이 모두 `fc06d930c2c7a54ee68c17e3db75701048bee657a757e315fa9bfacd53ad033b`다. 해당 코드의 첫 영상 로드 경로는 `isPlaying=false`를 캡처한 `getFrame`을 타이머에 전달해 프레임을 보내지 않는 문제가 있고, 서버 경로는 표시용 FPS도 갱신하지 않는다. 따라서 **브라우저 렌더까지 포함한 FPS는 여전히 NOT VERIFIED**다. 서버 경로가 이미 30 FPS보다 느리다는 판정과 구분한다. 이전 실험의 오류·예비 결과도 삭제하지 않고 `PILOT_NOTES.md`에 제외 이유를 기록했다.
 
+### 공개 Hugging Face Space YOLO26 v4 측정 (2026-09-25)
+
+같은 Space에 v4 전용 경로 `/ws/paper-v4`를 추가한 commit `f645ad510f3fcbdccab4d8cda21d6de62ccaa4e2`(`cpu-basic`)을 배포하고, Space 변수 `EDGE_SIGN_PAPER_V4=1`로 켰다. 이 commit은 v3 commit에 `paper_v4.py`, `app.py`의 등록 코드, `.dockerignore` 두 줄, v4 ONNX 두 개만 더했으며 웹 화면과 v3 경로는 그대로이다. 배포 뒤 v3 `/api/status`, `/detection/`, 샘플 영상이 정상 응답했다. `/api/paper-v4/status`는 ORT 1.23.2, 스레드 2, Linux, RSS 234.7 MB와 로컬 manifest와 같은 세 모델 해시를 보고했다.
+
+입력(같은 `seoul_daylight.mp4`, 같은 SHA-256)과 절차(추적기 초기화, 10 FPS open-loop, 10 warm-up + 50 측정)는 v3 측정과 같다. v4 경로는 논문 평가와 같은 디코더·임계값을 쓰므로 v3 경로와는 후처리, 추적 임계값, 인식 방식이 다르다([설정 비교](SPACE_V4_DEPLOYMENT_READINESS.md)).
+
+| Space v4 구성 | 클라이언트 제공 간격 평균 | Space 파이프라인 평균 / p95 | 검출기 평균 | 결과 수신 FPS | 첫 측정 송신→마지막 수신 FPS | 왕복 p50 / p95 |
+|---|---:|---:|---:|---:|---:|---:|
+| head-excluded QDQ | 99.977 ms | 50.278 / 73.569 ms | 46.723 ms | 12.182 | 9.662 | 321.5 / 951.7 ms |
+| FP32 | 100.264 ms | 77.619 / 98.077 ms | 73.706 ms | 11.884 | 9.509 | 546.3 / 1,009.8 ms |
+
+v4 파이프라인이 입력 간격 100 ms보다 짧아 **Space가 포화되지 않았다.** 완료 FPS는 입력 속도를 따라간 값이고, 결과 수신 FPS가 10을 넘는 것은 측정 구간 시작 때 준비 실행의 대기열이 비워졌기 때문이다. 따라서 포화 상태였던 v3 측정과 처리량으로 비교하지 않는다. 서버 내부 평균 50.3 ms는 네트워크를 제외해도 단일 스트림 약 20 FPS에 해당하므로 **이 Space 서버 경로는 30 FPS에 미치지 못한다.** 검출기만 보면 이 Linux 컨테이너에서 head-excluded QDQ가 FP32보다 1.58배 빨랐으나, 로컬 Windows ORT CPU에서는 반대로 느렸다(위 표). CPU·OS·스레드 수가 다르고 Space 수치는 공유 하드웨어의 단일 실행이다. 이 측정은 정확도 평가가 아니다.
+
+원시 근거: [한눈에 보기](HF_SPACE_V4_MEASUREMENT.md), [측정 기록](../runtime/hf_space_v4/MEASUREMENT_NOTES.md), head-excluded QDQ [config](../runtime/hf_space_v4/20260925_head_excluded_qdq_final/config.json)·[trace](../runtime/hf_space_v4/20260925_head_excluded_qdq_final/trace.jsonl)·[metrics](../runtime/hf_space_v4/20260925_head_excluded_qdq_final/metrics.json), FP32 [config](../runtime/hf_space_v4/20260925_fp32_final/config.json)·[trace](../runtime/hf_space_v4/20260925_fp32_final/trace.jsonl)·[metrics](../runtime/hf_space_v4/20260925_fp32_final/metrics.json). trace에서 요약 통계를 다시 계산해 스크립트 출력과 일치함을 확인했다.
+
 ## 6. Recognition
 
 독립 test JSON의 `type/text/attribute`를 기존 `scripts/prepare_korean_traffic.py`와 같은 14-class 매핑으로 해석했다. 6,772 객체 중 1개는 세부 클래스에 매핑되지 않아 제외했다. GT 박스에 학습 데이터 생성과 같은 8% margin을 주고 32×32 ROI를 만들어 FP32 ONNX를 평가했다. 이는 **oracle-box 분류 정확도**다.
@@ -117,12 +133,12 @@ WebGPU QDQ는 `DequantizeLinear`의 int32 zero-point 커널 오류로 첫 run에
 
 QDQ 파이프라인의 조건부 Top-1(매칭된 track 중 fine-class 정답)은 **0.861721**이고, 전체 매핑 GT 기준은 **0.353419**다. 선택/미검출 객체가 빠지는 조건부 수치를 전체 정확도로 쓰지 않는다. 모델은 작아졌지만 FP32 대비 end-to-end correct/GT가 0.021858 낮아졌다. Detector-only benchmark와 전체 파이프라인의 FPS도 서로 다르다.
 
-현재 공개 HF Space는 위 표의 YOLO26 모델을 배포하지 않는다. 해당 v3 Space는 15 MB와 서버 30 FPS를 모두 충족하지 못했지만, 그것을 아래 **v4 모델 조합**의 실패 판정으로 대체하지 않는다.
+공개 HF Space의 기본 웹 화면은 v3이며, 2026-09-25부터 위 표의 두 v4 모델이 별도 측정 경로(`/ws/paper-v4`)로 함께 배포되어 있다. v3 Space 경로가 15 MB와 서버 30 FPS를 모두 충족하지 못한 결과를 아래 **v4 모델 조합**의 판정으로 대체하지 않는다.
 
 | 목표 | 판정 | 근거와 한계 |
 |---|---|---|
 | 실제 모델 파일 합계 ≤15 MB | **PASS** | head-excluded QDQ + FP32 recognizer 3,533,232 B, tracking 추가 모델 없음 |
-| 배포 시스템 ≥30 FPS | **NOT VERIFIED** | CPU 메모리 프레임 44.121 FPS/JPEG 파일 33.269 FPS; 카메라·전송·렌더 제외. 브라우저 QDQ WASM detector만 9.285 FPS, WebGPU QDQ unsupported |
+| 배포 시스템 ≥30 FPS | **NOT VERIFIED** | CPU 메모리 프레임 44.121 FPS/JPEG 파일 33.269 FPS; 카메라·전송·렌더 제외. 공개 Space v4 서버 경로는 파이프라인 평균 50.278 ms(단일 스트림 약 20 FPS)로 30 FPS 미달이며, 10 FPS 입력이라 최대 처리량은 미측정. 브라우저 QDQ WASM detector만 9.285 FPS, WebGPU QDQ unsupported |
 | accuracy retention | **NOT VERIFIED** | 허용 열화 기준이 사전 정의되지 않음. mAP@0.5 0.499865→0.482600, 전체 GT fine-class 정답 0.375277→0.353419 |
 | 세 조건 동시 달성 | **NOT VERIFIED** | 단일 실제 브라우저/배포 환경에서 성능·정확도를 함께 확인하지 못함 |
 
@@ -133,7 +149,7 @@ QDQ 파이프라인의 조건부 Top-1(매칭된 track 중 fine-class 정답)은
 | YOLO26 full-head static QDQ에서 검출 소실 | **SUPPORTED** | 이 artifact/독립 test 2,417장에 한정해 0건이라고 기술 |
 | head 제외로 검출 품질 회복 | **PARTIALLY SUPPORTED** | FP32 mAP@0.5 대비 -0.017266, recall -0.020526을 같이 기술; 무손실 표현 금지 |
 | 높은 cosine(0.9995)에도 v4 검출 붕괴 | **NOT SUPPORTED** | 이번 full-QDQ raw output cosine 평균 0.627166; 과거 다른 세대 수치는 재검증 전 historical observation |
-| INT8 QDQ가 서버 CPU 검출을 가속 | **NOT SUPPORTED** | 이 환경 FP32 16.115 ms, head-excluded 21.553 ms |
+| INT8 QDQ가 서버 CPU 검출을 가속 | **환경 의존 (일반 주장 불가)** | 로컬 Windows ORT CPU에서는 FP32 16.115 ms, head-excluded 21.553 ms로 느림. 공개 Space Linux `cpu-basic`에서는 검출기 FP32 73.706 ms, head-excluded 46.723 ms로 1.58배 빠름(단일 실행). 런타임에 따라 결과가 뒤집힌다는 관찰로만 기술 |
 | 작은 YOLO26 모델 묶음 | **SUPPORTED** | 실제 파일 합계 3,533,232 B; 모델 외 자산은 별도 |
 | 브라우저 WebGPU에서 이 INT8 QDQ 동작 | **NOT SUPPORTED** | ORT Web 1.22.0 커널 오류; WASM에서는 실행 |
 | KoreanSignNet 독립 14-class 분류 정확도 | **PARTIALLY SUPPORTED** | GT ROI Top-1 0.808152; end-to-end fine-class correct/GT 0.353419과 구분 |
@@ -148,7 +164,7 @@ QDQ 파이프라인의 조건부 Top-1(매칭된 track 중 fine-class 정답)은
 
 1. 목표 accuracy retention의 허용 기준과 실제 배포 workload를 사전 고정한다. YOLO26 v4를 동일 전처리/후처리의 별도 배포 환경에 올려 카메라/영상 디코드·전송·렌더를 포함한 지연을 측정한다. 현재 공개 v3 Space의 서버 영상 경로는 먼저 프레임 전송과 FPS 표시 문제를 수정·검증해야 한다. 서버 CPU에서만 30 FPS를 주장하려면 그 범위를 제목/초록에 명시한다.
 
-   v4 전용 `/ws/paper-v4` 경로와 브라우저 첫 재생 시 프레임 전송 수정은 이 격리 브랜치에서 로컬 기능만 확인했다([배포 준비 기록](SPACE_V4_DEPLOYMENT_READINESS.md)). 공개 Space는 여전히 v3이며 위 표의 v4 배포 30 FPS 판정은 바뀌지 않는다.
+   v4 전용 `/ws/paper-v4` 경로는 2026-09-25 공개 Space에 배포해 서버 경로를 측정했다([측정 결과](HF_SPACE_V4_MEASUREMENT.md)). 10 FPS 입력에서는 Space가 포화되지 않았으므로, 처리량 판정에 쓸 입력 속도(예: 30 FPS)를 미리 정해 다시 측정해야 한다. 브라우저 첫 재생 시 프레임 전송 수정(`Viewport.tsx`)은 이 브랜치에만 있고 Space에는 올리지 않았다. 브라우저 렌더 포함 30 FPS 판정은 바뀌지 않는다.
 2. Headless 브라우저의 WebGPU adapter 실체를 확인하고 실제 사용자 브라우저에서 반복한다. QDQ WebGPU 지원이 필요하면 모델/ORT Web 버전을 바꾼 **새 구성**을 검증하되 실패 기록을 유지한다.
 3. 야간과 별도 촬영 장소의 독립 test를 확장한다. 현재 night 16장, calibration night 0장이다. Scene/위치 중복도 메타데이터로 점검한다.
 4. 수동 identity GT를 소량이라도 구축하려면 annotation protocol/검수 후 MOTA/IDF1/HOTA를 다시 산출한다. 구축하지 않으면 tracking 정량 주장을 제외한다.
