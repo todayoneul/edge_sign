@@ -90,6 +90,13 @@ export default function Header({ onToggleTheme, onOpenShortcuts }: Props) {
       : "온디바이스 · WebGPU"
     : "서버 추론";
 
+  // While playing, drop FPS to 0 when results stop arriving (paused video, stalled server).
+  useEffect(() => {
+    if (!playing) return;
+    const id = window.setInterval(() => useStore.getState().decayFps(), 1000);
+    return () => clearInterval(id);
+  }, [playing]);
+
   // Accumulate FPS history for sparkline (app.js fpsHistory max 48)
   const prevFps = useRef(0);
   useEffect(() => {

@@ -84,12 +84,10 @@ export default function Viewport() {
   const client = useClientPipeline();
   const pipelineMode = useStore((s) => s.pipelineMode);
   const ondeviceModel = useStore((s) => s.ondeviceModel);
-  const recordFps = useStore((s) => s.recordFps);
   const pushToast = useStore((s) => s.pushToast);
   // 온디바이스 추론 루프 (setInterval; busy 가드로 비중첩)
   const clientTimerRef = useRef<number | null>(null);
   const clientBusyRef = useRef(false);
-  const fpsEmaRef = useRef(0);
 
   // 서버 프레임의 w/h를 sentDimsRef에 반영 (overlay letterbox 계산 기준)
   // useSession이 store.setFrame을 통해 트랙을 올리므로, seekInfo.pos 변화 시 체크
@@ -209,7 +207,6 @@ export default function Viewport() {
 
   const startClientLoop = useCallback(() => {
     stopClientLoop();
-    let last = performance.now();
     clientTimerRef.current = window.setInterval(() => {
       const video = videoRef.current;
       if (!video || video.readyState < 2 || video.paused || clientBusyRef.current) return;
@@ -232,21 +229,15 @@ export default function Viewport() {
       void client
         .processFrame(rgba, vw, vh, roiSampler)
         .then((r) => {
-          if (r) {
-            useStore.getState().setFrame(r);
-            const now = performance.now();
-            const fps = 1000 / Math.max(1, now - last);
-            last = now;
-            fpsEmaRef.current = fpsEmaRef.current ? fpsEmaRef.current * 0.8 + fps * 0.2 : fps;
-            recordFps(Math.round(fpsEmaRef.current * 10) / 10);
-          }
+          // setFrame also measures processing FPS (same path as the server modes)
+          if (r) useStore.getState().setFrame(r);
         })
         .catch(() => {})
         .finally(() => {
           clientBusyRef.current = false;
         });
     }, 33);
-  }, [client, stopClientLoop, recordFps]);
+  }, [client, stopClientLoop]);
 
   /** 클라 캡처 추론 시작 — 모드에 따라 서버 WS(stream) 또는 온디바이스 루프. */
   const startCaptureInference = useCallback(async () => {
