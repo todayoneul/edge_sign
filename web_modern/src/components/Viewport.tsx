@@ -64,9 +64,6 @@ export default function Viewport() {
   const tracks = useStore((s) => s.tracks);
   const hoverId = useStore((s) => s.hoverId);
   const setHoverId = useStore((s) => s.setHoverId);
-  // selectedVariant is set by PerfStrip; fall back to telemetry.variant from server
-  const selectedVariant = useStore((s) => s.selectedVariant ?? s.telemetry.variant);
-
   // Sent frame dimensions (for letterbox math source)
   // 모드② 에서는 서버가 보내는 w/h로 덮어씀 (handleServerFrame 패턴)
   const sentDimsRef = useRef({ w: 640, h: 480 });
@@ -111,7 +108,9 @@ export default function Viewport() {
   // ── getFrame callback (Viewport → useStream) ────────────────────────────
   const getFrame = useCallback((): { data: string; variant?: string | null } | null => {
     const video = videoRef.current;
-    if (!video || video.readyState < 2 || !isPlaying) return null;
+    // stream.start retains this callback while the timer runs. Read playback and
+    // variant at capture time so the first play and later A/B changes take effect.
+    if (!video || video.readyState < 2 || video.paused || video.ended) return null;
     const vw = video.videoWidth || 640;
     const vh = video.videoHeight || 480;
     const tw = Math.min(vw, 1280);
@@ -119,8 +118,12 @@ export default function Viewport() {
     _cap.height = Math.round((tw * vh) / vw);
     _cctx.drawImage(video, 0, 0, _cap.width, _cap.height);
     sentDimsRef.current = { w: _cap.width, h: _cap.height };
-    return { data: _cap.toDataURL("image/jpeg", 0.8), variant: selectedVariant ?? null };
-  }, [isPlaying, selectedVariant]);
+    const state = useStore.getState();
+    return {
+      data: _cap.toDataURL("image/jpeg", 0.8),
+      variant: state.selectedVariant ?? state.telemetry.variant ?? null,
+    };
+  }, []);
 
   // ── Overlay render loop (rAF) ────────────────────────────────────────────
   const renderOverlay = useCallback(() => {
