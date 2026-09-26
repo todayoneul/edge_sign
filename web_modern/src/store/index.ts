@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { FrameResult, Track, VariantInfo } from "../lib/types";
+import { DEFAULT_ONDEVICE, type OnDeviceConfig } from "../lib/models";
 
 // ── Toast ────────────────────────────────────────────────────────────────────
 export interface ToastItem {
@@ -11,10 +12,10 @@ export interface ToastItem {
 interface State {
   connected: boolean;
   sourceKind: "none" | "stream" | "session";
-  /** 추론 위치: server=서버 WS 추론, ondevice=브라우저 ORT-Web(WebGPU) 추론 */
+  /** 추론 위치: 공개 데모는 온디바이스 고정. 서버는 Q&A와 브라우저가 못 여는 입력(ingest)만 처리. */
   pipelineMode: "server" | "ondevice";
-  /** 온디바이스 검출기 정밀도: fp32=빠름(43MB), fp16=작음(22MB) */
-  ondeviceModel: "fp32" | "fp16";
+  /** 온디바이스 검출기 선택: 모델 × 정밀도 × 실행 환경 (lib/models.ts) */
+  ondevice: OnDeviceConfig;
   playing: boolean;
   tracks: Track[];
   totalDetections: number;
@@ -45,8 +46,7 @@ interface State {
   setFrame: (r: FrameResult) => void;
   /** Drop FPS to 0 once no result has arrived for FPS_STALE_MS (called by Header while playing). */
   decayFps: () => void;
-  setPipelineMode: (m: "server" | "ondevice") => void;
-  setOndeviceModel: (m: "fp32" | "fp16") => void;
+  setOndevice: (c: Partial<OnDeviceConfig>) => void;
   setConnected: (b: boolean) => void;
   setTab: (t: "tracks" | "qa") => void;
   setByok: (k: string) => void;
@@ -68,7 +68,7 @@ export const useStore = create<State>((set) => ({
   sourceKind: "none",
   // 기본 온디바이스(WebGPU) — 공개 데모가 무료 CPU 서버에 의존하지 않고 방문자 GPU에서 추론(빠름).
   pipelineMode: "ondevice",
-  ondeviceModel: "fp32",
+  ondevice: DEFAULT_ONDEVICE,
   playing: false,
   tracks: [],
   totalDetections: 0,
@@ -118,8 +118,7 @@ export const useStore = create<State>((set) => ({
         : s,
     ),
 
-  setPipelineMode: (m) => set({ pipelineMode: m }),
-  setOndeviceModel: (m) => set({ ondeviceModel: m }),
+  setOndevice: (c) => set((s) => ({ ondevice: { ...s.ondevice, ...c } })),
   setConnected: (b) => set({ connected: b }),
   setTab: (t) => set({ activeTab: t }),
   setByok: (k) => {

@@ -11,6 +11,8 @@ import {
   preprocessClsRoi,
   softmax,
   decodeClsTop1,
+  toHalfBits,
+  fromHalf,
   ClientPipeline,
   type OrtNamespace,
   type OrtSession,
@@ -131,7 +133,7 @@ function stubOrt(): OrtNamespace {
   };
   return {
     Tensor: class {
-      constructor(_type: string, _data: Float32Array, _dims: number[]) {
+      constructor(_type: string, _data: Float32Array | Uint16Array, _dims: number[]) {
         void _type;
         void _data;
         void _dims;
@@ -159,5 +161,58 @@ describe("ClientPipeline 통합(스텁 ORT)", () => {
     expect(r.tracks[0].label).toBe("표지판");
     expect(r.stage_ms?.recognize).toBeGreaterThanOrEqual(0);
     expect(pipe.recognizerLoaded).toBe(false);
+  });
+
+  it("FP16 입력 모델(YOLO26-n FP16): FP16 입력 텐서 + FP16 출력 디코딩", async () => {
+    const types: string[] = [];
+    // [1,2,6] 코너+conf+cls, 첫 행만 검출 — FP16 비트로 반환
+    const rows = new Float32Array([100, 100, 200, 200, 0.9, 1, 0, 0, 0, 0, 0.01, 0]);
+    const session: OrtSession = {
+      inputNames: ["images"],
+      outputNames: ["output0"],
+      run: async () => ({ output0: { data: toHalfBits(rows), dims: [1, 2, 6], type: "float16" } }),
+    };
+    const ort: OrtNamespace = {
+      Tensor: class {
+        constructor(type: string) {
+          types.push(type);
+        }
+      },
+      InferenceSession: { create: async () => session },
+      env: { wasm: {} },
+    };
+    const pipe = new ClientPipeline();
+    await pipe.load(ort, new Uint8Array([0]), ["wasm"], "yolo26", "float16");
+    const r = await pipe.processFrame(new Uint8ClampedArray(640 * 640 * 4), 640, 640);
+    expect(types.every((t) => t === "float16")).toBe(true);
+    expect(r.tracks).toHaveLength(1);
+    expect(r.tracks[0].class_name).toBe("신호등");
+    expect(r.tracks[0].bbox).toEqual([100, 100, 200, 200]);
+  });
+});
+
+describe("비유한 값 방어", () => {
+  it("decodeEndToEnd: NaN/Inf 행은 버림", () => {
+    const d = new Float32Array([
+      10, 10, 50, 50, NaN, 0, // conf NaN
+      10, 10, Infinity, 50, 0.9, 0, // box Inf
+      10, 10, 50, 50, 0.9, 1, // 정상
+    ]);
+    const out = decodeEndToEnd(d, [1, 3, 6]);
+    expect(out).toHaveLength(1);
+    expect(out[0].cls).toBe(1);
+  });
+});
+
+describe("FP16 변환", () => {
+  it("toHalfBits → fromHalf 왕복이 half 정밀도 안에서 원값", () => {
+    const x = new Float32Array([0, 0.5, 1 / 255, 0.999, 1, 320.5, 639, -2.25]);
+    const back = fromHalf(toHalfBits(x), "float16");
+    x.forEach((v, i) => expect(Math.abs(back[i] - v)).toBeLessThanOrEqual(Math.abs(v) / 1024 + 1e-6));
+  });
+
+  it("fromHalf: float32 출력은 그대로 통과", () => {
+    const f = new Float32Array([1, 2]);
+    expect(fromHalf(f, "float32")).toBe(f);
   });
 });

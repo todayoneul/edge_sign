@@ -342,6 +342,12 @@
   - FPS를 모든 모드의 결과 경로(`store.setFrame`)에서 계산하고, 결과가 2초 넘게 없으면 0으로 표시
   - 온디바이스 모드에서도 KPI가 보이도록 `playing` 반영
   - Space에서 서버 모드 2.0 FPS, 온디바이스(앱 내 브라우저) 3.2 FPS 표시 확인
+- [x] 공개 시연을 온디바이스 추론으로 통일하고 모델 선택 추가 (2026-09-26)
+  - 검출기 YOLO26-n/YOLOv8s × FP32/FP16/INT8(헤드 제외) × WebGPU/WASM, 인식기는 WASM
+  - 서버 추론 토글 제거: 서버는 Q&A와 브라우저가 못 여는 입력만 처리
+  - ORT-Web 1.22 → 1.30으로 올림
+  - ORT 호출 직렬화: WASM 힙 손상 방지, 이전 세션 해제
+  - headless Chrome(RTX 5070) 자동 점검: 기본 30 FPS, 재생 중 전환, 10회 연속 전환, INT8+WASM
 - [ ] 브라우저 렌더 포함 재측정
 - [x] v4 서버 경로를 30 FPS 입력의 포화 조건에서 재측정 (2026-09-25). 처리 한계 head-excluded QDQ 14.908 FPS, FP32 11.152 FPS; 30 FPS 미달. [측정 결과](../paper_evidence/reports/HF_SPACE_V4_MEASUREMENT.md)
 - [x] 정확도·속도·크기 평가 기준안 작성 (FP32 대비 99% 유지, 30 FPS·p90 ≤33.3 ms, 최소 15 FPS, p90 측정 1,024프레임 이상). [기준안](../paper_evidence/reports/EVALUATION_CRITERIA.md)

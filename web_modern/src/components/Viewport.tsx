@@ -26,6 +26,7 @@ import { useSession } from "../hooks/useSession";
 import { useHotkeys } from "../hooks/useHotkeys";
 import { renderTracks } from "../lib/draw";
 import { SAMPLES } from "../lib/samples";
+import { EP_LABEL, modelFile, modelName, slowCombination, type ExecutionProvider } from "../lib/models";
 import SeekBar from "./SeekBar";
 import Hero from "./Hero";
 import Controls from "./Controls";
@@ -83,10 +84,14 @@ export default function Viewport() {
   const session = useSession();
   const client = useClientPipeline();
   const pipelineMode = useStore((s) => s.pipelineMode);
-  const ondeviceModel = useStore((s) => s.ondeviceModel);
+  const ondevice = useStore((s) => s.ondevice);
   const pushToast = useStore((s) => s.pushToast);
   // 온디바이스 추론 루프 (setInterval; busy 가드로 비중첩)
   const clientTimerRef = useRef<number | null>(null);
+  // 온디바이스 추론이 켜져 있는지(모델 로드 중 포함)와 현재 선택 키 — 선택 변경 시 재로드 판단
+  const onDeviceActiveRef = useRef(false);
+  const ondeviceKey = `${ondevice.detector}/${ondevice.precision}/${ondevice.ep}`;
+  const ondeviceKeyRef = useRef(ondeviceKey);
   const clientBusyRef = useRef(false);
 
   // 서버 프레임의 w/h를 sentDimsRef에 반영 (overlay letterbox 계산 기준)
@@ -247,29 +252,49 @@ export default function Viewport() {
   /** 클라 캡처 추론 시작 — 모드에 따라 서버 WS(stream) 또는 온디바이스 루프. */
   const startCaptureInference = useCallback(async () => {
     if (pipelineMode === "ondevice") {
-      const modelUrl =
-        ondeviceModel === "fp16"
-          ? "/models/yolov8s_signs_v3_fp16.onnx"
-          : "/models/yolov8s_signs_v3_fp32.onnx";
-      setStageStatus("온디바이스 모델 로딩… (최초 1회 ~수초)");
+      onDeviceActiveRef.current = true;
+      const key = `${ondevice.detector}/${ondevice.precision}/${ondevice.ep}`;
+      const name = modelName(ondevice);
+      setStageStatus(`${name} 로딩… (${modelFile(ondevice).mb} MB, 최초 1회)`);
+      let ep: string;
       try {
-        await client.ensureLoaded(modelUrl);
+        ep = await client.ensureLoaded(ondevice);
       } catch {
-        setStageStatus("온디바이스 로드 실패 — 서버 모드로 폴백");
+        setStageStatus("온디바이스 로드 실패 — 서버 처리로 폴백");
         stream.reset();
         stream.start(getFrame);
         return;
       }
+      // 로드 중 정지했거나 선택이 또 바뀌었으면(새 호출이 이어받음) 여기서 멈춤
+      if (!onDeviceActiveRef.current || ondeviceKeyRef.current !== key) return;
+      const epLabel = EP_LABEL[ep as ExecutionProvider] ?? ep;
+      if (ondevice.ep === "webgpu" && ep !== "webgpu") pushToast("이 브라우저는 WebGPU 미지원 — WASM으로 실행", "warn");
+      if (slowCombination({ ...ondevice, ep: ep as ExecutionProvider }))
+        pushToast("INT8 + WebGPU: 양자화 연산이 CPU로 넘어가 매우 느립니다 (논문 4.3절)", "warn");
+      setStageStatus(`${name} · ${epLabel} 추론 중`);
       setStageStatusLive(true);
       startClientLoop();
     } else {
       stream.reset();
       stream.start(getFrame);
     }
-  }, [pipelineMode, ondeviceModel, client, startClientLoop, stream, getFrame]);
+  }, [pipelineMode, ondevice, client, startClientLoop, stream, getFrame, pushToast]);
+
+  // 온디바이스로 재생 중 모델·정밀도·실행 환경을 바꾸면 즉시 다시 로드해 이어서 추론
+  useEffect(() => {
+    if (ondeviceKeyRef.current === ondeviceKey) return;
+    ondeviceKeyRef.current = ondeviceKey;
+    if (!onDeviceActiveRef.current) return; // 온디바이스 추론 중이 아니면 다음 시작 때 적용
+    // 이전 모델의 결과 표시(실행 환경·단계 지연)를 지워 헤더가 새 선택만 보이게
+    useStore.setState((st) => ({ telemetry: { ...st.telemetry, variant: undefined, stageMs: undefined } }));
+    stopClientLoop();
+    client.reset();
+    void startCaptureInference();
+  }, [ondeviceKey, client, stopClientLoop, startCaptureInference]);
 
   // ── 공통 stopAll — 두 모드 모두 정리 ─────────────────────────────────────
   const stopAll = useCallback(() => {
+    onDeviceActiveRef.current = false;
     stream.stop();
     stopClientLoop();
     client.reset();
