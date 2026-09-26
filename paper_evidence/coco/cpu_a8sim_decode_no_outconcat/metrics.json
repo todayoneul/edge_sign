@@ -1,0 +1,30 @@
+{
+  "variant": "a8sim_decode_no_outconcat",
+  "model_path": "model_space/yolo11l_coco_fp32_a8sim_decode_no_outconcat.onnx",
+  "model_sha256": "6efb48e4dd684afa19803707c422d686d538acddefef0adb3354d0798360beea",
+  "images": 1525,
+  "detections": 132572,
+  "runtime": "onnxruntime-cpu",
+  "onnxruntime_version": "1.23.2",
+  "threads": 4,
+  "platform": "Windows-10-10.0.26200-SP0",
+  "preprocess": "letterbox 640 (114), RGB, /255",
+  "postprocess": "conf 0.001, multi-label, NMS 0.7, max 300",
+  "wall_seconds": 286.5,
+  "mAP50_95": 0.4683281129651579,
+  "mAP50": 0.6765865786480124,
+  "coco_stats": [
+    0.4683281129651579,
+    0.6765865786480124,
+    0.5214512068982342,
+    0.25886342644742993,
+    0.5197132937629715,
+    0.6810644231935267,
+    0.3580665914058549,
+    0.5902735482005617,
+    0.6405289450249388,
+    0.43007267945390915,
+    0.7004949876674502,
+    0.8201479789496093
+  ]
+}

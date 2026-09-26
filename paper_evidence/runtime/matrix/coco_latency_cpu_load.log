@@ -1,0 +1,1088 @@
+=== 17:25:29 cpu t4
+17:25:35  python=32.7  vgtray=7.9  system=1.9  taskmgr=1.6  claude=1.5  msmpeng=1.4
+17:25:40  python=33.1  vgtray=8.3  taskmgr=1.3  system=1.2  msmpeng=0.5  claude=0.2
+17:25:45  python=33.2  vgtray=8.2  system=1.7  taskmgr=1.3  msmpeng=0.4  chrome=0.4
+17:25:50  python=33.0  vgtray=8.2  system=1.0  taskmgr=1.0  claude=0.4  chatgpt=0.3
+17:25:55  python=33.1  vgtray=8.1  system=1.7  taskmgr=1.2  claude=0.7  grep=0.4
+17:26:01  python=33.3  vgtray=8.3  system=1.4  taskmgr=1.1  discord=0.2  claude=0.2
+17:26:06  python=33.1  vgtray=8.3  taskmgr=1.2  system=1.1  claude=1.1  msmpeng=0.4
+17:26:11  python=32.9  vgtray=8.2  system=1.5  taskmgr=1.2  claude=0.6  msmpeng=0.5
+17:26:16  python=33.0  vgtray=8.1  system=1.9  taskmgr=1.2  antigravity ide=0.7  chatgpt=0.5
+17:26:21  python=32.7  vgtray=8.1  antigravity ide=1.5  system=1.0  taskmgr=1.0  chatgpt=0.6
+17:26:26  python=33.0  vgtray=8.2  system=1.6  taskmgr=1.2  chatgpt=0.4  antigravity ide=0.3
+17:26:31  python=32.9  vgtray=8.1  system=1.4  taskmgr=1.3  antigravity ide=0.6  chatgpt=0.5
+17:26:36  python=33.3  vgtray=8.3  system=1.6  taskmgr=1.3  msmpeng=0.3  antigravity ide=0.2
+17:26:41  python=33.1  vgtray=8.2  system=1.4  taskmgr=1.3  chatgpt=0.6  msmpeng=0.3
+17:26:47  python=32.9  vgtray=8.2  taskmgr=1.4  system=1.0  chrome=0.6  antigravity ide=0.4
+17:26:52  python=33.1  vgtray=8.3  taskmgr=1.2  system=0.9  antigravity ide=0.2  msmpeng=0.2
+17:26:57  python=32.9  vgtray=8.2  system=1.9  taskmgr=1.2  antigravity ide=0.6  chrome=0.5
+17:27:02  python=33.0  vgtray=8.3  system=1.4  taskmgr=1.2  antigravity ide=0.3  chatgpt=0.3
+17:27:07  chrome=88.3  python=33.3  vgtray=8.3  system=1.7  taskmgr=1.4  antigravity ide=0.2
+17:27:12  python=33.3  vgtray=8.3  taskmgr=1.1  system=1.1  msmpeng=0.2  svchost=0.1
+17:27:17  python=33.2  vgtray=8.3  system=1.4  taskmgr=1.2  antigravity ide=0.9  msmpeng=0.2
+17:27:22  python=33.3  vgtray=8.3  system=1.4  taskmgr=1.2  svchost=1.1  chatgpt=0.3
+17:27:28  python=33.2  vgtray=8.3  system=2.2  taskmgr=1.2  msmpeng=0.4  antigravity ide=0.3
+17:27:33  python=33.1  vgtray=8.2  system=1.5  taskmgr=1.2  antigravity ide=0.3  svchost=0.3
+17:27:38  python=33.0  vgtray=8.2  system=1.8  antigravity ide=1.2  taskmgr=1.1  claude=0.3
+17:27:43  python=32.8  vgtray=8.2  system=1.2  taskmgr=1.1  memory compression=0.7  grep=0.4
+17:27:48  python=33.1  vgtray=8.1  system=1.6  taskmgr=1.3  chrome=0.6  msmpeng=0.2
+17:27:53  python=33.1  vgtray=8.2  system=1.4  taskmgr=1.0  chatgpt=0.3  claude=0.2
+17:27:58  python=33.1  vgtray=8.2  system=2.0  taskmgr=1.4  svchost=0.4  antigravity ide=0.3
+17:28:03  python=32.9  vgtray=8.2  system=1.4  taskmgr=1.1  antigravity ide=0.4  claude=0.3
+17:28:08  python=33.0  vgtray=8.3  system=1.3  taskmgr=1.0  antigravity ide=0.4  svchost=0.2
+17:28:14  python=33.3  vgtray=8.2  system=1.4  taskmgr=1.2  msmpeng=0.4  claude=0.3
+17:28:19  python=32.9  vgtray=8.3  system=1.1  taskmgr=1.0  claude=0.4  antigravity ide=0.3
+17:28:24  python=33.2  vgtray=8.3  taskmgr=1.3  system=1.0  msmpeng=0.3  chatgpt=0.2
+17:28:29  python=33.2  vgtray=8.3  system=2.3  taskmgr=1.3  msmpeng=0.3  svchost=0.3
+17:28:34  python=33.0  vgtray=8.2  system=1.6  taskmgr=1.3  antigravity ide=0.5  claude=0.4
+17:28:39  python=33.1  vgtray=8.3  taskmgr=1.3  system=1.1  msmpeng=1.0  claude=0.6
+17:28:44  python=31.7  vgtray=8.3  taskmgr=1.2  system=1.2  antigravity ide=0.6  msmpeng=0.3
+17:28:49  python=33.0  vgtray=8.2  system=1.8  taskmgr=1.0  msmpeng=0.4  antigravity ide=0.3
+17:28:54  python=33.2  vgtray=8.3  system=0.9  taskmgr=0.9  claude=0.2  msmpeng=0.2
+17:29:00  python=33.3  vgtray=8.2  system=1.2  taskmgr=1.1  antigravity ide=0.4  svchost=0.3
+17:29:05  python=33.2  vgtray=8.3  taskmgr=0.8  system=0.6  antigravity ide=0.4  msmpeng=0.3
+17:29:10  python=33.3  vgtray=8.1  system=1.7  taskmgr=1.1  wmiprvse=0.5  claude=0.4
+17:29:15  python=33.1  vgtray=8.3  system=1.2  wmiprvse=1.2  taskmgr=1.2  chatgpt=0.3
+17:29:20  python=32.9  vgtray=8.2  system=1.3  taskmgr=1.2  nvcontainer=0.4  chatgpt=0.3
+17:29:25  python=33.3  vgtray=8.2  system=1.5  taskmgr=1.3  msmpeng=0.3  claude=0.1
+17:29:30  python=32.8  vgtray=7.9  system=1.8  taskmgr=1.3  antigravity ide=0.6  chatgpt=0.4
+17:29:35  python=33.2  vgtray=8.3  system=1.7  taskmgr=1.2  explorer=1.1  svchost=0.7
+17:29:40  python=33.0  vgtray=8.0  svchost=3.7  system=2.0  taskmgr=1.3  msmpeng=0.5
+17:29:46  python=33.2  svchost=8.6  vgtray=8.3  system=1.7  taskmgr=1.4  msmpeng=0.9
+17:29:51  python=33.2  vgtray=8.3  svchost=2.6  system=2.2  taskmgr=1.2  chrome=0.4
+17:29:56  python=32.6  vgtray=8.1  system=2.7  svchost=2.5  taskmgr=1.1  chatgpt=0.4
+17:30:01  python=33.0  vgtray=8.3  system=2.3  taskmgr=1.4  antigravity ide=1.1  svchost=0.9
+17:30:06  python=33.2  vgtray=8.3  system=1.7  taskmgr=1.2  svchost=0.3  msmpeng=0.2
+17:30:11  python=33.0  vgtray=8.3  system=2.2  taskmgr=1.1  svchost=0.6  chatgpt=0.3
+17:30:16  python=33.1  vgtray=8.3  system=1.6  taskmgr=1.4  svchost=0.7  chatgpt=0.4
+17:30:21  python=33.3  vgtray=8.2  system=1.4  taskmgr=1.2  svchost=0.5  msmpeng=0.3
+17:30:26  python=33.0  vgtray=8.1  system=2.2  svchost=1.5  taskmgr=1.3  msmpeng=0.4
+17:30:32  python=33.0  vgtray=8.1  system=3.5  svchost=1.2  taskmgr=1.2  chatgpt=0.3
+17:30:37  python=33.2  vgtray=8.2  system=1.9  taskmgr=1.4  svchost=0.9  antigravity ide=0.6
+17:30:42  python=33.0  vgtray=8.1  system=1.5  svchost=1.4  taskmgr=1.2  grep=0.3
+17:30:47  python=33.0  vgtray=8.3  system=2.2  taskmgr=1.3  svchost=1.1  chrome=0.4
+17:30:52  python=32.9  vgtray=8.1  svchost=1.4  system=1.4  taskmgr=1.0  antigravity ide=0.5
+17:30:57  python=33.1  vgtray=8.1  system=1.8  taskmgr=1.4  svchost=0.8  msmpeng=0.4
+17:31:02  python=33.2  vgtray=8.2  system=1.9  svchost=1.5  taskmgr=1.4  chrome=0.6
+17:31:07  python=33.1  vgtray=8.1  system=2.9  svchost=2.2  taskmgr=1.5  msmpeng=0.4
+17:31:12  python=33.2  vgtray=8.2  svchost=5.2  system=1.9  taskmgr=1.3  antigravity ide=0.3
+17:31:18  python=33.2  vgtray=8.2  wmiprvse=2.1  system=1.2  taskmgr=1.2  svchost=1.0
+17:31:23  python=33.2  vgtray=8.2  system=1.7  taskmgr=1.1  svchost=0.8  msmpeng=0.2
+17:31:28  python=33.2  vgtray=8.2  system=1.9  taskmgr=1.1  svchost=0.9  msmpeng=0.3
+17:31:33  python=33.0  vgtray=8.3  system=1.6  taskmgr=1.2  svchost=0.9  claude=0.5
+17:31:38  python=33.1  vgtray=8.2  system=1.9  msmpeng=1.4  taskmgr=1.2  svchost=1.2
+17:31:43  python=33.1  vgtray=8.2  system=2.7  svchost=1.6  taskmgr=1.3  msmpeng=0.4
+17:31:48  python=33.1  vgtray=8.1  system=2.2  taskmgr=1.4  svchost=1.0  claude=0.3
+17:31:53  python=33.2  vgtray=8.2  system=1.7  taskmgr=1.4  svchost=1.2  antigravity ide=0.3
+17:31:59  python=31.5  vgtray=8.1  system=2.2  svchost=2.1  taskmgr=1.2  msmpeng=0.6
+17:32:04  python=32.7  vgtray=8.3  system=1.7  taskmgr=1.0  msmpeng=0.5  svchost=0.4
+17:32:09  python=32.6  vgtray=8.3  system=1.5  taskmgr=1.1  antigravity ide=0.4  svchost=0.2
+17:32:14  python=32.5  vgtray=8.3  taskmgr=1.2  system=1.1  chrome=0.4  msmpeng=0.3
+17:32:19  python=32.9  vgtray=8.2  system=1.5  taskmgr=1.2  svchost=0.3  antigravity ide=0.3
+17:32:24  python=32.1  vgtray=8.0  chrome=2.3  claude=2.0  dwm=1.4  system=1.4
+17:32:29  python=31.1  vgtray=8.0  claude=4.9  dwm=3.4  system=3.2  taskmgr=1.4
+17:32:34  python=31.5  vgtray=8.0  dwm=3.7  claude=3.7  system=2.6  taskmgr=0.9
+17:32:39  python=32.1  vgtray=7.4  claude=5.1  dwm=3.4  system=1.7  taskmgr=1.1
+17:32:44  python=32.3  dwm=3.2  claude=2.6  system=2.4  taskmgr=1.1  antigravity ide=0.5
+17:32:50  python=32.3  claude=4.1  dwm=3.3  system=1.8  taskmgr=1.0  msmpeng=0.2
+17:32:55  python=32.0  claude=5.2  dwm=3.1  system=1.8  taskmgr=1.0  chatgpt=0.2
+17:33:00  python=31.7  claude=3.6  dwm=3.0  system=2.8  msmpeng=1.1  taskmgr=1.0
+17:33:05  python=32.5  dwm=3.2  claude=2.9  system=1.5  taskmgr=1.4  msmpeng=0.3
+17:33:10  python=32.0  claude=3.0  dwm=2.6  system=2.2  notion=2.1  taskmgr=0.8
+17:33:15  python=32.6  notion=1.4  wmiprvse=1.2  system=0.8  taskmgr=0.6  msmpeng=0.3
+17:33:20  python=31.2  notion=3.9  system=1.6  taskmgr=0.8  nvcontainer=0.4  dwm=0.4
+17:33:25  python=32.2  chrome=3.1  system=1.8  notion=1.7  taskmgr=0.6  stsess=0.6
+17:33:30  python=32.1  chrome=9.5  system=1.8  dwm=1.7  notion=1.3  taskmgr=0.9
+17:33:36  python=32.0  chrome=10.0  dwm=1.6  system=1.2  taskmgr=0.9  msmpeng=0.3
+17:33:41  python=32.3  chrome=3.7  system=0.9  taskmgr=0.7  dwm=0.5  msmpeng=0.3
+17:33:46  python=32.6  chrome=1.2  system=1.0  taskmgr=0.7  grep=0.7  msmpeng=0.3
+17:33:51  python=33.0  chrome=1.1  system=1.0  taskmgr=0.7  discord=0.1  antigravity ide=0.1
+17:33:56  python=32.3  chrome=9.4  dwm=1.4  system=1.1  taskmgr=0.8  claude=0.4
+17:34:01  python=32.5  chrome=2.9  system=1.6  taskmgr=0.7  svchost=0.6  antigravity ide=0.3
+17:34:06  python=32.9  chrome=1.0  system=0.9  taskmgr=0.6  claude=0.3  msmpeng=0.2
+17:34:11  python=32.4  chrome=2.1  system=0.7  taskmgr=0.6  msmpeng=0.4  antigravity ide=0.2
+17:34:16  python=32.7  system=1.1  chrome=0.9  taskmgr=0.7  msmpeng=0.2  chatgpt=0.2
+17:34:21  python=32.8  chrome=1.2  system=0.8  notion=0.7  taskmgr=0.7  dwm=0.3
+17:34:27  python=32.2  claude=3.6  dwm=2.9  system=2.1  msmpeng=0.6  taskmgr=0.6
+17:34:32  python=32.6  chrome=8.7  dwm=1.7  system=1.2  taskmgr=0.7  claude=0.5
+17:34:37  python=32.7  chrome=2.0  system=0.8  taskmgr=0.8  antigravity ide=0.5  chatgpt=0.4
+17:34:42  python=32.7  system=1.6  chrome=1.1  taskmgr=0.8  msmpeng=0.5  claude=0.5
+17:34:47  python=32.8  chrome=1.2  system=0.7  taskmgr=0.6  msmpeng=0.2  chatgpt=0.2
+17:34:52  python=32.8  system=1.8  chrome=1.2  antigravity ide=1.0  taskmgr=0.7  audiodg=0.2
+17:34:57  python=31.5  system=1.6  chrome=1.1  taskmgr=0.9  antigravity ide=0.3  explorer=0.3
+17:35:02  python=32.8  system=1.6  chrome=1.1  taskmgr=0.8  antigravity ide=0.5  claude=0.3
+17:35:07  python=32.8  svchost=1.2  chrome=1.2  system=1.1  msedgewebview2=0.9  taskmgr=0.8
+17:35:12  python=32.4  system=1.4  chrome=0.9  claude=0.8  msedgewebview2=0.8  dwm=0.8
+17:35:17  python=31.8  claude=3.5  dwm=3.4  system=2.7  taskmgr=0.8  msedgewebview2=0.6
+17:35:23  python=31.5  claude=4.8  dwm=3.7  system=2.3  chrome=0.9  taskmgr=0.8
+17:35:28  python=31.6  dwm=3.4  claude=3.4  system=3.0  taskmgr=0.8  antigravity ide=0.4
+17:35:33  python=31.3  chrome=4.5  dwm=3.1  system=2.6  claude=1.9  taskmgr=0.9
+17:35:38  python=31.8  dwm=3.6  system=2.9  claude=2.6  taskmgr=0.8  chrome=0.4
+17:35:43  python=31.7  dwm=3.6  claude=3.5  system=2.5  taskmgr=0.8  chrome=0.5
+17:35:48  python=31.5  claude=4.0  dwm=3.4  system=2.6  chrome=2.2  taskmgr=0.8
+17:35:53  python=32.4  svchost=4.0  claude=3.1  dwm=3.0  system=2.6  taskmgr=0.7
+17:35:58  python=31.6  dwm=3.6  claude=3.2  system=2.5  taskmgr=0.7  antigravity ide=0.4
+17:36:04  python=31.8  claude=5.1  dwm=3.9  system=2.6  taskmgr=0.7  antigravity ide=0.6
+17:36:09  python=31.7  claude=5.7  dwm=3.8  system=1.9  taskmgr=0.9  antigravity ide=0.8
+17:36:14  python=30.6  claude=5.9  dwm=3.7  system=2.9  taskmgr=0.8  chatgpt=0.7
+17:36:19  python=32.0  chrome=3.7  claude=2.9  dwm=2.9  system=1.6  taskmgr=0.8
+17:36:24  python=32.0  claude=4.6  dwm=3.0  system=1.7  chrome=1.3  msmpeng=0.8
+17:36:29  python=32.2  chrome=2.3  system=1.3  taskmgr=0.8  claude=0.8  antigravity ide=0.4
+17:36:34  python=31.7  system=1.8  claude=1.7  chrome=1.4  msmpeng=0.6  taskmgr=0.6
+17:36:39  python=32.3  claude=7.2  dwm=3.3  system=1.6  taskmgr=0.8  msmpeng=0.5
+17:36:44  python=32.3  claude=5.8  dwm=3.0  system=2.3  msmpeng=0.8  taskmgr=0.6
+17:36:49  python=32.1  chrome=6.0  claude=5.6  dwm=2.9  system=2.2  taskmgr=0.7
+17:36:55  python=31.6  claude=4.6  dwm=3.5  chrome=3.1  system=2.5  taskmgr=0.7
+17:37:00  python=31.7  dwm=3.4  claude=2.4  system=2.3  taskmgr=0.6  chrome=0.5
+17:37:05  python=31.9  dwm=3.7  claude=3.3  system=2.8  taskmgr=0.8  chrome=0.6
+17:37:10  python=32.1  claude=3.7  dwm=3.4  system=2.6  msmpeng=0.8  taskmgr=0.6
+17:37:15  python=32.0  dwm=3.1  claude=2.7  system=1.8  antigravity ide=1.1  taskmgr=0.8
+17:37:20  python=32.6  dwm=3.4  system=2.4  claude=1.7  taskmgr=0.9  chatgpt=0.3
+17:37:25  python=31.9  claude=4.1  dwm=3.4  system=2.2  notion=1.0  svchost=0.9
+17:37:30  python=31.8  dwm=3.1  claude=2.8  system=2.0  notion=0.6  taskmgr=0.6
+17:37:35  python=32.3  dwm=3.1  claude=3.0  system=2.8  taskmgr=0.7  antigravity ide=0.3
+=== 17:37:40 cpu t1
+17:37:41  dwm=2.9  system=2.4  claude=1.7  msmpeng=1.3  bash=1.1  taskmgr=0.7
+17:37:46  python=8.0  dwm=2.7  system=2.2  claude=2.1  explorer=1.0  taskmgr=0.6
+17:37:51  python=8.3  dwm=3.1  claude=2.7  system=2.1  explorer=0.9  taskmgr=0.7
+17:37:56  python=8.2  dwm=3.3  claude=3.1  system=1.9  taskmgr=0.8  antigravity ide=0.2
+17:38:01  python=8.2  dwm=3.1  claude=3.0  system=1.4  explorer=0.6  taskmgr=0.6
+17:38:06  notion=12.2  python=8.3  system=1.2  dwm=1.1  taskmgr=0.9  msmpeng=0.5
+17:38:11  python=8.3  notion=5.0  system=1.1  taskmgr=1.0  dwm=0.5  claude=0.4
+17:38:16  python=8.2  notion=5.5  system=1.3  taskmgr=1.0  msmpeng=0.4  claude=0.3
+17:38:21  python=8.3  notion=2.1  system=1.4  taskmgr=0.9  antigravity ide=0.9  msmpeng=0.3
+17:38:26  python=8.3  notion=2.9  system=2.0  taskmgr=1.0  svchost=0.6  msmpeng=0.4
+17:38:32  python=8.3  notion=2.1  system=1.1  taskmgr=0.7  claude=0.5  dwm=0.3
+17:38:37  python=8.1  claude=4.5  notion=3.9  dwm=3.0  system=2.3  taskmgr=0.8
+17:38:42  python=8.3  notion=4.5  system=1.1  taskmgr=0.7  dwm=0.3  antigravity ide=0.2
+17:38:47  python=8.3  notion=3.4  system=1.4  taskmgr=0.9  msmpeng=0.3  claude=0.3
+17:38:52  python=8.3  notion=3.6  system=1.6  taskmgr=0.9  claude=0.5  grep=0.3
+17:38:57  python=8.3  notion=2.6  system=1.8  taskmgr=0.9  antigravity ide=0.4  grep=0.4
+17:39:02  python=8.3  notion=7.7  system=1.4  taskmgr=1.0  antigravity ide=0.5  dwm=0.3
+17:39:07  python=8.3  system=2.5  claude=2.3  dwm=2.1  taskmgr=0.7  msmpeng=0.5
+17:39:12  python=8.1  claude=5.8  dwm=3.7  notion=3.4  system=2.3  taskmgr=0.8
+17:39:17  python=8.1  claude=4.6  svchost=4.1  dwm=3.5  system=2.4  taskmgr=0.6
+17:39:23  python=8.1  dwm=2.9  claude=2.3  system=2.1  taskmgr=0.5  msmpeng=0.3
+17:39:28  python=8.3  dwm=2.5  system=1.9  claude=1.8  taskmgr=0.6  msmpeng=0.2
+17:39:33  python=8.2  claude=4.8  dwm=3.3  system=1.8  antigravity ide=0.9  taskmgr=0.5
+17:39:38  python=8.2  claude=3.7  dwm=3.3  system=2.8  taskmgr=0.8  antigravity ide=0.2
+17:39:43  python=8.2  notion=3.9  claude=1.5  system=1.5  dwm=1.1  taskmgr=0.8
+17:39:48  python=8.3  notion=7.9  system=1.4  taskmgr=0.9  msmpeng=0.3  chatgpt=0.3
+17:39:53  python=8.3  chrome=3.4  system=1.6  notion=1.5  taskmgr=0.9  dwm=0.7
+17:39:58  chrome=8.9  python=8.2  system=1.5  dwm=1.3  taskmgr=0.6  chatgpt=0.4
+17:40:03  python=8.3  chrome=2.5  system=0.8  taskmgr=0.6  dwm=0.2  claude=0.2
+17:40:08  python=8.3  chrome=4.6  system=1.6  taskmgr=0.8  dwm=0.5  claude=0.3
+17:40:14  python=8.3  chrome=2.4  taskmgr=0.8  system=0.7  dwm=0.4  msmpeng=0.2
+17:40:19  python=8.3  chrome=4.9  system=1.6  taskmgr=0.8  claude=0.4  svchost=0.2
+17:40:24  python=8.3  chrome=1.5  system=1.4  taskmgr=0.8  antigravity ide=0.3  chatgpt=0.2
+17:40:29  python=8.2  chrome=6.0  system=1.2  taskmgr=0.8  dwm=0.5  claude=0.3
+17:40:34  python=8.3  chrome=2.6  system=1.0  taskmgr=0.8  grep=0.7  antigravity ide=0.5
+17:40:39  python=8.3  chrome=4.4  system=1.4  dwm=0.8  taskmgr=0.7  msmpeng=0.4
+17:40:44  python=8.3  chrome=5.5  msmpeng=1.0  system=0.9  dwm=0.8  taskmgr=0.7
+17:40:49  python=8.3  chrome=3.6  antigravity ide=1.1  system=0.9  taskmgr=0.7  dwm=0.3
+17:40:54  python=8.3  chrome=3.0  system=1.1  taskmgr=0.7  antigravity ide=0.5  dwm=0.3
+17:40:59  python=8.3  chrome=2.7  taskmgr=0.5  system=0.4  audiodg=0.3  dwm=0.2
+17:41:05  python=8.3  chrome=2.2  notion=2.0  system=1.4  taskmgr=0.8  antigravity ide=0.3
+17:41:10  python=8.2  chrome=3.4  svchost=0.7  system=0.7  taskmgr=0.7  dwm=0.4
+17:41:15  python=8.3  chrome=2.4  taskmgr=0.6  system=0.5  dwm=0.3  msmpeng=0.1
+17:41:20  python=8.3  chrome=2.6  system=1.0  taskmgr=0.7  chatgpt=0.4  dwm=0.3
+17:41:25  python=8.2  chrome=6.2  system=1.1  taskmgr=0.9  dwm=0.4  chatgpt=0.3
+17:41:30  python=8.3  chrome=2.5  system=0.9  taskmgr=0.6  dwm=0.4  chatgpt=0.4
+17:41:35  python=8.3  chrome=1.5  system=1.1  taskmgr=0.8  dwm=0.3  antigravity ide=0.3
+17:41:40  python=8.3  chrome=1.5  taskmgr=0.8  system=0.8  dwm=0.3  msmpeng=0.2
+17:41:45  python=8.3  chrome=2.0  system=1.5  taskmgr=1.0  dwm=0.4  claude=0.3
+17:41:50  python=8.2  system=1.6  chrome=1.2  taskmgr=0.8  grep=0.7  dwm=0.3
+17:41:56  python=8.3  chrome=1.1  system=1.1  taskmgr=0.9  dwm=0.4  antigravity ide=0.2
+17:42:01  python=8.3  system=1.8  chrome=1.3  taskmgr=0.9  claude=0.5  dwm=0.4
+17:42:06  python=8.3  system=2.1  taskmgr=1.0  chrome=0.9  antigravity ide=0.6  dwm=0.3
+17:42:11  python=8.3  chrome=3.3  system=1.5  taskmgr=0.8  dwm=0.6  antigravity ide=0.5
+17:42:16  python=8.3  chrome=4.6  system=1.3  dwm=0.6  grep=0.6  taskmgr=0.5
+17:42:21  python=8.3  chrome=2.5  system=1.1  taskmgr=0.7  dwm=0.5  antigravity ide=0.2
+17:42:26  python=8.3  chrome=3.2  svchost=1.1  memory compression=0.8  grep=0.8  taskmgr=0.7
+17:42:31  python=8.3  chrome=4.3  system=1.0  taskmgr=0.7  dwm=0.6  antigravity ide=0.3
+17:42:36  python=8.3  chrome=2.3  system=1.7  taskmgr=0.7  dwm=0.5  antigravity ide=0.4
+17:42:41  python=8.3  chrome=5.0  system=1.2  dwm=1.0  taskmgr=0.8  steamwebhelper=0.2
+17:42:47  python=8.2  chrome=3.5  system=1.0  dwm=0.7  taskmgr=0.6  claude=0.4
+17:42:52  steamwebhelper=78.8  python=8.3  chrome=3.2  system=1.4  msmpeng=0.9  taskmgr=0.6
+17:42:57  python=8.3  chrome=2.4  system=0.9  taskmgr=0.8  dwm=0.7  antigravity ide=0.5
+17:43:02  python=8.3  chrome=4.3  taskmgr=0.9  dwm=0.7  system=0.6  msmpeng=0.2
+17:43:07  python=8.3  system=3.5  chrome=2.8  taskmgr=0.6  dwm=0.6  antigravity ide=0.4
+17:43:12  python=8.3  chrome=3.4  system=0.8  taskmgr=0.6  dwm=0.5  antigravity ide=0.3
+17:43:17  python=8.3  chrome=2.7  antigravity ide=1.1  taskmgr=0.7  system=0.6  dwm=0.5
+17:43:22  python=8.3  chrome=2.6  system=1.2  taskmgr=0.7  dwm=0.7  antigravity ide=0.5
+17:43:27  python=8.3  chrome=3.0  system=1.0  taskmgr=0.9  steamwebhelper=0.8  dwm=0.7
+17:43:32  python=8.3  chrome=2.8  system=0.9  dwm=0.8  taskmgr=0.6  msmpeng=0.2
+17:43:37  python=8.3  chrome=4.8  system=1.3  taskmgr=0.8  dwm=0.6  msmpeng=0.4
+17:43:43  python=8.3  chrome=2.9  msmpeng=1.5  claude=0.7  taskmgr=0.7  dwm=0.6
+17:43:48  python=8.3  chrome=2.9  taskmgr=0.7  system=0.6  dwm=0.5  antigravity ide=0.4
+17:43:53  python=8.3  chrome=3.6  system=1.2  taskmgr=0.6  dwm=0.5  msmpeng=0.2
+17:43:58  python=8.3  chrome=2.8  taskmgr=0.8  system=0.8  dwm=0.5  msmpeng=0.2
+17:44:03  python=8.3  chrome=3.1  system=0.9  taskmgr=0.7  dwm=0.6  antigravity ide=0.3
+17:44:08  python=8.3  chrome=2.9  system=1.3  dwm=0.6  taskmgr=0.5  audiodg=0.2
+17:44:13  python=8.3  chrome=4.6  system=0.9  taskmgr=0.6  dwm=0.5  claude=0.3
+17:44:18  python=8.3  chrome=5.7  system=1.8  taskmgr=0.7  dwm=0.5  msmpeng=0.3
+17:44:23  python=8.3  chrome=1.9  system=1.6  taskmgr=0.8  dwm=0.3  msmpeng=0.2
+17:44:28  python=8.3  chrome=3.0  system=0.7  taskmgr=0.6  antigravity ide=0.4  dwm=0.3
+17:44:34  python=8.3  chrome=3.6  system=1.0  taskmgr=0.6  audiodg=0.3  antigravity ide=0.2
+17:44:39  python=8.3  chrome=2.4  system=0.9  taskmgr=0.5  msmpeng=0.3  claude=0.2
+17:44:44  python=8.3  chrome=7.0  system=1.4  dwm=1.2  taskmgr=0.7  antigravity ide=0.4
+17:44:49  python=8.3  chrome=3.9  dwm=1.1  taskmgr=0.8  system=0.8  antigravity ide=0.5
+17:44:54  python=8.3  chrome=3.9  system=1.4  dwm=1.0  taskmgr=0.8  msmpeng=0.4
+17:44:59  python=8.3  chrome=5.0  dwm=1.0  system=0.9  taskmgr=0.7  antigravity ide=0.3
+17:45:04  python=8.3  chrome=2.7  system=1.1  dwm=0.8  taskmgr=0.7  claude=0.6
+17:45:09  python=8.2  chrome=3.0  dwm=1.0  system=0.7  taskmgr=0.7  msmpeng=0.2
+17:45:14  python=8.3  chrome=3.5  dwm=0.9  taskmgr=0.6  system=0.4  claude=0.2
+17:45:19  python=8.3  chrome=2.9  dwm=0.9  wmiprvse=0.6  taskmgr=0.5  system=0.4
+17:45:25  python=8.2  chrome=7.6  system=1.6  taskmgr=0.9  wmiprvse=0.8  dwm=0.7
+17:45:30  python=8.3  chrome=3.4  system=1.1  taskmgr=0.8  dwm=0.6  grep=0.4
+17:45:35  python=8.3  chrome=3.7  antigravity ide=0.8  taskmgr=0.7  dwm=0.6  system=0.5
+17:45:40  python=8.3  chrome=2.5  system=2.1  taskmgr=0.6  msmpeng=0.4  dwm=0.4
+17:45:45  python=8.3  chrome=3.3  system=1.2  dwm=0.6  taskmgr=0.6  msmpeng=0.2
+17:45:50  python=8.3  chrome=2.8  system=1.5  taskmgr=0.7  dwm=0.6  claude=0.4
+17:45:55  python=8.3  chrome=4.0  system=1.1  taskmgr=0.6  dwm=0.6  svchost=0.3
+17:46:00  python=8.3  chrome=2.2  system=0.9  svchost=0.9  taskmgr=0.7  dwm=0.6
+17:46:05  python=8.3  chrome=2.6  system=1.5  dwm=0.8  taskmgr=0.7  antigravity ide=0.5
+17:46:10  python=8.3  chrome=2.2  system=0.9  dwm=0.7  taskmgr=0.6  svchost=0.6
+17:46:15  python=8.3  chrome=3.2  system=0.9  taskmgr=0.7  dwm=0.6  msmpeng=0.2
+17:46:21  python=8.3  chrome=2.2  system=0.9  dwm=0.7  taskmgr=0.6  antigravity ide=0.4
+17:46:26  python=8.3  chrome=2.3  system=1.1  taskmgr=0.7  dwm=0.5  chatgpt=0.3
+17:46:31  python=8.3  chrome=5.1  system=1.0  dwm=0.9  taskmgr=0.6  antigravity ide=0.5
+17:46:36  python=8.3  chrome=6.4  system=1.8  dwm=1.3  taskmgr=0.8  msmpeng=0.4
+17:46:41  python=8.2  chrome=4.2  system=1.6  msmpeng=0.9  dwm=0.9  claude=0.6
+17:46:46  python=8.3  chrome=2.9  system=1.3  dwm=1.0  taskmgr=0.8  antigravity ide=0.6
+17:46:51  python=8.3  chrome=4.2  claude=1.9  dwm=0.8  taskmgr=0.6  system=0.6
+17:46:56  python=8.3  chrome=3.0  dwm=1.0  system=0.8  taskmgr=0.7  claude=0.4
+17:47:01  python=8.3  chrome=2.9  system=1.0  dwm=0.9  taskmgr=0.8  claude=0.5
+17:47:06  python=8.2  chrome=5.6  dwm=0.9  system=0.9  taskmgr=0.8  explorer=0.8
+17:47:12  python=8.3  chrome=3.7  system=1.2  dwm=0.9  taskmgr=0.7  claude=0.3
+17:47:17  python=8.3  chrome=3.7  dwm=1.2  system=1.0  taskmgr=0.8  claude=0.1
+17:47:22  python=8.2  chrome=5.0  wmiprvse=1.4  dwm=1.2  system=1.0  taskmgr=0.8
+17:47:27  python=8.3  chrome=3.0  memory compression=1.8  svchost=1.5  claude=1.1  system=1.0
+17:47:32  python=8.3  chrome=2.9  system=1.2  dwm=1.0  taskmgr=0.8  claude=0.7
+17:47:37  python=8.3  chrome=4.2  dwm=0.9  taskmgr=0.7  system=0.6  msmpeng=0.4
+17:47:42  python=8.3  chrome=4.6  system=1.3  dwm=0.9  taskmgr=0.6  msmpeng=0.4
+17:47:47  chrome=9.5  python=8.3  system=1.6  dwm=1.1  taskmgr=0.8  claude=0.4
+17:47:52  python=8.3  chrome=3.7  system=1.2  antigravity ide=1.1  taskmgr=0.8  grep=0.5
+17:47:58  python=8.3  chrome=2.6  system=1.6  taskmgr=0.8  nvcontainer=0.6  grep=0.4
+17:48:03  python=8.3  chrome=2.6  system=1.0  taskmgr=0.7  dwm=0.4  msmpeng=0.3
+17:48:08  python=8.2  chrome=3.7  system=1.5  taskmgr=0.7  antigravity ide=0.6  claude=0.4
+17:48:13  python=8.3  chrome=4.6  system=1.9  taskmgr=0.9  svchost=0.3  dwm=0.3
+17:48:18  python=8.2  chrome=2.1  system=0.9  taskmgr=0.7  claude=0.3  svchost=0.2
+17:48:23  python=8.3  chrome=2.4  system=1.1  taskmgr=0.6  msmpeng=0.4  svchost=0.3
+17:48:28  python=8.3  chrome=2.3  system=1.3  taskmgr=0.6  dwm=0.2  msmpeng=0.2
+17:48:33  python=8.3  chrome=2.5  system=1.0  taskmgr=0.7  antigravity ide=0.3  dwm=0.2
+17:48:38  python=8.3  chrome=2.2  system=1.1  taskmgr=0.7  dwm=0.2  chatgpt=0.2
+17:48:43  python=8.2  chrome=3.5  system=2.0  nvcontainer=1.7  taskmgr=0.8  chatgpt=0.5
+17:48:49  python=8.3  nvcontainer=3.3  chrome=3.3  system=0.9  taskmgr=0.7  antigravity ide=0.5
+17:48:54  python=8.3  chrome=4.7  system=1.1  taskmgr=0.8  dwm=0.5  msmpeng=0.4
+17:48:59  python=8.3  chrome=3.5  system=0.9  taskmgr=0.8  dwm=0.6  audiodg=0.3
+17:49:04  python=8.3  chrome=6.8  system=1.4  dwm=0.8  taskmgr=0.6  msmpeng=0.4
+17:49:09  python=8.3  chrome=2.8  antigravity ide=1.1  system=0.9  dwm=0.8  taskmgr=0.7
+17:49:14  python=8.3  chrome=4.3  system=2.1  taskmgr=0.8  dwm=0.6  msmpeng=0.3
+17:49:19  python=8.3  chrome=2.4  system=1.4  taskmgr=0.8  dwm=0.7  chatgpt=0.6
+17:49:24  python=8.3  chrome=3.5  system=1.5  wmiprvse=1.0  taskmgr=0.8  dwm=0.5
+17:49:29  python=8.3  chrome=2.3  system=1.1  taskmgr=0.8  dwm=0.6  msmpeng=0.3
+17:49:35  python=8.2  chrome=4.4  system=1.1  dwm=0.8  taskmgr=0.8  claude=0.4
+17:49:40  python=8.3  chrome=2.9  system=1.6  taskmgr=0.6  dwm=0.6  msmpeng=0.4
+17:49:45  python=8.3  chrome=3.4  system=1.3  msmpeng=1.2  dwm=0.8  taskmgr=0.7
+17:49:50  python=8.3  chrome=2.5  system=1.2  dwm=0.7  taskmgr=0.6  chatgpt=0.2
+17:49:55  python=8.2  chrome=2.2  dwm=1.7  system=1.6  claude=1.4  taskmgr=0.6
+17:50:00  python=8.1  claude=5.7  dwm=3.8  system=2.5  chrome=1.4  taskmgr=0.7
+17:50:05  python=8.2  claude=5.7  dwm=3.3  system=3.0  taskmgr=0.8  svchost=0.8
+17:50:10  python=8.2  claude=5.9  system=3.4  dwm=3.1  msedgewebview2=1.9  taskmgr=0.8
+17:50:15  python=8.3  claude=3.5  dwm=2.9  system=1.8  chrome=1.4  antigravity ide=0.9
+17:50:20  python=8.3  chrome=4.1  system=0.9  taskmgr=0.6  dwm=0.6  claude=0.3
+17:50:26  python=8.3  chrome=3.1  taskmgr=0.8  dwm=0.8  system=0.7  claude=0.5
+17:50:31  python=8.3  chrome=4.8  system=1.5  dwm=0.6  taskmgr=0.6  taskhostw=0.4
+17:50:36  python=8.3  chrome=4.5  system=1.7  taskmgr=0.7  dwm=0.7  claude=0.4
+17:50:41  python=8.3  chrome=4.3  system=1.5  dwm=0.9  taskmgr=0.6  msmpeng=0.4
+17:50:46  python=8.3  chrome=4.0  system=1.2  taskmgr=0.8  dwm=0.7  chatgpt=0.5
+17:50:51  python=8.3  chrome=7.9  system=1.5  taskmgr=0.8  dwm=0.6  claude=0.4
+17:50:56  python=8.3  chrome=5.6  system=1.5  taskmgr=0.8  dwm=0.7  claude=0.5
+17:51:01  python=8.2  chrome=6.8  system=1.4  taskmgr=0.8  dwm=0.6  msmpeng=0.4
+17:51:06  chrome=10.5  python=8.3  system=1.9  dwm=1.6  svchost=0.9  taskmgr=0.7
+17:51:11  python=8.3  chrome=3.0  system=1.4  taskmgr=0.8  claude=0.3  dwm=0.2
+17:51:17  python=8.4  chrome=2.0  system=1.7  taskmgr=0.8  claude=0.3  msmpeng=0.2
+17:51:22  python=8.3  system=1.5  chrome=1.2  taskmgr=0.8  msmpeng=0.2  grep=0.2
+17:51:27  python=8.3  chrome=3.8  system=1.9  antigravity ide=1.1  taskmgr=1.0  chatgpt=0.6
+17:51:32  python=8.3  system=1.6  chrome=1.4  taskmgr=1.0  msmpeng=0.3  claude=0.3
+17:51:37  python=8.3  system=1.6  taskmgr=1.0  chrome=0.9  grep=0.5  claude=0.5
+17:51:42  python=8.3  system=1.5  chrome=0.7  taskmgr=0.6  claude=0.2  msmpeng=0.1
+17:51:47  python=8.3  chrome=1.2  system=0.8  taskmgr=0.8  claude=0.3  msmpeng=0.2
+17:51:52  python=8.3  chrome=1.9  system=1.1  taskmgr=0.6  antigravity ide=0.6  claude=0.5
+17:51:57  python=8.2  chrome=1.2  taskmgr=0.9  system=0.7  claude=0.3  antigravity ide=0.3
+17:52:02  python=8.3  chrome=0.7  taskmgr=0.7  system=0.6  msmpeng=0.3  svchost=0.2
+17:52:07  python=8.3  chrome=1.2  system=1.1  taskmgr=0.8  claude=0.2  antigravity ide=0.1
+17:52:13  python=8.3  system=1.4  taskmgr=0.8  chrome=0.8  msmpeng=0.4  claude=0.2
+17:52:18  python=8.3  taskmgr=0.8  system=0.6  chrome=0.6  chatgpt=0.3  claude=0.3
+17:52:23  python=8.3  taskmgr=0.8  system=0.8  chrome=0.7  grep=0.6  antigravity ide=0.5
+17:52:28  python=8.3  system=1.4  chrome=1.3  svchost=1.0  memory compression=0.9  taskmgr=0.8
+17:52:33  python=8.4  system=1.1  taskmgr=0.9  chrome=0.7  claude=0.3  msmpeng=0.2
+17:52:38  python=8.3  system=1.0  chrome=0.9  antigravity ide=0.9  grep=0.7  taskmgr=0.6
+17:52:43  python=8.3  system=2.2  chrome=2.1  msmpeng=1.4  taskmgr=0.8  chatgpt=0.7
+17:52:48  python=8.3  system=0.9  taskmgr=0.9  chrome=0.7  antigravity ide=0.7  msmpeng=0.3
+17:52:53  python=8.2  system=1.1  chrome=0.8  taskmgr=0.8  msmpeng=0.4  chatgpt=0.3
+17:52:58  python=8.3  system=1.5  taskmgr=0.9  chrome=0.5  antigravity ide=0.2  msmpeng=0.1
+17:53:03  python=8.3  system=1.5  taskmgr=0.9  chrome=0.7  claude=0.3  svchost=0.2
+17:53:08  python=8.3  system=1.2  chrome=1.1  taskmgr=0.9  antigravity ide=0.3  msmpeng=0.3
+17:53:14  python=8.3  system=1.8  chrome=0.8  taskmgr=0.6  msmpeng=0.2  claude=0.1
+17:53:19  python=8.3  system=1.7  taskmgr=0.9  chrome=0.7  antigravity ide=0.4  claude=0.2
+17:53:24  python=8.3  chrome=1.8  system=1.2  taskmgr=0.7  wmiprvse=0.7  antigravity ide=0.5
+17:53:29  python=8.3  chrome=4.2  system=1.1  taskmgr=0.7  antigravity ide=0.5  dwm=0.5
+17:53:34  python=8.3  chrome=3.1  taskmgr=0.6  system=0.6  claude=0.2  msmpeng=0.2
+17:53:39  python=8.3  chrome=4.2  system=1.0  taskmgr=0.8  dwm=0.4  chatgpt=0.2
+17:53:44  python=8.0  claude=7.1  dwm=2.9  system=2.4  msmpeng=0.9  chrome=0.7
+17:53:49  python=8.0  claude=3.2  dwm=2.8  system=2.2  taskmgr=1.1  chrome=0.6
+17:53:54  python=7.9  claude=3.5  dwm=3.2  taskmgr=2.2  system=2.0  chrome=0.7
+17:54:00  python=7.8  dwm=3.1  claude=2.7  system=2.4  taskmgr=1.3  antigravity ide=0.2
+17:54:05  python=7.9  claude=3.3  dwm=2.8  system=1.9  taskmgr=1.6  svchost=0.2
+17:54:10  python=8.3  dwm=2.4  claude=1.9  system=1.5  antigravity ide=1.2  taskmgr=1.2
+17:54:15  python=8.3  explorer=3.9  antigravity ide=2.1  claude=1.7  dwm=1.6  chrome=1.4
+17:54:20  python=8.3  antigravity ide=4.5  system=1.0  taskmgr=0.7  claude=0.4  dwm=0.3
+17:54:25  python=8.3  antigravity ide=5.5  system=1.8  taskmgr=1.0  dwm=0.9  msmpeng=0.4
+17:54:30  python=8.3  antigravity ide=2.5  taskmgr=1.2  system=1.0  claude=0.2  dwm=0.2
+17:54:35  python=8.3  taskmgr=0.9  system=0.8  msmpeng=0.4  antigravity ide=0.4  claude=0.2
+17:54:40  python=8.3  system=1.3  taskmgr=0.9  chrome=0.5  antigravity ide=0.4  msmpeng=0.3
+17:54:45  python=8.3  system=1.6  taskmgr=1.0  chrome=0.9  antigravity ide=0.5  msmpeng=0.3
+17:54:50  python=8.3  system=1.2  taskmgr=1.1  antigravity ide=0.6  claude=0.2  svchost=0.2
+17:54:56  python=8.3  system=1.8  taskmgr=1.2  claude=0.3  msmpeng=0.2  chatgpt=0.1
+17:55:01  python=8.3  taskmgr=1.3  system=1.3  antigravity ide=0.7  chatgpt=0.2  chrome=0.2
+17:55:06  python=8.3  chrome=1.7  system=1.7  taskmgr=1.2  antigravity ide=0.3  claude=0.2
+17:55:11  python=8.3  system=1.5  taskmgr=1.2  claude=0.4  antigravity ide=0.4  msmpeng=0.2
+17:55:16  python=8.3  system=1.8  taskmgr=1.1  msmpeng=0.3  antigravity ide=0.2  claude=0.2
+17:55:21  python=8.3  system=1.4  taskmgr=1.3  grep=0.4  antigravity ide=0.2  claude=0.2
+17:55:26  python=8.2  taskmgr=1.3  antigravity ide=1.1  system=1.0  chrome=0.5  msmpeng=0.4
+17:55:31  python=8.3  bash=1.7  taskmgr=1.2  system=0.9  chrome=0.4  antigravity ide=0.3
+17:55:36  python=8.3  taskmgr=1.1  system=1.1  antigravity ide=0.5  svchost=0.3  msmpeng=0.2
+17:55:41  python=8.3  system=1.5  taskmgr=1.0  antigravity ide=0.4  msmpeng=0.3  grep=0.2
+17:55:46  python=8.3  system=1.9  msmpeng=1.0  taskmgr=0.9  antigravity ide=0.7  claude=0.5
+17:55:51  python=8.3  system=1.0  taskmgr=0.9  chrome=0.8  claude=0.5  asdsvc=0.2
+=== 17:55:53 wasm t4 speed
+17:55:57  msmpeng=2.3  system=1.4  bash=1.0  taskmgr=1.0  svchost=0.5  antigravity ide=0.3
+17:56:02  chrome=33.9  system=2.2  taskmgr=0.9  antigravity ide=0.3  notion=0.2  claude=0.2
+17:56:07  chrome=35.1  system=1.9  taskmgr=1.0  msmpeng=0.9  svchost=0.6  antigravity ide=0.3
+17:56:12  chrome=115.9  system=2.4  antigravity ide=1.1  taskmgr=0.9  msmpeng=0.7  claude=0.3
+17:56:17  chrome=34.0  system=1.9  taskmgr=1.2  msmpeng=0.6  claude=0.4  svchost=0.3
+17:56:22  chrome=33.6  system=1.5  taskmgr=1.0  msmpeng=0.3  chatgpt=0.3  antigravity ide=0.2
+17:56:27  chrome=33.8  system=1.5  taskmgr=1.1  msmpeng=0.2  claude=0.1  nvdisplay.container=0.1
+17:56:32  chrome=33.8  system=1.2  taskmgr=1.0  claude=0.3  stsess32=0.2  msmpeng=0.2
+17:56:37  chrome=33.6  system=1.3  taskmgr=1.2  claude=0.2  antigravity ide=0.1  svchost=0.1
+17:56:42  chrome=33.8  taskmgr=1.2  system=1.0  antigravity ide=0.5  msmpeng=0.3  claude=0.3
+17:56:47  chrome=33.6  system=1.7  taskmgr=1.4  antigravity ide=1.1  dwm=0.4  chatgpt=0.3
+17:56:53  chrome=34.0  system=1.7  taskmgr=1.1  antigravity ide=0.4  msmpeng=0.4  claude=0.2
+17:56:58  chrome=33.7  system=1.4  taskmgr=1.2  antigravity ide=0.4  claude=0.2  msmpeng=0.2
+17:57:03  chrome=33.7  system=1.5  taskmgr=1.3  antigravity ide=0.6  msmpeng=0.4  svchost=0.2
+17:57:08  chrome=33.6  system=1.3  taskmgr=1.2  antigravity ide=0.6  msmpeng=0.4  grep=0.1
+17:57:13  chrome=33.5  antigravity ide=2.0  taskmgr=1.0  system=0.9  claude=0.4  dwm=0.2
+17:57:18  chrome=35.5  system=1.2  antigravity ide=1.0  taskmgr=0.9  claude=0.3  msmpeng=0.3
+17:57:23  chrome=34.5  system=1.6  taskmgr=1.1  antigravity ide=1.0  msmpeng=0.3  audiodg=0.2
+17:57:28  chrome=34.4  system=1.5  memory compression=1.3  taskmgr=1.1  svchost=0.9  msmpeng=0.2
+17:57:33  chrome=33.7  claude=1.4  taskmgr=1.3  system=1.1  msmpeng=0.3  svchost=0.2
+17:57:38  chrome=34.2  antigravity ide=1.5  claude=1.3  taskmgr=1.1  system=1.1  msmpeng=0.5
+17:57:43  chrome=32.8  claude=7.4  dwm=3.3  system=2.3  msmpeng=1.2  taskmgr=1.2
+17:57:49  chrome=32.9  claude=4.9  dwm=3.5  system=3.1  taskmgr=1.0  msmpeng=0.3
+17:57:54  chrome=32.8  chatgpt=4.4  claude=3.0  dwm=2.3  explorer=2.0  system=1.7
+17:57:59  chrome=31.2  svchost=9.3  claude=3.9  explorer=3.7  system=3.4  msmpeng=3.0
+17:58:04  chrome=38.1  msmpeng=5.0  system=4.5  chatgpt=4.4  taskmgr=1.3  claude=1.0
+17:58:09  chrome=31.2  explorer=11.7  chatgpt=7.6  msmpeng=5.0  system=2.1  claude=1.7
+17:58:14  chrome=30.2  chatgpt=14.3  msmpeng=13.4  explorer=7.0  codex=3.5  system=3.1
+17:58:19  chrome=38.2  chatgpt=10.7  system=7.3  explorer=4.9  iclouddrive=4.8  msmpeng=3.7
+17:58:24  chrome=35.5  chatgpt=15.7  iclouddrive=5.0  system=4.8  taskmgr=1.3  dwm=1.3
+17:58:30  chrome=35.1  chatgpt=6.7  iclouddrive=3.6  system=1.1  explorer=1.0  taskmgr=1.0
+17:58:35  chrome=33.5  chatgpt=4.7  iclouddrive=4.2  system=2.0  taskmgr=1.0  dwm=0.8
+17:58:40  chrome=34.2  chatgpt=7.7  iclouddrive=3.8  explorer=1.1  taskmgr=1.1  system=1.0
+17:58:45  chrome=33.0  iclouddrive=5.0  chatgpt=4.6  claude=3.0  system=2.5  dwm=2.1
+17:58:50  chrome=32.5  claude=4.9  iclouddrive=4.1  dwm=3.2  system=3.0  msmpeng=2.1
+17:58:55  chrome=33.1  claude=8.0  system=3.2  dwm=3.2  iclouddrive=3.0  taskmgr=1.4
+17:59:00  chrome=33.3  claude=7.6  iclouddrive=4.5  dwm=3.3  system=2.7  taskmgr=1.1
+17:59:05  chrome=34.0  iclouddrive=4.2  claude=4.2  system=3.5  dwm=3.1  taskmgr=1.3
+17:59:11  chrome=32.9  iclouddrive=5.2  claude=4.5  dwm=3.8  system=2.7  taskmgr=1.0
+17:59:16  chrome=33.5  iclouddrive=4.9  claude=3.5  dwm=3.0  system=2.4  taskmgr=2.3
+17:59:21  chrome=33.1  iclouddrive=5.4  claude=4.7  system=3.9  dwm=3.2  explorer=2.0
+17:59:26  chrome=33.1  claude=4.9  iclouddrive=4.0  dwm=3.1  system=1.7  taskmgr=0.8
+17:59:31  chrome=33.3  iclouddrive=4.8  claude=4.2  dwm=3.1  system=1.9  taskmgr=0.6
+17:59:36  chrome=32.9  iclouddrive=7.4  claude=3.5  dwm=3.1  system=2.9  taskmgr=0.8
+17:59:41  chrome=32.9  iclouddrive=8.4  claude=4.0  dwm=3.4  system=2.2  searchindexer=1.7
+17:59:47  chrome=32.9  iclouddrive=8.3  claude=3.8  system=3.3  dwm=2.9  searchprotocolhost=1.4
+17:59:52  chrome=34.6  iclouddrive=8.2  claude=3.6  dwm=3.4  system=2.6  taskmgr=0.7
+17:59:57  chrome=33.0  iclouddrive=8.1  claude=4.3  dwm=3.1  system=2.2  msmpeng=0.9
+18:00:02  chrome=33.1  iclouddrive=8.1  system=3.6  claude=3.5  dwm=3.2  taskmgr=0.9
+18:00:07  chrome=32.9  iclouddrive=8.2  claude=3.7  dwm=3.2  system=2.4  antigravity ide=1.1
+18:00:12  chrome=33.3  iclouddrive=8.3  claude=3.6  dwm=2.9  system=2.7  searchprotocolhost=0.9
+18:00:17  chrome=33.3  iclouddrive=8.2  claude=3.8  system=3.3  dwm=3.1  taskmgr=1.1
+18:00:22  chrome=33.4  iclouddrive=8.1  claude=3.7  dwm=3.0  system=2.7  taskmgr=0.8
+18:00:27  chrome=33.1  iclouddrive=8.0  claude=4.3  system=3.7  dwm=3.4  msmpeng=0.9
+18:00:33  chrome=33.0  iclouddrive=8.0  claude=3.5  dwm=3.0  system=2.8  taskmgr=0.8
+18:00:38  chrome=33.1  iclouddrive=8.2  claude=5.2  dwm=3.0  system=2.4  taskmgr=0.9
+18:00:43  chrome=32.9  iclouddrive=8.2  claude=3.6  dwm=3.1  system=2.4  taskmgr=0.8
+18:00:48  chrome=33.2  iclouddrive=8.1  system=3.9  claude=3.6  dwm=3.2  taskmgr=0.8
+18:00:53  chrome=32.9  iclouddrive=8.1  claude=3.3  dwm=3.2  system=2.1  taskmgr=0.9
+18:00:58  chrome=33.1  iclouddrive=8.1  claude=4.3  dwm=2.9  system=2.7  msmpeng=0.9
+18:01:03  chrome=33.4  iclouddrive=8.2  claude=3.8  dwm=3.0  system=2.3  taskmgr=0.8
+18:01:08  chrome=33.3  iclouddrive=8.1  claude=3.6  dwm=3.0  system=2.3  taskmgr=0.9
+18:01:14  chrome=33.6  iclouddrive=7.9  claude=3.3  dwm=3.2  system=2.5  taskmgr=0.7
+18:01:19  chrome=34.7  iclouddrive=8.1  claude=3.8  dwm=3.1  system=3.1  antigravity ide=0.9
+18:01:24  chrome=32.8  iclouddrive=8.1  claude=3.6  dwm=3.0  system=2.7  wmiprvse=1.8
+18:01:29  chrome=33.2  iclouddrive=8.2  claude=3.8  dwm=3.3  system=2.2  taskmgr=0.8
+18:01:34  chrome=33.2  iclouddrive=8.3  claude=3.9  dwm=3.0  system=2.6  taskmgr=0.9
+18:01:39  chrome=33.4  iclouddrive=8.1  claude=3.9  system=3.0  dwm=3.0  chatgpt=1.8
+18:01:44  chrome=33.3  iclouddrive=8.2  claude=3.2  dwm=3.1  system=2.2  taskmgr=0.9
+18:01:49  chrome=32.7  iclouddrive=8.2  claude=4.3  system=3.6  dwm=3.2  msmpeng=1.0
+18:01:55  chrome=32.8  iclouddrive=8.0  claude=3.6  dwm=3.2  system=2.2  taskmgr=0.6
+18:02:00  chrome=33.4  iclouddrive=8.0  claude=4.2  dwm=2.9  system=2.8  taskmgr=0.9
+18:02:05  chrome=33.2  iclouddrive=8.2  claude=3.5  dwm=3.2  system=1.8  taskmgr=0.8
+18:02:10  chrome=33.5  iclouddrive=8.1  claude=3.9  dwm=3.1  system=3.0  taskmgr=0.8
+18:02:15  chrome=33.4  iclouddrive=8.2  claude=3.6  dwm=3.0  system=2.5  taskmgr=0.8
+18:02:20  chrome=33.0  iclouddrive=8.1  system=3.9  claude=3.8  dwm=3.2  taskmgr=0.8
+18:02:25  chrome=33.6  iclouddrive=8.1  claude=3.6  dwm=3.1  system=2.2  taskmgr=0.8
+18:02:30  chrome=33.4  iclouddrive=8.2  claude=3.5  dwm=2.9  system=1.9  antigravity ide=1.2
+18:02:35  chrome=33.4  iclouddrive=8.1  claude=3.6  dwm=3.1  system=2.4  taskmgr=0.8
+18:02:41  chrome=33.4  iclouddrive=8.2  claude=3.7  dwm=3.1  system=2.6  taskmgr=0.9
+18:02:46  chrome=34.8  iclouddrive=8.1  claude=4.0  system=3.4  dwm=3.0  taskmgr=1.0
+18:02:51  chrome=33.2  iclouddrive=8.1  system=3.4  claude=3.2  dwm=3.1  taskmgr=0.9
+18:02:56  chrome=35.3  iclouddrive=8.2  dwm=3.2  claude=3.2  system=1.6  taskmgr=0.8
+18:03:01  chrome=33.5  iclouddrive=8.3  claude=3.3  dwm=3.0  system=2.1  taskmgr=0.6
+18:03:06  chrome=33.5  iclouddrive=8.2  claude=3.5  dwm=2.9  system=1.9  taskmgr=0.6
+18:03:11  chrome=33.9  iclouddrive=8.2  claude=3.6  system=3.5  dwm=3.0  taskmgr=0.8
+18:03:16  chrome=33.1  iclouddrive=8.1  claude=3.7  dwm=3.3  system=2.8  taskmgr=0.8
+18:03:22  chrome=33.1  iclouddrive=8.1  claude=3.4  system=3.0  dwm=3.0  taskmgr=0.9
+18:03:27  chrome=33.1  iclouddrive=7.8  claude=4.7  dwm=3.1  system=2.3  wmiprvse=1.6
+18:03:32  chrome=34.1  iclouddrive=8.1  claude=3.4  dwm=2.9  system=2.6  taskmgr=0.8
+18:03:37  chrome=33.0  iclouddrive=8.0  claude=3.6  dwm=3.1  system=2.6  taskmgr=0.7
+18:03:42  chrome=33.1  iclouddrive=8.0  claude=3.1  dwm=3.1  system=2.2  taskmgr=0.7
+18:03:47  chrome=32.9  iclouddrive=8.1  claude=4.0  system=3.8  dwm=3.3  taskmgr=0.8
+18:03:52  chrome=33.3  iclouddrive=8.1  claude=3.3  dwm=2.9  system=2.9  taskmgr=0.8
+18:03:57  chrome=33.8  iclouddrive=8.2  claude=3.7  dwm=2.9  system=2.7  taskmgr=0.8
+18:04:03  chrome=33.1  iclouddrive=8.1  claude=3.5  system=3.1  dwm=2.9  taskmgr=0.8
+18:04:08  chrome=33.1  iclouddrive=8.2  claude=4.1  dwm=2.9  system=2.4  taskmgr=0.7
+18:04:13  chrome=33.9  iclouddrive=8.1  claude=3.5  dwm=3.1  system=2.5  taskmgr=0.8
+18:04:18  chrome=33.7  iclouddrive=8.0  claude=4.0  dwm=2.9  system=2.4  msmpeng=0.9
+18:04:23  chrome=33.4  iclouddrive=8.2  claude=3.8  dwm=3.0  system=2.8  taskmgr=0.7
+18:04:28  chrome=33.3  iclouddrive=8.0  claude=3.8  dwm=3.1  system=2.0  taskmgr=0.9
+18:04:33  chrome=33.2  iclouddrive=8.2  claude=3.7  dwm=3.3  system=2.6  taskmgr=0.7
+18:04:38  chrome=33.1  iclouddrive=8.2  claude=3.7  dwm=3.3  system=2.5  taskmgr=0.8
+18:04:44  chrome=33.3  iclouddrive=8.1  claude=3.7  dwm=3.1  system=2.3  taskmgr=0.8
+18:04:49  chrome=32.8  iclouddrive=7.9  claude=5.3  dwm=3.4  system=2.0  msmpeng=1.6
+18:04:54  chrome=33.4  iclouddrive=8.0  claude=3.7  dwm=3.2  system=2.9  taskmgr=0.8
+18:04:59  chrome=33.0  iclouddrive=8.1  claude=3.6  dwm=3.2  system=2.5  taskmgr=0.9
+18:05:04  chrome=33.6  iclouddrive=8.2  claude=3.8  dwm=3.1  system=2.6  taskmgr=0.9
+18:05:09  chrome=32.4  iclouddrive=8.0  claude=5.5  dwm=3.5  system=3.2  svchost=2.2
+18:05:14  chrome=33.1  iclouddrive=7.9  claude=5.2  dwm=3.6  system=2.1  taskmgr=0.9
+18:05:19  chrome=32.9  iclouddrive=8.1  claude=7.4  dwm=3.3  system=1.9  msmpeng=0.7
+18:05:25  chrome=32.9  iclouddrive=7.9  claude=6.6  dwm=3.5  system=2.0  wmiprvse=0.9
+18:05:30  chrome=33.0  iclouddrive=7.9  claude=6.1  dwm=3.1  system=2.1  taskmgr=0.8
+18:05:35  chrome=33.1  iclouddrive=8.2  claude=6.4  dwm=3.6  system=1.8  taskmgr=0.8
+18:05:40  chrome=33.3  iclouddrive=8.1  claude=6.5  dwm=3.5  system=2.7  taskmgr=0.8
+18:05:45  chrome=33.6  iclouddrive=8.2  claude=5.3  dwm=3.2  system=2.1  grep=0.9
+18:05:50  chrome=34.4  iclouddrive=7.9  claude=5.7  dwm=3.4  system=2.5  msmpeng=1.1
+18:05:55  chrome=33.0  iclouddrive=8.0  claude=7.5  dwm=3.5  system=2.8  taskmgr=1.0
+18:06:00  chrome=33.0  iclouddrive=8.1  claude=3.4  dwm=2.7  system=2.3  taskmgr=0.9
+18:06:06  chrome=33.3  iclouddrive=8.1  claude=4.1  dwm=2.6  system=2.5  svchost=1.3
+18:06:11  chrome=33.9  iclouddrive=8.1  claude=6.8  dwm=3.5  system=2.7  svchost=0.9
+18:06:16  chrome=32.9  iclouddrive=8.0  claude=7.4  dwm=3.5  system=1.9  taskmgr=0.9
+18:06:21  chrome=32.7  iclouddrive=8.3  claude=7.6  dwm=3.2  system=2.3  msmpeng=1.0
+18:06:26  chrome=33.0  iclouddrive=8.0  claude=4.8  dwm=3.3  system=2.7  taskmgr=0.9
+18:06:31  chrome=33.4  iclouddrive=8.1  dwm=3.3  claude=3.0  taskmgr=2.8  system=2.4
+18:06:36  chrome=33.2  iclouddrive=8.0  claude=4.2  dwm=3.0  taskmgr=2.5  system=2.0
+18:06:42  chrome=33.3  claude=3.4  dwm=3.1  system=2.4  taskmgr=2.0  msmpeng=0.4
+18:06:47  chrome=32.9  claude=3.2  dwm=3.1  system=2.6  taskmgr=1.5  antigravity ide=0.3
+18:06:52  chrome=33.2  claude=3.4  dwm=3.2  system=2.2  taskmgr=1.8  chatgpt=0.2
+18:06:57  chrome=33.2  claude=3.3  system=2.8  dwm=2.6  taskmgr=2.2  chatgpt=0.2
+18:07:02  chrome=33.6  claude=3.9  dwm=3.1  taskmgr=2.4  system=2.4  svchost=0.5
+18:07:07  chrome=33.3  claude=3.4  dwm=3.2  taskmgr=2.2  system=2.1  svchost=0.4
+18:07:12  chrome=33.3  claude=4.2  dwm=2.7  system=1.5  taskmgr=1.3  antigravity ide=1.0
+18:07:17  chrome=32.9  claude=4.9  dwm=3.4  system=2.9  taskmgr=0.9  msmpeng=0.4
+18:07:22  chrome=33.9  claude=6.3  dwm=3.4  system=3.2  taskmgr=0.9  msmpeng=0.8
+18:07:28  chrome=33.2  antigravity ide=4.2  msmpeng=1.7  claude=1.4  system=1.2  dwm=1.1
+18:07:33  chrome=33.7  svchost=2.0  antigravity ide=1.7  taskmgr=0.9  system=0.7  memory compression=0.6
+18:07:38  chrome=33.8  system=1.3  taskmgr=0.9  antigravity ide=0.8  claude=0.6  msmpeng=0.3
+18:07:43  chrome=34.1  system=2.5  antigravity ide=2.2  taskmgr=1.1  claude=0.4  msmpeng=0.3
+18:07:48  chrome=33.6  antigravity ide=3.7  taskmgr=0.9  system=0.9  msmpeng=0.8  claude=0.6
+18:07:53  chrome=33.5  antigravity ide=3.3  system=1.2  taskmgr=0.8  claude=0.7  dwm=0.6
+18:07:58  chrome=33.7  antigravity ide=3.0  taskmgr=0.8  system=0.7  dwm=0.4  msmpeng=0.4
+18:08:03  chrome=34.6  antigravity ide=4.5  system=1.2  taskmgr=0.9  msmpeng=0.3  svchost=0.2
+18:08:08  chrome=33.3  antigravity ide=7.5  chatgpt=1.6  system=1.0  taskmgr=0.8  dwm=0.4
+18:08:14  chrome=33.3  antigravity ide=3.5  system=1.6  claude=1.2  taskmgr=0.8  msmpeng=0.3
+18:08:19  chrome=33.6  antigravity ide=3.8  system=1.7  claude=1.5  taskmgr=1.1  msmpeng=0.8
+18:08:24  chrome=33.5  antigravity ide=4.9  system=2.0  taskmgr=1.2  chatgpt=1.0  claude=0.8
+18:08:29  chrome=33.6  antigravity ide=4.5  system=1.0  taskmgr=0.8  msmpeng=0.6  claude=0.5
+18:08:34  chrome=33.5  system=0.9  taskmgr=0.8  antigravity ide=0.8  claude=0.6  msmpeng=0.3
+18:08:39  chrome=33.2  antigravity ide=5.3  system=1.5  taskmgr=0.8  msmpeng=0.5  claude=0.4
+18:08:44  chrome=34.3  antigravity ide=2.3  taskmgr=0.8  system=0.7  msmpeng=0.7  claude=0.3
+18:08:49  chrome=33.1  antigravity ide=7.3  system=1.4  taskmgr=0.9  dwm=0.5  msmpeng=0.4
+18:08:54  antigravity ide=3.5  system=1.6  taskmgr=0.9  msmpeng=0.6  chrome=0.5  claude=0.4
+18:08:59  chrome=6.6  msmpeng=1.9  antigravity ide=1.5  system=1.3  taskmgr=0.7  svchost=0.4
+18:09:05  chrome=33.4  antigravity ide=8.3  system=2.0  taskmgr=0.9  dwm=0.7  msmpeng=0.4
+18:09:10  chrome=34.6  claude=6.1  system=3.4  dwm=2.9  msmpeng=1.7  antigravity ide=1.0
+18:09:15  chrome=34.9  dwm=3.2  system=3.0  claude=2.9  taskmgr=1.0  msmpeng=1.0
+18:09:20  chrome=32.9  claude=6.1  dwm=3.3  system=2.4  taskmgr=1.1  chatgpt=0.3
+18:09:25  chrome=33.2  system=3.9  dwm=3.2  claude=3.1  taskmgr=1.0  wmiprvse=0.9
+18:09:30  chrome=38.4  dwm=1.9  system=1.8  claude=1.3  taskmgr=1.1  msmpeng=0.5
+18:09:35  chrome=1,008.9  system=1.1  taskmgr=0.9  stsess=0.6  msmpeng=0.4  dwm=0.4
+18:09:40  chrome=797.4  system=1.0  taskmgr=0.8  dwm=0.4  stsess=0.2  msmpeng=0.2
+18:09:45  chrome=37.3  system=1.6  taskmgr=1.0  dwm=0.8  msmpeng=0.6  antigravity ide=0.5
+18:09:50  chrome=35.8  taskmgr=1.0  antigravity ide=1.0  system=0.6  dwm=0.4  msmpeng=0.3
+18:09:56  chrome=36.8  system=1.3  taskmgr=0.8  stsess=0.4  dwm=0.4  claude=0.3
+18:10:01  chrome=35.3  taskmgr=1.0  system=1.0  msmpeng=0.4  stsess=0.3  claude=0.2
+18:10:06  chrome=33.8  system=1.5  taskmgr=1.2  msmpeng=0.4  antigravity ide=0.2  claude=0.1
+18:10:11  chrome=35.1  system=0.8  taskmgr=0.8  dwm=0.3  msmpeng=0.3  svchost=0.2
+18:10:16  chrome=35.8  system=2.0  taskmgr=0.9  msmpeng=0.6  svchost=0.5  dwm=0.4
+18:10:21  chrome=33.5  system=1.4  taskmgr=1.2  msmpeng=0.3  antigravity ide=0.2  chatgpt=0.2
+18:10:26  chrome=34.0  system=2.1  taskmgr=1.0  antigravity ide=0.3  dwm=0.3  msmpeng=0.2
+18:10:31  chrome=35.3  taskmgr=1.0  system=0.9  msmpeng=0.4  antigravity ide=0.3  svchost=0.2
+18:10:36  chrome=35.7  claude=0.9  system=0.8  taskmgr=0.7  msmpeng=0.4  svchost=0.2
+18:10:41  chrome=35.0  system=0.9  taskmgr=0.8  antigravity ide=0.6  claude=0.4  svchost=0.3
+18:10:47  chrome=36.4  system=1.3  taskmgr=0.8  msmpeng=0.3  antigravity ide=0.3  svchost=0.3
+18:10:52  chrome=36.1  claude=2.8  system=2.1  dwm=1.8  msmpeng=1.2  antigravity ide=0.9
+18:10:57  chrome=33.5  dwm=3.0  claude=2.7  system=2.5  taskmgr=1.0  msmpeng=0.6
+18:11:02  chrome=34.3  dwm=3.1  claude=2.7  system=2.3  taskmgr=1.0  antigravity ide=0.5
+18:11:07  chrome=33.0  claude=3.4  dwm=3.1  system=2.6  taskmgr=1.0  svchost=0.7
+18:11:12  chrome=33.4  dwm=2.9  claude=2.2  system=1.7  taskmgr=1.0  svchost=0.3
+18:11:17  chrome=33.8  dwm=3.0  system=2.5  claude=2.3  taskmgr=0.8  msmpeng=0.4
+18:11:22  chrome=33.2  dwm=2.9  claude=2.5  system=2.0  msmpeng=1.0  taskmgr=0.9
+18:11:27  chrome=33.2  system=3.8  dwm=2.9  claude=2.6  taskmgr=0.8  msmpeng=0.6
+18:11:33  chrome=33.4  dwm=2.9  claude=2.2  system=1.9  taskmgr=0.8  msmpeng=0.3
+18:11:38  chrome=33.3  dwm=3.0  claude=2.6  system=2.6  taskmgr=1.0  msmpeng=0.3
+18:11:43  chrome=33.4  dwm=2.9  system=2.4  claude=2.3  taskmgr=0.8  antigravity ide=0.7
+18:11:48  chrome=33.2  dwm=3.0  system=2.6  claude=2.3  taskmgr=0.9  msmpeng=0.4
+18:11:53  chrome=33.1  dwm=2.9  claude=2.7  system=2.0  antigravity ide=1.1  taskmgr=1.0
+18:11:58  chrome=33.4  system=3.4  dwm=3.0  claude=2.5  taskmgr=0.9  msmpeng=0.4
+18:12:03  chrome=34.5  dwm=2.9  system=2.6  claude=2.4  taskmgr=0.9  antigravity ide=0.3
+18:12:08  chrome=33.2  dwm=2.9  system=2.3  claude=2.2  taskmgr=1.0  svchost=0.5
+18:12:13  chrome=33.3  dwm=3.1  claude=2.4  system=1.8  taskmgr=0.6  msmpeng=0.4
+18:12:19  chrome=33.1  dwm=3.2  system=2.7  claude=2.0  taskmgr=0.9  antigravity ide=0.4
+18:12:24  chrome=33.6  dwm=2.9  claude=2.6  system=2.2  taskmgr=0.9  msmpeng=0.5
+18:12:29  chrome=33.5  system=3.1  dwm=2.7  claude=2.3  taskmgr=0.6  msmpeng=0.4
+18:12:34  chrome=32.9  dwm=2.7  system=2.5  claude=2.2  memory compression=1.1  taskmgr=0.9
+18:12:39  chrome=33.0  system=3.2  dwm=2.9  claude=2.0  taskmgr=0.9  antigravity ide=0.3
+18:12:44  chrome=33.2  dwm=3.0  claude=2.6  system=2.2  taskmgr=0.7  antigravity ide=0.4
+18:12:49  chrome=34.0  dwm=3.2  system=2.8  claude=2.6  antigravity ide=1.1  taskmgr=0.9
+18:12:54  chrome=33.1  dwm=3.0  claude=2.2  system=2.1  taskmgr=0.9  msmpeng=0.3
+18:12:59  chrome=33.2  dwm=2.7  system=2.5  claude=2.3  taskmgr=0.8  msmpeng=0.5
+18:13:05  chrome=32.9  dwm=3.0  claude=2.3  system=1.8  taskmgr=1.1  msmpeng=0.2
+18:13:10  chrome=33.3  dwm=3.0  claude=2.1  system=2.1  taskmgr=0.8  msmpeng=0.3
+18:13:15  chrome=2,433.3  dwm=3.0  claude=2.6  system=2.4  taskmgr=0.8  msmpeng=0.5
+18:13:20  chrome=2,470.7  system=3.1  dwm=2.9  claude=2.7  taskmgr=0.9  msmpeng=0.8
+18:13:25  chrome=33.1  dwm=2.8  claude=2.6  system=2.1  taskmgr=0.8  antigravity ide=0.5
+18:13:30  chrome=33.1  system=3.4  dwm=2.8  claude=2.3  taskmgr=0.8  msmpeng=0.3
+18:13:35  chrome=34.4  claude=2.8  dwm=2.8  system=1.8  taskmgr=0.9  antigravity ide=0.6
+18:13:40  chrome=34.2  dwm=2.9  claude=2.8  system=2.2  taskmgr=1.0  grep=0.5
+18:13:45  chrome=33.4  dwm=3.1  system=2.6  claude=2.5  taskmgr=0.8  msmpeng=0.5
+18:13:51  chrome=32.6  dwm=2.9  claude=2.8  system=2.5  antigravity ide=1.9  msmpeng=1.6
+18:13:56  chrome=33.5  dwm=3.1  claude=2.5  system=2.2  taskmgr=0.9  msmpeng=0.2
+18:14:01  chrome=33.7  dwm=3.3  system=2.4  claude=2.4  taskmgr=1.0  msmpeng=0.6
+18:14:06  chrome=33.0  dwm=3.1  system=2.3  claude=2.3  taskmgr=0.7  msmpeng=0.4
+18:14:11  chrome=33.5  dwm=3.1  claude=2.5  system=2.3  taskmgr=1.1  antigravity ide=0.8
+18:14:16  chrome=32.9  dwm=2.9  claude=2.5  system=2.1  taskmgr=0.9  antigravity ide=0.6
+18:14:21  chrome=33.8  dwm=3.1  claude=2.5  system=2.5  taskmgr=1.0  msmpeng=0.6
+18:14:26  chrome=2,181.8  dwm=3.1  system=2.4  claude=1.9  taskmgr=1.0  antigravity ide=0.5
+18:14:31  chrome=33.4  dwm=3.1  system=2.7  claude=2.5  taskmgr=0.9  msmpeng=0.4
+18:14:36  chrome=33.2  dwm=2.9  claude=2.3  system=1.6  taskmgr=0.8  msmpeng=0.5
+18:14:42  chrome=33.1  dwm=3.2  system=2.5  claude=2.3  taskmgr=0.8  antigravity ide=0.4
+18:14:47  chrome=33.8  dwm=3.1  claude=2.2  system=2.0  taskmgr=0.9  antigravity ide=0.3
+18:14:52  chrome=32.8  dwm=3.2  claude=2.4  system=2.3  antigravity ide=1.2  taskmgr=0.8
+18:14:57  chrome=33.2  dwm=3.0  claude=2.8  system=2.3  taskmgr=1.0  antigravity ide=0.5
+18:15:02  chrome=33.1  claude=3.3  dwm=3.0  system=2.7  taskmgr=0.7  msmpeng=0.3
+18:15:07  chrome=33.2  dwm=3.1  claude=2.7  system=1.7  taskmgr=0.9  svchost=0.4
+18:15:12  chrome=34.7  dwm=3.1  system=2.8  claude=2.5  taskmgr=0.6  antigravity ide=0.3
+18:15:17  chrome=33.0  dwm=2.9  system=2.5  claude=2.0  taskmgr=0.8  msmpeng=0.6
+18:15:22  chrome=33.4  dwm=2.9  claude=2.4  system=1.7  taskmgr=0.7  msmpeng=0.5
+18:15:27  chrome=33.3  system=3.5  dwm=2.9  claude=2.4  taskmgr=0.8  msmpeng=0.5
+18:15:33  chrome=33.3  dwm=3.0  system=2.7  claude=2.5  taskmgr=0.8  msmpeng=0.4
+18:15:38  chrome=33.6  dwm=2.9  claude=2.2  system=1.9  taskmgr=0.9  msmpeng=0.3
+18:15:43  chrome=33.3  dwm=2.9  claude=2.0  system=1.9  taskmgr=0.9  antigravity ide=0.3
+18:15:48  chrome=33.0  dwm=3.2  claude=2.2  system=2.0  taskmgr=0.8  msmpeng=0.3
+18:15:53  chrome=33.2  dwm=3.2  claude=2.5  system=1.7  taskmgr=0.9  msmpeng=0.7
+18:15:58  chrome=33.3  dwm=3.0  system=2.7  claude=2.4  antigravity ide=1.0  taskmgr=0.8
+18:16:03  chrome=33.3  dwm=3.1  claude=2.6  system=2.2  steamwebhelper=0.9  taskmgr=0.8
+18:16:08  chrome=33.2  dwm=3.1  system=2.4  claude=2.2  svchost=0.9  taskmgr=0.8
+18:16:13  chrome=33.0  dwm=2.9  system=2.3  claude=2.3  taskmgr=0.9  antigravity ide=0.4
+18:16:19  chrome=33.0  system=3.1  dwm=3.0  claude=2.3  taskmgr=0.9  msmpeng=0.6
+18:16:24  chrome=33.9  dwm=3.1  claude=2.9  system=2.2  taskmgr=0.9  msmpeng=0.6
+18:16:29  chrome=33.1  dwm=2.9  system=2.4  claude=2.4  taskmgr=0.8  msmpeng=0.4
+18:16:34  chrome=33.0  dwm=3.1  claude=2.6  system=1.8  taskmgr=1.0  msmpeng=0.5
+18:16:39  chrome=32.8  dwm=3.0  claude=2.2  system=2.2  taskmgr=0.8  msmpeng=0.3
+18:16:44  chrome=33.4  dwm=3.1  system=2.9  claude=2.2  taskmgr=0.9  msmpeng=0.3
+18:16:49  chrome=34.5  claude=3.0  dwm=2.9  system=2.0  taskmgr=0.9  msmpeng=0.9
+18:16:54  chrome=33.4  dwm=3.0  claude=2.3  system=2.2  antigravity ide=1.3  taskmgr=1.0
+18:16:59  chrome=32.8  dwm=3.2  system=2.4  claude=2.2  taskmgr=0.9  msmpeng=0.5
+18:17:05  chrome=33.0  dwm=3.0  claude=2.6  system=2.1  taskmgr=0.8  antigravity ide=0.5
+18:17:10  chrome=33.4  dwm=3.1  claude=2.3  system=1.9  taskmgr=0.9  antigravity ide=0.7
+18:17:15  chrome=33.2  dwm=3.1  system=2.1  claude=2.0  taskmgr=0.9  msmpeng=0.3
+18:17:20  chrome=33.6  dwm=3.1  claude=2.9  system=2.1  taskmgr=0.8  msmpeng=0.5
+18:17:25  chrome=33.0  dwm=2.9  claude=2.5  system=1.8  taskmgr=0.7  antigravity ide=0.3
+18:17:30  chrome=33.1  dwm=3.0  system=2.8  claude=2.3  wmiprvse=1.4  svchost=1.2
+18:17:35  chrome=33.3  dwm=2.9  claude=2.4  system=2.3  taskmgr=0.8  svchost=0.4
+18:17:40  chrome=33.3  dwm=2.8  claude=2.2  system=1.8  taskmgr=0.8  msmpeng=0.5
+18:17:45  chrome=33.3  dwm=3.0  system=2.7  claude=2.4  taskmgr=0.7  memory compression=0.6
+18:17:51  chrome=32.9  dwm=3.1  system=2.7  claude=2.5  msmpeng=0.8  taskmgr=0.7
+18:17:56  chrome=33.7  dwm=2.7  system=2.5  claude=2.4  antigravity ide=0.9  taskmgr=0.8
+18:18:01  chrome=33.0  dwm=3.0  system=2.5  claude=2.3  taskmgr=0.7  msmpeng=0.5
+18:18:06  chrome=33.5  dwm=3.1  claude=3.0  system=2.8  taskmgr=0.8  msmpeng=0.4
+18:18:11  chrome=33.3  dwm=3.1  claude=2.4  system=2.2  explorer=1.4  taskmgr=0.8
+18:18:16  chrome=33.0  dwm=3.0  system=2.4  claude=2.2  taskmgr=0.8  msmpeng=0.3
+18:18:21  chrome=33.7  dwm=2.7  claude=2.5  system=2.5  taskmgr=0.9  msmpeng=0.7
+18:18:26  chrome=33.1  dwm=3.0  claude=2.2  system=2.0  taskmgr=1.0  antigravity ide=0.6
+18:18:31  chrome=33.5  dwm=3.1  claude=2.8  system=2.8  taskmgr=1.0  msmpeng=0.6
+18:18:36  chrome=33.0  claude=4.2  dwm=3.1  system=2.0  taskmgr=0.8  msmpeng=0.3
+18:18:42  chrome=33.4  claude=3.2  dwm=3.0  system=2.8  taskmgr=0.8  msmpeng=0.6
+18:18:47  chrome=33.1  dwm=3.1  claude=2.7  system=2.0  taskmgr=1.0  msmpeng=0.4
+18:18:52  chrome=33.2  claude=3.2  dwm=2.9  system=2.9  explorer=1.3  taskmgr=1.0
+18:18:57  chrome=33.2  dwm=3.0  system=2.6  claude=2.5  taskmgr=0.8  msmpeng=0.3
+18:19:02  chrome=33.4  dwm=2.9  system=2.5  claude=2.1  antigravity ide=1.2  taskmgr=0.9
+18:19:07  chrome=35.1  system=3.1  dwm=3.0  claude=2.7  taskmgr=0.8  msmpeng=0.6
+18:19:12  chrome=32.8  dwm=3.1  claude=2.6  system=2.4  taskmgr=0.9  msmpeng=0.3
+18:19:17  chrome=33.2  dwm=3.1  system=3.0  claude=2.4  taskmgr=0.9  msmpeng=0.4
+18:19:22  chrome=33.0  dwm=2.9  claude=2.6  system=2.3  taskmgr=0.9  msmpeng=0.6
+18:19:27  chrome=33.4  dwm=3.0  system=2.7  claude=2.4  taskmgr=0.8  msmpeng=0.5
+18:19:33  chrome=33.4  system=3.3  dwm=3.0  claude=2.6  wmiprvse=1.0  taskmgr=1.0
+18:19:38  chrome=32.6  dwm=3.3  claude=2.6  system=2.6  taskmgr=0.8  msmpeng=0.4
+18:19:43  chrome=33.3  dwm=2.8  system=2.7  claude=2.2  taskmgr=1.0  msmpeng=0.3
+18:19:48  chrome=33.0  dwm=3.1  claude=2.4  system=2.2  svchost=0.9  taskmgr=0.8
+18:19:53  chrome=33.7  dwm=2.9  system=2.9  claude=2.5  msmpeng=1.1  taskmgr=0.8
+18:19:58  chrome=33.4  dwm=2.9  system=2.6  claude=2.5  taskmgr=1.0  antigravity ide=0.8
+18:20:03  chrome=33.2  system=3.5  dwm=3.0  claude=2.6  antigravity ide=1.3  taskmgr=1.0
+18:20:08  chrome=32.7  dwm=3.2  claude=2.6  system=2.1  svchost=1.8  taskmgr=0.8
+18:20:13  chrome=33.8  dwm=3.0  claude=2.3  system=2.3  nvdisplay.container=1.1  taskmgr=0.9
+18:20:19  chrome=33.2  dwm=3.0  system=2.6  claude=2.4  taskmgr=0.9  svchost=0.6
+18:20:24  chrome=33.0  claude=3.7  dwm=3.2  system=2.2  msmpeng=0.9  taskmgr=0.8
+18:20:29  chrome=33.2  dwm=3.0  claude=2.9  system=1.8  taskmgr=0.8  msmpeng=0.3
+18:20:34  chrome=33.2  dwm=3.1  system=2.5  claude=2.2  taskmgr=0.9  msmpeng=0.3
+18:20:39  chrome=33.6  system=3.5  dwm=3.0  claude=2.7  taskmgr=0.8  msmpeng=0.7
+18:20:44  chrome=33.0  dwm=3.0  claude=2.7  system=2.7  taskmgr=0.9  msmpeng=0.8
+18:20:49  chrome=33.3  system=3.4  dwm=3.1  claude=2.4  taskmgr=0.9  svchost=0.6
+18:20:54  chrome=33.2  claude=3.2  dwm=2.9  system=2.4  taskmgr=0.9  msmpeng=0.8
+18:20:59  chrome=8.7  system=4.1  dwm=2.7  claude=2.6  msmpeng=2.0  taskmgr=0.8
+18:21:05  chrome=36.0  dwm=3.0  claude=2.6  system=2.4  antigravity ide=1.1  taskmgr=0.8
+18:21:10  chrome=34.1  dwm=3.0  claude=2.6  system=2.5  svchost=1.0  taskmgr=0.9
+18:21:15  chrome=36.8  system=3.6  dwm=3.0  claude=2.6  msmpeng=0.9  taskmgr=0.6
+18:21:20  chrome=34.6  dwm=3.3  system=2.7  claude=2.5  taskmgr=0.7  msmpeng=0.6
+18:21:25  chrome=33.1  claude=3.1  dwm=3.1  system=2.5  msmpeng=1.1  taskmgr=1.0
+18:21:30  chrome=33.2  dwm=3.1  system=2.6  claude=2.5  notion=1.6  taskmgr=1.0
+18:21:35  chrome=33.4  dwm=3.1  system=2.7  claude=2.5  taskmgr=0.9  svchost=0.5
+18:21:40  chrome=34.0  dwm=2.9  claude=2.4  system=1.9  taskmgr=0.8  msmpeng=0.3
+18:21:46  chrome=33.5  dwm=3.1  claude=2.5  system=1.7  taskmgr=0.7  msmpeng=0.6
+18:21:51  chrome=33.1  dwm=3.1  claude=2.7  system=1.8  taskmgr=0.9  antigravity ide=0.2
+18:21:56  chrome=33.2  dwm=2.7  claude=2.7  system=2.1  taskmgr=0.8  msmpeng=0.7
+18:22:01  chrome=33.7  dwm=3.2  claude=2.5  system=2.4  taskmgr=1.1  antigravity ide=0.3
+18:22:06  chrome=33.3  system=3.1  dwm=3.0  claude=2.4  taskmgr=0.9  msmpeng=0.3
+18:22:11  chrome=34.0  dwm=3.3  claude=2.3  system=2.1  taskmgr=0.9  antigravity ide=0.8
+18:22:16  chrome=33.3  dwm=3.0  claude=2.4  system=2.0  taskmgr=0.9  msmpeng=0.4
+18:22:21  chrome=34.3  dwm=2.9  claude=2.9  system=2.4  taskmgr=1.0  msmpeng=0.6
+18:22:26  chrome=33.2  dwm=3.0  claude=2.6  system=2.0  taskmgr=0.9  msmpeng=0.7
+18:22:32  chrome=33.1  dwm=2.9  system=2.7  claude=2.5  taskmgr=0.9  msmpeng=0.4
+18:22:37  chrome=33.4  dwm=3.1  system=2.6  claude=2.4  taskmgr=0.9  antigravity ide=0.3
+18:22:42  chrome=33.3  dwm=2.9  claude=2.7  system=2.3  antigravity ide=1.1  taskmgr=1.0
+18:22:47  chrome=34.0  claude=3.8  dwm=3.1  system=2.7  taskmgr=0.8  msmpeng=0.5
+18:22:52  chrome=33.1  dwm=3.0  claude=2.5  system=2.1  msmpeng=1.5  taskmgr=0.9
+18:22:57  chrome=33.3  dwm=3.1  claude=2.8  system=2.1  taskmgr=1.1  msmpeng=0.5
+18:23:02  chrome=33.4  dwm=2.9  claude=2.4  system=2.2  taskmgr=0.9  msmpeng=0.6
+18:23:07  chrome=33.2  system=3.2  dwm=2.7  claude=2.5  taskmgr=0.9  antigravity ide=0.7
+18:23:12  chrome=33.1  dwm=3.1  claude=2.5  system=2.5  taskmgr=0.9  msmpeng=0.5
+18:23:18  chrome=33.0  dwm=3.3  claude=2.3  system=2.2  taskmgr=0.9  msmpeng=0.5
+18:23:23  chrome=33.0  claude=3.0  dwm=2.9  system=2.2  taskmgr=0.8  msmpeng=0.6
+18:23:28  chrome=33.4  dwm=3.1  claude=2.5  system=2.4  taskmgr=1.0  msmpeng=0.3
+18:23:33  chrome=33.6  dwm=3.2  system=2.4  claude=2.3  taskmgr=0.8  msmpeng=0.4
+18:23:38  chrome=32.7  system=3.0  dwm=2.9  claude=2.7  taskmgr=0.9  antigravity ide=0.5
+18:23:43  chrome=33.2  dwm=2.8  claude=2.5  system=2.0  taskmgr=0.9  msmpeng=0.4
+18:23:48  chrome=33.2  dwm=3.2  system=2.5  claude=2.4  taskmgr=0.9  msmpeng=0.4
+18:23:53  chrome=33.7  dwm=3.1  claude=3.1  system=1.9  taskmgr=0.8  msmpeng=0.7
+18:23:58  chrome=33.2  dwm=3.2  system=2.9  claude=2.3  msmpeng=0.7  taskmgr=0.7
+18:24:03  chrome=32.9  dwm=2.9  claude=2.4  system=2.3  taskmgr=0.8  msmpeng=0.4
+18:24:09  chrome=33.1  system=3.2  dwm=3.1  claude=2.6  antigravity ide=1.3  taskmgr=0.9
+18:24:14  chrome=33.5  dwm=3.1  claude=2.5  system=2.2  taskmgr=0.9  msmpeng=0.5
+18:24:19  chrome=33.2  dwm=3.0  claude=2.5  system=2.5  taskmgr=0.9  antigravity ide=0.4
+18:24:24  chrome=33.3  dwm=2.9  claude=2.7  system=1.9  taskmgr=0.9  msmpeng=0.4
+18:24:29  chrome=32.9  dwm=3.1  claude=2.7  system=2.2  taskmgr=0.6  antigravity ide=0.3
+18:24:34  chrome=33.1  dwm=3.1  system=2.9  claude=2.5  taskmgr=0.9  antigravity ide=0.4
+18:24:39  chrome=33.4  system=5.4  dwm=3.1  claude=2.6  taskmgr=1.0  svchost=0.3
+18:24:44  chrome=33.2  dwm=3.2  claude=2.7  system=2.2  taskmgr=0.8  msmpeng=0.6
+18:24:49  chrome=33.0  dwm=3.1  system=2.2  claude=2.2  taskmgr=0.8  msmpeng=0.5
+18:24:54  chrome=33.4  dwm=3.3  claude=2.6  system=2.2  taskmgr=1.0  msmpeng=0.8
+18:25:00  chrome=34.2  dwm=3.1  claude=2.5  system=2.1  taskmgr=0.8  antigravity ide=0.3
+18:25:05  chrome=33.2  claude=3.5  dwm=2.8  system=2.7  taskmgr=0.8  msmpeng=0.3
+18:25:10  chrome=33.2  system=3.1  dwm=3.0  claude=2.7  antigravity ide=1.1  taskmgr=0.9
+18:25:15  chrome=33.2  dwm=2.9  claude=2.6  system=2.5  taskmgr=0.9  msmpeng=0.5
+18:25:20  chrome=33.4  dwm=2.8  claude=2.7  system=2.3  taskmgr=1.0  antigravity ide=0.5
+18:25:25  chrome=33.4  dwm=3.0  claude=2.6  system=2.3  taskmgr=0.9  msmpeng=0.5
+18:25:30  chrome=33.3  dwm=3.0  claude=2.8  system=2.5  wmiprvse=1.5  taskmgr=1.0
+18:25:35  chrome=33.1  dwm=3.2  system=3.0  claude=2.6  taskmgr=0.8  msmpeng=0.3
+18:25:40  chrome=33.2  dwm=3.0  claude=2.7  system=2.6  msmpeng=2.1  taskmgr=1.0
+18:25:46  chrome=33.5  msmpeng=3.7  dwm=3.4  claude=2.6  system=2.1  taskmgr=0.7
+18:25:51  chrome=33.4  dwm=3.2  msmpeng=3.1  system=2.7  claude=2.5  taskmgr=0.8
+18:25:56  chrome=33.0  dwm=3.1  claude=2.5  system=2.3  msmpeng=1.7  taskmgr=0.7
+18:26:01  chrome=33.2  dwm=3.1  system=2.4  claude=2.3  taskmgr=0.8  msmpeng=0.5
+18:26:06  chrome=33.5  system=3.3  dwm=3.0  claude=2.7  taskmgr=1.0  svchost=0.6
+18:26:11  chrome=33.8  dwm=3.4  claude=2.6  system=2.1  taskmgr=0.8  msmpeng=0.4
+18:26:16  chrome=33.1  dwm=3.1  claude=2.5  system=2.1  taskmgr=1.1  antigravity ide=0.9
+18:26:21  chrome=33.1  dwm=3.1  system=2.5  claude=2.2  taskmgr=0.8  msmpeng=0.4
+18:26:26  chrome=33.4  dwm=3.0  claude=2.9  system=2.2  taskmgr=0.9  msmpeng=0.6
+18:26:32  chrome=33.8  dwm=3.3  system=3.0  claude=2.4  taskmgr=1.0  msmpeng=0.5
+18:26:37  chrome=33.3  system=3.1  dwm=2.8  claude=2.1  taskmgr=0.9  msmpeng=0.3
+18:26:42  chrome=33.4  dwm=3.0  claude=2.3  system=1.8  taskmgr=0.7  antigravity ide=0.3
+18:26:47  system=4.3  msmpeng=2.9  dwm=2.7  claude=2.4  taskmgr=0.9  svchost=0.6
+18:26:52  chrome=36.0  system=4.3  dwm=3.2  claude=2.6  taskmgr=0.8  msmpeng=0.4
+18:26:57  chrome=35.6  claude=3.1  dwm=2.9  system=2.6  taskmgr=0.9  msmpeng=0.7
+18:27:02  chrome=35.3  dwm=3.0  system=2.8  claude=2.5  taskmgr=1.0  msmpeng=0.8
+18:27:07  chrome=33.9  dwm=3.0  system=2.9  claude=2.5  taskmgr=0.9  msmpeng=0.5
+18:27:13  chrome=33.3  dwm=2.9  claude=2.5  system=1.8  taskmgr=0.7  msmpeng=0.5
+18:27:18  chrome=33.7  dwm=3.0  claude=2.8  system=2.8  antigravity ide=1.1  taskmgr=1.0
+18:27:23  chrome=33.2  dwm=3.2  system=2.9  claude=2.4  taskmgr=0.6  msmpeng=0.4
+18:27:28  chrome=33.0  claude=3.8  dwm=3.2  system=2.1  taskmgr=0.9  msmpeng=0.3
+18:27:33  chrome=33.4  claude=3.1  dwm=2.8  system=2.4  taskmgr=0.9  msmpeng=0.3
+18:27:38  chrome=33.1  dwm=3.2  system=2.6  claude=2.3  bash=0.9  taskmgr=0.9
+18:27:43  chrome=34.0  dwm=2.9  claude=2.6  system=2.6  taskmgr=0.9  msmpeng=0.4
+18:27:48  chrome=33.2  dwm=3.1  claude=2.4  system=2.3  taskmgr=0.6  msmpeng=0.5
+18:27:53  chrome=33.2  dwm=3.1  claude=2.5  system=1.8  taskmgr=0.8  msmpeng=0.7
+18:27:59  chrome=34.0  dwm=3.2  claude=2.4  system=1.9  taskmgr=0.8  msmpeng=0.4
+18:28:04  chrome=33.1  dwm=2.7  system=2.6  claude=2.5  taskmgr=0.9  svchost=0.4
+18:28:09  chrome=33.5  system=3.1  dwm=3.0  claude=2.3  taskmgr=1.0  msmpeng=0.3
+18:28:14  chrome=33.1  dwm=2.7  claude=2.1  system=2.0  taskmgr=0.8  msmpeng=0.5
+18:28:19  chrome=33.0  dwm=3.0  claude=2.7  system=2.2  antigravity ide=1.0  taskmgr=0.8
+18:28:24  chrome=33.6  dwm=3.1  claude=2.6  system=2.1  taskmgr=0.9  msmpeng=0.6
+18:28:29  chrome=33.5  dwm=3.0  claude=2.5  system=2.3  explorer=1.0  taskmgr=0.9
+18:28:34  chrome=33.0  dwm=2.9  claude=2.4  system=2.0  taskmgr=0.8  chatgpt=0.4
+18:28:39  chrome=33.2  dwm=2.9  system=2.9  claude=2.4  explorer=1.1  taskmgr=0.9
+18:28:44  chrome=33.6  claude=3.4  dwm=3.0  system=2.7  taskmgr=0.9  chatgpt=0.7
+18:28:50  chrome=33.3  claude=3.5  dwm=3.0  system=2.8  chatgpt=1.6  taskmgr=0.8
+18:28:55  chrome=32.8  claude=5.3  dwm=3.0  system=2.2  msmpeng=1.2  taskmgr=0.9
+18:29:00  chrome=34.6  system=3.1  dwm=3.0  claude=2.9  taskmgr=0.8  msmpeng=0.6
+18:29:05  chrome=33.0  dwm=3.0  claude=2.6  system=2.5  taskmgr=0.8  svchost=0.7
+18:29:10  chrome=33.2  dwm=3.0  system=3.0  claude=2.4  taskmgr=0.8  msmpeng=0.6
+18:29:15  chrome=33.5  dwm=2.9  claude=2.8  system=2.7  antigravity ide=1.1  taskmgr=0.9
+18:29:20  chrome=33.4  dwm=3.0  system=2.8  claude=2.4  taskmgr=0.9  svchost=0.9
+18:29:25  chrome=32.8  claude=3.0  dwm=2.9  explorer=2.3  system=2.2  msmpeng=1.6
+18:29:31  chrome=33.2  dwm=3.0  claude=2.7  system=2.4  taskmgr=0.9  msmpeng=0.4
+18:29:36  chrome=33.5  dwm=2.9  claude=2.6  system=2.6  taskmgr=0.9  chatgpt=0.3
+18:29:41  chrome=33.3  dwm=2.9  claude=2.5  system=2.5  taskmgr=0.9  msmpeng=0.5
+18:29:46  chrome=33.4  system=3.3  dwm=3.0  claude=2.5  taskmgr=0.8  msmpeng=0.5
+18:29:51  chrome=32.8  system=3.5  dwm=3.0  claude=2.6  taskmgr=0.9  antigravity ide=0.3
+18:29:56  chrome=33.2  claude=3.0  dwm=2.8  system=2.7  msmpeng=1.0  taskmgr=1.0
+18:30:01  chrome=33.5  dwm=3.1  system=2.6  claude=2.5  taskmgr=0.8  msmpeng=0.5
+18:30:06  chrome=33.2  dwm=3.0  claude=2.3  system=2.1  taskmgr=0.7  svchost=0.3
+18:30:11  chrome=33.4  dwm=3.0  claude=2.6  system=2.5  taskmgr=0.8  msmpeng=0.4
+18:30:17  chrome=32.8  dwm=3.0  system=2.2  claude=2.2  svchost=1.0  antigravity ide=0.8
+18:30:22  chrome=33.2  dwm=2.9  system=2.9  claude=2.5  svchost=1.0  taskmgr=0.9
+18:30:27  chrome=33.5  dwm=3.2  claude=3.0  msmpeng=2.9  system=2.6  taskmgr=1.0
+18:30:32  chrome=32.6  msmpeng=9.7  system=4.0  dwm=3.0  claude=3.0  svchost=1.6
+18:30:37  chrome=33.4  msmpeng=8.6  dwm=3.1  claude=2.5  system=1.9  taskmgr=0.9
+18:30:42  chrome=33.6  msmpeng=8.5  system=5.0  claude=3.2  dwm=3.0  taskmgr=1.1
+18:30:47  chrome=33.3  msmpeng=5.7  dwm=2.7  system=2.6  claude=2.6  taskmgr=0.8
+18:30:52  chrome=33.8  claude=3.6  explorer=3.5  svchost=2.6  system=1.0  taskmgr=0.8
+18:30:57  chrome=33.4  system=1.3  msmpeng=1.0  svchost=0.6  claude=0.4  taskmgr=0.4
+18:31:03  chrome=33.7  system=1.1  msmpeng=0.6  antigravity ide=0.5  svchost=0.4  claude=0.3
+18:31:08  chrome=33.9  system=1.1  svchost=1.0  msmpeng=0.4  gamingservices=0.2  antigravity ide=0.2
+18:31:13  chrome=34.2  system=1.3  antigravity ide=0.3  svchost=0.2  chatgpt=0.2  claude=0.1
+18:31:18  chrome=33.5  system=1.3  msmpeng=0.3  claude=0.2  taskmgr=0.2  chatgpt=0.2
+18:31:23  chrome=33.6  system=1.0  antigravity ide=0.8  nvcontainer=0.4  claude=0.3  svchost=0.2
+18:31:28  chrome=33.9  system=1.1  claude=0.5  msmpeng=0.5  antigravity ide=0.2  taskmgr=0.2
+18:31:33  chrome=33.6  system=1.1  wmiprvse=0.5  msmpeng=0.3  antigravity ide=0.2  svchost=0.2
+18:31:38  chrome=33.4  system=1.4  claude=0.4  antigravity ide=0.4  msmpeng=0.3  svchost=0.2
+18:31:43  chrome=33.5  system=2.2  msmpeng=0.4  claude=0.2  grep=0.2  antigravity ide=0.2
+18:31:48  chrome=33.8  system=1.3  msmpeng=0.4  taskmgr=0.2  antigravity ide=0.2  claude=0.2
+18:31:53  chrome=33.6  system=1.2  msmpeng=1.0  claude=0.5  antigravity ide=0.3  chatgpt=0.2
+18:31:59  chrome=33.6  system=1.4  msmpeng=1.1  chatgpt=0.3  claude=0.2  antigravity ide=0.2
+18:32:04  chrome=33.3  system=0.8  msmpeng=0.5  svchost=0.4  antigravity ide=0.2  audiodg=0.2
+18:32:09  chrome=33.6  system=1.6  msmpeng=0.5  antigravity ide=0.5  claude=0.4  taskmgr=0.3
+18:32:14  chrome=33.5  system=1.9  msmpeng=0.3  grep=0.2  claude=0.2  antigravity ide=0.2
+18:32:19  chrome=33.8  system=0.9  msmpeng=0.4  svchost=0.2  antigravity ide=0.2  taskmgr=0.2
+18:32:24  chrome=33.5  antigravity ide=1.0  system=1.0  taskmgr=0.3  claude=0.2  svchost=0.2
+18:32:29  chrome=33.2  system=1.5  msmpeng=0.7  claude=0.4  taskmgr=0.3  audiodg=0.2
+18:32:34  chrome=33.3  system=1.2  msmpeng=0.4  antigravity ide=0.4  taskmgr=0.2  svchost=0.2
+18:32:39  chrome=34.2  system=0.9  msmpeng=0.5  antigravity ide=0.3  claude=0.2  chatgpt=0.2
+=== 18:32:44 webgpu 1.30 speed
+18:32:44  bash=3.3  system=2.3  msmpeng=1.3  svchost=0.4  antigravity ide=0.3  chatgpt=0.2
+18:32:49  chrome=15.3  msmpeng=1.5  system=1.3  bash=1.1  stsess=0.3  svchost=0.3
+18:32:55  chrome=7.1  explorer=4.9  svchost=4.6  system=3.8  claude=3.5  dwm=1.5
+18:33:00  chrome=8.9  claude=6.9  system=3.7  dwm=2.8  msmpeng=1.4  bash=1.2
+18:33:05  chrome=7.9  system=4.3  claude=4.2  dwm=2.6  taskmgr=0.9  msmpeng=0.7
+18:33:10  chrome=5.0  claude=4.2  system=2.8  dwm=2.2  taskmgr=0.9  msmpeng=0.5
+18:33:15  chrome=5.9  system=3.0  claude=2.0  antigravity ide=1.8  dwm=1.7  taskmgr=0.7
+18:33:20  chrome=6.7  antigravity ide=4.9  system=1.5  taskmgr=0.8  memory compression=0.5  dwm=0.4
+18:33:25  system=1.9  msmpeng=1.2  antigravity ide=1.2  taskmgr=0.8  chrome=0.7  stsess=0.4
+18:33:30  chrome=15.5  antigravity ide=4.7  system=2.5  msmpeng=1.3  claude=1.1  taskmgr=0.8
+18:33:35  chrome=7.5  antigravity ide=7.5  system=1.9  wmiprvse=1.1  msmpeng=1.1  taskmgr=0.9
+18:33:41  chrome=9.8  antigravity ide=5.5  system=3.9  msmpeng=1.4  taskmgr=0.9  dwm=0.5
+18:33:46  chrome=8.7  antigravity ide=3.1  system=2.8  claude=1.0  taskmgr=0.5  msmpeng=0.5
+18:33:51  chrome=10.8  system=2.1  dwm=1.1  antigravity ide=0.9  claude=0.8  taskmgr=0.8
+18:33:56  chrome=12.3  system=1.9  claude=1.5  msmpeng=0.6  dwm=0.5  taskmgr=0.5
+18:34:01  chrome=5.1  system=1.9  claude=1.1  dwm=0.9  taskmgr=0.8  msmpeng=0.6
+18:34:06  msmpeng=2.1  system=1.7  chrome=1.5  taskmgr=0.9  svchost=0.7  stsess=0.4
+18:34:11  chrome=12.7  system=3.0  claude=1.3  taskmgr=0.8  msmpeng=0.7  antigravity ide=0.6
+18:34:16  chrome=6.4  system=2.2  dwm=1.2  msmpeng=1.1  taskmgr=0.7  claude=0.6
+18:34:21  chrome=14.4  system=3.1  claude=1.2  taskmgr=0.8  stsess=0.5  dwm=0.5
+18:34:27  chrome=7.0  system=1.5  taskmgr=0.9  dwm=0.5  claude=0.4  msmpeng=0.4
+18:34:32  chrome=7.0  system=1.4  taskmgr=0.8  antigravity ide=0.6  msmpeng=0.5  claude=0.4
+18:34:37  chrome=10.7  system=1.3  taskmgr=0.9  dwm=0.8  claude=0.6  msmpeng=0.3
+18:34:42  chrome=48.8  system=1.7  dwm=0.9  taskmgr=0.8  claude=0.3  antigravity ide=0.3
+18:34:47  chrome=11.1  system=1.4  taskmgr=0.6  msmpeng=0.3  antigravity ide=0.2  claude=0.2
+18:34:52  chrome=7.0  system=1.5  antigravity ide=0.8  taskmgr=0.5  claude=0.2  msmpeng=0.1
+18:34:57  chrome=55.1  msmpeng=1.2  system=1.2  taskmgr=0.8  dwm=0.7  claude=0.6
+18:35:02  chrome=6.5  system=1.2  taskmgr=0.7  antigravity ide=0.4  msmpeng=0.4  claude=0.4
+18:35:07  chrome=6.9  system=1.2  antigravity ide=0.9  taskmgr=0.8  mpdefendercoreservice=0.3  msmpeng=0.3
+18:35:12  chrome=5.9  system=1.2  taskmgr=0.7  msmpeng=0.4  claude=0.2  grep=0.1
+18:35:17  chrome=81.5  system=2.2  taskmgr=0.6  msmpeng=0.3  svchost=0.3  claude=0.3
+18:35:23  chrome=7.0  system=1.0  taskmgr=0.8  msmpeng=0.3  antigravity ide=0.2  dwm=0.2
+18:35:28  chrome=6.6  system=1.2  antigravity ide=0.9  taskmgr=0.6  chatgpt=0.5  claude=0.4
+18:35:33  chrome=6.4  wmiprvse=1.2  system=1.1  taskmgr=0.8  msmpeng=0.5  svchost=0.4
+18:35:38  chrome=7.2  system=1.6  taskmgr=0.6  msmpeng=0.3  dwm=0.2  chatgpt=0.2
+18:35:43  chrome=7.4  antigravity ide=1.2  system=1.1  chatgpt=1.0  dwm=0.9  taskmgr=0.6
+18:35:48  chrome=5.0  chatgpt=3.1  system=2.2  explorer=1.2  svchost=1.1  dwm=0.8
+18:35:53  chrome=7.5  system=1.6  explorer=1.1  taskmgr=0.7  msmpeng=0.3  chatgpt=0.2
+18:35:58  chrome=6.1  system=1.6  antigravity ide=1.0  taskmgr=0.8  chatgpt=0.3  claude=0.2
+18:36:03  chrome=5.6  system=1.2  taskmgr=0.6  msmpeng=0.2  svchost=0.1  antigravity ide=0.1
+18:36:08  chrome=5.6  system=1.4  taskmgr=0.8  svchost=0.4  antigravity ide=0.4  gamingservices=0.3
+18:36:13  chrome=5.7  system=2.3  taskmgr=1.0  antigravity ide=0.2  chatgpt=0.2  msmpeng=0.2
+18:36:19  chrome=9.2  system=1.1  taskmgr=0.9  antigravity ide=0.8  claude=0.6  svchost=0.4
+18:36:24  chrome=7.4  system=1.3  taskmgr=0.8  claude=0.2  antigravity ide=0.2  dwm=0.2
+18:36:29  chrome=6.9  system=1.1  taskmgr=0.5  claude=0.3  antigravity ide=0.3  svchost=0.2
+18:36:34  chrome=5.1  system=1.2  taskmgr=0.6  audiodg=0.2  msmpeng=0.2  antigravity ide=0.2
+18:36:39  chrome=6.3  system=3.4  claude=1.9  dwm=1.5  msmpeng=0.9  antigravity ide=0.8
+18:36:44  chrome=4.6  system=3.2  dwm=2.7  claude=2.3  taskmgr=0.9  msmpeng=0.5
+18:36:49  chrome=6.0  system=1.0  taskmgr=0.6  dwm=0.4  msmpeng=0.2  claude=0.2
+18:36:54  chrome=6.4  system=2.2  taskmgr=0.7  antigravity ide=0.3  chatgpt=0.2  msmpeng=0.2
+18:36:59  chrome=6.2  system=0.9  antigravity ide=0.6  taskmgr=0.6  grep=0.3  msmpeng=0.2
+18:37:04  chrome=5.5  system=1.1  taskmgr=0.7  msmpeng=0.5  svchost=0.4  antigravity ide=0.4
+18:37:09  chrome=6.2  system=1.2  taskmgr=0.6  svchost=0.5  msmpeng=0.4  claude=0.2
+18:37:15  chrome=5.7  system=1.4  taskmgr=0.8  antigravity ide=0.3  msmpeng=0.3  claude=0.1
+18:37:20  chrome=5.5  antigravity ide=2.1  system=1.5  taskmgr=0.7  claude=0.2  msmpeng=0.2
+18:37:25  chrome=5.9  system=1.3  taskmgr=0.7  claude=0.2  nvcontainer=0.2  antigravity ide=0.2
+18:37:30  chrome=8.7  system=1.2  taskmgr=0.9  claude=0.5  msmpeng=0.4  antigravity ide=0.2
+18:37:35  chrome=165.5  system=0.9  taskmgr=0.9  wmiprvse=0.5  svchost=0.3  msmpeng=0.3
+18:37:40  chrome=6.9  antigravity ide=1.2  system=0.9  taskmgr=0.7  msmpeng=0.2  chatgpt=0.1
+18:37:45  chrome=6.9  system=1.6  taskmgr=0.8  msmpeng=0.4  claude=0.3  tail=0.2
+18:37:50  chrome=5.5  system=0.9  taskmgr=0.8  antigravity ide=0.3  msmpeng=0.3  chatgpt=0.2
+18:37:55  chrome=5.3  system=1.2  taskmgr=0.9  msmpeng=0.9  antigravity ide=0.5  svchost=0.3
+18:38:00  chrome=4.7  system=1.7  taskmgr=0.8  msmpeng=0.5  antigravity ide=0.5  claude=0.2
+18:38:06  chrome=5.8  system=1.4  taskmgr=0.5  msmpeng=0.4  svchost=0.3  antigravity ide=0.2
+18:38:11  chrome=192.9  system=2.5  taskmgr=0.7  msmpeng=0.2  chatgpt=0.2  antigravity ide=0.2
+18:38:16  chrome=6.1  system=1.5  chatgpt=1.1  taskmgr=0.8  dwm=0.4  msmpeng=0.3
+18:38:21  chrome=5.4  system=1.6  dwm=1.5  claude=1.2  taskmgr=0.8  antigravity ide=0.4
+18:38:26  chrome=5.5  system=1.2  taskmgr=0.7  antigravity ide=0.4  claude=0.3  msmpeng=0.2
+18:38:31  chrome=5.0  system=1.1  taskmgr=0.8  msmpeng=0.4  claude=0.4  antigravity ide=0.2
+18:38:36  chrome=5.3  system=1.7  taskmgr=0.8  antigravity ide=0.2  claude=0.2  dwm=0.1
+18:38:41  chrome=5.0  system=0.8  taskmgr=0.7  antigravity ide=0.6  msmpeng=0.2  claude=0.1
+18:38:46  chrome=5.4  system=1.2  taskmgr=0.8  audiodg=0.2  svchost=0.2  msmpeng=0.1
+18:38:51  chrome=5.5  system=0.8  taskmgr=0.6  claude=0.3  chatgpt=0.3  msmpeng=0.2
+18:38:56  chrome=5.4  system=1.0  taskmgr=0.9  msmpeng=0.3  claude=0.3  antigravity ide=0.2
+18:39:02  chrome=4.9  system=1.1  claude=1.0  antigravity ide=0.8  taskmgr=0.6  msmpeng=0.4
+18:39:07  chrome=6.7  system=1.3  taskmgr=0.7  antigravity ide=0.2  chatgpt=0.1  msmpeng=0.1
+18:39:12  chrome=5.7  claude=1.2  system=1.0  taskmgr=0.7  msmpeng=0.3  antigravity ide=0.2
+18:39:17  chrome=5.2  system=1.4  taskmgr=0.8  msmpeng=0.3  antigravity ide=0.2  claude=0.2
+18:39:22  chrome=5.4  system=1.0  taskmgr=1.0  antigravity ide=0.7  msmpeng=0.5  claude=0.3
+18:39:27  chrome=5.3  system=1.2  taskmgr=0.8  grep=0.4  claude=0.4  antigravity ide=0.4
+18:39:32  chrome=5.4  system=1.0  taskmgr=0.8  applephotostreams=0.4  svchost=0.3  icloudphotos=0.3
+18:39:37  chrome=5.6  system=1.0  taskmgr=0.8  msmpeng=0.3  claude=0.2  antigravity ide=0.2
+18:39:42  chrome=10.3  system=1.1  taskmgr=1.0  antigravity ide=0.9  dwm=0.3  claude=0.3
+18:39:47  chrome=7.5  msmpeng=2.2  system=2.1  taskmgr=0.8  svchost=0.4  stsess=0.4
+18:39:52  chrome=12.3  system=3.1  taskmgr=0.6  msmpeng=0.2  chatgpt=0.2  claude=0.2
+18:39:58  chrome=6.9  system=2.8  taskmgr=0.7  msmpeng=0.6  antigravity ide=0.3  svchost=0.3
+18:40:03  chrome=7.9  system=2.2  msmpeng=0.7  taskmgr=0.7  antigravity ide=0.5  grep=0.3
+18:40:08  chrome=5.6  system=1.3  taskmgr=0.9  msmpeng=0.6  antigravity ide=0.3  svchost=0.2
+18:40:13  chrome=36.3  system=1.2  taskmgr=0.9  msmpeng=0.3  svchost=0.2  claude=0.2
+18:40:18  chrome=5.2  system=1.6  taskmgr=0.7  msmpeng=0.4  antigravity ide=0.2  stsess32=0.2
+18:40:23  chrome=7.8  system=2.7  taskmgr=0.8  antigravity ide=0.8  msmpeng=0.5  claude=0.5
+18:40:28  chrome=6.6  system=1.0  taskmgr=0.8  antigravity ide=0.3  svchost=0.2  claude=0.1
+18:40:33  chrome=7.1  system=1.3  taskmgr=0.8  claude=0.4  svchost=0.3  msmpeng=0.2
+18:40:38  chrome=6.9  system=1.2  taskmgr=1.0  dwm=0.4  explorer=0.2  msmpeng=0.2
+18:40:43  chrome=9.7  system=1.2  taskmgr=0.9  antigravity ide=0.8  chatgpt=0.3  claude=0.2
+18:40:48  chrome=6.3  system=1.8  taskmgr=0.7  chatgpt=0.3  msmpeng=0.3  antigravity ide=0.2
+18:40:54  chrome=6.1  system=2.2  taskmgr=0.8  claude=0.6  msmpeng=0.4  antigravity ide=0.3
+18:40:59  chrome=5.8  antigravity ide=1.2  msmpeng=1.2  taskmgr=0.9  system=0.8  claude=0.3
+18:41:04  chrome=7.0  system=0.9  taskmgr=0.8  msmpeng=0.4  svchost=0.1  claude=0.1
+18:41:09  chrome=8.4  system=1.2  taskmgr=0.7  msmpeng=0.6  claude=0.5  svchost=0.5
+18:41:14  chrome=5.9  system=1.0  taskmgr=0.7  msmpeng=0.2  claude=0.2  svchost=0.1
+18:41:19  chrome=6.5  system=1.5  taskmgr=0.6  antigravity ide=0.6  msmpeng=0.3  dwm=0.3
+18:41:24  chrome=7.4  taskmgr=0.8  system=0.7  msmpeng=0.3  claude=0.3  dwm=0.2
+18:41:29  chrome=6.9  system=0.9  taskmgr=0.7  grep=0.2  msmpeng=0.2  chatgpt=0.2
+18:41:34  chrome=6.6  system=1.4  taskmgr=0.9  wmiprvse=0.7  msmpeng=0.3  claude=0.3
+18:41:39  chrome=5.1  antigravity ide=0.7  system=0.7  taskmgr=0.6  msmpeng=0.2  tail=0.2
+18:41:44  chrome=7.4  system=2.2  taskmgr=0.8  msmpeng=0.3  claude=0.3  chatgpt=0.3
+18:41:50  chrome=7.1  system=1.3  taskmgr=0.7  dwm=0.3  msmpeng=0.2  claude=0.2
+18:41:55  chrome=5.7  system=0.9  taskmgr=0.7  grep=0.3  dwm=0.3  audiodg=0.2
+18:42:00  chrome=11.3  system=1.3  taskmgr=0.8  antigravity ide=0.6  dwm=0.4  stsess=0.2
+18:42:05  chrome=7.2  system=1.3  taskmgr=0.9  dwm=0.3  msmpeng=0.3  claude=0.2
+18:42:10  chrome=5.9  claude=3.0  dwm=2.6  system=2.0  taskmgr=0.6  msmpeng=0.3
+18:42:15  claude=4.5  chrome=4.2  dwm=3.0  system=2.4  taskmgr=0.8  discord=0.2
+18:42:20  chrome=3.4  chatgpt=3.2  system=1.9  explorer=1.7  claude=1.3  dwm=1.1
+18:42:25  chrome=4.1  chatgpt=2.1  system=1.2  taskmgr=0.6  memory compression=0.6  msmpeng=0.4
+18:42:30  chrome=4.3  explorer=2.2  chatgpt=2.0  system=0.9  taskmgr=0.7  claude=0.3
+18:42:35  chrome=128.1  chatgpt=3.7  explorer=2.1  dwm=1.4  system=1.2  svchost=1.0
+18:42:41  chatgpt=7.4  chrome=3.9  system=1.6  claude=1.2  dwm=1.1  antigravity ide=0.7
+18:42:46  chatgpt=7.7  chrome=3.4  system=1.2  dwm=1.1  taskmgr=0.9  msmpeng=0.5
+18:42:51  chatgpt=11.0  chrome=3.6  system=1.4  dwm=1.2  taskmgr=0.8  msmpeng=0.4
+18:42:56  chatgpt=10.6  chrome=4.2  system=2.5  dwm=1.2  taskmgr=0.7  grep=0.2
+18:43:01  chatgpt=8.8  chrome=3.4  system=1.6  dwm=0.9  antigravity ide=0.8  taskmgr=0.6
+18:43:06  chrome=4.0  chatgpt=1.7  explorer=0.9  system=0.9  taskmgr=0.6  msmpeng=0.4
+18:43:11  chrome=3.7  chatgpt=2.2  system=1.3  taskmgr=0.7  msmpeng=0.4  audiodg=0.2
+18:43:16  chrome=3.4  system=1.0  antigravity ide=0.7  taskmgr=0.7  chatgpt=0.4  msmpeng=0.2
+18:43:21  chrome=3.6  system=3.6  taskmgr=0.8  chatgpt=0.4  msmpeng=0.4  antigravity ide=0.2
+18:43:26  chrome=4.2  system=1.1  taskmgr=0.8  msmpeng=0.4  claude=0.3  grep=0.2
+18:43:31  chrome=3.8  taskmgr=0.8  system=0.7  msmpeng=0.5  grep=0.4  chatgpt=0.3
+18:43:37  chrome=3.5  system=1.4  antigravity ide=0.7  taskmgr=0.5  chatgpt=0.4  grep=0.3
+18:43:42  chrome=3.7  system=1.5  taskmgr=0.9  chatgpt=0.5  claude=0.3  msmpeng=0.3
+18:43:47  chrome=4.0  system=0.9  taskmgr=0.6  antigravity ide=0.3  chatgpt=0.3  claude=0.3
+18:43:52  chrome=3.6  system=1.5  taskmgr=0.7  chatgpt=0.3  msmpeng=0.2  antigravity ide=0.2
+18:43:57  chrome=3.7  system=1.4  antigravity ide=1.1  taskmgr=0.8  msmpeng=0.7  chatgpt=0.5
+18:44:02  chrome=3.6  chatgpt=2.6  system=1.4  dwm=1.0  taskmgr=0.8  msmpeng=0.7
+18:44:07  chrome=3.9  chatgpt=3.7  system=1.0  explorer=0.9  taskmgr=0.6  dwm=0.6
+18:44:12  chrome=5.1  chatgpt=1.9  system=1.4  taskmgr=0.8  dwm=0.5  claude=0.4
+18:44:17  chrome=3.6  chatgpt=1.6  system=1.2  antigravity ide=0.8  taskmgr=0.7  msmpeng=0.4
+18:44:22  chrome=3.6  system=1.5  taskmgr=0.7  chatgpt=0.4  claude=0.2  svchost=0.2
+18:44:27  chrome=3.6  system=0.9  taskmgr=0.7  msmpeng=0.3  chatgpt=0.3  claude=0.2
+18:44:33  chrome=4.2  system=1.4  taskmgr=0.6  msmpeng=0.4  chatgpt=0.3  audiodg=0.2
+=== 18:44:36 webgpu 1.22 speed
+18:44:38  chatgpt=1.8  system=1.7  msmpeng=1.4  taskmgr=0.8  svchost=0.6  stsess=0.6
+18:44:43  chrome=13.8  chatgpt=3.0  system=1.1  taskmgr=0.8  msmpeng=0.8  dwm=0.5
+18:44:48  chrome=7.8  chatgpt=1.6  system=1.3  taskmgr=0.8  msmpeng=0.4  dwm=0.3
+18:44:53  chrome=10.4  system=2.7  chatgpt=1.6  msmpeng=1.0  taskmgr=0.7  dwm=0.2
+18:44:58  chrome=8.5  chatgpt=2.8  claude=2.1  system=1.6  dwm=1.5  msmpeng=1.0
+18:45:03  chrome=6.7  claude=3.9  system=2.6  dwm=2.1  antigravity ide=0.6  taskmgr=0.6
+18:45:08  chrome=13.3  system=1.4  dwm=0.8  taskmgr=0.8  claude=0.5  antigravity ide=0.2
+18:45:13  chrome=12.7  system=2.6  dwm=1.0  taskmgr=0.9  claude=0.4  msmpeng=0.2
+18:45:18  chrome=8.8  system=2.9  msmpeng=2.0  taskmgr=0.8  svchost=0.4  stsess=0.3
+18:45:24  chrome=16.4  system=2.1  dwm=1.4  taskmgr=1.0  antigravity ide=0.8  chatgpt=0.3
+18:45:29  chrome=9.6  system=1.1  taskmgr=0.8  msmpeng=0.6  claude=0.4  antigravity ide=0.3
+18:45:34  chrome=11.0  system=2.2  taskmgr=0.9  msmpeng=0.6  dwm=0.4  antigravity ide=0.3
+18:45:39  chrome=43.8  system=1.8  taskmgr=0.9  dwm=0.6  msmpeng=0.5  chatgpt=0.4
+18:45:44  chrome=10.5  system=1.6  taskmgr=0.7  dwm=0.6  antigravity ide=0.6  chatgpt=0.2
+18:45:49  chrome=12.5  system=2.3  dwm=0.9  taskmgr=0.8  antigravity ide=0.5  msmpeng=0.4
+18:45:54  chrome=9.2  system=1.7  taskmgr=0.7  antigravity ide=0.4  dwm=0.3  msmpeng=0.2
+18:45:59  chrome=11.3  system=1.6  taskmgr=0.9  dwm=0.6  antigravity ide=0.2  msmpeng=0.2
+18:46:04  chrome=15.7  system=3.7  dwm=1.1  antigravity ide=0.9  taskmgr=0.9  grep=0.7
+18:46:09  chrome=20.0  system=4.7  dwm=1.3  taskmgr=1.0  svchost=0.8  msmpeng=0.5
+18:46:15  chrome=12.0  system=2.4  dwm=1.2  taskmgr=0.8  claude=0.2  stsess32=0.2
+18:46:20  chrome=14.1  system=3.3  dwm=1.6  taskmgr=0.7  antigravity ide=0.4  msmpeng=0.3
+18:46:25  chrome=10.0  system=1.5  dwm=1.1  antigravity ide=0.7  taskmgr=0.6  claude=0.4
+18:46:30  chrome=11.8  system=2.0  msmpeng=1.9  taskmgr=0.9  dwm=0.7  svchost=0.4
+18:46:35  chrome=21.6  system=1.3  explorer=1.2  dwm=1.2  taskmgr=0.6  chatgpt=0.6
+18:46:40  chrome=4.6  system=1.1  taskmgr=0.7  svchost=0.5  explorer=0.4  msmpeng=0.4
+18:46:45  chrome=28.2  system=2.8  explorer=1.1  claude=1.1  chatgpt=1.1  antigravity ide=1.0
+18:46:50  chrome=4.3  claude=3.7  system=3.2  dwm=3.1  msmpeng=1.0  explorer=0.8
+18:46:55  claude=3.5  chrome=3.4  system=2.8  dwm=2.7  taskmgr=0.9  msmpeng=0.2
+18:47:00  chrome=3.3  dwm=2.9  system=2.6  claude=2.5  msmpeng=1.2  svchost=1.0
+18:47:06  chrome=38.9  dwm=2.5  system=2.3  claude=1.8  taskmgr=0.7  msmpeng=0.4
+18:47:11  antigravity ide=3.7  chrome=3.5  system=1.2  taskmgr=0.5  dwm=0.3  msmpeng=0.2
+18:47:16  antigravity ide=6.9  chrome=3.4  system=0.8  taskmgr=0.8  dwm=0.5  msmpeng=0.4
+18:47:21  antigravity ide=3.6  chrome=3.6  system=1.8  taskmgr=0.7  msmpeng=0.5  chatgpt=0.2
+18:47:26  antigravity ide=5.7  chrome=3.3  system=1.2  taskmgr=0.9  dwm=0.3  discord=0.2
+18:47:31  chrome=3.7  antigravity ide=3.0  system=1.8  taskmgr=0.8  claude=0.6  msmpeng=0.4
+18:47:36  chrome=3.8  antigravity ide=3.5  explorer=1.1  chatgpt=1.1  system=1.1  svchost=0.9
+18:47:41  chrome=3.5  notion=1.5  dwm=1.4  explorer=1.3  system=1.2  claude=1.1
+18:47:46  chrome=4.4  notion=2.6  antigravity ide=1.5  system=1.0  taskmgr=0.9  dwm=0.5
+18:47:51  chrome=9.9  system=1.7  dwm=0.7  taskmgr=0.7  antigravity ide=0.5  claude=0.5
+18:47:56  chrome=6.1  system=0.9  taskmgr=0.6  dwm=0.4  antigravity ide=0.2  chatgpt=0.2
+18:48:02  chrome=3.7  explorer=2.8  chatgpt=1.5  system=1.3  dwm=0.9  notion=0.9
+18:48:07  explorer=3.4  chrome=3.1  chatgpt=2.1  system=1.4  taskmgr=0.8  antigravity ide=0.5
+18:48:12  antigravity ide=8.0  chrome=3.6  system=1.4  dwm=0.8  taskmgr=0.8  claude=0.4
+18:48:17  chrome=3.5  explorer=1.5  chatgpt=1.2  antigravity ide=1.2  system=0.9  taskmgr=0.9
+18:48:22  chrome=3.6  chatgpt=2.3  explorer=1.7  system=1.5  antigravity ide=1.4  taskmgr=0.7
+18:48:27  chrome=3.0  chatgpt=2.0  explorer=1.8  system=0.6  taskmgr=0.5  antigravity ide=0.5
+18:48:32  chrome=4.2  explorer=1.7  system=0.8  taskmgr=0.7  chatgpt=0.6  antigravity ide=0.4
+18:48:37  chrome=3.1  chatgpt=2.7  system=1.3  explorer=1.0  taskmgr=0.6  antigravity ide=0.4
+18:48:42  chatgpt=3.2  chrome=3.2  dwm=1.6  system=1.0  explorer=0.8  taskmgr=0.8
+18:48:47  chrome=3.8  chatgpt=3.2  dwm=1.2  system=1.0  explorer=0.9  antigravity ide=0.9
+18:48:52  chatgpt=12.2  chrome=3.5  system=2.2  dwm=1.4  explorer=1.2  taskmgr=0.6
+18:48:58  chatgpt=10.2  chrome=2.8  dwm=1.2  system=0.9  taskmgr=0.7  antigravity ide=0.3
+18:49:03  chatgpt=9.8  chrome=3.4  system=1.3  dwm=0.9  taskmgr=0.7  antigravity ide=0.6
+18:49:08  chatgpt=8.3  chrome=3.1  dwm=0.9  system=0.9  taskmgr=0.6  antigravity ide=0.3
+18:49:13  chrome=3.6  chatgpt=3.3  antigravity ide=1.4  system=1.2  taskmgr=0.7  msmpeng=0.4
+18:49:18  chrome=3.7  system=1.2  explorer=0.9  taskmgr=0.8  chatgpt=0.6  claude=0.5
+18:49:23  chrome=3.6  chatgpt=2.2  system=1.8  claude=1.0  taskmgr=0.8  antigravity ide=0.7
+18:49:28  chrome=3.6  chatgpt=1.4  system=1.3  claude=0.7  taskmgr=0.6  antigravity ide=0.5
+18:49:33  chrome=3.3  chatgpt=2.8  system=1.2  explorer=1.0  taskmgr=0.8  antigravity ide=0.6
+18:49:38  chrome=3.2  explorer=2.2  chatgpt=1.5  antigravity ide=1.4  wmiprvse=1.3  system=1.2
+18:49:43  chrome=3.9  chatgpt=2.1  system=1.1  claude=0.6  taskmgr=0.6  antigravity ide=0.6
+18:49:48  chrome=3.6  explorer=3.3  chatgpt=3.2  system=1.2  taskmgr=0.7  antigravity ide=0.4
+18:49:54  chrome=151.8  chatgpt=2.8  system=1.5  dwm=1.2  explorer=1.0  taskmgr=0.7
+18:49:59  chrome=3.9  chatgpt=1.5  dwm=1.1  explorer=0.8  msmpeng=0.8  system=0.8
+18:50:04  chrome=3.0  chatgpt=1.7  system=1.4  antigravity ide=1.1  dwm=1.0  msmpeng=0.6
+18:50:09  chrome=5.8  system=2.0  chatgpt=1.3  explorer=1.1  msedgewebview2=1.1  svchost=1.0
+18:50:14  chrome=5.4  system=1.7  chatgpt=1.3  taskmgr=0.7  antigravity ide=0.4  dwm=0.4
+18:50:19  chrome=3.7  claude=2.9  dwm=2.8  system=2.8  taskmgr=0.6  antigravity ide=0.5
+18:50:24  chrome=4.3  claude=3.3  system=3.3  dwm=2.7  antigravity ide=1.2  chatgpt=1.1
+18:50:29  chrome=4.3  system=1.0  taskmgr=0.7  antigravity ide=0.5  chatgpt=0.4  dwm=0.3
+18:50:34  chrome=3.5  system=1.2  wmiprvse=0.8  taskmgr=0.7  msmpeng=0.5  antigravity ide=0.5
+18:50:39  chrome=3.5  system=1.1  chatgpt=1.0  claude=0.8  taskmgr=0.8  antigravity ide=0.5
+18:50:44  chrome=3.6  system=1.3  svchost=1.1  chatgpt=0.8  taskmgr=0.8  msmpeng=0.3
+18:50:50  chrome=4.3  system=1.4  antigravity ide=1.2  taskmgr=0.7  grep=0.5  msmpeng=0.3
+18:50:55  chrome=3.8  system=1.7  chatgpt=0.9  taskmgr=0.8  antigravity ide=0.7  claude=0.4
+18:51:00  chrome=4.0  system=1.2  taskmgr=0.7  antigravity ide=0.4  chatgpt=0.2  svchost=0.2
+18:51:05  chrome=3.7  system=0.9  taskmgr=0.7  msmpeng=0.4  antigravity ide=0.3  svchost=0.2
+18:51:10  chrome=3.3  system=1.3  taskmgr=0.6  svchost=0.6  antigravity ide=0.5  msmpeng=0.3
+18:51:15  chrome=3.7  chatgpt=1.2  system=1.2  taskmgr=0.7  claude=0.4  antigravity ide=0.4
+18:51:20  chrome=3.8  system=1.2  antigravity ide=0.8  taskmgr=0.8  claude=0.3  svchost=0.3
+18:51:25  chrome=3.4  chatgpt=3.3  system=1.5  taskmgr=0.9  antigravity ide=0.5  svchost=0.2
+18:51:30  chrome=4.2  chatgpt=2.2  system=0.8  taskmgr=0.7  claude=0.5  antigravity ide=0.4
+18:51:35  chrome=4.0  chatgpt=1.6  wmiprvse=1.2  taskmgr=0.8  system=0.7  antigravity ide=0.4
+18:51:41  chrome=4.2  chatgpt=2.3  system=1.0  taskmgr=0.7  dwm=0.5  antigravity ide=0.5
+18:51:46  chatgpt=10.1  system=2.8  explorer=2.5  msmpeng=2.4  dwm=1.5  antigravity ide=1.2
+18:51:51  chatgpt=7.9  chrome=5.3  system=1.4  dwm=1.3  taskmgr=0.9  antigravity ide=0.5
+18:51:56  chrome=4.0  chatgpt=3.7  system=1.8  msmpeng=0.9  taskmgr=0.7  antigravity ide=0.6
+18:52:01  chrome=4.6  chatgpt=2.6  system=1.6  taskmgr=0.9  explorer=0.8  antigravity ide=0.5
+18:52:06  chrome=3.7  chatgpt=2.6  system=1.4  notion=1.1  antigravity ide=0.9  taskmgr=0.8
+18:52:11  chrome=4.1  chatgpt=1.5  system=1.4  taskmgr=0.7  antigravity ide=0.6  dwm=0.3
+18:52:16  chrome=3.8  system=0.9  chatgpt=0.8  taskmgr=0.7  msmpeng=0.4  antigravity ide=0.4
+18:52:21  chrome=3.4  chatgpt=1.6  system=1.1  taskmgr=0.8  dwm=0.6  antigravity ide=0.4
+18:52:26  notion=4.5  chrome=3.4  system=2.4  explorer=1.1  dwm=0.8  taskmgr=0.7
+18:52:31  notion=7.4  chrome=3.5  chatgpt=3.1  explorer=2.1  antigravity ide=1.4  system=1.0
+18:52:37  notion=4.7  chrome=3.4  explorer=2.4  memory compression=1.5  system=1.2  svchost=0.9
+18:52:42  chrome=3.5  notion=2.8  system=1.1  antigravity ide=0.7  taskmgr=0.7  dwm=0.3
+18:52:47  chrome=3.8  explorer=1.6  system=0.9  taskmgr=0.7  chatgpt=0.7  dwm=0.5
+18:52:52  chrome=6.5  system=1.9  taskmgr=0.7  msmpeng=0.5  antigravity ide=0.5  svchost=0.3
+18:52:57  chrome=3.5  system=1.4  antigravity ide=1.2  taskmgr=0.9  msmpeng=0.5  svchost=0.3
+18:53:02  chrome=2.8  msmpeng=1.8  system=1.2  taskmgr=0.9  antigravity ide=0.8  claude=0.4
+18:53:07  chrome=3.3  system=1.2  taskmgr=0.8  antigravity ide=0.5  svchost=0.3  msmpeng=0.2
+18:53:12  chrome=3.7  taskmgr=0.8  system=0.8  antigravity ide=0.7  msmpeng=0.5  svchost=0.2
+18:53:17  chrome=2.9  system=1.3  antigravity ide=1.0  taskmgr=0.7  msmpeng=0.5  grep=0.3
+18:53:22  chrome=3.2  system=0.8  taskmgr=0.7  antigravity ide=0.4  chatgpt=0.4  msmpeng=0.3
+18:53:27  chrome=3.0  system=1.7  antigravity ide=0.9  taskmgr=0.8  msmpeng=0.4  svchost=0.4
+18:53:33  chrome=2.8  taskmgr=0.7  system=0.6  antigravity ide=0.6  msmpeng=0.3  svchost=0.1
+18:53:38  chrome=3.0  wmiprvse=1.1  system=1.0  taskmgr=0.8  antigravity ide=0.5  msmpeng=0.3
+18:53:43  chrome=2.6  system=1.3  antigravity ide=1.0  taskmgr=0.7  msmpeng=0.4  svchost=0.3
+18:53:48  chrome=3.2  system=1.0  taskmgr=0.8  antigravity ide=0.5  msmpeng=0.4  discord=0.1
+18:53:53  chrome=3.2  taskmgr=0.8  system=0.8  antigravity ide=0.5  claude=0.4  msmpeng=0.2
+18:53:58  chrome=3.6  system=1.2  taskmgr=0.8  msmpeng=0.4  antigravity ide=0.4  claude=0.3
+18:54:03  chrome=3.1  system=1.1  taskmgr=0.8  antigravity ide=0.5  msmpeng=0.3  svchost=0.2
+18:54:08  chrome=3.4  taskmgr=1.0  system=0.9  antigravity ide=0.9  claude=0.2  msmpeng=0.2
+18:54:13  chrome=3.3  taskmgr=0.7  system=0.6  antigravity ide=0.3  msmpeng=0.2  grep=0.1
+18:54:18  chrome=3.3  taskmgr=0.8  system=0.7  msmpeng=0.4  antigravity ide=0.3  gamingservices=0.1
+18:54:23  chrome=2.9  system=0.9  taskmgr=0.6  chatgpt=0.5  antigravity ide=0.4  msmpeng=0.4
+18:54:29  chrome=3.3  system=1.3  taskmgr=0.6  antigravity ide=0.4  nvcontainer=0.1  claude=0.1
+18:54:34  chrome=3.2  antigravity ide=1.5  system=0.9  taskmgr=0.8  msmpeng=0.3  claude=0.2
+18:54:39  chrome=3.7  system=0.6  taskmgr=0.5  antigravity ide=0.5  claude=0.4  msmpeng=0.2
+18:54:44  chrome=3.0  system=1.1  taskmgr=0.8  antigravity ide=0.7  msmpeng=0.3  chatgpt=0.2
+18:54:49  chrome=2.7  notion=1.9  system=0.8  taskmgr=0.7  antigravity ide=0.4  msmpeng=0.3
+18:54:54  chrome=3.6  system=1.4  taskmgr=0.7  antigravity ide=0.6  msmpeng=0.3  chatgpt=0.2
+18:54:59  chrome=3.0  antigravity ide=1.4  system=1.2  taskmgr=0.7  msmpeng=0.4  svchost=0.4
+18:55:04  chrome=2.8  sdxhelper=2.3  system=0.8  taskmgr=0.8  msmpeng=0.6  antigravity ide=0.4
+18:55:09  chrome=2.7  system=0.8  taskmgr=0.7  antigravity ide=0.5  msmpeng=0.2  claude=0.1
+18:55:14  chrome=2.7  taskmgr=0.7  system=0.6  antigravity ide=0.5  msmpeng=0.2  claude=0.2
+18:55:19  chrome=3.3  chatgpt=1.5  system=1.0  taskmgr=0.6  antigravity ide=0.4  msmpeng=0.4
+18:55:24  chrome=3.3  system=1.3  antigravity ide=1.1  taskmgr=0.6  msmpeng=0.3  chatgpt=0.2
+18:55:30  chrome=3.5  system=1.1  taskmgr=0.8  antigravity ide=0.7  grep=0.4  claude=0.3
+18:55:35  chrome=3.0  system=1.1  taskmgr=0.6  antigravity ide=0.5  msmpeng=0.3  chatgpt=0.1
+18:55:40  chrome=3.2  system=1.1  taskmgr=0.7  antigravity ide=0.5  msmpeng=0.4  claude=0.2
+18:55:45  chrome=3.2  system=1.1  antigravity ide=0.5  taskmgr=0.5  svchost=0.3  msmpeng=0.3
+18:55:50  chrome=2.9  system=1.5  antigravity ide=0.9  taskmgr=0.7  msmpeng=0.3  chatgpt=0.2
+18:55:55  chrome=3.4  system=1.6  taskmgr=0.7  antigravity ide=0.3  msmpeng=0.2  claude=0.1
+18:56:00  chrome=3.2  system=1.5  msmpeng=1.0  taskmgr=0.7  claude=0.7  antigravity ide=0.6
+18:56:05  chrome=3.1  system=1.2  antigravity ide=0.7  taskmgr=0.6  msmpeng=0.6  chatgpt=0.2
+18:56:10  chrome=3.3  antigravity ide=1.7  system=1.0  taskmgr=0.9  svchost=0.6  msmpeng=0.4
+18:56:15  chrome=2.8  system=0.8  taskmgr=0.7  antigravity ide=0.5  chatgpt=0.2  msmpeng=0.1
+=== 18:56:18 webgpu placement
+18:56:20  msmpeng=1.6  system=1.2  taskmgr=0.8  svchost=0.4  antigravity ide=0.4  stsess=0.4
+18:56:25  system=2.7  msmpeng=2.1  taskmgr=0.8  antigravity ide=0.6  svchost=0.6  stsess=0.4
+18:56:31  msmpeng=2.3  system=2.1  antigravity ide=1.1  taskmgr=0.8  stsess=0.4  svchost=0.3
+18:56:36  chrome=14.8  system=1.7  msmpeng=1.0  taskmgr=0.7  antigravity ide=0.3  claude=0.1
+18:56:41  system=1.2  taskmgr=0.9  msmpeng=0.5  antigravity ide=0.4  svchost=0.2  python=0.2
+18:56:46  chrome=4.2  msmpeng=1.8  system=1.3  taskmgr=0.8  antigravity ide=0.5  stsess=0.4
+18:56:51  chrome=6.7  svchost=2.6  system=1.0  msmpeng=0.8  taskmgr=0.8  antigravity ide=0.4
+18:56:56  svchost=4.3  msmpeng=2.6  system=2.4  mousocoreworker=0.9  antigravity ide=0.9  taskmgr=0.7
+18:57:01  svchost=8.9  system=1.8  msmpeng=1.7  mousocoreworker=1.6  taskmgr=0.9  stsess=0.5
+18:57:06  svchost=9.1  msmpeng=3.8  system=1.6  taskmgr=0.9  stsess=0.4  antigravity ide=0.3
+18:57:11  chrome=16.1  msmpeng=9.8  svchost=8.5  system=4.6  taskmgr=0.9  antigravity ide=0.4
+18:57:16  svchost=8.7  msmpeng=8.7  system=1.2  antigravity ide=1.1  taskmgr=0.8  chrome=0.3
+18:57:22  chrome=17.5  svchost=8.8  msmpeng=7.0  system=1.8  taskmgr=0.9  antigravity ide=0.6
+=== 18:57:26 coco latency done
+18:57:27  svchost=8.5  system=3.3  bash=3.3  antigravity ide=1.0  taskmgr=0.9  msmpeng=0.5

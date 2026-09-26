@@ -1,4 +1,134 @@
 {
+  "ops_webgpu_ort1220_coco_fp16": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 11,
+        "listed": 11,
+        "op_types": {
+          "Split": 11
+        },
+        "all_nodes": false
+      },
+      "JsExecutionProvider": {
+        "nodes": 667,
+        "listed": 667,
+        "op_types": {
+          "Conv": 174,
+          "Mul": 162,
+          "Sigmoid": 160,
+          "Add": 40,
+          "Concat": 34,
+          "Transpose": 25,
+          "MemcpyFromHost": 24,
+          "Reshape": 14,
+          "MemcpyToHost": 11,
+          "Cast": 6,
+          "MatMul": 4,
+          "Softmax": 3,
+          "MaxPool": 3,
+          "Resize": 2,
+          "Slice": 2,
+          "Sub": 2,
+          "Div": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1220_coco_fp32": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "JsExecutionProvider": {
+        "nodes": 637,
+        "listed": 637,
+        "op_types": {},
+        "all_nodes": true
+      }
+    }
+  },
+  "ops_webgpu_ort1220_coco_int8_full_fbias": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 651,
+        "listed": 651,
+        "op_types": {
+          "QuantizeLinear": 647,
+          "Transpose": 4
+        },
+        "all_nodes": false
+      },
+      "JsExecutionProvider": {
+        "nodes": 3172,
+        "listed": 3172,
+        "op_types": {
+          "DequantizeLinear": 1242,
+          "MemcpyFromHost": 651,
+          "MemcpyToHost": 646,
+          "Conv": 174,
+          "Mul": 162,
+          "Sigmoid": 160,
+          "Add": 40,
+          "Concat": 34,
+          "Transpose": 21,
+          "Reshape": 14,
+          "Split": 11,
+          "MatMul": 4,
+          "Softmax": 3,
+          "MaxPool": 3,
+          "Resize": 2,
+          "Slice": 2,
+          "Sub": 2,
+          "Div": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1220_coco_int8_head_excl_fbias": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 560,
+        "listed": 560,
+        "op_types": {
+          "QuantizeLinear": 556,
+          "Transpose": 4
+        },
+        "all_nodes": false
+      },
+      "JsExecutionProvider": {
+        "nodes": 2827,
+        "listed": 2827,
+        "op_types": {
+          "DequantizeLinear": 1079,
+          "MemcpyFromHost": 560,
+          "MemcpyToHost": 555,
+          "Conv": 174,
+          "Mul": 162,
+          "Sigmoid": 160,
+          "Add": 40,
+          "Concat": 34,
+          "Transpose": 21,
+          "Reshape": 14,
+          "Split": 11,
+          "MatMul": 4,
+          "Softmax": 3,
+          "MaxPool": 3,
+          "Resize": 2,
+          "Slice": 2,
+          "Sub": 2,
+          "Div": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
   "ops_webgpu_ort1220_rec_fp16": {
     "status": "completed",
     "reason": null,
@@ -640,6 +770,110 @@
           "ReduceMax": 1,
           "Flatten": 1,
           "Unsqueeze": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1300_coco_fp16": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "WebGpuExecutionProvider": {
+        "nodes": 325,
+        "listed": 325,
+        "op_types": {},
+        "all_nodes": true
+      }
+    }
+  },
+  "ops_webgpu_ort1300_coco_fp32": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "WebGpuExecutionProvider": {
+        "nodes": 319,
+        "listed": 319,
+        "op_types": {},
+        "all_nodes": true
+      }
+    }
+  },
+  "ops_webgpu_ort1300_coco_int8_full_fbias": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 651,
+        "listed": 651,
+        "op_types": {
+          "QuantizeLinear": 647,
+          "Transpose": 4
+        },
+        "all_nodes": false
+      },
+      "WebGpuExecutionProvider": {
+        "nodes": 3172,
+        "listed": 3172,
+        "op_types": {
+          "DequantizeLinear": 1242,
+          "MemcpyFromHost": 651,
+          "MemcpyToHost": 646,
+          "Conv": 174,
+          "Mul": 162,
+          "Sigmoid": 160,
+          "Add": 40,
+          "Concat": 34,
+          "Transpose": 21,
+          "Reshape": 14,
+          "Split": 11,
+          "MatMul": 4,
+          "Softmax": 3,
+          "MaxPool": 3,
+          "Resize": 2,
+          "Slice": 2,
+          "Sub": 2,
+          "Div": 1
+        },
+        "all_nodes": false
+      }
+    }
+  },
+  "ops_webgpu_ort1300_coco_int8_head_excl_fbias": {
+    "status": "completed",
+    "reason": null,
+    "placement": {
+      "CPUExecutionProvider": {
+        "nodes": 560,
+        "listed": 560,
+        "op_types": {
+          "QuantizeLinear": 556,
+          "Transpose": 4
+        },
+        "all_nodes": false
+      },
+      "WebGpuExecutionProvider": {
+        "nodes": 2791,
+        "listed": 2791,
+        "op_types": {
+          "DequantizeLinear": 1079,
+          "MemcpyFromHost": 560,
+          "MemcpyToHost": 555,
+          "Conv": 174,
+          "Mul": 144,
+          "Sigmoid": 142,
+          "Add": 40,
+          "Concat": 34,
+          "Transpose": 21,
+          "Reshape": 14,
+          "Split": 11,
+          "MatMul": 4,
+          "Softmax": 3,
+          "MaxPool": 3,
+          "Resize": 2,
+          "Slice": 2,
+          "Sub": 2,
+          "Div": 1
         },
         "all_nodes": false
       }

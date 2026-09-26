@@ -126,6 +126,7 @@ CNN_Quant/
 │   │                            #   summarize_pipeline_repeats.py(브라우저 파이프라인 5회 반복 집계)
 │   │                            #   plot_study_overview.py·plot_qualitative.py(논문 Fig. 1·정성 비교)
 │   │                            #   renumber_references.py(초안 참고문헌을 첫 인용 순으로 재번호)
+│   │                            #   coco_validation.py(외부 검증: YOLO11l + MLPerf COCO safe subset 1,525장)
 │   │                            #   export_device_bundle.py + run_device_matrix.sh(두 번째 기기 측정)
 │   └── archive/                 # 종료된 Phase 1·4·5 실험·플롯·벤치마크·다운로드 스크립트 보관
 │                                #   (plot_pareto/sensitivity/v2_extras/detection_samples,

@@ -1,0 +1,30 @@
+{
+  "variant": "int8_decode_excl",
+  "model_path": "model_space/yolo11l_coco_int8_decode_excluded.onnx",
+  "model_sha256": "eb416b4c945b3a61ea9f31d0ddd24ec9a91385ec363bf1ade42289fa0e2f0a5d",
+  "images": 1525,
+  "detections": 170245,
+  "runtime": "onnxruntime-cpu",
+  "onnxruntime_version": "1.23.2",
+  "threads": 4,
+  "platform": "Windows-10-10.0.26200-SP0",
+  "preprocess": "letterbox 640 (114), RGB, /255",
+  "postprocess": "conf 0.001, multi-label, NMS 0.7, max 300",
+  "wall_seconds": 124.2,
+  "mAP50_95": 0.5346786204440777,
+  "mAP50": 0.700838383435468,
+  "coco_stats": [
+    0.5346786204440777,
+    0.700838383435468,
+    0.5804186770580876,
+    0.3605959512638467,
+    0.5844210529411694,
+    0.7044673122573871,
+    0.3938539950351844,
+    0.6549625447160378,
+    0.7059961867129755,
+    0.5180735197515235,
+    0.7713551054654711,
+    0.8572185369865257
+  ]
+}

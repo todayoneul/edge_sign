@@ -71,6 +71,7 @@ def main() -> None:
     parser.add_argument("--accuracy-from", type=Path, default=None,
                         help="folder with cpu_<key>/metrics.json (default: --matrix); lets a second device reuse them")
     parser.add_argument("--artifact-root", type=Path, required=True)
+    parser.add_argument("--coco", type=Path, default=Path("paper_evidence/coco"), help="coco_validation.py output")
     args = parser.parse_args()
     mx = args.matrix
     ax = args.accuracy_from or mx
@@ -96,10 +97,15 @@ def main() -> None:
                            agreement=rec["agreement_with_fp32"],
                            **{t: rec["top1_retention_vs_fp32"] >= v for t, v in TIERS.items()})
         else:
-            acc = load(ax / f"cpu_{key}" / "metrics.json")
-            ref = load(ax / f"cpu_{family}_fp32" / "metrics.json")
+            if family == "coco":  # external validation: coco_validation.py (letterbox, pycocotools)
+                acc = load(args.coco / f"cpu_{key[5:]}" / "metrics.json")
+                ref = load(args.coco / "cpu_fp32" / "metrics.json")
+            else:
+                acc = load(ax / f"cpu_{key}" / "metrics.json")
+                ref = load(ax / f"cpu_{family}_fp32" / "metrics.json")
             if acc:
-                row.update(mAP50=acc["mAP50"], mAP50_95=acc["mAP50_95"], precision=acc["precision"], recall=acc["recall"])
+                row.update(mAP50=acc["mAP50"], mAP50_95=acc["mAP50_95"], precision=acc.get("precision"),
+                           recall=acc.get("recall"))
                 if ref:
                     row["retention"] = acc["mAP50_95"] / ref["mAP50_95"]
                     row.update({t: row["retention"] >= v for t, v in TIERS.items()})

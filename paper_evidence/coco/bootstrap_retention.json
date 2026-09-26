@@ -1,0 +1,43 @@
+{
+  "resamples": 1000,
+  "seed": 0,
+  "unit": "image",
+  "reference": "fp32",
+  "pairs": {
+    "fp16": {
+      "retention": 1.000461591097576,
+      "ci95_low": 0.9997809485742297,
+      "ci95_high": 1.0012189756765968,
+      "share_below_0.99": 0.0,
+      "share_below_0.95": 0.0
+    },
+    "int8_head_excl": {
+      "retention": 0.9916402241634313,
+      "ci95_low": 0.9842734166452096,
+      "ci95_high": 0.9977865053618031,
+      "share_below_0.99": 0.337,
+      "share_below_0.95": 0.0
+    },
+    "int8_head_excl_fbias": {
+      "retention": 0.99072726886795,
+      "ci95_low": 0.9826760478123795,
+      "ci95_high": 0.9962627069523715,
+      "share_below_0.99": 0.482,
+      "share_below_0.95": 0.0
+    },
+    "int8_decode_excl": {
+      "retention": 0.9899230944922999,
+      "ci95_low": 0.9816306538811519,
+      "ci95_high": 0.9955638912568116,
+      "share_below_0.99": 0.594,
+      "share_below_0.95": 0.0
+    },
+    "a8sim_decode_no_outconcat": {
+      "retention": 0.8670793951685553,
+      "ci95_low": 0.8622466873302734,
+      "ci95_high": 0.8772064583068586,
+      "share_below_0.99": 1.0,
+      "share_below_0.95": 1.0
+    }
+  }
+}

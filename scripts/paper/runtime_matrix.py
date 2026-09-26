@@ -65,9 +65,17 @@ MODELS = {
     "rec_int8_full_fbias": ("rec", "model_space/korean_sign_net_int8_qdq_full_fbias.onnx"),
     "rec_int8_head_excl": ("rec", "model_space/korean_sign_net_int8_qdq_head_excluded.onnx"),
     "rec_int8_head_excl_fbias": ("rec", "model_space/korean_sign_net_int8_qdq_head_excluded_fbias.onnx"),
+    # external validation (coco_validation.py): YOLO11l on the MLPerf COCO safe subset. Latency only here;
+    # accuracy uses letterbox + pycocotools in coco_validation.py (paper_evidence/coco/)
+    "coco_fp32": ("coco", "model_space/yolo11l_coco_fp32.onnx"),
+    "coco_fp16": ("coco", "model_space/yolo11l_coco_fp16.onnx"),
+    "coco_int8_full": ("coco", "model_space/yolo11l_coco_int8_full.onnx"),
+    "coco_int8_full_fbias": ("coco", "model_space/yolo11l_coco_int8_full_fbias.onnx"),
+    "coco_int8_head_excl": ("coco", "model_space/yolo11l_coco_int8_head_excluded.onnx"),
+    "coco_int8_head_excl_fbias": ("coco", "model_space/yolo11l_coco_int8_head_excluded_fbias.onnx"),
 }
-DETECTORS = [k for k, (family, _) in MODELS.items() if family != "rec"]
-INPUT_SIZE = {"v4": 640, "v3": 640, "rec": 32}
+DETECTORS = [k for k, (family, _) in MODELS.items() if family in ("v3", "v4")]
+INPUT_SIZE = {"v4": 640, "v3": 640, "rec": 32, "coco": 640}
 CHROME = {
     "win32": r"C:\Program Files\Google\Chrome\Application\chrome.exe",
     "darwin": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -466,6 +474,8 @@ def browser(args) -> None:
         family = MODELS[key][0]
         if family == "rec" and args.mode == "accuracy":
             raise SystemExit(f"{key}: recognizer accuracy is measured by recognizer_variants.py")
+        if family == "coco" and args.mode == "accuracy":
+            raise SystemExit(f"{key}: COCO accuracy is measured by coco_validation.py")
         for ep in args.eps:
             tag = f"{ep}t{args.wasm_threads}" if ep == "wasm" and args.wasm_threads != 1 else ep
             run = f"{args.mode}_{tag}_ort{args.ort.replace('.', '')}_{key}"

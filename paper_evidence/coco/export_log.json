@@ -1,0 +1,101 @@
+[
+  {
+    "variant": "fp32",
+    "weights": "C:\\Users\\leegy\\Desktop\\CNN_Quant\\data\\coco\\yolo11l.pt",
+    "weights_sha256": "9ebd0e09d59811db4b1d61e2bc6730649608b1ac47f8dd01e2da6bca7c20023f",
+    "output": "model_space/yolo11l_coco_fp32.onnx",
+    "output_bytes": 101744111,
+    "output_sha256": "2120d8d42da0996bcdce80bb77360884c99948684b670504b36f845a82f4f6c7"
+  },
+  {
+    "variant": "fp16",
+    "converter": "onnxconverter_common.float16, keep_io_types=True",
+    "output": "model_space/yolo11l_coco_fp16.onnx",
+    "output_bytes": 50896327,
+    "output_sha256": "1b8f7df8a512cb2fc16aa37d868a1f45ca4f264fb3bdebc210a87fad3f373e8d"
+  },
+  {
+    "variant": "int8_full",
+    "head_module": "model.23",
+    "scope": "full",
+    "bias": "int32",
+    "excluded_nodes": 0,
+    "calibration_images": 500,
+    "seconds": 109.8,
+    "output": "model_space/yolo11l_coco_int8_full.onnx",
+    "output_bytes": 26723709,
+    "output_sha256": "ac866e30f7d0e5f1aed2b9febad39e1a215527b74035c71533bf64eef57b705a"
+  },
+  {
+    "variant": "int8_full_fbias",
+    "head_module": "model.23",
+    "scope": "full",
+    "bias": "fp32",
+    "excluded_nodes": 0,
+    "calibration_images": 500,
+    "seconds": 109.5,
+    "output": "model_space/yolo11l_coco_int8_full_fbias.onnx",
+    "output_bytes": 26407645,
+    "output_sha256": "b7afe0e15fff59a0cffa03cd2d938445d1e762757506fad8289852110712d5d0"
+  },
+  {
+    "variant": "int8_head_excl",
+    "head_module": "model.23",
+    "scope": "head_excl",
+    "bias": "int32",
+    "excluded_nodes": 84,
+    "calibration_images": 500,
+    "seconds": 109.3,
+    "output": "model_space/yolo11l_coco_int8_head_excluded.onnx",
+    "output_bytes": 31053288,
+    "output_sha256": "9d9d3408695325bfd3604f02cb4d5a4722079805bd5c59a668b5d5d53e99adfd"
+  },
+  {
+    "variant": "int8_head_excl_fbias",
+    "head_module": "model.23",
+    "scope": "head_excl",
+    "bias": "fp32",
+    "excluded_nodes": 84,
+    "calibration_images": 500,
+    "seconds": 108.8,
+    "output": "model_space/yolo11l_coco_int8_head_excluded_fbias.onnx",
+    "output_bytes": 30781070,
+    "output_sha256": "1eac5652e261c6cda1ef4b6b6992331a287fdeab07cbfe6cc96d366ff765802a"
+  },
+  {
+    "variant": "int8_decode_excl",
+    "head_module": "model.23",
+    "scope": "decode_excl",
+    "bias": "int32",
+    "excluded_nodes": 24,
+    "calibration_images": 500,
+    "seconds": 109.6,
+    "output": "model_space/yolo11l_coco_int8_decode_excluded.onnx",
+    "output_bytes": 26785316,
+    "output_sha256": "eb416b4c945b3a61ea9f31d0ddd24ec9a91385ec363bf1ade42289fa0e2f0a5d"
+  },
+  {
+    "variant": "a8sim_outconcat",
+    "base_qdq": "yolo11l_coco_int8_full_fbias.onnx",
+    "weights_restored_fp32": 177,
+    "dequantized_fallback": 0,
+    "activation_qdq_kept": 1,
+    "activation_qdq_removed": 630,
+    "output_concat": "output0_QuantizeLinear_Input",
+    "output": "model_space/yolo11l_coco_fp32_a8sim_outconcat.onnx",
+    "output_bytes": 101746823,
+    "output_sha256": "0c2189fba6d96f8d9dd40eac4c023a92aac1b822e4e7902e90fc52412ef84d8b"
+  },
+  {
+    "variant": "a8sim_decode_no_outconcat",
+    "base_qdq": "yolo11l_coco_int8_full_fbias.onnx",
+    "weights_restored_fp32": 177,
+    "dequantized_fallback": 0,
+    "activation_qdq_kept": 23,
+    "activation_qdq_removed": 608,
+    "output_concat": "output0_QuantizeLinear_Input",
+    "output": "model_space/yolo11l_coco_fp32_a8sim_decode_no_outconcat.onnx",
+    "output_bytes": 101759869,
+    "output_sha256": "6efb48e4dd684afa19803707c422d686d538acddefef0adb3354d0798360beea"
+  }
+]

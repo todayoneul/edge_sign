@@ -1,6 +1,6 @@
-# 도로 영상 인식을 위한 브라우저 기반 엣지 비전의 구성요소·실행 환경별 양자화 실증 분석
+# 브라우저 기반 비전 추론의 구성요소·실행 환경별 양자화 실증 분석: 도로 표지 인식 파이프라인을 중심으로
 
-**English title:** An Empirical Study of Component- and Runtime-Aware Quantization for Browser-Based Road-Scene Recognition
+**English title:** Component- and Runtime-Aware Quantization for Browser-Based Vision Inference: An Empirical Study on a Road-Sign Recognition Pipeline
 
 > 초안 상태(2026-09-26): 모든 수치는 `paper_evidence/`의 원시 기록에서 다시 계산할 수 있다. 수치별 원천은 [RUNTIME_MATRIX.md](reports/RUNTIME_MATRIX.md)와 [TIIS_EVIDENCE_REPORT.md](reports/TIIS_EVIDENCE_REPORT.md)에 있다.
 
@@ -13,6 +13,7 @@
 - 변형: FP32, FP16, 정적 INT8(헤드 포함·제외, bias 표현 2종)의 18개
 - 평가: 학습·보정과 겹치지 않는 test 시퀀스(2,417프레임)에서 구성요소 정확도와 검출–추적–인식 종단 정확도
 - 실행 환경: 네이티브 CPU, 브라우저 WASM, WebGPU(ONNX Runtime Web 두 버전). 같은 입력으로 구성마다 1,024회(추론 한 번이 약 1초인 WebGPU INT8은 128회) 측정하고, 지연 차이의 원인을 연산자 배치 로그로 확인하였다. 브라우저 파이프라인은 브라우저를 5번 새로 띄워 반복 측정하였다.
+- 외부 검증: MLPerf edge 검출 과제의 YOLO11l과 COCO 부분집합(1,525장)에서, 측정 전에 공개한 다섯 가지 예측을 확인하였다.
 
 결과는 다음과 같다.
 - **구성요소에 따라 손실이 달랐다.** 검출 헤드까지 INT8로 바꾸면 두 검출기 모두 검출이 사라졌고, 인식기는 전체 INT8에서도 정확도가 유지되었다(Top-1 유지율 100.0%).
@@ -24,6 +25,10 @@
 - **구성요소별 배치가 가장 빨랐다.** 검출기를 WebGPU에, 인식기를 WASM에 둔 배치가 브라우저 실행 5회 모두에서 모든 구성요소를 WebGPU에 둔 배치보다 빨랐다(FP32 검출기 기준 평균 1.8 ms).
   - 가장 낮은 지연은 FP16 검출기와 FP32 인식기의 조합이었다(중앙값 16.7 ms, p90 19.4 ms).
   - 다만 FP16의 추론 이득이 입력 변환 비용에 상쇄되어, FP32 검출기(17.3 ms)와의 차이는 3%였다.
+- **표준 워크로드에서도 재현되었다.** 사전 예측 다섯 가지가 YOLO11l(COCO)에서 모두 재현되었다.
+  - 전체 INT8은 같은 종류의 텐서 때문에 검출이 사라졌고, 그 텐서 하나만 양자화해도 붕괴하였다.
+  - INT8은 CPU·WASM에서 2.0–2.6배 빨랐지만 WebGPU에서는 75–89배 느렸다. FP16의 효과도 런타임 버전에 따라 달랐다.
+  - 다만 붕괴를 피한 뒤 남는 손실은 워크로드에 따라 달랐다. YOLO11l의 헤드 제외 INT8은 유지율 99.2%로 99% 기준에서 보류였다.
 
 이 결과는 양자화 여부를 모델 단위로 한 번에 정하지 말고, 구성요소와 목표 실행 환경의 조합마다 운영 조건의 태스크 지표와 실측 지연으로 정해야 함을 보여 준다.
 
@@ -33,7 +38,7 @@
 - two detectors with different heads (YOLOv8s and YOLO26-n) and a 14-class recognizer;
 - FP32, FP16, and static INT8 with or without the detection head and with two bias representations.
 
-Latency is measured 1,024 times per configuration (128 times for INT8 on WebGPU, where one call takes about a second) on native ONNX Runtime CPU, WebAssembly, and WebGPU in two ONNX Runtime Web versions, and operator-placement logs explain the differences. The browser pipeline is measured over five fresh browser launches.
+Latency is measured 1,024 times per configuration (128 times for INT8 on WebGPU, where one call takes about a second) on native ONNX Runtime CPU, WebAssembly, and WebGPU in two ONNX Runtime Web versions, and operator-placement logs explain the differences. The browser pipeline is measured over five fresh browser launches. Five predictions, published before measurement, are then tested on the MLPerf edge detection workload (YOLO11l on a 1,525-image COCO subset).
 
 *Results.*
 - **Accuracy depends on the component.** Quantizing the detection head removes every detection in both detectors, whereas the recognizer keeps its accuracy even when fully quantized.
@@ -45,20 +50,24 @@ Latency is measured 1,024 times per configuration (128 times for INT8 on WebGPU,
 - **Per-component placement is fastest.** Running the detector on WebGPU and the recognizer on WebAssembly was faster than running both on WebGPU in all five launches (by 1.8 ms on average with the FP32 detector).
   - The lowest latency came from an FP16 detector with an FP32 recognizer (median 16.7 ms, p90 19.4 ms).
   - The cost of converting the input to FP16 left it only 3% ahead of the FP32 detector (17.3 ms).
+- **The findings replicate on a standard workload.** All five preregistered predictions held for YOLO11l on COCO.
+  - Full INT8 collapsed through the same kind of tensor, and quantizing that tensor alone was enough to collapse it.
+  - INT8 was 2.0–2.6× faster on CPU and WebAssembly and 75–89× slower on WebGPU, and the effect of FP16 again depended on the runtime version.
+  - What differed was the loss left after avoiding the collapse: head-excluded INT8 retained 99.2% on COCO, inconclusive against the 99% criterion.
 
 These results argue for choosing precision per component and per target runtime, using task metrics at the operating point and measured latency.
 
-**Keywords**: Neural network quantization, Traffic sign recognition, Web browser inference, WebGPU, ONNX Runtime
+**Keywords**: Neural network quantization, Browser-based inference, WebGPU, ONNX Runtime, Object detection, Traffic sign recognition
 
 ---
 
 ## 1. Introduction
 
-도로 영상의 표지판과 신호등은 화면에서 작게 나타나고, 가림과 조명 변화의 영향을 받는다 [1]. 실제 응용은 프레임마다 객체를 찾는 데 그치지 않는다. 같은 객체를 이어서 추적하고, 속도 제한 값이나 신호 점등 상태 같은 세부 클래스를 판별해야 한다 [2]. 그래서 검출기, 추적기, 세부 인식기를 차례로 실행하는 파이프라인이 흔히 쓰인다. 이런 파이프라인을 별도 설치 없이 웹 브라우저에서 실행하면 배포가 쉽고 영상이 사용자 기기를 벗어나지 않는다. 대신 브라우저는 네이티브 런타임보다 제약이 많다. 연산은 WebAssembly(WASM)나 WebGPU를 거쳐야 하고, 지원되는 연산자와 스레드 사용도 실행 환경에 따라 다르다 [3], [4].
+비전 모델을 웹 브라우저에서 실행하면 별도 설치 없이 배포할 수 있고 영상이 사용자 기기를 벗어나지 않는다. 대신 브라우저는 네이티브 런타임보다 제약이 많다. 연산은 WebAssembly(WASM)나 WebGPU를 거쳐야 하고, 지원되는 연산자와 스레드 사용도 실행 환경에 따라 다르다 [1], [2]. 게다가 실제 비전 응용은 모델 하나가 아니라 여러 구성요소로 이루어지는 경우가 많다. 예를 들어 도로 영상의 표지판과 신호등은 화면에서 작게 나타나고, 가림과 조명 변화의 영향을 받는다 [3]. 응용은 프레임마다 객체를 찾는 데 그치지 않고, 같은 객체를 이어서 추적하며 속도 제한 값이나 신호 점등 상태 같은 세부 클래스를 판별해야 한다 [4]. 그래서 검출기, 추적기, 세부 인식기를 차례로 실행하는 파이프라인이 흔히 쓰인다.
 
-신경망 양자화는 모델 크기와 연산량을 줄이는 대표적 방법이다 [5], [6]. 그러나 파이프라인에 양자화를 적용할 때는 두 가지를 따로 따져야 한다. 첫째, 양자화 오차가 어느 구성요소에서 태스크 정확도로 이어지는가이다. 검출기의 몸통과 헤드, 뒤 단계의 인식기는 구조와 출력 형식이 달라서 같은 설정에서도 손실이 다를 수 있다 [7]–[10]. 둘째, 양자화 모델이 목표 실행 환경에서 실제로 빨라지는가이다. INT8의 속도 이득은 연산 장치와 커널 지원에 따라 달라진다 [11]. 브라우저에서는 이런 차이가 더 클 수 있다 [3], [4]. 기존 검출기 양자화 연구는 대부분 단일 모델의 정확도나 한 가지 하드웨어에서의 지연을 다루므로, 구성요소와 실행 환경을 함께 바꿨을 때의 결과는 알기 어렵다.
+신경망 양자화는 모델 크기와 연산량을 줄이는 대표적 방법이다 [5], [6]. 그러나 파이프라인에 양자화를 적용할 때는 두 가지를 따로 따져야 한다. 첫째, 양자화 오차가 어느 구성요소에서 태스크 정확도로 이어지는가이다. 검출기의 몸통과 헤드, 뒤 단계의 인식기는 구조와 출력 형식이 달라서 같은 설정에서도 손실이 다를 수 있다 [7]–[10]. 둘째, 양자화 모델이 목표 실행 환경에서 실제로 빨라지는가이다. INT8의 속도 이득은 연산 장치와 커널 지원에 따라 달라진다 [11]. 브라우저에서는 이런 차이가 더 클 수 있다 [1], [2]. 기존 검출기 양자화 연구는 대부분 단일 모델의 정확도나 한 가지 하드웨어에서의 지연을 다루므로, 구성요소와 실행 환경을 함께 바꿨을 때의 결과는 알기 어렵다.
 
-본 연구는 한국 도로 영상의 교통표지판·신호등 인식 파이프라인을 대상으로 구성요소, 정밀도, 실행 환경을 한 실험 틀에서 측정한다. 연구 질문은 다음과 같다.
+본 연구는 브라우저 비전 추론에서 양자화의 효과를 구성요소, 정밀도, 실행 환경의 세 축으로 한 실험 틀에서 측정한다. 주 워크로드는 한국 도로 영상의 교통표지판·신호등 인식 파이프라인(검출기·추적기·인식기)이다. 검출기 수준의 결과는 MLPerf edge 검출 과제의 모델과 데이터(YOLO11l, COCO 부분집합)에서 다시 확인한다. 연구 질문은 다음과 같다.
 - **RQ1 (구성요소):** 같은 정적 INT8 설정을 적용할 때 검출기의 몸통, 검출 헤드, 인식기 가운데 어디에서 정확도가 손실되며, 그 손실은 파이프라인의 최종 인식 결과까지 어떻게 전파되는가?
 - **RQ2 (실행 환경):** 같은 모델 파일의 지연이 네이티브 CPU, 브라우저 WASM, 브라우저 WebGPU에서 어떻게 달라지며, 그 원인은 무엇인가?
 - **RQ3 (배치):** 구성요소마다 정밀도와 실행 환경을 다르게 배치하면 브라우저 파이프라인의 프레임당 지연이 어떻게 달라지는가?
@@ -67,9 +76,10 @@ These results argue for choosing precision per component and per target runtime,
 1. 출력 구조가 다른 두 검출기(DFL 헤드와 NMS를 쓰는 YOLOv8s, NMS가 필요 없는 YOLO26-n)와 14클래스 인식기에 대해 정밀도, 양자화 범위(헤드 포함·제외), bias 표현을 바꾼 18개 변형을 학습·보정 데이터와 겹치지 않는 시퀀스에서 평가한다. 검출 붕괴의 원인은 가중치 전용·활성값 전용·단일 텐서 ablation으로 분리하고, 구성요소의 손실이 검출–추적–인식 종단 정확도로 어떻게 전파되는지도 측정한다.
 2. 같은 입력 텐서로 6개 실행 환경 구성(네이티브 CPU·WASM 각 1·4스레드, WebGPU 두 런타임 버전)의 지연을 반복 측정하고(구성마다 1,024회, WebGPU INT8은 128회), 연산자 배치 로그로 지연 차이의 원인을 확인한다.
 3. 한 브라우저 페이지에서 검출기와 인식기를 서로 다른 실행 환경에 배치해 검출–인식 프레임 지연을 측정하고(브라우저 실행 5회 반복), 구성요소별 배치 원칙을 제시한다.
-4. 판정 기준(FP32 대비 정확도 유지율 99%, p90 지연)을 측정 전에 공개 벤치마크 근거로 정하고, 참고로 현행 MLPerf YOLO 과제의 95% 상대 품질 등급도 함께 보고한다. 측정 코드와 원시 기록은 모두 공개한다.
+4. 검출기 수준의 결과(붕괴 메커니즘, 실행 환경별 속도 효과)를 표준 워크로드(YOLO11l, MLPerf COCO safe subset 1,525장)에서 측정 전에 공개한 예측으로 검증한다.
+5. 판정 기준(FP32 대비 정확도 유지율 99%, p90 지연)을 측정 전에 공개 벤치마크 근거로 정하고, 참고로 현행 MLPerf YOLO 과제의 95% 상대 품질 등급도 함께 보고한다. 측정 코드와 원시 기록은 모두 공개한다.
 
-2장은 관련 연구를 정리한다. 3장은 모델, 데이터, 양자화 변형, 측정 절차를 설명한다. 4장은 세 연구 질문의 결과를 제시하고 타당성의 한계를 논의한다. 5장은 결론을 맺는다.
+2장은 관련 연구를 정리한다. 3장은 모델, 데이터, 양자화 변형, 측정 절차를 설명한다. 4장은 세 연구 질문의 결과와 표준 워크로드 외부 검증을 제시하고, 타당성의 한계를 논의한다. 5장은 결론을 맺는다.
 
 ---
 
@@ -77,7 +87,7 @@ These results argue for choosing precision per component and per target runtime,
 
 ### 2.1. 도로 표지 인식 파이프라인
 
-교통표지판 검출은 작은 객체와 복잡한 배경을 다루는 응용으로 연구되어 왔다 [1]. Behrendt 등 [2]은 신호등의 검출·추적·분류를 한 파이프라인으로 결합하였고, Manocha 등 [12]은 한국 도로 표지판 검출을 평가하였다. Luo 등 [13]은 YOLOv8 기반 경량 표지 검출기를 임베디드 기기에서 실행하였다. 본 연구는 YOLOv8 [14]과 YOLO26 [15] 검출기, ByteTrack [16] 추적기, 검출 영역을 세부 클래스로 나누는 경량 인식기로 파이프라인을 구성한다. 추적기는 학습 가중치가 없으므로 양자화 대상에서 제외한다.
+교통표지판 검출은 작은 객체와 복잡한 배경을 다루는 응용으로 연구되어 왔다 [3]. Behrendt 등 [4]은 신호등의 검출·추적·분류를 한 파이프라인으로 결합하였고, Manocha 등 [12]은 한국 도로 표지판 검출을 평가하였다. Luo 등 [13]은 YOLOv8 기반 경량 표지 검출기를 임베디드 기기에서 실행하였다. 본 연구는 YOLOv8 [14]과 YOLO26 [15] 검출기, ByteTrack [16] 추적기, 검출 영역을 세부 클래스로 나누는 경량 인식기로 파이프라인을 구성한다. 추적기는 학습 가중치가 없으므로 양자화 대상에서 제외한다.
 
 ### 2.2. 검출기와 다단계 파이프라인의 양자화
 
@@ -85,7 +95,7 @@ These results argue for choosing precision per component and per target runtime,
 
 ### 2.3. 브라우저 추론과 실행 백엔드
 
-Ma 등 [3]은 브라우저 딥러닝 프레임워크의 성능을 네이티브 실행과 비교해 큰 격차를 보고하였다. Wang 등 [4]은 브라우저 추론의 지연과 정확도가 백엔드, 기기, 프레임워크에 따라 크게 달라짐을 보였다. Lee와 Jeon [19]은 JavaScript, WebAssembly, 그리고 입력 해상도와 성능 지표에 따라 둘 중 하나를 동적으로 고르는 혼합 방식을 비교하였다. WebAssembly는 더 빨랐고 JavaScript는 메모리 효율이 높아, 실행 방식에 따라 추론 시간과 메모리 사용이 서로 절충되었다. 다만 이 연구의 대상은 ResNet 계열 분류 모델이었고, 모델 양자화, WebGPU 실행, 여러 구성요소로 이루어진 파이프라인은 다루지 않았다. Kim 등 [11]은 모바일 GPU에서 INT8 추론이 항상 빠르지 않음을 측정하였다. ONNX Runtime과 ONNX Runtime Web [20]은 같은 ONNX 그래프를 네이티브 CPU, WASM, WebGPU에서 실행하므로, 모델 파일을 고정하고 실행 환경만 바꿔 비교할 수 있다. 성능 판정은 MLPerf Inference를 따른다. 정확도는 FP32 기준 대비 품질 등급(95%·99%)으로 [21], [22], 지연은 단일 스트림 방식(p90, 1,024회 이상)으로 보고한다 [21]. 본 연구는 이 틀을 브라우저 도로 영상 인식에 적용해, 양자화 효과가 구성요소와 실행 환경에 따라 어떻게 달라지는지를 연산자 배치 수준까지 확인한다.
+Ma 등 [1]은 브라우저 딥러닝 프레임워크의 성능을 네이티브 실행과 비교해 큰 격차를 보고하였다. Wang 등 [2]은 브라우저 추론의 지연과 정확도가 백엔드, 기기, 프레임워크에 따라 크게 달라짐을 보였다. Lee와 Jeon [19]은 JavaScript, WebAssembly, 그리고 입력 해상도와 성능 지표에 따라 둘 중 하나를 동적으로 고르는 혼합 방식을 비교하였다. WebAssembly는 더 빨랐고 JavaScript는 메모리 효율이 높아, 실행 방식에 따라 추론 시간과 메모리 사용이 서로 절충되었다. 다만 이 연구의 대상은 ResNet 계열 분류 모델이었고, 모델 양자화, WebGPU 실행, 여러 구성요소로 이루어진 파이프라인은 다루지 않았다. Kim 등 [11]은 모바일 GPU에서 INT8 추론이 항상 빠르지 않음을 측정하였다. ONNX Runtime과 ONNX Runtime Web [20]은 같은 ONNX 그래프를 네이티브 CPU, WASM, WebGPU에서 실행하므로, 모델 파일을 고정하고 실행 환경만 바꿔 비교할 수 있다. 성능 판정은 MLPerf Inference를 따른다. 정확도는 FP32 기준 대비 품질 등급(95%·99%)으로 [21], [22], 지연은 단일 스트림 방식(p90, 1,024회 이상)으로 보고한다 [21]. 본 연구는 이 틀을 브라우저 도로 영상 인식에 적용해, 양자화 효과가 구성요소와 실행 환경에 따라 어떻게 달라지는지를 연산자 배치 수준까지 확인한다.
 
 ---
 
@@ -204,6 +214,23 @@ $$R=\frac{m_{\text{variant}}}{m_{\text{FP32}}},\qquad \text{등급 }\tau\text{ �
 
 모델 크기는 문헌 근거가 있는 문턱이 없으므로 합격 기준에 넣지 않았다. 대신 실제 파일 바이트와 FP32 대비 압축비를 보고한다.
 
+### 3.6. 표준 워크로드 외부 검증
+
+검출기 수준의 결과가 Edge-Sign 모델과 한국 도로 데이터에만 해당하는지 확인하기 위해, 표준 워크로드에서 같은 절차를 반복한다. 정식 MLPerf 제출(LoadGen, 시나리오 규정 준수)이 아니라, MLPerf가 쓰는 모델과 데이터로 하는 외부 검증이다. 예측과 판정 규칙은 측정 전에 공개 기록으로 고정하였다.
+- **모델:** MLPerf Inference v6.0 edge 검출 과제와 같은 YOLO11l [27]이다(COCO 사전학습 공식 가중치, 파라미터 2,534만). 헤드는 YOLOv8s와 같은 DFL 구조이다. 출력 `[1,84,8400]`은 박스 좌표 4채널과 클래스 점수 80채널을 한 텐서로 연결한다.
+- **데이터:** MLPerf의 COCO safe subset [28]이다. COCO 2017 val 5,000장 [25] 가운데 상업 이용이 가능한 라이선스의 1,525장(80클래스, 객체 11,251개)으로, MLCommons 스크립트와 같은 규칙으로 만들었다.
+- **보정:** MLPerf가 YOLO용 보정 목록을 정하지 않았으므로, val2017 가운데 평가 부분집합에 없는 이미지에서 seed 0으로 500장을 뽑았다.
+- **전처리·평가:** 공식 추론과 같은 640×640 레터박스를 쓴다. Ultralytics 검증 설정(신뢰도 0.001, 다중 라벨, 클래스별 NMS 0.7, 최대 300개)으로 후처리하고, pycocotools로 mAP를 계산한다.
+- **변형:** 3.3절과 같은 절차로 FP16과 INT8 변형(전체, 헤드 제외, 디코드 단계만 FP32)을 만들고, 4.2절의 진단 변형 두 가지를 더한다.
+- **지연:** 3.4절의 실행 환경에서 측정한다. 추론 한 번이 수 초인 WASM 1스레드는 제외하였다.
+- **사전 예측(P1–P5):**
+  - P1: 전체 INT8은 붕괴한다.
+  - P2: 출력 연결 텐서 하나만 양자화해도 붕괴한다.
+  - P3: 디코드 단계에서 출력 연결만 FP32로 두면 붕괴하지 않는다.
+  - P4: 헤드 제외 INT8은 붕괴하지 않는다. 유지율은 99% 기준으로 판정한다.
+  - P5: INT8은 CPU·WASM에서 빠르고 WebGPU에서 느리며, FP16의 효과는 런타임 버전에 달려 있다.
+- **비교 방식:** 두 워크로드 사이의 절대 mAP는 비교하지 않는다. 각 워크로드 안에서 FP32 대비 유지율만 비교한다.
+
 ---
 
 ## 4. Results and Discussion
@@ -212,9 +239,9 @@ $$R=\frac{m_{\text{variant}}}{m_{\text{FP32}}},\qquad \text{등급 }\tau\text{ �
 
 본 실험에 앞서 두 단계의 탐색을 수행하였다. 이 절의 수치는 **원시 예측과 반복 측정 기록이 보존되지 않은 과거 집계**이다. 게다가 대부분 활성값을 FP32로 둔 가중치 전용 시뮬레이션이다. 따라서 4.2절 이후의 재현 가능한 측정과 섞어 비교하지 않고, 연구 질문을 세운 근거로만 제시한다.
 
-첫째, ImageNet으로 학습한 ConvNeXtV2-Nano 분류기 [27]에서 압축 기법을 비교하였다. FP16 기준 Top-1 81.88%는 W8A8 PTQ에서 81.24%, W4A16 QAT에서 76.12%로 떨어졌고, 1비트 이진화 [28]와 지식 증류 [29]에서는 14.23%까지 떨어졌다. 단일 분류기에서는 8비트 양자화의 손실이 1%p 미만이었다.
+첫째, ImageNet으로 학습한 ConvNeXtV2-Nano 분류기 [29]에서 압축 기법을 비교하였다. FP16 기준 Top-1 81.88%는 W8A8 PTQ에서 81.24%, W4A16 QAT에서 76.12%로 떨어졌고, 1비트 이진화 [30]와 지식 증류 [31]에서는 14.23%까지 떨어졌다. 단일 분류기에서는 8비트 양자화의 손실이 1%p 미만이었다.
 
-둘째, 이 결과가 다단계 파이프라인에도 그대로 옮겨지는지 이전 세대 파이프라인(v2)에서 확인하였다(Table 3). v2의 검출 클래스는 교통표지판·간판이었고, 인식기는 단일 한글 문자 분류기와 GTSDB [30] 표지 분류기였다. 가중치 8비트에서는 검출과 두 인식기가 모두 유지되었다. 그러나 4비트에서는 2,350클래스 문자 분류기가 98.5%에서 54.6%로 무너졌다. 같은 비트폭이라도 구성요소마다 손실이 크게 다르다는 이 관찰이 RQ1의 출발점이다.
+둘째, 이 결과가 다단계 파이프라인에도 그대로 옮겨지는지 이전 세대 파이프라인(v2)에서 확인하였다(Table 3). v2의 검출 클래스는 교통표지판·간판이었고, 인식기는 단일 한글 문자 분류기와 GTSDB [32] 표지 분류기였다. 가중치 8비트에서는 검출과 두 인식기가 모두 유지되었다. 그러나 4비트에서는 2,350클래스 문자 분류기가 98.5%에서 54.6%로 무너졌다. 같은 비트폭이라도 구성요소마다 손실이 크게 다르다는 이 관찰이 RQ1의 출발점이다.
 
 **Table 3.** v2 파이프라인의 단계별 가중치 시뮬레이션(과거 집계). 평가 데이터가 지표마다 다르며, 원시 기록이 없어 참고용으로만 제시한다.
 
@@ -449,14 +476,67 @@ Table 9는 한 브라우저 페이지에서 검출기(YOLO26-n)와 인식기를 
 
 **Fig. 5.** 브라우저 파이프라인 배치별 단계 지연. 막대는 실행별 평균의 중앙값, 수염은 실행 간 범위이고, 숫자는 합계와 p90의 중앙값이다. 파선은 30 FPS, 점선은 15 FPS 예산이다. WebGPU INT8 배치는 축 밖(897 ms)이다.
 
-### 4.5. 타당성의 위협
+### 4.5. 표준 워크로드 외부 검증 (YOLO11l, COCO)
+
+3.6절의 사전 예측을 YOLO11l과 MLPerf COCO safe subset에서 확인하였다. Table 10은 정확도, Table 11은 지연이다.
+
+**Table 10.** YOLO11l 정밀도별 정확도(COCO safe subset 1,525장, pycocotools).
+- 유지율은 FP32 대비 mAP@0.5:0.95이고, 대괄호는 이미지 단위 부트스트랩 95% 신뢰구간이다.
+- INT8 셀의 "a / b"는 INT32 bias / FP32 bias 변형의 값이다. 신뢰구간은 INT32 bias 변형의 것이다.
+- 진단 변형은 가중치를 FP32로 두고, 표시한 활성값만 양자화하였다.
+
+| 변형 | 파일 (MB) | mAP@0.5 | mAP@0.5:0.95 | 유지율 (%) [95% CI] | 99% 기준 | 95% 등급(참고) |
+| :--- | ---: | ---: | ---: | ---: | :---: | :---: |
+| FP32 | 101.7 | 0.7091 | 0.5401 | 100 | 기준 | 기준 |
+| FP16 | 50.9 | 0.7091 | 0.5404 | 100.0 [100.0–100.1] | 통과 | 통과 |
+| INT8 전체 | 26.7 / 26.4 | 0 / 0 | 0 / 0 | 0 | 불합격 | 불합격 |
+| INT8 헤드 제외 | 31.1 / 30.8 | 0.7010 / 0.7014 | 0.5356 / 0.5351 | 99.2 / 99.1 [98.4–99.8] | 보류 | 통과 |
+| INT8 디코드 단계만 FP32 | 26.8 | 0.7008 | 0.5347 | 99.0 [98.2–99.6] | 보류 | 통과 |
+| 진단: 출력 연결 텐서만 양자화 | – | 0 | 0 | 0 | – | – |
+| 진단: 디코드 단계, 출력 연결 제외 | – | 0.6766 | 0.4683 | 86.7 [86.2–87.7] | – | – |
+
+**사전 예측의 확인 (정확도).**
+- **P1 재현:** 전체 INT8은 두 bias 표현 모두 신뢰도 0.001 이상의 검출을 하나도 내지 못했다. 출력 연결 텐서의 보정 범위는 −33–673이고 척도는 $s=2.77$이다. 점수 1.0도 0.36 단계에 불과해 모든 점수가 영점으로 반올림된다. 4.2절의 메커니즘과 같다.
+- **P2 재현:** 가중치를 FP32로 두고 출력 연결 텐서 하나만 양자화해도 mAP는 0이었다.
+- **P3 재현:** 디코드 단계 활성값을 양자화하되 출력 연결만 FP32로 두면 붕괴하지 않았다(유지율 86.7%). mAP@0.5 유지율은 95.4%여서, 남은 손실은 주로 박스 좌표 텐서의 반올림에 따른 위치 오차이다. YOLOv8s(61.2%)와 같은 양상이다.
+- **P4 재현:** 헤드 제외 INT8은 붕괴하지 않았다. 유지율은 99.2%이지만 신뢰구간(98.4–99.8%)이 기준을 포함하므로 99% 기준은 보류이고, 95% 등급은 통과한다.
+
+**워크로드에 따라 달라진 것.**
+- 붕괴의 원인과 위치(점수와 박스 좌표를 한 척도로 담는 텐서)는 두 워크로드에서 같았다. 이는 박스와 점수를 한 출력으로 합치는 YOLO 계열 헤드의 구조에서 나오는 성질이다.
+- 반면 붕괴를 피한 뒤 남는 손실의 크기는 워크로드에 따라 달랐다.
+  - COCO의 YOLO11l은 디코드 단계만 FP32로 두어도 99.0%로, 헤드 전체를 FP32로 둔 경우(99.2%)와 거의 같았다. 파일도 26.8 MB로 헤드 제외(31.1 MB)보다 작다.
+  - Edge-Sign의 두 검출기는 디코드 단계만 제외하면 헤드 제외보다 2.7–5.9%p 낮았다.
+  - 헤드 분기 활성값의 민감도는 모델과 데이터에 따라 다르므로, 양자화 범위는 워크로드마다 태스크 지표로 다시 확인해야 한다.
+- 참고로 MLPerf의 절대 목표(yolo-99 52.87, yolo-95 50.73)와 비교하면 헤드 제외(53.6)와 디코드 제외(53.5)는 두 목표를 모두 넘는다. 다만 평가 코드가 공식 구현과 달라 참고로만 적는다.
+
+**Table 11.** YOLO11l 실행 환경별 추론 지연, 평균 / p90 (ms).
+- 1,024회 측정(WebGPU INT8만 128회)이다. ORT-Web 1.22 WebGPU의 INT8은 FP32 bias 변형이다.
+- 측정 중 기록한 CPU 부하에서 배경 프로세스와 겹친 네 측정(CPU 4T의 FP32·FP16·INT8 전체, WASM 4T의 FP32)은 부하가 가라앉은 뒤 다시 측정한 값이다. 처음 값과의 차이는 10% 이내였다.
+
+| 변형 | ORT CPU 1T | ORT CPU 4T | WASM 4T | WebGPU (ORT-Web 1.22) | WebGPU (ORT-Web 1.30) |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| FP32 | 370.4 / 382.9 | 180.9 / 191.9 | 762.7 / 777.3 | 25.2 / 26.9 | 25.2 / 26.9 |
+| FP16 | 365.1 / 375.0 | 191.7 / 194.9 | 676.5 / 731.9 | 55.7 / 58.9 | 24.0 / 25.3 |
+| INT8 전체 | 140.5 / 145.4 | 85.7 / 87.6 | 319.1 / 338.0 | 2,056.5 / 2,148.8 | 2,238.2 / 2,274.0 |
+| INT8 헤드 제외 | 163.0 / 171.5 | 90.5 / 97.9 | 330.3 / 365.9 | 1,812.4 / 1,839.6 | 1,897.5 / 1,986.2 |
+
+**사전 예측의 확인 (실행 환경).**
+- **P5(a) 재현:** INT8은 CPU와 WASM에서 FP32보다 빨랐다. 전체 INT8은 CPU 1T 2.6배, 4T 2.1배, WASM 4T 2.4배였고, 헤드 제외는 각각 2.3배, 2.0배, 2.3배였다.
+- **P5(b) 재현:** ORT-Web 1.30 WebGPU에서 INT8은 FP32보다 75–89배 느렸다. 배치 로그에서 `QuantizeLinear` 647개(헤드 제외 556개)가 두 버전 모두 CPU에 배치되었다. Edge-Sign 검출기와 같은 원인이다.
+- **P5(c) 재현:** FP16은 ORT-Web 1.22 WebGPU에서 FP32보다 2.2배 느렸고, 이때 `Split` 11개가 CPU에 배치되었다. 1.30에서는 CPU 배치가 없어져 FP32보다 5% 빨랐다.
+- 정리하면, 사전에 공개한 다섯 가지 예측이 표준 워크로드에서 모두 재현되었다. 달라진 것은 붕괴를 피한 뒤의 손실 크기뿐이다.
+
+### 4.6. 타당성의 위협
 
 - **기기와 브라우저:** 모든 지연은 데스크톱 한 대(Ryzen 5 9600X, RTX 5070, Chrome 153)에서 측정하였다. 모바일 GPU나 다른 브라우저 엔진에서는 절대값과 순위가 달라질 수 있다. 같은 절차로 두 번째 기기를 측정할 수 있도록 번들과 스크립트를 공개한다.
 - **데이터:** 평가 분할은 같은 AI Hub 수집원의 시퀀스 독립 분할 하나이다. test의 야간 프레임은 16장뿐이어서 조명 조건별 결론을 내리지 않는다. test는 5 fps로 서브샘플링되어 있어 30 fps 영상에서의 추적 결과를 대표하지 않는다.
 - **측정 범위:** 파이프라인 지연에는 추적기(가중치 없는 JavaScript ByteTrack), 캔버스 렌더링, 카메라·영상 디코딩이 빠져 있다. 30 FPS 기준 통과는 이 범위에 한정된다. 종단 정답률은 프레임 단위의 검출·인식 결과로 계산했고, 추적 정확도(정체성 유지)는 수동 정체성 주석이 없어 평가하지 않았다. 종단 정확도는 YOLO26-n 파이프라인에서만 측정하였다.
 - **통계:** 프레임 부트스트랩은 프레임 간 상관을 무시하므로 신뢰구간이 실제보다 좁다(블록 부트스트랩 결과는 4.2절). WebGPU INT8 지연은 128회만 측정하였다. 단일 텐서 검사는 test 242프레임의 선별 검사이며, 결론에 쓴 붕괴와 필요성은 test 전체로 다시 확인하였다.
 - **실행 간 편차:** 파이프라인의 첫 실행은 나머지 네 실행과 다른 시간대에 측정되었다. 반복 실행 직후에는 클라우드 동기화 프로세스가 논리 코어 약 1개를 쓰고 있었다. 그래서 절대 지연은 실행 조건에 따라 달라질 수 있다(WASM 최대 26%). 구성 간 비교는 같은 회차의 짝 비교로 보고하였다.
-- **비교 대상:** 다른 검출기 계열과 공개 벤치마크(GTSDB, TT100K 등)에서는 같은 절차를 수행하지 않았다. 따라서 결과는 두 YOLO 계열 헤드 구조에 대한 관찰이다.
+- **비교 대상과 외부 검증의 범위:** 외부 검증은 YOLO 계열 검출기 하나(YOLO11l)와 COCO 부분집합으로 한정된다.
+  - 붕괴 메커니즘은 박스와 점수를 한 출력으로 합치는 YOLO 계열 헤드에 대한 결론이다. 출력 구조가 다른 검출기(예: DETR 계열)나 다른 표지 데이터셋(GTSDB, TT100K)에서는 같은 절차를 수행하지 않았다.
+  - 인식기, 종단 정확도, 구성요소별 배치는 COCO로 검증하지 않았다.
+  - COCO 정확도는 MLPerf 공식 평가 코드가 아니라 본 연구의 평가 코드로 계산하였다.
 
 ---
 
@@ -481,6 +561,13 @@ Table 9는 한 브라우저 페이지에서 검출기(YOLO26-n)와 인식기를 
 - 검출기를 WebGPU에, 인식기를 WASM에 둔 배치가 브라우저 실행 5회 모두에서 전부 WebGPU에 둔 배치보다 빨랐다(프레임당 중앙값 16.7–17.3 ms). 이 배치 안에서 검출기 정밀도에 따른 차이는 3% 이하였다.
 - WebGPU를 쓸 수 없는 환경에서는 INT8 검출기만 15 FPS 기준을 지켰다. 이때 종단 정답률 기준으로 약 6%의 손실을 감수해야 한다.
 
+넷째, 검출기 수준의 결과는 표준 워크로드에서도 재현되었다.
+- MLPerf edge 검출 과제의 YOLO11l과 COCO 부분집합에서, 측정 전에 공개한 다섯 가지 예측이 모두 맞았다.
+  - 붕괴 메커니즘은 박스와 점수를 한 출력으로 합치는 YOLO 계열 헤드의 구조에서 나오므로, 모델과 데이터가 달라도 같았다.
+  - 실행 환경에 따른 INT8·FP16의 속도 효과도 같은 방향으로 재현되었다.
+- 반면 붕괴를 피한 뒤의 손실은 달랐다. YOLO11l은 헤드 제외 INT8에서 99.2%를 유지하여, 도로 워크로드의 두 검출기(97.0%, 98.7%)보다 손실이 작았다.
+- 따라서 양자화 범위를 정하는 원칙(점수와 좌표가 섞인 텐서를 피한다)은 일반화되지만, 남는 손실의 크기는 워크로드마다 태스크 지표로 확인해야 한다.
+
 후속 연구는 다음과 같다.
 - 모바일 GPU와 다른 브라우저 엔진에서 같은 절차를 반복한다.
 - 수동 정체성 주석을 구축해 양자화가 추적 품질에 미치는 영향을 평가한다.
@@ -492,13 +579,13 @@ Table 9는 한 브라우저 페이지에서 검출기(YOLO26-n)와 인식기를 
 
 ## References
 
-[1] A. Møgelmose, M. M. Trivedi, and T. B. Moeslund, “Vision-based traffic sign detection and analysis for intelligent driver assistance systems: Perspectives and survey,” IEEE Transactions on Intelligent Transportation Systems, vol. 13, no. 4, pp. 1484–1497, 2012, doi: 10.1109/TITS.2012.2209421.
+[1] Y. Ma, D. Xiang, S. Zheng, D. Tian, and X. Liu, “Moving deep learning into web browser: How far can we go?,” in Proc. of The World Wide Web Conference (WWW), pp. 1234–1244, 2019, doi: 10.1145/3308558.3313639.
 
-[2] K. Behrendt, L. Novak, and R. Botros, “A deep learning approach to traffic lights: Detection, tracking, and classification,” in Proc. of IEEE Int. Conf. on Robotics and Automation (ICRA), pp. 1370–1377, 2017, doi: 10.1109/ICRA.2017.7989163.
+[2] Q. Wang et al., “Anatomizing deep learning inference in web browsers,” ACM Transactions on Software Engineering and Methodology, vol. 34, no. 2, pp. 1–43, 2025, doi: 10.1145/3688843.
 
-[3] Y. Ma, D. Xiang, S. Zheng, D. Tian, and X. Liu, “Moving deep learning into web browser: How far can we go?,” in Proc. of The World Wide Web Conference (WWW), pp. 1234–1244, 2019, doi: 10.1145/3308558.3313639.
+[3] A. Møgelmose, M. M. Trivedi, and T. B. Moeslund, “Vision-based traffic sign detection and analysis for intelligent driver assistance systems: Perspectives and survey,” IEEE Transactions on Intelligent Transportation Systems, vol. 13, no. 4, pp. 1484–1497, 2012, doi: 10.1109/TITS.2012.2209421.
 
-[4] Q. Wang et al., “Anatomizing deep learning inference in web browsers,” ACM Transactions on Software Engineering and Methodology, vol. 34, no. 2, pp. 1–43, 2025, doi: 10.1145/3688843.
+[4] K. Behrendt, L. Novak, and R. Botros, “A deep learning approach to traffic lights: Detection, tracking, and classification,” in Proc. of IEEE Int. Conf. on Robotics and Automation (ICRA), pp. 1370–1377, 2017, doi: 10.1109/ICRA.2017.7989163.
 
 [5] B. Jacob et al., “Quantization and training of neural networks for efficient integer-arithmetic-only inference,” in Proc. of IEEE/CVF Conf. on Computer Vision and Pattern Recognition (CVPR), pp. 2704–2713, 2018, doi: 10.1109/CVPR.2018.00286.
 
@@ -544,10 +631,14 @@ Table 9는 한 브라우저 페이지에서 검출기(YOLO26-n)와 인식기를 
 
 [26] J. Redmon, S. Divvala, R. Girshick, and A. Farhadi, “You only look once: Unified, real-time object detection,” in Proc. of IEEE Conf. on Computer Vision and Pattern Recognition (CVPR), pp. 779–788, 2016, doi: 10.1109/CVPR.2016.91.
 
-[27] S. Woo, S. Debnath, R. Hu, X. Chen, Z. Liu, I. S. Kweon, and S. Xie, “ConvNeXt V2: Co-designing and scaling ConvNets with masked autoencoders,” in Proc. of IEEE/CVF Conf. on Computer Vision and Pattern Recognition (CVPR), pp. 16133–16142, 2023, doi: 10.1109/CVPR52729.2023.01548.
+[27] G. Jocher and J. Qiu, “Ultralytics YOLO11,” version 11.0.0, 2024. [Online]. Available: https://github.com/ultralytics/ultralytics
 
-[28] M. Rastegari, V. Ordonez, J. Redmon, and A. Farhadi, “XNOR-Net: ImageNet classification using binary convolutional neural networks,” in Proc. of European Conf. on Computer Vision (ECCV), Lecture Notes in Computer Science, Springer, pp. 525–542, 2016, doi: 10.1007/978-3-319-46493-0_32.
+[28] MLCommons, “YOLO for the MLPerf Inference v6.0 edge suite,” 2026. [Online]. Available: https://mlcommons.org/2026/03/yolo-inference/ (accessed Sep. 26, 2026).
 
-[29] G. Hinton, O. Vinyals, and J. Dean, “Distilling the knowledge in a neural network,” arXiv preprint arXiv:1503.02531, 2015, doi: 10.48550/arXiv.1503.02531.
+[29] S. Woo, S. Debnath, R. Hu, X. Chen, Z. Liu, I. S. Kweon, and S. Xie, “ConvNeXt V2: Co-designing and scaling ConvNets with masked autoencoders,” in Proc. of IEEE/CVF Conf. on Computer Vision and Pattern Recognition (CVPR), pp. 16133–16142, 2023, doi: 10.1109/CVPR52729.2023.01548.
 
-[30] S. Houben, J. Stallkamp, J. Salmen, M. Schlipsing, and C. Igel, “Detection of traffic signs in real-world images: The German traffic sign detection benchmark,” in Proc. of Int. Joint Conf. on Neural Networks (IJCNN), pp. 1–8, 2013, doi: 10.1109/IJCNN.2013.6706807.
+[30] M. Rastegari, V. Ordonez, J. Redmon, and A. Farhadi, “XNOR-Net: ImageNet classification using binary convolutional neural networks,” in Proc. of European Conf. on Computer Vision (ECCV), Lecture Notes in Computer Science, Springer, pp. 525–542, 2016, doi: 10.1007/978-3-319-46493-0_32.
+
+[31] G. Hinton, O. Vinyals, and J. Dean, “Distilling the knowledge in a neural network,” arXiv preprint arXiv:1503.02531, 2015, doi: 10.48550/arXiv.1503.02531.
+
+[32] S. Houben, J. Stallkamp, J. Salmen, M. Schlipsing, and C. Igel, “Detection of traffic signs in real-world images: The German traffic sign detection benchmark,” in Proc. of Int. Joint Conf. on Neural Networks (IJCNN), pp. 1–8, 2013, doi: 10.1109/IJCNN.2013.6706807.

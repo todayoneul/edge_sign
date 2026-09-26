@@ -1,0 +1,30 @@
+{
+  "variant": "fp16",
+  "model_path": "model_space/yolo11l_coco_fp16.onnx",
+  "model_sha256": "1b8f7df8a512cb2fc16aa37d868a1f45ca4f264fb3bdebc210a87fad3f373e8d",
+  "images": 1525,
+  "detections": 160791,
+  "runtime": "onnxruntime-cpu",
+  "onnxruntime_version": "1.23.2",
+  "threads": 4,
+  "platform": "Windows-10-10.0.26200-SP0",
+  "preprocess": "letterbox 640 (114), RGB, /255",
+  "postprocess": "conf 0.001, multi-label, NMS 0.7, max 300",
+  "wall_seconds": 275.2,
+  "mAP50_95": 0.540370687694366,
+  "mAP50": 0.7091265736246352,
+  "coco_stats": [
+    0.540370687694366,
+    0.7091265736246352,
+    0.5917804534896461,
+    0.37058193924610733,
+    0.5979474571681365,
+    0.7230247030146967,
+    0.3964577514876531,
+    0.6631741041834848,
+    0.7127480383853921,
+    0.5224955867374419,
+    0.7752334551271112,
+    0.8651151044008464
+  ]
+}

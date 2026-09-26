@@ -26,6 +26,7 @@
 | 파이프라인 5회 반복 | `runtime/matrix/pipeline_t4_ort1300_*_r{2..5}.json`·`_trace.csv`, 집계 `pipeline_repeats_summary.json` (`summarize_pipeline_repeats.py`) |
 | 검출→추적→인식 종단 정확도 (정밀도 조합) | `runtime/end_to_end/{summary.json,per_frame.csv}` (`evaluate_end_to_end.py`) |
 | 논문 그림 추가 | `figures/fig9_study_overview.png`(개요, `plot_study_overview.py`), `fig10_qualitative.png`(정성 비교, `plot_qualitative.py`) |
+| 표준 워크로드 외부 검증 (YOLO11l + MLPerf COCO safe subset) | 사전 등록 [COCO_VALIDATION_PLAN.md](reports/COCO_VALIDATION_PLAN.md), 결과 [COCO_VALIDATION.md](reports/COCO_VALIDATION.md); `coco/`(부분집합·보정 manifest, `cpu_<variant>/metrics.json`, `detections.npz`), 지연은 `runtime/matrix/*coco_*` (`coco_validation.py`, `runtime_matrix.py`) |
 | 두 번째 기기 측정 | [DEVICE_MEASUREMENT_GUIDE.md](reports/DEVICE_MEASUREMENT_GUIDE.md) |
 
 데이터 이미지와 ONNX/.pt 파일은 포함하지 않습니다. `model_manifest.csv`의 경로는 원본 체크아웃의 ignored artifact를 가리키며, 모든 스크립트는 `--artifact-root`로 이 위치를 받습니다. 모델 해시와 manifest 해시가 다르면 결과를 재사용하지 마세요.
