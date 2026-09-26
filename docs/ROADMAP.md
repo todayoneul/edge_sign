@@ -379,7 +379,8 @@
   - 참고문헌을 첫 인용 순으로 재번호(`renumber_references.py`)
 - [x] 두 번째 기기(Mac) 측정 번들·스크립트·안내 ([DEVICE_MEASUREMENT_GUIDE.md](../paper_evidence/reports/DEVICE_MEASUREMENT_GUIDE.md))
 - [x] 논문 초안 `paper_evidence/paper_draft_KSII_TIIS_ko.md` (제목: 「도로 영상 인식을 위한 브라우저 기반 엣지 비전의 구성요소·실행 환경별 양자화 실증 분석」)
-- [ ] Mac에서 `run_device_matrix.sh` 본측정 후 기기 간 비교 추가 (2026-09-26 준비 완료: 측정 전용 브랜치 `paper/mac-device-validation`, COCO 모델을 포함한 번들 재생성, 파이프라인 5회 반복·ORT-Web 1.22 FP32/FP16·YOLO11l 대표 조건·CPU 부하 기록 추가. [안내](../paper_evidence/reports/DEVICE_MEASUREMENT_GUIDE.md))
+- [x] Mac(M2 Pro) 본측정·기기 간 비교 (2026-09-26, [runtime/matrix_mac](../paper_evidence/runtime/matrix_mac/), [RUNTIME_MATRIX §2.6](../paper_evidence/reports/RUNTIME_MATRIX.md)). WebGPU INT8 감속·FP16 버전 의존성·구성요소별 배치는 재현, WASM INT8 이득은 Mac에서 없음(기기 의존)
+- [x] 논문 초안 구조 개편(교수님 작성 예 기준): 3장 BRIQ Study Design, 4.1 실험 구성, 5.1–5.3, 선행 탐색 → 부록 A, 관련 연구 비교표 (2026-09-26)
 - [x] 논문 제목 BRIQ로 변경, 기여 5개를 3개로 압축, 붕괴 메커니즘 주장 범위를 평가한 검출기 그래프로 한정 (2026-09-26)
 - [ ] 기준안 확정 후 카메라/렌더 포함 경로를 재측정하고 판정
 - [ ] 야간/다른 장소 test 확장 및 가능한 경우 manual identity GT 구축

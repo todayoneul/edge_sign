@@ -289,6 +289,40 @@ v4 검출기 + 인식기, test 앞 512프레임(INT8@WebGPU는 128프레임), OR
   - r4 마지막 구성 중 `git status`(약 2초)
   - 세 실행의 값은 모두 다른 회차의 범위 안에 있다. r4 FP32@WASM의 p90 85.5 ms는 처음 84프레임에 몰린 지연 때문이며, 같은 시각에 실행한 명령은 없었다.
 
+### 2.6 두 번째 기기(Mac)에서의 재현 (2026-09-26)
+
+- **기기:** MacBook Pro M2 Pro(성능 6 + 효율 4코어, GPU 16코어, 통합 메모리 16 GB), macOS 26.6.2, Chrome 153.0.8010.54(headless에서 하드웨어 WebGPU 어댑터 사용), ORT 1.23.2. 모델 파일 SHA-256은 Windows와 같다.
+- **원시 기록:** [runtime/matrix_mac/](../runtime/matrix_mac/) (`summary.md`에 지연·배치 표와 파이프라인 5회 반복 요약, `environment.txt`, `cpu_load.log`). 측정 로그는 저장소 루트의 `matrix_mac.log`.
+
+**정밀도 효과 비교(평균 지연의 비, INT8 = 헤드 제외 INT32 bias)**
+
+| 효과 | 모델 | Windows | Mac | 방향 |
+|---|---|---:|---:|:-:|
+| WebGPU 1.30 INT8 / FP32 | v4 · v3 · COCO | 66× · 49× · 75× | 14× · 7.6× · 9.0× | 같음 |
+| WebGPU 1.22 FP16 / FP32 | v4 | 3.7× | 1.6× | 같음 |
+| WebGPU 1.30 FP16 / FP32 | v4 · v3 · COCO | 0.95 · 1.02 · 0.95 | 0.84 · 0.81 · 0.77 | 같음(v3는 Mac만 이득) |
+| CPU 4T 속도 향상(FP32/INT8) | v4 · v3 · COCO | 0.95 · 1.35 · 2.0 | 1.68 · 1.97 · 2.73 | v4는 Mac만 이득 |
+| WASM 4T 속도 향상(FP32/INT8) | v4 · v3 · COCO | 1.34 · 1.62 · 2.31 | 0.89 · 0.95 · 0.97 | **반대** |
+| 인식기 WebGPU 1.30 / WASM 1T | rec FP32 | 14× | 6.0× | 같음 |
+
+- WebGPU 노드 배치(1.30 전 모델, 1.22 v4 FP32·FP16, COCO 헤드 제외 FP32 bias)는 노드 수까지 Windows와 같다.
+- WebGPU 수치 일치성: FP32는 CPU와 같고, FP16은 mAP@0.5:0.95 차이 최대 0.0012.
+- WASM 1T도 INT8이 빠르지 않다(v4 0.91, v3 1.01). 네이티브 CPU INT8은 빠르므로 차이는 브라우저 WASM INT8 경로에서 생긴다. 원인은 분리하지 않았다.
+
+**파이프라인(5회 반복, 중앙값 [범위])**
+
+| 배치 | 합계 ms | p90 ms | 30/15 FPS |
+|---|---:|---:|:-:|
+| v4 FP16@WebGPU + rec FP32@WASM | 15.77 [15.75–15.84] | 16.56 | Y / Y |
+| v4 FP32@WebGPU + rec FP32@WASM | 16.69 [16.64–16.69] | 17.49 | Y / Y |
+| v4 FP32@WebGPU + rec FP32@WebGPU | 17.20 [17.15–17.54] | 18.24 | Y / Y |
+| v4 INT8 헤드 제외@WASM + rec INT8@WASM | 54.57 [54.40–54.77] | 55.39 | N / Y |
+| v4 FP32@WASM + rec FP32@WASM (1회) | 45.56 | 46.40 | N / Y |
+
+- 짝 비교: 인식기 WASM이 WebGPU보다 −0.59 ms(5/5), FP16 검출기가 FP32보다 −0.89 ms(5/5).
+- Windows와 달리 WebGPU가 없을 때 FP32@WASM이 INT8@WASM보다 빠르고, 둘 다 15 FPS 기준을 통과한다.
+- **배경 부하:** 10초 간격 기록 1,062개 중 182개(17%)에서 측정 외 프로세스(ChatGPT/Codex 앱, IDE, 시스템 서비스)가 코어 하나의 50% 이상을 썼고, WASM 단일 모델 측정 초반(21:04–21:29, 1스레드 검출기)에 몰려 있었다. 다시 측정하지 않았으며, 논문 4.6절에 한계로 적었다.
+
 ## 3. 판정 요약
 
 | 주장 | 판정 | 근거 |
@@ -307,7 +341,7 @@ v4 검출기 + 인식기, test 앞 512프레임(INT8@WebGPU는 128프레임), OR
 | 브라우저 파이프라인이 30 FPS 기준 A를 충족한다 | **조건부 지지** | WebGPU 검출기 배치에서 p90 중앙값 19.4–23.0 ms(5회 모두 통과). 추적기·렌더·카메라 입력 제외, 이 기기 한정 |
 
 ## 4. 한계
-- **기기와 브라우저:** Windows 데스크톱 한 대(RTX 5070, Chrome 153 headless)에서만 측정했다. 두 번째 기기 측정 절차는 [DEVICE_MEASUREMENT_GUIDE.md](DEVICE_MEASUREMENT_GUIDE.md)에 있다.
+- **기기와 브라우저:** Windows 데스크톱(RTX 5070)과 Mac(M2 Pro) 두 대, Chrome 153 headless에서만 측정했다(2.6절). Safari·Firefox·모바일은 측정하지 않았다. 측정 절차는 [DEVICE_MEASUREMENT_GUIDE.md](DEVICE_MEASUREMENT_GUIDE.md)에 있다.
 - **데이터:** 같은 AI Hub 수집원의 시퀀스 독립 분할 하나이다. test의 야간 프레임은 16장뿐이다.
 - **파이프라인 측정 범위:** 추적기(가중치 없음, JS ByteTrack), 캔버스 렌더, 카메라·영상 디코딩을 포함하지 않는다.
 - **부트스트랩 신뢰구간:** 프레임 부트스트랩은 프레임 간 상관을 무시하므로 실제보다 좁다. 25프레임(5초) 이동 블록 부트스트랩을 함께 보고한다(`bootstrap_retention.json`의 `block`).

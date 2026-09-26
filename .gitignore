@@ -25,3 +25,4 @@ web_modern/dist/
 demo_src_1080p.mp4
 # 샘플 원본(299MB) — web_modern/public/sample/seoul_drive.mp4(9s 720p)로만 커밋
 샘플영상.mp4
+.DS_Store
