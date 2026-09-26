@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# Runtime matrix on a second device (macOS or Linux), same protocol as the Windows runs.
+# Runtime matrix on a second device (macOS or Linux), same protocol as the Windows runs:
+# operator placement, ORT CPU 1/4T, WASM 1/4T, WebGPU (ORT-Web 1.30; 1.22 for the FP32/FP16
+# version check), the browser pipeline with five fresh browser launches for the key
+# placements (r1 + r2..r5, as on Windows), and representative YOLO11l (COCO) runtimes.
 #
 #   bash scripts/paper/run_device_matrix.sh <bundle folder> <output folder> [--with-accuracy]
 #   QUICK=1 bash scripts/paper/run_device_matrix.sh <bundle> <scratch folder>   # ~5 min smoke test
@@ -28,6 +31,10 @@ step() { echo "=== $(date +%H:%M:%S) $*"; }
 if [ "${QUICK:-}" = "1" ]; then ITER=20; ITER_INT8=3; FRAMES=16; WARM=2; else ITER=1024; ITER_INT8=128; FRAMES=512; WARM=20; fi
 mkdir -p "$OUT"
 
+# background CPU load every 10 s (on Windows one busy core slowed WASM by 20%+)
+( while true; do echo "--- $(date +%H:%M:%S)"; ps -Ao pcpu,comm -r | head -6; sleep 10; done ) > "$OUT/cpu_load.log" 2>&1 &
+SAMPLER=$!
+
 step "0 verify bundle"
 (cd "$BUNDLE" && shasum -a 256 -c SHA256SUMS --quiet) || { echo "bundle checksum mismatch"; exit 1; }
 {
@@ -41,7 +48,7 @@ step "0 verify bundle"
 
 $RM serve $COMMON --port $PORT --isolate > "$OUT/server.log" 2>&1 &
 SERVER=$!
-trap 'kill $SERVER 2>/dev/null' EXIT
+trap 'kill $SERVER $SAMPLER 2>/dev/null' EXIT
 for _ in $(seq 1 60); do curl -s "http://127.0.0.1:$PORT/info" >/dev/null && break; sleep 1; done
 
 step "1 WebGPU probe: headless or headed"
@@ -72,6 +79,9 @@ $RM cpu-speed $COMMON --models $DET $REC --threads 4 --warmup $WARM --iterations
 step "4 WebGPU latency"
 $B --models $DET_FLOAT $REC --eps webgpu --mode speed --ort 1.30.0 --warmup $WARM --iterations $ITER --timeout 900
 $B --models $DET_INT8 --eps webgpu --mode speed --ort 1.30.0 --warmup $WARM --iterations $ITER_INT8 --timeout 1800
+step "4b ORT-Web version check: FP32 / FP16 on WebGPU 1.22"
+$B --models v4_fp32 v4_fp16 --eps webgpu --mode speed --ort 1.22.0 --warmup $WARM --iterations $ITER --timeout 900
+$B --models v4_fp32 v4_fp16 --eps webgpu --mode ops --ort 1.22.0 --timeout 180
 step "5 WASM latency (1 and 4 threads)"
 $B --models $DET $REC --eps wasm --mode speed --ort 1.30.0 --warmup $WARM --iterations $ITER --wasm-threads 1 --timeout 3600
 $B --models $DET $REC --eps wasm --mode speed --ort 1.30.0 --warmup $WARM --iterations $ITER --wasm-threads 4 --timeout 3600
@@ -84,6 +94,17 @@ $P --frames $FRAMES --wasm-threads 4 --configs \
 $P --frames $((FRAMES / 4)) --wasm-threads 4 --configs v4_int8_head_excl_fbias@webgpu+rec_int8_full@webgpu
 $P --frames $FRAMES --wasm-threads 1 --configs \
   v4_fp32@wasm+rec_fp32@wasm v4_int8_head_excl@wasm+rec_int8_full@wasm v4_int8_head_excl_fbias@wasm+rec_int8_full@wasm
+step "6b pipeline repeats: four more fresh launches (r2..r5) of the key placements"
+KEY="v4_fp16@webgpu+rec_fp32@wasm v4_fp32@webgpu+rec_fp32@wasm v4_fp32@webgpu+rec_fp32@webgpu v4_int8_head_excl@wasm+rec_int8_full@wasm"
+for r in r2 r3 r4 r5; do
+  $P --frames $FRAMES --wasm-threads 4 --tag $r --configs $KEY
+done
+step "6c YOLO11l (COCO) representative runtimes (accuracy: same model files, measured on Windows)"
+$B --models coco_fp32 coco_fp16 --eps webgpu --mode speed --ort 1.30.0 --warmup $WARM --iterations $ITER --timeout 1800
+$B --models coco_int8_head_excl --eps webgpu --mode speed --ort 1.30.0 --warmup $WARM --iterations $ITER_INT8 --timeout 3600
+$B --models coco_fp32 coco_int8_head_excl --eps wasm --mode speed --ort 1.30.0 --warmup $WARM --iterations $ITER --wasm-threads 4 --timeout 7200
+$B --models coco_int8_head_excl_fbias --eps webgpu --mode ops --ort 1.30.0 --timeout 600
+$RM cpu-speed $COMMON --models coco_fp32 coco_int8_head_excl --threads 4 --warmup $WARM --iterations $ITER
 if [ "$WITH_ACCURACY" = "--with-accuracy" ]; then
   step "7 WebGPU numeric parity on the full test set"
   $B --models $DET_FLOAT --eps webgpu --mode accuracy --ort 1.30.0 --timeout 3600
@@ -92,4 +113,5 @@ step "8 summary"
 # accuracy/retention come from the Windows ORT CPU runs of the same model files (same SHA-256)
 $PY scripts/paper/summarize_runtime_matrix.py --matrix "$OUT" --accuracy-from paper_evidence/runtime/matrix \
   --artifact-root "$BUNDLE" > "$OUT/summary.md"
+$PY scripts/paper/summarize_pipeline_repeats.py --matrix "$OUT" >> "$OUT/summary.md" || echo "pipeline repeat summary skipped"
 step "device done"

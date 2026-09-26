@@ -1,6 +1,6 @@
-# 브라우저 기반 비전 추론의 구성요소·실행 환경별 양자화 실증 분석: 도로 표지 인식 파이프라인을 중심으로
+# BRIQ: 브라우저 기반 비전 추론의 구성요소·실행 환경별 양자화 실증 분석
 
-**English title:** Component- and Runtime-Aware Quantization for Browser-Based Vision Inference: An Empirical Study on a Road-Sign Recognition Pipeline
+**English title:** BRIQ: A Component- and Runtime-Aware Study of Quantization for Browser-Based Vision Inference
 
 > 초안 상태(2026-09-26): 모든 수치는 `paper_evidence/`의 원시 기록에서 다시 계산할 수 있다. 수치별 원천은 [RUNTIME_MATRIX.md](reports/RUNTIME_MATRIX.md)와 [TIIS_EVIDENCE_REPORT.md](reports/TIIS_EVIDENCE_REPORT.md)에 있다.
 
@@ -8,12 +8,12 @@
 
 ## Abstract
 
-브라우저에서 도로 표지판·신호등을 인식하는 검출–인식 파이프라인에 양자화를 적용할 때, 정확도 손실과 속도 이득이 구성요소와 실행 환경에 따라 어떻게 달라지는지 실험하였다. 대상은 다음과 같다.
+브라우저 기반 비전 추론에 양자화를 적용할 때 정확도 손실과 속도 이득이 구성요소와 실행 환경에 따라 어떻게 달라지는지 실험하였다(BRIQ: Browser Runtime-aware Inference Quantization). 주 응용 워크로드는 도로 표지판·신호등을 인식하는 검출–추적–인식 파이프라인이고, 검출기 수준의 결과는 표준 워크로드에서 외부 검증하였다. 대상은 다음과 같다.
 - 모델: 헤드 구조가 다른 두 검출기(YOLOv8s, YOLO26-n)와 14클래스 인식기
 - 변형: FP32, FP16, 정적 INT8(헤드 포함·제외, bias 표현 2종)의 18개
 - 평가: 학습·보정과 겹치지 않는 test 시퀀스(2,417프레임)에서 구성요소 정확도와 검출–추적–인식 종단 정확도
 - 실행 환경: 네이티브 CPU, 브라우저 WASM, WebGPU(ONNX Runtime Web 두 버전). 같은 입력으로 구성마다 1,024회(추론 한 번이 약 1초인 WebGPU INT8은 128회) 측정하고, 지연 차이의 원인을 연산자 배치 로그로 확인하였다. 브라우저 파이프라인은 브라우저를 5번 새로 띄워 반복 측정하였다.
-- 외부 검증: MLPerf edge 검출 과제의 YOLO11l과 COCO 부분집합(1,525장)에서, 측정 전에 공개한 다섯 가지 예측을 확인하였다.
+- 외부 검증: MLPerf가 채택한 모델과 데이터(YOLO11l, COCO safe subset 1,525장)로, 측정 전에 공개한 다섯 가지 예측을 확인하였다. 정식 MLPerf 제출은 아니다.
 
 결과는 다음과 같다.
 - **구성요소에 따라 손실이 달랐다.** 검출 헤드까지 INT8로 바꾸면 두 검출기 모두 검출이 사라졌고, 인식기는 전체 INT8에서도 정확도가 유지되었다(Top-1 유지율 100.0%).
@@ -32,13 +32,13 @@
 
 이 결과는 양자화 여부를 모델 단위로 한 번에 정하지 말고, 구성요소와 목표 실행 환경의 조합마다 운영 조건의 태스크 지표와 실측 지연으로 정해야 함을 보여 준다.
 
-**English abstract (working draft).** We study how quantization affects accuracy and latency across components and runtimes in a browser-based detection–recognition pipeline for Korean traffic signs and lights.
+**English abstract (working draft).** BRIQ (Browser Runtime-aware Inference Quantization) is an empirical study of how quantization affects accuracy and latency across components and runtimes in browser-based vision inference. The primary application workload is a road-scene detection–tracking–recognition pipeline for Korean traffic signs and lights; detector-level findings are externally validated on a standardized workload.
 
 *Setup.* We evaluate 18 variants on 2,417 sequence-disjoint test frames, per component and end to end (detection, tracking, and recognition):
 - two detectors with different heads (YOLOv8s and YOLO26-n) and a 14-class recognizer;
 - FP32, FP16, and static INT8 with or without the detection head and with two bias representations.
 
-Latency is measured 1,024 times per configuration (128 times for INT8 on WebGPU, where one call takes about a second) on native ONNX Runtime CPU, WebAssembly, and WebGPU in two ONNX Runtime Web versions, and operator-placement logs explain the differences. The browser pipeline is measured over five fresh browser launches. Five predictions, published before measurement, are then tested on the MLPerf edge detection workload (YOLO11l on a 1,525-image COCO subset).
+Latency is measured 1,024 times per configuration (128 times for INT8 on WebGPU, where one call takes about a second) on native ONNX Runtime CPU, WebAssembly, and WebGPU in two ONNX Runtime Web versions, and operator-placement logs explain the differences. The browser pipeline is measured over five fresh browser launches. Five predictions, published before measurement, are then tested on the model and COCO safe subset adopted by MLPerf (YOLO11l, 1,525 images); this is an external validation, not an MLPerf submission.
 
 *Results.*
 - **Accuracy depends on the component.** Quantizing the detection head removes every detection in both detectors, whereas the recognizer keeps its accuracy even when fully quantized.
@@ -67,17 +67,21 @@ These results argue for choosing precision per component and per target runtime,
 
 신경망 양자화는 모델 크기와 연산량을 줄이는 대표적 방법이다 [5], [6]. 그러나 파이프라인에 양자화를 적용할 때는 두 가지를 따로 따져야 한다. 첫째, 양자화 오차가 어느 구성요소에서 태스크 정확도로 이어지는가이다. 검출기의 몸통과 헤드, 뒤 단계의 인식기는 구조와 출력 형식이 달라서 같은 설정에서도 손실이 다를 수 있다 [7]–[10]. 둘째, 양자화 모델이 목표 실행 환경에서 실제로 빨라지는가이다. INT8의 속도 이득은 연산 장치와 커널 지원에 따라 달라진다 [11]. 브라우저에서는 이런 차이가 더 클 수 있다 [1], [2]. 기존 검출기 양자화 연구는 대부분 단일 모델의 정확도나 한 가지 하드웨어에서의 지연을 다루므로, 구성요소와 실행 환경을 함께 바꿨을 때의 결과는 알기 어렵다.
 
-본 연구는 브라우저 비전 추론에서 양자화의 효과를 구성요소, 정밀도, 실행 환경의 세 축으로 한 실험 틀에서 측정한다. 주 워크로드는 한국 도로 영상의 교통표지판·신호등 인식 파이프라인(검출기·추적기·인식기)이다. 검출기 수준의 결과는 MLPerf edge 검출 과제의 모델과 데이터(YOLO11l, COCO 부분집합)에서 다시 확인한다. 연구 질문은 다음과 같다.
+본 연구는 브라우저 비전 추론에서 양자화의 효과를 구성요소, 정밀도, 실행 환경의 세 축으로 한 실험 틀에서 측정한다. 이 평가 틀과 연구를 BRIQ(Browser Runtime-aware Inference Quantization)라 부른다. BRIQ는 새 양자화 알고리즘이 아니라, 같은 모델 파일을 구성요소·정밀도·실행 환경별로 측정하고 원인을 추적하는 실증 분석의 이름이다.
+- 주 응용 워크로드는 한국 도로 영상의 교통표지판·신호등 인식 파이프라인(검출기·추적기·인식기)이다.
+- 검출기 수준의 결과는 MLPerf가 채택한 모델과 데이터(YOLO11l, COCO safe subset)로 외부 검증한다.
+
+연구 질문은 다음과 같다.
 - **RQ1 (구성요소):** 같은 정적 INT8 설정을 적용할 때 검출기의 몸통, 검출 헤드, 인식기 가운데 어디에서 정확도가 손실되며, 그 손실은 파이프라인의 최종 인식 결과까지 어떻게 전파되는가?
 - **RQ2 (실행 환경):** 같은 모델 파일의 지연이 네이티브 CPU, 브라우저 WASM, 브라우저 WebGPU에서 어떻게 달라지며, 그 원인은 무엇인가?
 - **RQ3 (배치):** 구성요소마다 정밀도와 실행 환경을 다르게 배치하면 브라우저 파이프라인의 프레임당 지연이 어떻게 달라지는가?
 
 본 논문의 기여는 다음과 같다.
-1. 출력 구조가 다른 두 검출기(DFL 헤드와 NMS를 쓰는 YOLOv8s, NMS가 필요 없는 YOLO26-n)와 14클래스 인식기에 대해 정밀도, 양자화 범위(헤드 포함·제외), bias 표현을 바꾼 18개 변형을 학습·보정 데이터와 겹치지 않는 시퀀스에서 평가한다. 검출 붕괴의 원인은 가중치 전용·활성값 전용·단일 텐서 ablation으로 분리하고, 구성요소의 손실이 검출–추적–인식 종단 정확도로 어떻게 전파되는지도 측정한다.
-2. 같은 입력 텐서로 6개 실행 환경 구성(네이티브 CPU·WASM 각 1·4스레드, WebGPU 두 런타임 버전)의 지연을 반복 측정하고(구성마다 1,024회, WebGPU INT8은 128회), 연산자 배치 로그로 지연 차이의 원인을 확인한다.
-3. 한 브라우저 페이지에서 검출기와 인식기를 서로 다른 실행 환경에 배치해 검출–인식 프레임 지연을 측정하고(브라우저 실행 5회 반복), 구성요소별 배치 원칙을 제시한다.
-4. 검출기 수준의 결과(붕괴 메커니즘, 실행 환경별 속도 효과)를 표준 워크로드(YOLO11l, MLPerf COCO safe subset 1,525장)에서 측정 전에 공개한 예측으로 검증한다.
-5. 판정 기준(FP32 대비 정확도 유지율 99%, p90 지연)을 측정 전에 공개 벤치마크 근거로 정하고, 참고로 현행 MLPerf YOLO 과제의 95% 상대 품질 등급도 함께 보고한다. 측정 코드와 원시 기록은 모두 공개한다.
+1. **구성요소별 양자화 분석.** 두 검출기와 인식기에서 양자화 민감도를 비교하고, 가중치 전용·활성값 전용·단일 텐서 ablation으로 검출 붕괴의 원인을 추적한다. 평가한 검출기 그래프에서는 박스 좌표와 클래스 점수가 한 텐서별 활성값 척도를 공유할 때 모든 점수가 0으로 반올림되는 치명적 실패 모드가 있음을 보이고, 그 손실이 종단 정확도로 전파되는 크기를 측정한다.
+2. **실행 환경별 분석.** 네이티브 CPU, WASM, WebGPU와 ONNX Runtime Web 버전에 따라 정밀도의 실제 지연 효과가 어떻게 달라지는지를 연산자 배치 로그와 함께 분석한다.
+3. **교차 워크로드 검증과 구성요소별 배치.** 도로 파이프라인에서 구성요소마다 실행 환경을 나눈 배치의 이득을 보이고, 검출기 수준의 결과를 MLPerf가 채택한 표준 워크로드에서 측정 전에 공개한 예측으로 검증한다.
+
+판정 기준(99% 유지율 등)은 측정 전에 정하였고(3.5절), 측정 코드와 원시 기록은 모두 공개한다.
 
 2장은 관련 연구를 정리한다. 3장은 모델, 데이터, 양자화 변형, 측정 절차를 설명한다. 4장은 세 연구 질문의 결과와 표준 워크로드 외부 검증을 제시하고, 타당성의 한계를 논의한다. 5장은 결론을 맺는다.
 
@@ -478,7 +482,7 @@ Table 9는 한 브라우저 페이지에서 검출기(YOLO26-n)와 인식기를 
 
 ### 4.5. 표준 워크로드 외부 검증 (YOLO11l, COCO)
 
-3.6절의 사전 예측을 YOLO11l과 MLPerf COCO safe subset에서 확인하였다. Table 10은 정확도, Table 11은 지연이다.
+3.6절의 사전 예측을 MLPerf가 채택한 모델과 데이터(YOLO11l, COCO safe subset)에서 확인하였다. 이 절은 연구 질문 RQ1·RQ2의 검출기 수준 결과에 대한 외부 검증이다. Table 10은 정확도, Table 11은 지연이다.
 
 **Table 10.** YOLO11l 정밀도별 정확도(COCO safe subset 1,525장, pycocotools).
 - 유지율은 FP32 대비 mAP@0.5:0.95이고, 대괄호는 이미지 단위 부트스트랩 95% 신뢰구간이다.
@@ -502,7 +506,7 @@ Table 9는 한 브라우저 페이지에서 검출기(YOLO26-n)와 인식기를 
 - **P4 재현:** 헤드 제외 INT8은 붕괴하지 않았다. 유지율은 99.2%이지만 신뢰구간(98.4–99.8%)이 기준을 포함하므로 99% 기준은 보류이고, 95% 등급은 통과한다.
 
 **워크로드에 따라 달라진 것.**
-- 붕괴의 원인과 위치(점수와 박스 좌표를 한 척도로 담는 텐서)는 두 워크로드에서 같았다. 이는 박스와 점수를 한 출력으로 합치는 YOLO 계열 헤드의 구조에서 나오는 성질이다.
+- 붕괴의 원인과 위치(점수와 박스 좌표를 한 척도로 담는 텐서)는 두 워크로드에서 같았다. 이는 박스와 점수를 한 출력으로 합치는 헤드 구조에서 나오는 성질로, 평가한 YOLO 계열 검출기 그래프에 한정된 결론이다.
 - 반면 붕괴를 피한 뒤 남는 손실의 크기는 워크로드에 따라 달랐다.
   - COCO의 YOLO11l은 디코드 단계만 FP32로 두어도 99.0%로, 헤드 전체를 FP32로 둔 경우(99.2%)와 거의 같았다. 파일도 26.8 MB로 헤드 제외(31.1 MB)보다 작다.
   - Edge-Sign의 두 검출기는 디코드 단계만 제외하면 헤드 제외보다 2.7–5.9%p 낮았다.
@@ -562,8 +566,8 @@ Table 9는 한 브라우저 페이지에서 검출기(YOLO26-n)와 인식기를 
 - WebGPU를 쓸 수 없는 환경에서는 INT8 검출기만 15 FPS 기준을 지켰다. 이때 종단 정답률 기준으로 약 6%의 손실을 감수해야 한다.
 
 넷째, 검출기 수준의 결과는 표준 워크로드에서도 재현되었다.
-- MLPerf edge 검출 과제의 YOLO11l과 COCO 부분집합에서, 측정 전에 공개한 다섯 가지 예측이 모두 맞았다.
-  - 붕괴 메커니즘은 박스와 점수를 한 출력으로 합치는 YOLO 계열 헤드의 구조에서 나오므로, 모델과 데이터가 달라도 같았다.
+- MLPerf가 채택한 모델과 데이터(YOLO11l, COCO safe subset)에서, 측정 전에 공개한 다섯 가지 예측이 모두 맞았다.
+  - 붕괴 메커니즘은 박스와 점수를 한 출력으로 합치는 헤드 구조에서 나오며, 평가한 세 검출기 그래프(YOLOv8s, YOLO26-n, YOLO11l)에서는 모델과 데이터가 달라도 같았다. 출력 구조가 다른 검출기에 대해서는 확인하지 않았다.
   - 실행 환경에 따른 INT8·FP16의 속도 효과도 같은 방향으로 재현되었다.
 - 반면 붕괴를 피한 뒤의 손실은 달랐다. YOLO11l은 헤드 제외 INT8에서 99.2%를 유지하여, 도로 워크로드의 두 검출기(97.0%, 98.7%)보다 손실이 작았다.
 - 따라서 양자화 범위를 정하는 원칙(점수와 좌표가 섞인 텐서를 피한다)은 일반화되지만, 남는 손실의 크기는 워크로드마다 태스크 지표로 확인해야 한다.
