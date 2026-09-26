@@ -1,0 +1,224 @@
+{
+  "frames": 2417,
+  "gt_objects_with_fine_label": 6771,
+  "resamples": 1000,
+  "seed": 0,
+  "note": "frame bootstrap ignores within-sequence correlation (optimistic interval)",
+  "models": {
+    "v4_fp32": {
+      "path": "model_space/yolo_v4_signs_fp32.onnx",
+      "sha256": "4133272b340bc2e788277edce1b4abe3e41126df9d697746a06315fd5603c6f1"
+    },
+    "v4_fp16": {
+      "path": "model_space/yolo_v4_signs_fp16.onnx",
+      "sha256": "0028ac54c854b3b021f0a2b7987eab37be66612aa86c1c955846c0db3977e37e"
+    },
+    "v4_int8_head_excl": {
+      "path": "model_space/yolo_v4_signs_int8_head_excluded.onnx",
+      "sha256": "a2ddfe7d07adeb3cc58d413a0936ca3833260e99a4af227b01dea4df7326c9eb"
+    },
+    "v4_int8_head_excl_fbias": {
+      "path": "model_space/yolo_v4_signs_int8_head_excluded_fbias.onnx",
+      "sha256": "7b236c78b67f7c8ee97b8b725cf66040e1d2cdf14d30845bafe2381c050b3791"
+    },
+    "v4_int8_full": {
+      "path": "model_space/yolo_v4_signs_int8_static.onnx",
+      "sha256": "c4fc17fb230324a0e691c4f2b9c1dd25986cdea27a41525de891b8d0d1d729cd"
+    },
+    "rec_fp32": {
+      "path": "model_space/korean_sign_net_fp32.onnx",
+      "sha256": "a5d6584c984fe105c04d22f7ae026ba2fc4be4a97eb67a4997a1c03626ae47ca"
+    },
+    "rec_fp16": {
+      "path": "model_space/korean_sign_net_fp16.onnx",
+      "sha256": "b4e39ac205a962f13ae106f24858d573393ecdd0f1dfa14acd877aca3fcb1a64"
+    },
+    "rec_int8_full": {
+      "path": "model_space/korean_sign_net_int8_qdq_full.onnx",
+      "sha256": "4d65ecfb63f6f5ae5f190aea0cb47b7c8d2645cea4563d29c45d8eb229a14dcc"
+    }
+  },
+  "onnxruntime_version": "1.23.2",
+  "combinations": {
+    "v4_fp32+rec_fp32": {
+      "tracks": 3917,
+      "matched_gt": 2936,
+      "correct": 2541,
+      "fine_top1_on_matched": 0.8654632152588556,
+      "end_to_end_accuracy": 0.37527691626052284,
+      "retention_vs_fp32": 1.0,
+      "retention_ci95": [
+        1.0,
+        1.0
+      ]
+    },
+    "v4_fp32+rec_fp16": {
+      "tracks": 3917,
+      "matched_gt": 2936,
+      "correct": 2541,
+      "fine_top1_on_matched": 0.8654632152588556,
+      "end_to_end_accuracy": 0.37527691626052284,
+      "retention_vs_fp32": 1.0,
+      "retention_ci95": [
+        1.0,
+        1.0
+      ]
+    },
+    "v4_fp32+rec_int8_full": {
+      "tracks": 3917,
+      "matched_gt": 2936,
+      "correct": 2541,
+      "fine_top1_on_matched": 0.8654632152588556,
+      "end_to_end_accuracy": 0.37527691626052284,
+      "retention_vs_fp32": 1.0,
+      "retention_ci95": [
+        0.9972098207349185,
+        1.0027923773434384
+      ]
+    },
+    "v4_fp16+rec_fp32": {
+      "tracks": 3911,
+      "matched_gt": 2928,
+      "correct": 2536,
+      "fine_top1_on_matched": 0.8661202185792349,
+      "end_to_end_accuracy": 0.3745384728991286,
+      "retention_vs_fp32": 0.9980322707595435,
+      "retention_ci95": [
+        0.9924027764322191,
+        1.0034231243764253
+      ]
+    },
+    "v4_fp16+rec_fp16": {
+      "tracks": 3911,
+      "matched_gt": 2928,
+      "correct": 2535,
+      "fine_top1_on_matched": 0.8657786885245902,
+      "end_to_end_accuracy": 0.3743907842268498,
+      "retention_vs_fp32": 0.9976387249114522,
+      "retention_ci95": [
+        0.9921055992920806,
+        1.0028115853243482
+      ]
+    },
+    "v4_fp16+rec_int8_full": {
+      "tracks": 3911,
+      "matched_gt": 2928,
+      "correct": 2534,
+      "fine_top1_on_matched": 0.8654371584699454,
+      "end_to_end_accuracy": 0.37424309555457097,
+      "retention_vs_fp32": 0.9972451790633609,
+      "retention_ci95": [
+        0.9911396675298727,
+        1.003185416826542
+      ]
+    },
+    "v4_int8_head_excl+rec_fp32": {
+      "tracks": 3699,
+      "matched_gt": 2777,
+      "correct": 2393,
+      "fine_top1_on_matched": 0.8617212819589485,
+      "end_to_end_accuracy": 0.35341899276325506,
+      "retention_vs_fp32": 0.9417552144824872,
+      "retention_ci95": [
+        0.9277354545454546,
+        0.9567311517516034
+      ]
+    },
+    "v4_int8_head_excl+rec_fp16": {
+      "tracks": 3699,
+      "matched_gt": 2777,
+      "correct": 2392,
+      "fine_top1_on_matched": 0.8613611811307166,
+      "end_to_end_accuracy": 0.35327130409097623,
+      "retention_vs_fp32": 0.9413616686343959,
+      "retention_ci95": [
+        0.9274743194203292,
+        0.9562905575998496
+      ]
+    },
+    "v4_int8_head_excl+rec_int8_full": {
+      "tracks": 3699,
+      "matched_gt": 2777,
+      "correct": 2399,
+      "fine_top1_on_matched": 0.8638818869283399,
+      "end_to_end_accuracy": 0.35430512479692805,
+      "retention_vs_fp32": 0.944116489571035,
+      "retention_ci95": [
+        0.9298508146142314,
+        0.9590602801990205
+      ]
+    },
+    "v4_int8_head_excl_fbias+rec_fp32": {
+      "tracks": 3688,
+      "matched_gt": 2775,
+      "correct": 2389,
+      "fine_top1_on_matched": 0.8609009009009009,
+      "end_to_end_accuracy": 0.3528282380741397,
+      "retention_vs_fp32": 0.940181031090122,
+      "retention_ci95": [
+        0.9261370837246671,
+        0.9538663002952642
+      ]
+    },
+    "v4_int8_head_excl_fbias+rec_fp16": {
+      "tracks": 3688,
+      "matched_gt": 2775,
+      "correct": 2388,
+      "fine_top1_on_matched": 0.8605405405405405,
+      "end_to_end_accuracy": 0.3526805494018609,
+      "retention_vs_fp32": 0.9397874852420307,
+      "retention_ci95": [
+        0.9259234605468916,
+        0.9536015841584159
+      ]
+    },
+    "v4_int8_head_excl_fbias+rec_int8_full": {
+      "tracks": 3688,
+      "matched_gt": 2775,
+      "correct": 2396,
+      "fine_top1_on_matched": 0.8634234234234234,
+      "end_to_end_accuracy": 0.3538620587800916,
+      "retention_vs_fp32": 0.9429358520267611,
+      "retention_ci95": [
+        0.9292178199798172,
+        0.9575419308090625
+      ]
+    },
+    "v4_int8_full+rec_fp32": {
+      "tracks": 0,
+      "matched_gt": 0,
+      "correct": 0,
+      "fine_top1_on_matched": 0.0,
+      "end_to_end_accuracy": 0.0,
+      "retention_vs_fp32": 0.0,
+      "retention_ci95": [
+        0.0,
+        0.0
+      ]
+    },
+    "v4_int8_full+rec_fp16": {
+      "tracks": 0,
+      "matched_gt": 0,
+      "correct": 0,
+      "fine_top1_on_matched": 0.0,
+      "end_to_end_accuracy": 0.0,
+      "retention_vs_fp32": 0.0,
+      "retention_ci95": [
+        0.0,
+        0.0
+      ]
+    },
+    "v4_int8_full+rec_int8_full": {
+      "tracks": 0,
+      "matched_gt": 0,
+      "correct": 0,
+      "fine_top1_on_matched": 0.0,
+      "end_to_end_accuracy": 0.0,
+      "retention_vs_fp32": 0.0,
+      "retention_ci95": [
+        0.0,
+        0.0
+      ]
+    }
+  }
+}

@@ -10,7 +10,8 @@
       "retention": 0.9983893317664719,
       "ci95_low": 0.9958885875761471,
       "ci95_high": 1.0004639436406246,
-      "share_below_0.99": 0.0
+      "share_below_0.99": 0.0,
+      "share_below_0.95": 0.0
     },
     "v4_int8_head_excl": {
       "reference": "v4_fp32",
@@ -18,7 +19,8 @@
       "retention": 0.9704639884861087,
       "ci95_low": 0.9634092927335511,
       "ci95_high": 0.9780761057104527,
-      "share_below_0.99": 1.0
+      "share_below_0.99": 1.0,
+      "share_below_0.95": 0.0
     },
     "v4_int8_head_excl_fbias": {
       "reference": "v4_fp32",
@@ -26,7 +28,8 @@
       "retention": 0.9710325290035852,
       "ci95_low": 0.964290965596409,
       "ci95_high": 0.9781685242565733,
-      "share_below_0.99": 1.0
+      "share_below_0.99": 1.0,
+      "share_below_0.95": 0.0
     },
     "v3_fp16": {
       "reference": "v3_fp32",
@@ -34,7 +37,8 @@
       "retention": 0.9989749092291591,
       "ci95_low": 0.9968897072629151,
       "ci95_high": 1.0008899627212882,
-      "share_below_0.99": 0.0
+      "share_below_0.99": 0.0,
+      "share_below_0.95": 0.0
     },
     "v3_int8_head_excl": {
       "reference": "v3_fp32",
@@ -42,7 +46,8 @@
       "retention": 0.9874429962945552,
       "ci95_low": 0.9822966652416235,
       "ci95_high": 0.9923481998982117,
-      "share_below_0.99": 0.812
+      "share_below_0.99": 0.812,
+      "share_below_0.95": 0.0
     },
     "v3_int8_head_excl_fbias": {
       "reference": "v3_fp32",
@@ -50,7 +55,8 @@
       "retention": 0.9868257794795806,
       "ci95_low": 0.9817439490206981,
       "ci95_high": 0.9922019387842947,
-      "share_below_0.99": 0.869
+      "share_below_0.99": 0.869,
+      "share_below_0.95": 0.0
     },
     "rec_fp16": {
       "reference": "rec_fp32",
@@ -58,7 +64,8 @@
       "retention": 0.9998172514619884,
       "ci95_low": 0.9994486307664032,
       "ci95_high": 1.0,
-      "share_below_0.99": 0.0
+      "share_below_0.99": 0.0,
+      "share_below_0.95": 0.0
     },
     "rec_int8_full": {
       "reference": "rec_fp32",
@@ -66,7 +73,8 @@
       "retention": 1.0003654970760234,
       "ci95_low": 0.9974357798165138,
       "ci95_high": 1.003299286856838,
-      "share_below_0.99": 0.0
+      "share_below_0.99": 0.0,
+      "share_below_0.95": 0.0
     },
     "rec_int8_full_fbias": {
       "reference": "rec_fp32",
@@ -74,7 +82,8 @@
       "retention": 1.0003654970760234,
       "ci95_low": 0.997635052157658,
       "ci95_high": 1.0032861566668345,
-      "share_below_0.99": 0.0
+      "share_below_0.99": 0.0,
+      "share_below_0.95": 0.0
     },
     "rec_int8_head_excl": {
       "reference": "rec_fp32",
@@ -82,7 +91,8 @@
       "retention": 0.997076023391813,
       "ci95_low": 0.994490155454591,
       "ci95_high": 0.9998178962133527,
-      "share_below_0.99": 0.0
+      "share_below_0.99": 0.0,
+      "share_below_0.95": 0.0
     },
     "rec_int8_head_excl_fbias": {
       "reference": "rec_fp32",
@@ -90,7 +100,88 @@
       "retention": 0.997076023391813,
       "ci95_low": 0.9943325943221867,
       "ci95_high": 0.9996335233757382,
-      "share_below_0.99": 0.0
+      "share_below_0.99": 0.0,
+      "share_below_0.95": 0.0
+    },
+    "v4_int8_decode_excl": {
+      "reference": "v4_fp32",
+      "metric": "mAP50_95",
+      "retention": 0.9429698985921583,
+      "ci95_low": 0.934536127864099,
+      "ci95_high": 0.952482489870081,
+      "share_below_0.99": 1.0,
+      "share_below_0.95": 0.928
+    },
+    "v3_int8_decode_excl": {
+      "reference": "v3_fp32",
+      "metric": "mAP50_95",
+      "retention": 0.9281994434101977,
+      "ci95_low": 0.9187753319782743,
+      "ci95_high": 0.9391059372000434,
+      "share_below_0.99": 1.0,
+      "share_below_0.95": 1.0
+    }
+  },
+  "block": {
+    "length_frames": 25,
+    "seed": 1,
+    "pairs": {
+      "v4_fp16": {
+        "reference": "v4_fp32",
+        "ci95_low": 0.9957777377501198,
+        "ci95_high": 1.0001533091752801,
+        "share_below_0.99": 0.0,
+        "share_below_0.95": 0.0
+      },
+      "v4_int8_head_excl": {
+        "reference": "v4_fp32",
+        "ci95_low": 0.9618779123696399,
+        "ci95_high": 0.9790641092069842,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 0.0
+      },
+      "v4_int8_head_excl_fbias": {
+        "reference": "v4_fp32",
+        "ci95_low": 0.9616633921787162,
+        "ci95_high": 0.9798163323157321,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 0.0
+      },
+      "v3_fp16": {
+        "reference": "v3_fp32",
+        "ci95_low": 0.9973301652477762,
+        "ci95_high": 1.0006107091151664,
+        "share_below_0.99": 0.0,
+        "share_below_0.95": 0.0
+      },
+      "v3_int8_head_excl": {
+        "reference": "v3_fp32",
+        "ci95_low": 0.9815097589420051,
+        "ci95_high": 0.9935295240641238,
+        "share_below_0.99": 0.829,
+        "share_below_0.95": 0.0
+      },
+      "v3_int8_head_excl_fbias": {
+        "reference": "v3_fp32",
+        "ci95_low": 0.980928412646551,
+        "ci95_high": 0.9925572718644884,
+        "share_below_0.99": 0.858,
+        "share_below_0.95": 0.0
+      },
+      "v4_int8_decode_excl": {
+        "reference": "v4_fp32",
+        "ci95_low": 0.9351369843628979,
+        "ci95_high": 0.9529065536417635,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 0.898
+      },
+      "v3_int8_decode_excl": {
+        "reference": "v3_fp32",
+        "ci95_low": 0.9189431904747641,
+        "ci95_high": 0.941336194958949,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      }
     }
   }
 }

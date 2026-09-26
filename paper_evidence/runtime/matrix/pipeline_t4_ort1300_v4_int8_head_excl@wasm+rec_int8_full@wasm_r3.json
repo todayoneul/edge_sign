@@ -1,0 +1,81 @@
+{
+  "run": "pipeline_t4_ort1300_v4_int8_head_excl@wasm+rec_int8_full@wasm_r3",
+  "mode": "pipeline",
+  "runtime": "onnxruntime-web",
+  "ort_web_version": "1.30.0",
+  "detector": {
+    "key": "v4_int8_head_excl",
+    "ep": "wasm",
+    "dtype": "float32",
+    "bytes": 3416372,
+    "sha256": "a2ddfe7d07adeb3cc58d413a0936ca3833260e99a4af227b01dea4df7326c9eb",
+    "session_init_ms": 1812.119999974966
+  },
+  "recognizer": {
+    "key": "rec_int8_full",
+    "ep": "wasm",
+    "dtype": "float32",
+    "bytes": 41894,
+    "sha256": "4d65ecfb63f6f5ae5f190aea0cb47b7c8d2645cea4563d29c45d8eb229a14dcc",
+    "session_init_ms": 7.185000002384186
+  },
+  "frames": 512,
+  "warmup": 20,
+  "conf_threshold": 0.25,
+  "status": "completed",
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+  "cross_origin_isolated": true,
+  "requested_wasm_threads": 4,
+  "effective_wasm_threads": 4,
+  "metrics": {
+    "det_prepare_ms": {
+      "n": 512,
+      "mean_ms": 1.3634082034695894,
+      "p50_ms": 1.354999989271164,
+      "p90_ms": 1.5094999909400941,
+      "p99_ms": 1.6639000159502029,
+      "fps": 733.4560533339969
+    },
+    "det_ms": {
+      "n": 512,
+      "mean_ms": 47.02601562498603,
+      "p50_ms": 47.39750000834465,
+      "p90_ms": 51.78950001895428,
+      "p99_ms": 54.277349990606304,
+      "fps": 21.264825154965425
+    },
+    "decode_ms": {
+      "n": 512,
+      "mean_ms": 0.0008300784393213689,
+      "p50_ms": 0,
+      "p90_ms": 0.004999995231628418,
+      "p99_ms": 0.005000025033950806,
+      "fps": 1204705.4261733994
+    },
+    "rec_prepare_ms": {
+      "n": 512,
+      "mean_ms": 0.19458984432276338,
+      "p50_ms": 0.030000001192092896,
+      "p90_ms": 0.9920000046491633,
+      "p99_ms": 1.4039000022411345,
+      "fps": 5139.0143379801175
+    },
+    "rec_ms": {
+      "n": 512,
+      "mean_ms": 0.2607519523589872,
+      "p50_ms": 0.24000000953674316,
+      "p90_ms": 0.6339999914169315,
+      "p99_ms": 0.9194500172138214,
+      "fps": 3835.062368481375
+    },
+    "total_ms": {
+      "n": 512,
+      "mean_ms": 48.84559570357669,
+      "p50_ms": 49.070000007748604,
+      "p90_ms": 53.640999984741214,
+      "p99_ms": 56.735400007665156,
+      "fps": 20.472674876739717
+    }
+  },
+  "mean_detections": 1.712890625
+}

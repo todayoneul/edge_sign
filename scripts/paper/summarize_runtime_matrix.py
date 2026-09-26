@@ -3,7 +3,8 @@
 Reads <matrix>/cpu_<key>/metrics.json, cpu_t<N>_<key>.json, the browser
 {mode}_{tag}_ort{ver}_{key}.json files (tag: webgpu, wasm, wasmt<N>) and, for the
 recognizer rows, recognizer_variants.py metrics (top-1 retention instead of mAP). Criteria (docs: EVALUATION_CRITERIA.md):
-  accuracy  retention = mAP50-95(variant) / mAP50-95(FP32 of the same family) >= 0.99
+  accuracy  retention = mAP50-95(variant) / mAP50-95(FP32 of the same family); two quality
+            tiers as MLPerf's yolo-95 / yolo-99: tier95 = retention >= 0.95, tier99 = >= 0.99
   latency   A: p90 <= 33.3 ms (30 FPS)   B: p90 <= 66.7 ms (15 FPS)
 Operator placement is parsed from ORT's VerifyEachNodeIsAssignedToAnEp log lines
 and written to placement.json, so the raw ops logs are not needed for the tables.
@@ -24,7 +25,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from scripts.paper.runtime_matrix import MODELS
 
-RETENTION = 0.99
+TIERS = {"tier95": 0.95, "tier99": 0.99}
 P90_A, P90_B = 1000 / 30, 1000 / 15
 # "Node(s) placed on [EP]" is followed by one line per node; when a single EP takes the
 # whole graph ORT prints "All nodes placed on [EP]" with the count only.
@@ -92,7 +93,8 @@ def main() -> None:
             rec = load(args.recognition / f"{key[4:]}_metrics.json")
             if rec:
                 row.update(top1=rec["top1_accuracy"], retention=rec["top1_retention_vs_fp32"],
-                           agreement=rec["agreement_with_fp32"], accuracy_ok=rec["top1_retention_vs_fp32"] >= RETENTION)
+                           agreement=rec["agreement_with_fp32"],
+                           **{t: rec["top1_retention_vs_fp32"] >= v for t, v in TIERS.items()})
         else:
             acc = load(ax / f"cpu_{key}" / "metrics.json")
             ref = load(ax / f"cpu_{family}_fp32" / "metrics.json")
@@ -100,7 +102,7 @@ def main() -> None:
                 row.update(mAP50=acc["mAP50"], mAP50_95=acc["mAP50_95"], precision=acc["precision"], recall=acc["recall"])
                 if ref:
                     row["retention"] = acc["mAP50_95"] / ref["mAP50_95"]
-                    row["accuracy_ok"] = row["retention"] >= RETENTION
+                    row.update({t: row["retention"] >= v for t, v in TIERS.items()})
         row["cpu_t1"] = lat(load(mx / f"cpu_t1_{key}.json"))
         row["cpu_t4"] = lat(load(mx / f"cpu_t4_{key}.json"))
         for tag, v in speed_cols:
@@ -135,12 +137,13 @@ def main() -> None:
         return f"{x['mean_ms']:{spec}} / {x['p90_ms']:{spec}}{mark}"
 
     print("## Accuracy (ORT CPU, independent test)\n")
-    print("| model | MB | mAP50 or top-1 | mAP50-95 | retention | >=99% |")
-    print("|---|---:|---:|---:|---:|:-:|")
+    print("| model | MB | mAP50 or top-1 | mAP50-95 | retention | >=95% | >=99% |")
+    print("|---|---:|---:|---:|---:|:-:|:-:|")
     for r in rows:
         first = r.get("mAP50", r.get("top1"))
         print(f"| {r['model']} | {f(r['bytes'] and r['bytes'] / 1e6, '.3f')} | {f(first)} | {f(r.get('mAP50_95'))} "
-              f"| {f(r.get('retention'), '.3f')} | {'Y' if r.get('accuracy_ok') else 'N' if 'accuracy_ok' in r else '-'} |")
+              f"| {f(r.get('retention'), '.3f')} | "
+              + " | ".join("Y" if r.get(t) else "N" if t in r else "-" for t in TIERS) + " |")
     cols = ["cpu_t1", "cpu_t4"] + [f"{t}_{v}" for t, v in speed_cols]
     print("\n## Latency mean / p90 ms, batch 1 (detector: A = p90<=33.3, B = p90<=66.7)\n")
     print("| model | " + " | ".join(cols) + " |")

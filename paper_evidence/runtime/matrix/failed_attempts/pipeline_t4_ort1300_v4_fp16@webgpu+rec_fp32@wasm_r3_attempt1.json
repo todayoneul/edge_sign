@@ -1,0 +1,38 @@
+{
+  "run": "pipeline_t4_ort1300_v4_fp16@webgpu+rec_fp32@wasm_r3",
+  "mode": "pipeline",
+  "runtime": "onnxruntime-web",
+  "ort_web_version": "1.30.0",
+  "detector": {
+    "key": "v4_fp16",
+    "ep": "webgpu",
+    "dtype": "float16",
+    "bytes": 4971834,
+    "sha256": "0028ac54c854b3b021f0a2b7987eab37be66612aa86c1c955846c0db3977e37e",
+    "session_init_ms": 2184.955000013113
+  },
+  "recognizer": {
+    "key": "rec_fp32",
+    "ep": "wasm",
+    "dtype": "float32",
+    "bytes": 116860,
+    "sha256": "a5d6584c984fe105c04d22f7ae026ba2fc4be4a97eb67a4997a1c03626ae47ca",
+    "session_init_ms": 4.555000007152557
+  },
+  "frames": 512,
+  "warmup": 20,
+  "conf_threshold": 0.25,
+  "status": "unsupported",
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+  "cross_origin_isolated": true,
+  "requested_wasm_threads": 4,
+  "adapter": {
+    "vendor": "nvidia",
+    "architecture": "blackwell",
+    "device": "",
+    "description": "",
+    "shader_f16": true
+  },
+  "effective_wasm_threads": 4,
+  "reason": "TypeError: Failed to fetch\n    at frameBytes (http://127.0.0.1:8793/browser_pipeline.html?run=pipeline_t4_ort1300_v4_fp16%40webgpu%2Brec_fp32%40wasm_r3&ort=1.30.0&det=v4_fp16&det_ep=webgpu&det_dtype=float16&rec=rec_fp32&rec_ep=wasm&rec_dtype=float32&frames=512&warmup=20&threads=4&conf=0.25:25:19)\n    at main (http://127.0.0.1:8793/browser_pipeline.html?run=pipeline_t4_ort1300_v4_fp16%40webgpu%2Brec_fp32%40wasm_r3&ort=1.30.0&det=v4_fp16&det_ep=webgpu&det_dtype=float16&rec=rec_fp32&rec_ep=wasm&rec_dtype=float32&frames=512&warmup=20&threads=4&conf=0.25:89:23)\n    at async http://127.0.0.1:8793/browser_pipeline.html?run=pipeline_t4_ort1300_v4_fp16%40webgpu%2Brec_fp32%40wasm_r3&ort=1.30.0&det=v4_fp16&det_ep=webgpu&det_dtype=float16&rec=rec_fp32&rec_ep=wasm&rec_dtype=float32&frames=512&warmup=20&threads=4&conf=0.25:118:7"
+}

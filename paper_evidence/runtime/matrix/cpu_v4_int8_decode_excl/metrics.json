@@ -1,0 +1,55 @@
+{
+  "mAP50": 0.4754545992546889,
+  "mAP50_95": 0.22836945379501597,
+  "precision": 0.8476443768996961,
+  "recall": 0.3294447725930301,
+  "detection_count": 2632,
+  "ground_truth_count": 6772,
+  "true_positives": 2231,
+  "false_positives": 401,
+  "false_negatives": 4541,
+  "per_class": {
+    "traffic_sign": {
+      "AP50": 0.47076897652701455,
+      "AP50_95": 0.25046003186771415,
+      "precision": 0.8501506024096386,
+      "recall": 0.3354129530600119,
+      "detection_count": 1328,
+      "ground_truth_count": 3366
+    },
+    "traffic_light": {
+      "AP50": 0.4801402219823633,
+      "AP50_95": 0.2062788757223178,
+      "precision": 0.8450920245398773,
+      "recall": 0.32354668232530825,
+      "detection_count": 1304,
+      "ground_truth_count": 3406
+    }
+  },
+  "AP_confidence_floor": 0.001,
+  "AP_integration": "Ultralytics-compatible 101-point precision-envelope trapezoid",
+  "task_confidence_threshold": 0.25,
+  "IoU_thresholds": [
+    0.5,
+    0.55,
+    0.6,
+    0.65,
+    0.7,
+    0.75,
+    0.8,
+    0.85,
+    0.9,
+    0.95
+  ],
+  "runtime": "onnxruntime-cpu",
+  "onnxruntime_version": "1.23.2",
+  "threads": 4,
+  "model_path": "model_space/yolo_v4_signs_int8_decode_excluded.onnx",
+  "model_sha256": "4aa9e53e535e60e1ee5a3e77c6566b2026e8430684737ba3ea808d13d6a913b3",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "model": "v4_int8_decode_excl",
+  "quantization": "static W8A8 QDQ, head decode stage excluded (conv branches INT8), INT32 bias",
+  "output_bytes": 3160319,
+  "excluded_nodes": 35,
+  "frames_evaluated": 2417
+}

@@ -1,0 +1,379 @@
+{
+  "rounds": [
+    "r1",
+    "r2",
+    "r3",
+    "r4",
+    "r5"
+  ],
+  "frames_per_launch": 512,
+  "configs": {
+    "v4_fp32@webgpu+rec_fp32@wasm": {
+      "launches": 5,
+      "mean_total_per_launch": [
+        16.213193359260913,
+        17.251093750062864,
+        18.196689453732688,
+        17.196386718424037,
+        17.496845703746658
+      ],
+      "p90_total_per_launch": [
+        18.00249999463558,
+        19.871500000357628,
+        21.019000008702278,
+        19.908499994874003,
+        20.18800002336502
+      ],
+      "median_of_means": {
+        "det_prepare_ms": 1.3175390626420267,
+        "det_ms": 15.568789063079748,
+        "decode_ms": 0.0010058592888526618,
+        "rec_prepare_ms": 0.1334082034882158,
+        "rec_ms": 0.23933593841502443,
+        "total_ms": 17.251093750062864
+      },
+      "min_mean_total": 16.213193359260913,
+      "max_mean_total": 18.196689453732688,
+      "pooled_frames": 2560,
+      "pooled_mean_total": 17.27084179704543,
+      "pooled_p90_total": 20.151000007987022,
+      "median_p90_launch": 19.908499994874003,
+      "min_p90_launch": 18.00249999463558,
+      "max_p90_launch": 21.019000008702278,
+      "A_30fps": true,
+      "B_15fps": true,
+      "pooled_A_30fps": true,
+      "pooled_B_15fps": true,
+      "launches_passing_A": 5,
+      "launches_passing_B": 5,
+      "mean_detections": 1.77734375
+    },
+    "v4_fp16@webgpu+rec_fp32@wasm": {
+      "launches": 5,
+      "mean_total_per_launch": [
+        16.19820312561933,
+        16.723847656161524,
+        17.389082032081205,
+        16.650156250281725,
+        16.9018261723686
+      ],
+      "p90_total_per_launch": [
+        18.449000015854836,
+        19.27400000691414,
+        19.924000012874604,
+        19.372999998927117,
+        19.832000008225442
+      ],
+      "median_of_means": {
+        "det_prepare_ms": 2.582460937264841,
+        "det_ms": 13.736796875600703,
+        "decode_ms": 0.0009863281156867743,
+        "rec_prepare_ms": 0.16255859448574483,
+        "rec_ms": 0.2402441405574791,
+        "total_ms": 16.723847656161524
+      },
+      "min_mean_total": 16.19820312561933,
+      "max_mean_total": 17.389082032081205,
+      "pooled_frames": 2560,
+      "pooled_mean_total": 16.772623047302478,
+      "pooled_p90_total": 19.405000001192093,
+      "median_p90_launch": 19.372999998927117,
+      "min_p90_launch": 18.449000015854836,
+      "max_p90_launch": 19.924000012874604,
+      "A_30fps": true,
+      "B_15fps": true,
+      "pooled_A_30fps": true,
+      "pooled_B_15fps": true,
+      "launches_passing_A": 5,
+      "launches_passing_B": 5,
+      "mean_detections": 1.775390625
+    },
+    "v4_fp16@webgpu+rec_int8_full@wasm": {
+      "launches": 5,
+      "mean_total_per_launch": [
+        16.04068359360099,
+        17.278486327501014,
+        17.386572265357245,
+        16.752597655751742,
+        16.95569335942855
+      ],
+      "p90_total_per_launch": [
+        18.339000004529954,
+        20.204500013589858,
+        20.23099998533726,
+        19.56300002038479,
+        19.709499979019164
+      ],
+      "median_of_means": {
+        "det_prepare_ms": 2.622226562409196,
+        "det_ms": 13.88188476592768,
+        "decode_ms": 0.001054687483701855,
+        "rec_prepare_ms": 0.15358398476382717,
+        "rec_ms": 0.28763671877095476,
+        "total_ms": 16.95569335942855
+      },
+      "min_mean_total": 16.04068359360099,
+      "max_mean_total": 17.386572265357245,
+      "pooled_frames": 2560,
+      "pooled_mean_total": 16.882806640327907,
+      "pooled_p90_total": 19.75,
+      "median_p90_launch": 19.709499979019164,
+      "min_p90_launch": 18.339000004529954,
+      "max_p90_launch": 20.23099998533726,
+      "A_30fps": true,
+      "B_15fps": true,
+      "pooled_A_30fps": true,
+      "pooled_B_15fps": true,
+      "launches_passing_A": 5,
+      "launches_passing_B": 5,
+      "mean_detections": 1.775390625
+    },
+    "v4_fp32@webgpu+rec_fp32@webgpu": {
+      "launches": 5,
+      "mean_total_per_launch": [
+        17.75262695318088,
+        19.317773437476717,
+        19.51022461010143,
+        18.751220703183208,
+        20.2353906253702
+      ],
+      "p90_total_per_launch": [
+        20.377999994158746,
+        23.17700000703335,
+        22.945000022649765,
+        22.367000004649164,
+        23.09699999690056
+      ],
+      "median_of_means": {
+        "det_prepare_ms": 1.2587500014342368,
+        "det_ms": 15.402500000491273,
+        "decode_ms": 0.000878905993886292,
+        "rec_prepare_ms": 0.1174999998183921,
+        "rec_ms": 2.340683594055008,
+        "total_ms": 19.317773437476717
+      },
+      "min_mean_total": 17.75262695318088,
+      "max_mean_total": 20.2353906253702,
+      "pooled_frames": 2560,
+      "pooled_mean_total": 19.113447265862487,
+      "pooled_p90_total": 22.68049997985363,
+      "median_p90_launch": 22.945000022649765,
+      "min_p90_launch": 20.377999994158746,
+      "max_p90_launch": 23.17700000703335,
+      "A_30fps": true,
+      "B_15fps": true,
+      "pooled_A_30fps": true,
+      "pooled_B_15fps": true,
+      "launches_passing_A": 5,
+      "launches_passing_B": 5,
+      "mean_detections": 1.77734375
+    },
+    "v4_fp16@webgpu+rec_fp16@webgpu": {
+      "launches": 5,
+      "mean_total_per_launch": [
+        17.465986328141298,
+        19.69451171939727,
+        18.89917968690861,
+        18.194296875211876,
+        19.56083984376164
+      ],
+      "p90_total_per_launch": [
+        20.34350002706051,
+        23.778499999642374,
+        22.353499990701675,
+        22.040999987721445,
+        22.79349998533726
+      ],
+      "median_of_means": {
+        "det_prepare_ms": 2.4419824213255197,
+        "det_ms": 13.930615234537981,
+        "decode_ms": 0.0010058593470603228,
+        "rec_prepare_ms": 0.1480957034509629,
+        "rec_ms": 2.3806738274288364,
+        "total_ms": 18.89917968690861
+      },
+      "min_mean_total": 17.465986328141298,
+      "max_mean_total": 19.69451171939727,
+      "pooled_frames": 2560,
+      "pooled_mean_total": 18.76296289068414,
+      "pooled_p90_total": 22.33549998104572,
+      "median_p90_launch": 22.353499990701675,
+      "min_p90_launch": 20.34350002706051,
+      "max_p90_launch": 23.778499999642374,
+      "A_30fps": true,
+      "B_15fps": true,
+      "pooled_A_30fps": true,
+      "pooled_B_15fps": true,
+      "launches_passing_A": 5,
+      "launches_passing_B": 5,
+      "mean_detections": 1.775390625
+    },
+    "v4_int8_head_excl@wasm+rec_int8_full@wasm": {
+      "launches": 5,
+      "mean_total_per_launch": [
+        37.187744140625,
+        46.44585937465308,
+        48.84559570357669,
+        48.60973632836249,
+        50.21711914037587
+      ],
+      "p90_total_per_launch": [
+        41.71149999797345,
+        51.75050000548364,
+        53.640999984741214,
+        52.907500019669534,
+        53.612000009417535
+      ],
+      "median_of_means": {
+        "det_prepare_ms": 1.4107324218493886,
+        "det_ms": 46.648085939115845,
+        "decode_ms": 0.0010253908694721758,
+        "rec_prepare_ms": 0.23683593707391992,
+        "rec_ms": 0.27388671902008355,
+        "total_ms": 48.60973632836249
+      },
+      "min_mean_total": 37.187744140625,
+      "max_mean_total": 50.21711914037587,
+      "pooled_frames": 2560,
+      "pooled_mean_total": 46.26121093751863,
+      "pooled_p90_total": 52.741000008583065,
+      "median_p90_launch": 52.907500019669534,
+      "min_p90_launch": 41.71149999797345,
+      "max_p90_launch": 53.640999984741214,
+      "A_30fps": false,
+      "B_15fps": true,
+      "pooled_A_30fps": false,
+      "pooled_B_15fps": true,
+      "launches_passing_A": 0,
+      "launches_passing_B": 5,
+      "mean_detections": 1.712890625
+    },
+    "v4_fp32@wasm+rec_fp32@wasm": {
+      "launches": 5,
+      "mean_total_per_launch": [
+        51.37384765635943,
+        62.33620117173996,
+        64.85032226477051,
+        67.14646484452533,
+        65.90943359315861
+      ],
+      "p90_total_per_launch": [
+        57.45399998426437,
+        66.67449997961522,
+        67.35899998545646,
+        85.48950000405311,
+        68.94499999284744
+      ],
+      "median_of_means": {
+        "det_prepare_ms": 1.3952832024078816,
+        "det_ms": 62.951708984328434,
+        "decode_ms": 0.0010644528083503246,
+        "rec_prepare_ms": 0.25469726539449766,
+        "rec_ms": 0.22889648453565314,
+        "total_ms": 64.85032226477051
+      },
+      "min_mean_total": 51.37384765635943,
+      "max_mean_total": 67.14646484452533,
+      "pooled_frames": 2560,
+      "pooled_mean_total": 62.323253906110764,
+      "pooled_p90_total": 68.16650002002716,
+      "median_p90_launch": 67.35899998545646,
+      "min_p90_launch": 57.45399998426437,
+      "max_p90_launch": 85.48950000405311,
+      "A_30fps": false,
+      "B_15fps": false,
+      "pooled_A_30fps": false,
+      "pooled_B_15fps": false,
+      "launches_passing_A": 0,
+      "launches_passing_B": 1,
+      "mean_detections": 1.77734375
+    }
+  },
+  "pairs": [
+    {
+      "label": "recognizer on WASM instead of WebGPU (FP32 detector on WebGPU)",
+      "a": "v4_fp32@webgpu+rec_fp32@wasm",
+      "b": "v4_fp32@webgpu+rec_fp32@webgpu",
+      "rounds": 5,
+      "diff_ms": [
+        -1.5394335939199664,
+        -2.0666796874138527,
+        -1.3135351563687436,
+        -1.5548339847591706,
+        -2.738544921623543
+      ],
+      "mean_diff_ms": -1.8426054688170552,
+      "min_diff_ms": -2.738544921623543,
+      "max_diff_ms": -1.3135351563687436,
+      "rounds_a_faster": 5
+    },
+    {
+      "label": "FP16 instead of FP32 detector on WebGPU (recognizer FP32 on WASM)",
+      "a": "v4_fp16@webgpu+rec_fp32@wasm",
+      "b": "v4_fp32@webgpu+rec_fp32@wasm",
+      "rounds": 5,
+      "diff_ms": [
+        -0.014990233641583472,
+        -0.5272460939013399,
+        -0.8076074216514826,
+        -0.546230468142312,
+        -0.5950195313780569
+      ],
+      "mean_diff_ms": -0.498218749742955,
+      "min_diff_ms": -0.8076074216514826,
+      "max_diff_ms": -0.014990233641583472,
+      "rounds_a_faster": 5
+    },
+    {
+      "label": "INT8 instead of FP32 recognizer on WASM (FP16 detector on WebGPU)",
+      "a": "v4_fp16@webgpu+rec_int8_full@wasm",
+      "b": "v4_fp16@webgpu+rec_fp32@wasm",
+      "rounds": 5,
+      "diff_ms": [
+        -0.15751953201834112,
+        0.5546386713394895,
+        -0.002509766723960638,
+        0.10244140547001734,
+        0.053867187059950083
+      ],
+      "mean_diff_ms": 0.11018359302543104,
+      "min_diff_ms": -0.15751953201834112,
+      "max_diff_ms": 0.5546386713394895,
+      "rounds_a_faster": 2
+    },
+    {
+      "label": "all FP16 instead of all FP32 on WebGPU",
+      "a": "v4_fp16@webgpu+rec_fp16@webgpu",
+      "b": "v4_fp32@webgpu+rec_fp32@webgpu",
+      "rounds": 5,
+      "diff_ms": [
+        -0.2866406250395812,
+        0.37673828192055225,
+        -0.6110449231928214,
+        -0.5569238279713318,
+        -0.6745507816085592
+      ],
+      "mean_diff_ms": -0.3504843751783483,
+      "min_diff_ms": -0.6745507816085592,
+      "max_diff_ms": 0.37673828192055225,
+      "rounds_a_faster": 4
+    },
+    {
+      "label": "INT8 head-excluded instead of FP32 detector on WASM",
+      "a": "v4_int8_head_excl@wasm+rec_int8_full@wasm",
+      "b": "v4_fp32@wasm+rec_fp32@wasm",
+      "rounds": 5,
+      "diff_ms": [
+        -14.18610351573443,
+        -15.890341797086876,
+        -16.00472656119382,
+        -18.53672851616284,
+        -15.692314452782739
+      ],
+      "mean_diff_ms": -16.06204296859214,
+      "min_diff_ms": -18.53672851616284,
+      "max_diff_ms": -14.18610351573443,
+      "rounds_a_faster": 5
+    }
+  ]
+}

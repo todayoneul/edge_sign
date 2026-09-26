@@ -120,7 +120,12 @@ CNN_Quant/
 │   │                            #   runtime_matrix.py(+.html, browser_pipeline.html): 구성요소×정밀도×실행 환경
 │   │                            #   정확도·지연·연산자 배치·브라우저 파이프라인 → summarize/plot_runtime_matrix.py
 │   │                            #   quantize_detector_variants.py·recognizer_variants.py(QDQ 변형 생성, 덮어쓰기 금지)
-│   │                            #   weight_only_ablation.py·bootstrap_retention.py(원인 분석·CI)
+│   │                            #   weight_only_ablation.py·bootstrap_retention.py(원인 분석·CI, 블록 부트스트랩)
+│   │                            #   activation_ablation.py·decode_tensor_scan.py(활성값 전용·단일 텐서 붕괴 분석)
+│   │                            #   evaluate_end_to_end.py(검출→추적→인식 종단 정확도, 정밀도 조합)
+│   │                            #   summarize_pipeline_repeats.py(브라우저 파이프라인 5회 반복 집계)
+│   │                            #   plot_study_overview.py·plot_qualitative.py(논문 Fig. 1·정성 비교)
+│   │                            #   renumber_references.py(초안 참고문헌을 첫 인용 순으로 재번호)
 │   │                            #   export_device_bundle.py + run_device_matrix.sh(두 번째 기기 측정)
 │   └── archive/                 # 종료된 Phase 1·4·5 실험·플롯·벤치마크·다운로드 스크립트 보관
 │                                #   (plot_pareto/sensitivity/v2_extras/detection_samples,

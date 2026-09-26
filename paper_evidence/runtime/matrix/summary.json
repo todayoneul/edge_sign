@@ -20,7 +20,8 @@
       "precision": 0.7546076882569773,
       "recall": 0.42321323095097463,
       "retention": 1.0,
-      "accuracy_ok": true,
+      "tier95": true,
+      "tier99": true,
       "cpu_t1": {
         "mean_ms": 34.12645459016517,
         "p90_ms": 37.32833000831306,
@@ -137,7 +138,8 @@
       "precision": 0.7536231884057971,
       "recall": 0.4223272297696397,
       "retention": 0.9983893317664719,
-      "accuracy_ok": true,
+      "tier95": true,
+      "tier99": true,
       "cpu_t1": {
         "mean_ms": 33.473131347619756,
         "p90_ms": 36.61930997914169,
@@ -250,7 +252,8 @@
       "precision": 0.0,
       "recall": 0.0,
       "retention": 0.0,
-      "accuracy_ok": false,
+      "tier95": false,
+      "tier99": false,
       "cpu_t1": {
         "mean_ms": 26.616462792787843,
         "p90_ms": 28.324300012900494,
@@ -350,7 +353,8 @@
       "precision": 0.7600334448160535,
       "recall": 0.4026875369167159,
       "retention": 0.9704639884861087,
-      "accuracy_ok": false,
+      "tier95": true,
+      "tier99": false,
       "cpu_t1": {
         "mean_ms": 28.233578808595894,
         "p90_ms": 29.57193999318406,
@@ -450,7 +454,8 @@
       "precision": 0.0,
       "recall": 0.0,
       "retention": 0.0,
-      "accuracy_ok": false,
+      "tier95": false,
+      "tier99": false,
       "cpu_t1": {
         "mean_ms": 27.30055078077953,
         "p90_ms": 30.492180003784597,
@@ -550,7 +555,8 @@
       "precision": 0.7627593942793045,
       "recall": 0.40165386887182514,
       "retention": 0.9710325290035852,
-      "accuracy_ok": false,
+      "tier95": true,
+      "tier99": false,
       "cpu_t1": {
         "mean_ms": 28.287382519550874,
         "p90_ms": 29.820069990819324,
@@ -656,7 +662,8 @@
       "precision": 0.7603706972639012,
       "recall": 0.5088600118133491,
       "retention": 1.0,
-      "accuracy_ok": true,
+      "tier95": true,
+      "tier99": true,
       "cpu_t1": {
         "mean_ms": 118.09473486303546,
         "p90_ms": 121.2386100058211,
@@ -748,7 +755,8 @@
       "precision": 0.7604235605559232,
       "recall": 0.5090076786769049,
       "retention": 0.9989749092291591,
-      "accuracy_ok": true,
+      "tier95": true,
+      "tier99": true,
       "cpu_t1": {
         "mean_ms": 116.3567053713166,
         "p90_ms": 120.19308999879286,
@@ -843,7 +851,8 @@
       "precision": 0.0,
       "recall": 0.0,
       "retention": 0.0,
-      "accuracy_ok": false,
+      "tier95": false,
+      "tier99": false,
       "cpu_t1": {
         "mean_ms": 54.45472617179803,
         "p90_ms": 56.87207000446506,
@@ -928,7 +937,8 @@
       "precision": 0.7631282398016678,
       "recall": 0.5,
       "retention": 0.9874429962945552,
-      "accuracy_ok": false,
+      "tier95": true,
+      "tier99": false,
       "cpu_t1": {
         "mean_ms": 75.61206806681753,
         "p90_ms": 79.10792001348455,
@@ -1013,7 +1023,8 @@
       "precision": 0.0,
       "recall": 0.0,
       "retention": 0.0,
-      "accuracy_ok": false,
+      "tier95": false,
+      "tier99": false,
       "cpu_t1": {
         "mean_ms": 55.169153710636465,
         "p90_ms": 58.73963000194635,
@@ -1098,7 +1109,8 @@
       "precision": 0.7633656665914731,
       "recall": 0.49970466627288834,
       "retention": 0.9868257794795806,
-      "accuracy_ok": false,
+      "tier95": true,
+      "tier99": false,
       "cpu_t1": {
         "mean_ms": 76.17363310541236,
         "p90_ms": 81.1793899978511,
@@ -1181,7 +1193,8 @@
       "top1": 0.8081524147097917,
       "retention": 1.0,
       "agreement": 1.0,
-      "accuracy_ok": true,
+      "tier95": true,
+      "tier99": true,
       "cpu_t1": {
         "mean_ms": 0.03444277342623536,
         "p90_ms": 0.03369999467395246,
@@ -1256,7 +1269,8 @@
       "top1": 0.8080047260375129,
       "retention": 0.9998172514619884,
       "agreement": 0.9997046226554424,
-      "accuracy_ok": true,
+      "tier95": true,
+      "tier99": true,
       "cpu_t1": {
         "mean_ms": 0.03297529329415738,
         "p90_ms": 0.033499993151053786,
@@ -1331,7 +1345,8 @@
       "top1": 0.8084477920543495,
       "retention": 1.0003654970760234,
       "agreement": 0.9864126421503471,
-      "accuracy_ok": true,
+      "tier95": true,
+      "tier99": true,
       "cpu_t1": {
         "mean_ms": 0.05846699235689812,
         "p90_ms": 0.05609999061562121,
@@ -1403,7 +1418,8 @@
       "top1": 0.8084477920543495,
       "retention": 1.0003654970760234,
       "agreement": 0.9864126421503471,
-      "accuracy_ok": true,
+      "tier95": true,
+      "tier99": true,
       "cpu_t1": {
         "mean_ms": 0.052084374743799344,
         "p90_ms": 0.05229999078437686,
@@ -1484,7 +1500,8 @@
       "top1": 0.8057893959533304,
       "retention": 0.997076023391813,
       "agreement": 0.9889233495790872,
-      "accuracy_ok": true,
+      "tier95": true,
+      "tier99": true,
       "cpu_t1": {
         "mean_ms": 0.0517493162988103,
         "p90_ms": 0.05199998850002885,
@@ -1556,7 +1573,8 @@
       "top1": 0.8057893959533304,
       "retention": 0.997076023391813,
       "agreement": 0.9889233495790872,
-      "accuracy_ok": true,
+      "tier95": true,
+      "tier99": true,
       "cpu_t1": {
         "mean_ms": 0.05629238302162776,
         "p90_ms": 0.07459998596459627,

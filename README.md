@@ -7,6 +7,16 @@
 > 그 결과(JSON)를 바탕으로 LLM이 "지금 앞에 어떤 표지판이 있나?" 같은 주행 질문에 답변.
 > 전체 모델 15 MB 이하, CPU 56 FPS, 엣지 디바이스 구동.
 
+> **최신 결과 안내 (2026-09-26).** 논문(KSII TIIS 투고 준비) 기준의 최신 결과는 [`paper_evidence/`](paper_evidence/README.md)가 기준입니다.
+> - 무엇을 다시 평가했나: 학습·보정과 겹치지 않는 test 2,417프레임과 반복 측정으로 다시 평가했습니다.
+> - 어디를 보면 되나: [논문 초안](paper_evidence/paper_draft_KSII_TIIS_ko.md)과 [RUNTIME_MATRIX.md](paper_evidence/reports/RUNTIME_MATRIX.md)를 보세요.
+> - 아래 본문 중 새 결과와 다른 서술: 다음은 이전 단계의 결과이며, 새 측정과 다릅니다.
+>   - CPU 56 FPS·15 MB 목표 달성
+>   - "DFL이 INT8의 진짜 벽"
+>   - "INT8은 WebGPU에서 실행 불가"
+>   - "YOLO26도 DFL 헤드 유지"
+> - 공개 데모의 현재 구성: 서버⇄온디바이스 토글 없이 온디바이스 추론만 제공하며, 검출기·정밀도·실행 환경을 화면에서 고릅니다.
+
 ## 실시간 시연
 
 **huggingface 온라인 체험: https://huggingface.co/spaces/gyann/edge-sign**

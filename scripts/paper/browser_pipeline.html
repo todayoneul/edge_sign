@@ -21,10 +21,21 @@ function summarize(xs) {
   const p = f => { const k = (s.length - 1) * f, lo = Math.floor(k), hi = Math.min(lo + 1, s.length - 1); return s[lo] + (s[hi] - s[lo]) * (k - lo); };
   return {n: xs.length, mean_ms: mean, p50_ms: p(.5), p90_ms: p(.9), p99_ms: p(.99), fps: 1000 / mean};
 }
+// A local request is occasionally refused ("Failed to fetch"); retry and record it.
+// Frames are fetched outside the timed section, so a retry does not change the latency.
+let fetchRetries = 0;
 async function frameBytes(i) {
-  const r = await fetch(`/frame?i=${i}&size=640`);
-  if (!r.ok) throw new Error(`frame ${i}: HTTP ${r.status}`);
-  return new Uint8Array(await r.arrayBuffer());
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const r = await fetch(`/frame?i=${i}&size=640`);
+      if (!r.ok) throw new Error(`frame ${i}: HTTP ${r.status}`);
+      return new Uint8Array(await r.arrayBuffer());
+    } catch (error) {
+      if (attempt >= 3) throw error;
+      fetchRetries++;
+      await new Promise(resolve => setTimeout(resolve, 250 * (attempt + 1)));
+    }
+  }
 }
 function tensorOf(ort, f32, dtype, dims) {
   if (dtype === 'float16') return new ort.Tensor('float16', new Uint16Array(new Float16Array(f32).buffer), dims);
@@ -116,6 +127,7 @@ async function main() {
   result.status = 'completed';
 }
 try { await main(); } catch (error) { result.reason = String(error?.stack ?? error); }
+result.fetch_retries = fetchRetries;
 status.textContent = JSON.stringify({status: result.status, reason: result.reason}, null, 2);
 await fetch('/result', {method: 'POST', body: JSON.stringify(result)});
 </script></body></html>

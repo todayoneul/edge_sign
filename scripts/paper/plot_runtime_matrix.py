@@ -1,8 +1,9 @@
 """Figures for the component x precision x runtime matrix (reads summarize_runtime_matrix.py output).
 
-  fig6_component_sensitivity.png  accuracy retention vs file size, per component, 99% line
+  fig6_component_sensitivity.png  accuracy retention vs file size, per component, 95% and 99% tier lines
   fig7_runtime_latency.png        batch-1 latency per variant x runtime (log scale), 30/15 FPS lines
-  fig8_pipeline_assignment.png    browser detector+recognizer pipeline, per-stage mean ms per config
+  fig8_pipeline_assignment.png    browser detector+recognizer pipeline, per-stage ms per config
+                                  (median over repeated launches, range whisker, pooled p90)
 
 Usage: python scripts/paper/plot_runtime_matrix.py --matrix paper_evidence/runtime/matrix
 """
@@ -10,6 +11,7 @@ Usage: python scripts/paper/plot_runtime_matrix.py --matrix paper_evidence/runti
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 from pathlib import Path
 
@@ -40,7 +42,7 @@ SENS_ROWS = ["v4_fp16", "v4_int8_full", "v4_int8_head_excl", "v3_fp16", "v3_int8
 
 
 def fig_sensitivity(rows: list[dict], bootstrap: dict, out: Path) -> None:
-    """Retention per component and variant, zoomed on 94-101% so the 99% line is readable."""
+    """Retention per component and variant, zoomed on 94-101% so the 95% and 99% lines are readable."""
     by = {r["model"]: r for r in rows}
     keys = [k for k in SENS_ROWS if by.get(k, {}).get("retention") is not None]
     lo_x = 94.0
@@ -64,7 +66,9 @@ def fig_sensitivity(rows: list[dict], bootstrap: dict, out: Path) -> None:
               for k in keys]
     ax.set_yticks(y, labels, fontsize=8)
     ax.axvline(99, color="black", ls="--", lw=1)
-    ax.text(99.05, y[-1] - 0.62, "99% of FP32", fontsize=7.5)
+    ax.text(99.05, y[-1] - 0.62, "99% criterion", fontsize=7.5)
+    ax.axvline(95, color="gray", ls=":", lw=1)
+    ax.text(95.05, y[-1] - 0.62, "95% tier (ref.)", fontsize=7.5, color="dimgray")
     ax.set_xlim(lo_x, 101)
     ax.set_ylim(-0.7, len(keys) - 0.1)
     ax.set_xlabel("Retention vs FP32 (%); whisker = 95% bootstrap CI", fontsize=9)
@@ -99,42 +103,74 @@ def fig_latency(rows: list[dict], out: Path) -> None:
     plt.close(fig)
 
 
+# Table 8 rows: (run id without the _r<k> repeat suffix, label). Configurations with
+# repeated launches are drawn from the median of the per-launch stage means.
+PIPELINE_ROWS = [
+    ("pipeline_t4_ort1300_v4_fp16@webgpu+rec_fp32@wasm", "det FP16 @WebGPU + rec FP32 @WASM"),
+    ("pipeline_t4_ort1300_v4_fp16@webgpu+rec_int8_full@wasm", "det FP16 @WebGPU + rec INT8 @WASM"),
+    ("pipeline_t4_ort1300_v4_fp32@webgpu+rec_fp32@wasm", "det FP32 @WebGPU + rec FP32 @WASM"),
+    ("pipeline_t4_ort1300_v4_fp16@webgpu+rec_fp16@webgpu", "det FP16 @WebGPU + rec FP16 @WebGPU"),
+    ("pipeline_t4_ort1300_v4_fp32@webgpu+rec_fp32@webgpu", "det FP32 @WebGPU + rec FP32 @WebGPU"),
+    ("pipeline_t4_ort1300_v4_int8_head_excl@wasm+rec_int8_full@wasm", "det INT8 head-excl. @WASM 4T + rec INT8 @WASM 4T"),
+    ("pipeline_t4_ort1300_v4_fp32@wasm+rec_fp32@wasm", "det FP32 @WASM 4T + rec FP32 @WASM 4T"),
+    ("pipeline_t1_ort1300_v4_int8_head_excl@wasm+rec_int8_full@wasm", "det INT8 head-excl. @WASM 1T + rec INT8 @WASM 1T"),
+    ("pipeline_t1_ort1300_v4_fp32@wasm+rec_fp32@wasm", "det FP32 @WASM 1T + rec FP32 @WASM 1T"),
+    ("pipeline_t4_ort1300_v4_int8_head_excl_fbias@webgpu+rec_int8_full@webgpu", "det INT8 head-excl. @WebGPU + rec INT8 @WebGPU"),
+]
+STAGES = [("det_prepare_ms", "normalize", "#bbbbbb"), ("det_ms", "detector", "#1f77b4"),
+          ("decode_ms", "decode", "#9467bd"), ("rec_prepare_ms", "ROI crop", "#ff7f0e"), ("rec_ms", "recognizer", "#2ca02c")]
+
+
+def pipeline_launches(matrix: Path, run: str) -> list[dict]:
+    """Completed launches of one configuration: r1 (no suffix) and r2..r5."""
+    out = []
+    for suffix in ["", "_r2", "_r3", "_r4", "_r5"]:
+        p = matrix / f"{run}{suffix}.json"
+        if p.exists() and (r := json.loads(p.read_text(encoding="utf-8"))).get("status") == "completed":
+            # per-frame trace is stored next to the result as <run>_trace.csv
+            with open(matrix / f"{run}{suffix}_trace.csv", encoding="utf-8") as f:
+                total = np.array([float(row["total_ms"]) for row in csv.DictReader(f)])
+            out.append({"metrics": r["metrics"], "total": total})
+    return out
+
+
 def fig_pipeline(matrix: Path, out: Path) -> None:
-    runs = []
-    for p in sorted(matrix.glob("pipeline_*.json")):
-        r = json.loads(p.read_text(encoding="utf-8"))
-        if r.get("status") != "completed":
+    rows = []
+    for run, name in PIPELINE_ROWS:
+        launches = pipeline_launches(matrix, run)
+        if not launches:
             continue
-        d, c = r["detector"], r["recognizer"]
-        threads = r.get("effective_wasm_threads", 1)
-        name = (f"det {SHORT.get(d['key'][3:], d['key'])} @{d['ep']}\n+ rec {SHORT.get(c['key'][4:], c['key'])} @{c['ep']}"
-                + (f" (WASM {threads}T)" if "wasm" in (d["ep"], c["ep"]) else ""))
-        runs.append((r["metrics"]["total_ms"]["mean_ms"], name, r["metrics"]))
-    if not runs:
+        stage = {k: float(np.median([x["metrics"][k]["mean_ms"] for x in launches])) for k, _, _ in STAGES}
+        means = [x["metrics"]["total_ms"]["mean_ms"] for x in launches]
+        p90s = [float(np.percentile(x["total"], 90)) for x in launches]
+        rows.append((name, stage, float(np.median(means)), min(means), max(means), float(np.median(p90s)), len(launches)))
+    if not rows:
         return
-    runs.sort()
-    fig, ax = plt.subplots(figsize=(8.5, 0.5 * len(runs) + 1.4))
-    stages = [("det_prepare_ms", "normalize", "#bbbbbb"), ("det_ms", "detector", "#1f77b4"),
-              ("decode_ms", "decode", "#9467bd"), ("rec_prepare_ms", "ROI crop", "#ff7f0e"), ("rec_ms", "recognizer", "#2ca02c")]
-    y = np.arange(len(runs))
-    left = np.zeros(len(runs))
+    fig, ax = plt.subplots(figsize=(8.5, 0.5 * len(rows) + 1.4))
+    y = np.arange(len(rows))[::-1]
+    left = np.zeros(len(rows))
     limit = 1000 / 15 * 1.5  # 100 ms; slower configs are clipped and labelled
-    for key, name, color in stages:
-        vals = np.array([m[key]["mean_ms"] for _, _, m in runs])
+    for key, label_, color in STAGES:
+        vals = np.array([r[1][key] for r in rows])
         ax.barh(y, np.clip(left + vals, None, limit) - np.clip(left, None, limit), left=np.clip(left, None, limit),
-                color=color, label=name)
+                color=color, label=label_)
         left += vals
-    for i, (_, _, m) in enumerate(runs):
-        text = f"{m['total_ms']['mean_ms']:.1f} ms (p90 {m['total_ms']['p90_ms']:.1f})"
-        if left[i] > limit:
-            ax.text(limit * 0.98, i, "off scale: " + text, va="center", ha="right", fontsize=7, color="white")
+    for yi, (_name, _, med, lo, hi, p90, n) in zip(y, rows, strict=True):
+        spread = f", range {lo:.1f}-{hi:.1f}, n={n}" if n > 1 else ", n=1"
+        text = f"{med:.1f} ms (p90 {p90:.1f}{spread})"
+        if med > limit:
+            ax.text(limit * 0.98, yi, "off scale: " + text, va="center", ha="right", fontsize=7, color="white")
         else:
-            ax.text(left[i] + 1, i, text, va="center", fontsize=7)
+            if n > 1:
+                ax.errorbar(med, yi, xerr=[[med - lo], [hi - med]], fmt="none", ecolor="black", capsize=2, lw=0.8)
+            ax.text(max(med, hi) + 1, yi, text, va="center", fontsize=7,
+                    bbox={"facecolor": "white", "edgecolor": "none", "pad": 0.6, "alpha": 0.85})
     ax.axvline(1000 / 30, color="black", ls="--", lw=1)
     ax.axvline(1000 / 15, color="gray", ls=":", lw=1)
-    ax.set_yticks(y, [n for _, n, _ in runs], fontsize=7)
+    ax.set_yticks(y, [r[0] for r in rows], fontsize=7)
     ax.set_xlim(0, limit)
-    ax.set_xlabel("Per-frame latency (ms, mean); dashed = 33.3 ms (30 FPS), dotted = 66.7 ms (15 FPS)")
+    ax.set_xlabel("Per-frame latency (ms): median over browser launches of the launch mean (bar) and p90 (label);\n"
+                  "whisker = range of launch means; dashed = 33.3 ms (30 FPS), dotted = 66.7 ms (15 FPS)", fontsize=8)
     ax.legend(fontsize=7, ncol=5, loc="lower center", bbox_to_anchor=(0.5, 1.0), frameon=False)
     fig.tight_layout()
     fig.savefig(out, dpi=200)

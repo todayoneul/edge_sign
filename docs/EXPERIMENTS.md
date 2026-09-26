@@ -385,6 +385,12 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
 
 **의의:** ① 검출 헤드 붕괴가 '가중치 난이도'가 아님을 데이터로 입증(통념 반전). ② DFL 적분 자체는 INT8에 강건함을 보여 DFL 수식이 아니라 활성화-측·임계값 취약성이 원인임을 좁힘. ③ Phase 11의 "CosSim 0.9995 검출 0" 현상을 구조적으로 설명.
 
+> **정정 (2026-09-26): DFL 적분은 위치 정밀도에서는 INT8에 강건하지 않다.**
+> - 위 표의 "DFL 좌표오차 0.0015 bin(강건)"은 data-free 시뮬레이션 값이다.
+> - test 전체의 가중치 전용 ablation에서는 YOLOv8s DFL의 고정 커널(0–15)을 INT8로 반올림한 것만으로 mAP@0.5:0.95가 3.6% 떨어졌다. 이 커널만 FP32로 두면 99.6%로 회복되었다.
+> - 커널의 반올림 오차는 최대 0.055 bin(stride 32에서 약 1.8 px)이다. 따라서 ②의 "DFL 적분 자체는 INT8에 강건" 해석은 높은 IoU 임계값에서는 성립하지 않는다.
+> - 검출 붕괴의 원인은 별도로 확정하였다. 클래스 점수를 박스 좌표와 한 척도로 담는 디코드 단계 텐서가 원인이다([RUNTIME_MATRIX.md](../paper_evidence/reports/RUNTIME_MATRIX.md) 2.1).
+
 ### YOLO26로 가설 검증 (예비, negative result → 강한 확증)
 
 위 "헤드 붕괴=활성화-측" 가설을 YOLO26로 직접 시험. YOLO26-n 재학습(`scripts/train_v4_detector.py`, 40ep imgsz1280, **mAP50 0.748**, best.pt 5.4 MB) → 4정밀도 export(`export_v4_variants.py`) → 실프레임 패리티(`eval_v4_parity.py`, val 25프레임, conf>0.25, 출력 (1,300,6) NMS-free).
@@ -396,7 +402,13 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
 | INT8 **헤드 제외** | **1.7** | 0.525 | 3.4 MB | fp32 수준 복원 (2.9×↓) |
 | W4A16(fake-quant) | 0.6 | 0.165 | 9.8 MB | 저하 |
 
-**핵심:** YOLO26의 혁신은 **NMS-free(one2one 헤드)**일 뿐 — head 모듈(`model.23`)은 `one2one_cv2`(box, DFL-style)+`one2one_cv3`(cls)로 **DFL을 유지**한다(학습 로그에 `dfl_loss` 존재). 따라서 풀헤드 INT8은 v3와 똑같이 0으로 붕괴 → "모델 교체로 헤드 INT8 해결" 가설을 **기각**, §8.3의 활성화-측 진단을 **확증**. 처방은 동일하게 헤드 제외(QDQ exclude `model.23`). (정정: `export_v4_variants.py`의 `--exclude_head`가 실제 노드 제외를 안 하던 버그 수정.)
+**핵심:** 풀헤드 INT8은 v3와 똑같이 0으로 붕괴 → "모델 교체로 헤드 INT8 해결" 가설을 **기각**. 처방은 동일하게 헤드 제외(QDQ exclude `model.23`). (정정: `export_v4_variants.py`의 `--exclude_head`가 실제 노드 제외를 안 하던 버그 수정.)
+
+> **정정 (2026-09-26): YOLO26-n은 DFL을 유지하지 않는다.**
+> - 무엇이 틀렸나: 이 절은 처음에 "head가 `one2one_cv2`(box, DFL-style)로 DFL을 유지한다(학습 로그에 `dfl_loss` 존재)"고 적었다. 이는 틀렸다.
+> - 무엇을 확인했나: export된 `yolo_v4_signs_fp32.onnx` 그래프에는 DFL 노드(`dfl/conv`, 분포 Softmax)가 없다. 그래프의 Softmax 두 개는 어텐션 블록(`model.10`, `model.22`)의 것이다. 반면 YOLOv8s에는 `/model.22/dfl/conv`와 `/model.22/dfl/Softmax`가 있다. 학습 로그의 손실 항목 이름만으로 추론 그래프 구조를 판단한 것이 잘못이었다.
+> - 결론은 오히려 강해진다: DFL이 없는 헤드도 풀헤드 INT8에서 붕괴하므로, 붕괴 원인은 DFL 구조가 아니다.
+> - 이후 원인 분석은 [RUNTIME_MATRIX.md](../paper_evidence/reports/RUNTIME_MATRIX.md) 2.1절에 있다.
 
 ---
 
@@ -425,3 +437,16 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
 이 표는 브라우저 렌더/카메라를 포함하지 않고, YOLO26 v4의 배포 성능도 아니다. 10 FPS 제공보다 Space 처리량이 낮아 왕복 큐 지연이 커졌다. 상세 조건·pilot 제외 이유는 [TIIS_EVIDENCE_REPORT.md](../paper_evidence/reports/TIIS_EVIDENCE_REPORT.md)와 [PILOT_NOTES.md](../paper_evidence/runtime/hf_space_v3/PILOT_NOTES.md)에 기록한다.
 
 원시 prediction·trace·config, Figure, 정확한 측정 범위와 claim 판정은 [TIIS_EVIDENCE_REPORT.md](../paper_evidence/reports/TIIS_EVIDENCE_REPORT.md)를 참조한다.
+
+### 2026-09-26 보강: 붕괴 원인 확정 · 종단 정확도 · 반복 측정
+
+상세 수치와 원자료 경로는 [RUNTIME_MATRIX.md](../paper_evidence/reports/RUNTIME_MATRIX.md) 2.1·2.5절에 있다.
+
+| 실험 | 결과 |
+|---|---|
+| 활성값 전용 ablation (가중치 FP32, `activation_ablation.py`) | 전체·헤드·디코드 단계 활성값만 양자화해도 v3·v4 모두 mAP 0 → 붕괴는 활성값 양자화만으로 재현 |
+| 단일 텐서 검사 (`decode_tensor_scan.py`) | 단독으로 mAP 0을 만드는 텐서는 v4 5개·v3 1개. 모두 점수를 박스 좌표와 한 척도(s = 2.5–3.7)로 담는다. 그 텐서들만 FP32로 두면 붕괴가 사라진다(v4 57.0%, v3 61.2%) |
+| 디코드 단계만 FP32인 W8A8 | v4 94.3% (3.16 MB), v3 92.8% (11.72 MB). 헤드 전체 FP32(97.0%, 98.7%)보다 낮다. 차이는 헤드 분기의 활성값 양자화에서 온다 |
+| 검출→추적→인식 종단 정확도 (`evaluate_end_to_end.py`, v4) | FP32 37.5%. INT8 헤드 제외 검출기는 35.3%(유지율 94.2%)로, mAP 유지율 97.0%보다 손실이 크다. 인식기 INT8·FP16은 영향 없음 |
+| 브라우저 파이프라인 5회 반복 (`summarize_pipeline_repeats.py`) | 검출기 WebGPU + 인식기 WASM이 5회 모두 전부 WebGPU보다 빠름(평균 −1.84 ms). FP16 검출기 순이득 0.5 ms. WASM에서는 INT8만 15 FPS 기준 통과 |
+| 블록 부트스트랩 (25프레임) | v4 헤드 제외 96.2–97.9%, v3 98.2–99.4%. 프레임 부트스트랩과 판정 동일 |

@@ -57,7 +57,7 @@ YOLO26-n 세 변형은 모두 input `[1,3,640,640]`, output `[1,300,6]`(xyxy/con
 
 Head-excluded의 mAP@0.5 차이는 **-0.017266**, mAP@0.5:0.95 차이는 **-0.007153**, recall 차이는 **-0.020526**이다. ONNX graph의 `model.23` Q/DQ 노드는 full QDQ에 **216개**, head-excluded QDQ에 **0개**라 저장된 파일의 head 제외 여부도 구조적으로 확인했다. QDQ 모델의 검출 박스가 같은 클래스 FP32 박스와 이루는 최고 IoU 평균은 **0.903653**(confidence ≥0.25)이다. 이는 one-to-one match가 아닌 보조 패리티 지표다. 각 프레임의 GT, 박스, 클래스, confidence, FP32 대비 최고 IoU, raw output cosine/SQNR을 [predictions.jsonl](../detection/yolo26_head_excluded_qdq/predictions.jsonl)에 보존했다. FP32와 full QDQ에도 같은 형식의 파일이 있다.
 
-전체 raw output cosine의 평균은 full QDQ **0.627166**, head-excluded QDQ **0.848464**였다([tensor_similarity_summary.csv](../tables/tensor_similarity_summary.csv)). PDF/README의 과거 **0.9995** 관찰은 다른 모델 세대와 tensor 기준일 수 있어 이번 v4 결과로 재현되었다고 말할 수 없다. Task-level에서는 full QDQ가 confidence 0으로 붕괴했다. 정확한 원인이 head 전체인지 특정 branch인지는 이번 실험으로 특정하지 못한다.
+전체 raw output cosine의 평균은 full QDQ **0.627166**, head-excluded QDQ **0.848464**였다([tensor_similarity_summary.csv](../tables/tensor_similarity_summary.csv)). PDF/README의 과거 **0.9995** 관찰은 다른 모델 세대와 tensor 기준일 수 있어 이번 v4 결과로 재현되었다고 말할 수 없다. Task-level에서는 full QDQ가 confidence 0으로 붕괴했다. 정확한 원인이 head 전체인지 특정 branch인지는 이번 실험으로 특정하지 못한다. → **2026-09-26 추가 실험으로 특정:** 클래스 점수를 박스 좌표와 한 척도로 담는 디코드 단계 텐서를 양자화하면 모든 점수가 0으로 반올림된다. 그런 텐서 하나만 양자화해도 붕괴하고, 그 텐서들만 FP32로 두면 붕괴하지 않는다([RUNTIME_MATRIX.md](RUNTIME_MATRIX.md) 2.1).
 
 [detection_by_lighting.csv](../tables/detection_by_lighting.csv)에서 head-excluded의 주간 mAP@0.5는 0.483088, 야간은 0.389330이다. 야간 표본은 16장뿐이라 차이를 확증하지 않는다. Fig. 2는 [deterministic selection rule](../tables/failure_case_selection.json)로 고른 동일 프레임의 세 출력을 보여준다.
 
@@ -165,9 +165,10 @@ QDQ 파이프라인의 조건부 Top-1(매칭된 track 중 fine-class 정답)은
 | YOLO26 full-head static QDQ에서 검출 소실 | **SUPPORTED** | 이 artifact/독립 test 2,417장에 한정해 0건이라고 기술 |
 | head 제외로 검출 품질 회복 | **PARTIALLY SUPPORTED** | FP32 mAP@0.5 대비 -0.017266, recall -0.020526을 같이 기술; 무손실 표현 금지 |
 | 높은 cosine(0.9995)에도 v4 검출 붕괴 | **NOT SUPPORTED** | 이번 full-QDQ raw output cosine 평균 0.627166; 과거 다른 세대 수치는 재검증 전 historical observation |
+| 검출 붕괴의 원인 (2026-09-26 추가) | **SUPPORTED** | 점수를 박스 좌표와 한 척도로 담는 디코드 단계 텐서의 활성값 양자화. 단독으로 붕괴 재현, 제외 시 붕괴 없음([RUNTIME_MATRIX.md](RUNTIME_MATRIX.md) 2.1) |
 | INT8 QDQ가 서버 CPU 검출을 가속 | **환경 의존 (일반 주장 불가)** | 로컬 Windows ORT CPU에서는 FP32 16.115 ms, head-excluded 21.553 ms로 느림. 공개 Space Linux `cpu-basic`에서는 검출기 FP32 73.706 ms, head-excluded 46.723 ms로 1.58배 빠름(단일 실행). 런타임에 따라 결과가 뒤집힌다는 관찰로만 기술 |
 | 작은 YOLO26 모델 묶음 | **SUPPORTED** | 실제 파일 합계 3,533,232 B; 모델 외 자산은 별도 |
-| 브라우저 WebGPU에서 이 INT8 QDQ 동작 | **NOT SUPPORTED** | ORT Web 1.22.0 커널 오류; WASM에서는 실행 |
+| 브라우저 WebGPU에서 이 INT8 QDQ 동작 | **버전 의존 (2026-09-26 갱신)** | ORT-Web 1.22: INT32 bias 커널 오류(FP32 bias 변형은 실행). 1.30: 실행되지만 `QuantizeLinear` CPU 폴백으로 FP32보다 49–83배 느림([RUNTIME_MATRIX.md](RUNTIME_MATRIX.md) 2.2–2.3) |
 | KoreanSignNet 독립 14-class 분류 정확도 | **PARTIALLY SUPPORTED** | GT ROI Top-1 0.808152; end-to-end fine-class correct/GT 0.353419과 구분 |
 | 수동 GT 기반 추적 MOTA/IDF1/HOTA | **NOT SUPPORTED** | manual identity GT 부재 |
 | 15 MB/30 FPS/accuracy retention 동시 달성 | **NOT SUPPORTED** | 현재의 배포 범위와 accuracy 기준으로 입증되지 않음 |

@@ -1,0 +1,934 @@
+{
+  "frames": 242,
+  "stride": 10,
+  "note": "screening subset; see cpu_*/metrics.json for the full-test accuracy of the reported variants",
+  "families": {
+    "v4": {
+      "fp32_subset": {
+        "mAP50": 0.46431928375330334,
+        "mAP50_95": 0.23178039406249823
+      },
+      "tensors": [
+        {
+          "tensor": "/model.23/Reshape_output_0",
+          "producer": "/model.23/Reshape",
+          "producer_op": "Reshape",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.025973765179514885,
+          "zero_point": 24,
+          "range": [
+            -0.6233703643083572,
+            5.999939756467938
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.4619974618298283,
+          "mAP50_95": 0.230545925242572,
+          "detections_conf_0.25": 343,
+          "retention": 0.9946739722101199
+        },
+        {
+          "tensor": "/model.23/Reshape_3_output_0",
+          "producer": "/model.23/Reshape_3",
+          "producer_op": "Reshape",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.40215617418289185,
+          "zero_point": 249,
+          "range": [
+            -100.13688737154007,
+            2.412937045097351
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.4626149333603695,
+          "mAP50_95": 0.2300821307051002,
+          "detections_conf_0.25": 332,
+          "retention": 0.9926729637152135
+        },
+        {
+          "tensor": "/model.23/Reshape_1_output_0",
+          "producer": "/model.23/Reshape_1",
+          "producer_op": "Reshape",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.043573834002017975,
+          "zero_point": 5,
+          "range": [
+            -0.21786917001008987,
+            10.893458500504494
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.46431928375330334,
+          "mAP50_95": 0.23187053145311973,
+          "detections_conf_0.25": 343,
+          "retention": 1.0003888913511692
+        },
+        {
+          "tensor": "/model.23/Reshape_4_output_0",
+          "producer": "/model.23/Reshape_4",
+          "producer_op": "Reshape",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.29470503330230713,
+          "zero_point": 255,
+          "range": [
+            -75.14978349208832,
+            0.0
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.46391494889536866,
+          "mAP50_95": 0.23124354956525506,
+          "detections_conf_0.25": 343,
+          "retention": 0.9976838226571553
+        },
+        {
+          "tensor": "/model.23/Reshape_2_output_0",
+          "producer": "/model.23/Reshape_2",
+          "producer_op": "Reshape",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.03684643283486366,
+          "zero_point": 5,
+          "range": [
+            -0.1842321641743183,
+            9.211608208715916
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.46431928375330334,
+          "mAP50_95": 0.23178039406249823,
+          "detections_conf_0.25": 343,
+          "retention": 1.0
+        },
+        {
+          "tensor": "/model.23/Concat_output_0",
+          "producer": "/model.23/Concat",
+          "producer_op": "Concat",
+          "consumers": [
+            "Slice"
+          ],
+          "scale": 0.0452592633664608,
+          "zero_point": 14,
+          "range": [
+            -0.6336296871304512,
+            10.907482471317053
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.4595721418189097,
+          "mAP50_95": 0.22945283178278714,
+          "detections_conf_0.25": 343,
+          "retention": 0.989957898341119
+        },
+        {
+          "tensor": "/model.23/Slice_output_0",
+          "producer": "/model.23/Slice",
+          "producer_op": "Slice",
+          "consumers": [
+            "Sub"
+          ],
+          "scale": 0.0452592633664608,
+          "zero_point": 14,
+          "range": [
+            -0.6336296871304512,
+            10.907482471317053
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.4665363654875936,
+          "mAP50_95": 0.2305831998711121,
+          "detections_conf_0.25": 343,
+          "retention": 0.9948347909398095
+        },
+        {
+          "tensor": "/model.23/Slice_1_output_0",
+          "producer": "/model.23/Slice_1",
+          "producer_op": "Slice",
+          "consumers": [
+            "Add"
+          ],
+          "scale": 0.0452592633664608,
+          "zero_point": 14,
+          "range": [
+            -0.6336296871304512,
+            10.907482471317053
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.4653662466040872,
+          "mAP50_95": 0.2324511150612005,
+          "detections_conf_0.25": 343,
+          "retention": 1.002893777972098
+        },
+        {
+          "tensor": "/model.23/Sub_output_0",
+          "producer": "/model.23/Sub",
+          "producer_op": "Sub",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.33270636200904846,
+          "zero_point": 15,
+          "range": [
+            -4.990595430135727,
+            79.84952688217163
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.45422731252014775,
+          "mAP50_95": 0.21005722588681647,
+          "detections_conf_0.25": 343,
+          "retention": 0.9062769382908883
+        },
+        {
+          "tensor": "/model.23/Add_1_output_0",
+          "producer": "/model.23/Add_1",
+          "producer_op": "Add",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.3147459030151367,
+          "zero_point": 0,
+          "range": [
+            0.0,
+            80.26020526885986
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.44933227457006797,
+          "mAP50_95": 0.22053467750162206,
+          "detections_conf_0.25": 343,
+          "retention": 0.9514811569530603
+        },
+        {
+          "tensor": "/model.23/Concat_2_output_0",
+          "producer": "/model.23/Concat_2",
+          "producer_op": "Concat",
+          "consumers": [
+            "Mul"
+          ],
+          "scale": 0.334667444229126,
+          "zero_point": 15,
+          "range": [
+            -5.02001166343689,
+            80.32018661499023
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.43231131884667773,
+          "mAP50_95": 0.19918766290825307,
+          "detections_conf_0.25": 343,
+          "retention": 0.8593809830806625
+        },
+        {
+          "tensor": "/model.23/Mul_2_output_0",
+          "producer": "/model.23/Mul_2",
+          "producer_op": "Mul",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 3.716289520263672,
+          "zero_point": 44,
+          "range": [
+            -163.51673889160156,
+            784.1370887756348
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.4134241083809087,
+          "mAP50_95": 0.1753278035590783,
+          "detections_conf_0.25": 342,
+          "retention": 0.7564393195043156
+        },
+        {
+          "tensor": "/model.23/Reshape_5_output_0",
+          "producer": "/model.23/Reshape_5",
+          "producer_op": "Reshape",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.07707543671131134,
+          "zero_point": 255,
+          "range": [
+            -19.654236361384392,
+            0.0
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.46431928375330334,
+          "mAP50_95": 0.23178039406249823,
+          "detections_conf_0.25": 343,
+          "retention": 1.0
+        },
+        {
+          "tensor": "/model.23/Concat_1_output_0",
+          "producer": "/model.23/Concat_1",
+          "producer_op": "Concat",
+          "consumers": [
+            "Sigmoid"
+          ],
+          "scale": 0.40215617418289185,
+          "zero_point": 249,
+          "range": [
+            -100.13688737154007,
+            2.412937045097351
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.4627483032089432,
+          "mAP50_95": 0.23022090217688052,
+          "detections_conf_0.25": 332,
+          "retention": 0.9932716833452393
+        },
+        {
+          "tensor": "/model.23/Sigmoid_output_0",
+          "producer": "/model.23/Sigmoid",
+          "producer_op": "Sigmoid",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.0035541222896426916,
+          "zero_point": 0,
+          "range": [
+            0.0,
+            0.9063011838588864
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.4636667728076468,
+          "mAP50_95": 0.2315704019950961,
+          "detections_conf_0.25": 343,
+          "retention": 0.9990940041833499
+        },
+        {
+          "tensor": "/model.23/Concat_3_output_0",
+          "producer": "/model.23/Concat_3",
+          "producer_op": "Concat",
+          "consumers": [
+            "Transpose"
+          ],
+          "scale": 3.716289520263672,
+          "zero_point": 44,
+          "range": [
+            -163.51673889160156,
+            784.1370887756348
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.0,
+          "mAP50_95": 0.0,
+          "detections_conf_0.25": 0,
+          "retention": 0.0
+        },
+        {
+          "tensor": "/model.23/Transpose_output_0",
+          "producer": "/model.23/Transpose",
+          "producer_op": "Transpose",
+          "consumers": [
+            "Split"
+          ],
+          "scale": 3.716289520263672,
+          "zero_point": 44,
+          "range": [
+            -163.51673889160156,
+            784.1370887756348
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.0,
+          "mAP50_95": 0.0,
+          "detections_conf_0.25": 0,
+          "retention": 0.0
+        },
+        {
+          "tensor": "/model.23/Split_output_0",
+          "producer": "/model.23/Split",
+          "producer_op": "Split",
+          "consumers": [
+            "GatherElements"
+          ],
+          "scale": 3.716289520263672,
+          "zero_point": 44,
+          "range": [
+            -163.51673889160156,
+            784.1370887756348
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.4134241083809087,
+          "mAP50_95": 0.1753278035590783,
+          "detections_conf_0.25": 342,
+          "retention": 0.7564393195043156
+        },
+        {
+          "tensor": "/model.23/Split_output_1",
+          "producer": "/model.23/Split",
+          "producer_op": "Split",
+          "consumers": [
+            "GatherElements",
+            "ReduceMax"
+          ],
+          "scale": 3.716289520263672,
+          "zero_point": 44,
+          "range": [
+            -163.51673889160156,
+            784.1370887756348
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.0,
+          "mAP50_95": 0.0,
+          "detections_conf_0.25": 0,
+          "retention": 0.0
+        },
+        {
+          "tensor": "/model.23/GatherElements_output_0",
+          "producer": "/model.23/GatherElements",
+          "producer_op": "GatherElements",
+          "consumers": [
+            "Flatten"
+          ],
+          "scale": 3.716289520263672,
+          "zero_point": 44,
+          "range": [
+            -163.51673889160156,
+            784.1370887756348
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.0,
+          "mAP50_95": 0.0,
+          "detections_conf_0.25": 0,
+          "retention": 0.0
+        },
+        {
+          "tensor": "/model.23/Unsqueeze_1_output_0",
+          "producer": "/model.23/Unsqueeze_1",
+          "producer_op": "Unsqueeze",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.0035541222896426916,
+          "zero_point": 0,
+          "range": [
+            0.0,
+            0.9063011838588864
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.4636705148997222,
+          "mAP50_95": 0.2315710078535977,
+          "detections_conf_0.25": 343,
+          "retention": 0.9990966181166985
+        },
+        {
+          "tensor": "/model.23/Cast_2_output_0",
+          "producer": "/model.23/Cast_2",
+          "producer_op": "Cast",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.003921568859368563,
+          "zero_point": 0,
+          "range": [
+            0.0,
+            1.0000000591389835
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.46431928375330334,
+          "mAP50_95": 0.23178039406249823,
+          "detections_conf_0.25": 343,
+          "retention": 1.0
+        },
+        {
+          "tensor": "/model.23/GatherElements_1_output_0",
+          "producer": "/model.23/GatherElements_1",
+          "producer_op": "GatherElements",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 3.716289520263672,
+          "zero_point": 44,
+          "range": [
+            -163.51673889160156,
+            784.1370887756348
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.4134241083809087,
+          "mAP50_95": 0.1753278035590783,
+          "detections_conf_0.25": 342,
+          "retention": 0.7564393195043156
+        },
+        {
+          "tensor": "output0_QuantizeLinear_Input",
+          "producer": "/model.23/Concat_6",
+          "producer_op": "Concat",
+          "consumers": [],
+          "scale": 2.5380537509918213,
+          "zero_point": 2,
+          "range": [
+            -5.076107501983643,
+            642.1275990009308
+          ],
+          "is_output_concat": true,
+          "mAP50": 0.0,
+          "mAP50_95": 0.0,
+          "detections_conf_0.25": 0,
+          "retention": 0.0
+        }
+      ]
+    },
+    "v3": {
+      "fp32_subset": {
+        "mAP50": 0.5373936893279085,
+        "mAP50_95": 0.27762538970815054
+      },
+      "tensors": [
+        {
+          "tensor": "/model.22/Reshape_output_0",
+          "producer": "/model.22/Reshape",
+          "producer_op": "Reshape",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.17349053919315338,
+          "zero_point": 172,
+          "range": [
+            -29.84037274122238,
+            14.39971475303173
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.534133003992297,
+          "mAP50_95": 0.27553563021274785,
+          "detections_conf_0.25": 373,
+          "retention": 0.9924727363819299
+        },
+        {
+          "tensor": "/model.22/Reshape_3_output_0",
+          "producer": "/model.22/Reshape_3",
+          "producer_op": "Reshape",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.3281315863132477,
+          "zero_point": 249,
+          "range": [
+            -81.70476499199867,
+            1.968789517879486
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.5348630557422941,
+          "mAP50_95": 0.27708075343500704,
+          "detections_conf_0.25": 379,
+          "retention": 0.9980382331972013
+        },
+        {
+          "tensor": "/model.22/Reshape_1_output_0",
+          "producer": "/model.22/Reshape_1",
+          "producer_op": "Reshape",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.13679815828800201,
+          "zero_point": 148,
+          "range": [
+            -20.246127426624298,
+            14.637402936816216
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.5375707114571393,
+          "mAP50_95": 0.2774113743055303,
+          "detections_conf_0.25": 372,
+          "retention": 0.9992291216489774
+        },
+        {
+          "tensor": "/model.22/Reshape_4_output_0",
+          "producer": "/model.22/Reshape_4",
+          "producer_op": "Reshape",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.26479867100715637,
+          "zero_point": 249,
+          "range": [
+            -65.93486908078194,
+            1.5887920260429382
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.5370453460540621,
+          "mAP50_95": 0.2774346918909641,
+          "detections_conf_0.25": 376,
+          "retention": 0.9993131110328672
+        },
+        {
+          "tensor": "/model.22/Reshape_2_output_0",
+          "producer": "/model.22/Reshape_2",
+          "producer_op": "Reshape",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.11722451448440552,
+          "zero_point": 133,
+          "range": [
+            -15.590860426425934,
+            14.301390767097473
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.5373936893279085,
+          "mAP50_95": 0.27762538970815054,
+          "detections_conf_0.25": 373,
+          "retention": 1.0
+        },
+        {
+          "tensor": "/model.22/Reshape_5_output_0",
+          "producer": "/model.22/Reshape_5",
+          "producer_op": "Reshape",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.10390662401914597,
+          "zero_point": 255,
+          "range": [
+            -26.49618912488222,
+            0.0
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.5373936893279085,
+          "mAP50_95": 0.27762538970815054,
+          "detections_conf_0.25": 373,
+          "retention": 1.0
+        },
+        {
+          "tensor": "/model.22/Concat_output_0",
+          "producer": "/model.22/Concat",
+          "producer_op": "Concat",
+          "consumers": [
+            "Reshape"
+          ],
+          "scale": 0.1744662970304489,
+          "zero_point": 171,
+          "range": [
+            -29.833736792206764,
+            14.655168950557709
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.5360640197517689,
+          "mAP50_95": 0.2758855469893124,
+          "detections_conf_0.25": 372,
+          "retention": 0.99373312822481
+        },
+        {
+          "tensor": "/model.22/Concat_1_output_0",
+          "producer": "/model.22/Concat_1",
+          "producer_op": "Concat",
+          "consumers": [
+            "Sigmoid"
+          ],
+          "scale": 0.3281315863132477,
+          "zero_point": 249,
+          "range": [
+            -81.70476499199867,
+            1.968789517879486
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.5326279813886383,
+          "mAP50_95": 0.27663604695965793,
+          "detections_conf_0.25": 380,
+          "retention": 0.9964364111310834
+        },
+        {
+          "tensor": "/model.22/dfl/Reshape_output_0",
+          "producer": "/model.22/dfl/Reshape",
+          "producer_op": "Reshape",
+          "consumers": [
+            "Transpose"
+          ],
+          "scale": 0.1744662970304489,
+          "zero_point": 171,
+          "range": [
+            -29.833736792206764,
+            14.655168950557709
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.5360640197517689,
+          "mAP50_95": 0.2758855469893124,
+          "detections_conf_0.25": 372,
+          "retention": 0.99373312822481
+        },
+        {
+          "tensor": "/model.22/Sigmoid_output_0",
+          "producer": "/model.22/Sigmoid",
+          "producer_op": "Sigmoid",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.003450046293437481,
+          "zero_point": 0,
+          "range": [
+            0.0,
+            0.8797618048265576
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.5365201074654113,
+          "mAP50_95": 0.277424003054059,
+          "detections_conf_0.25": 373,
+          "retention": 0.9992746100985099
+        },
+        {
+          "tensor": "/model.22/dfl/Transpose_output_0",
+          "producer": "/model.22/dfl/Transpose",
+          "producer_op": "Transpose",
+          "consumers": [
+            "Softmax"
+          ],
+          "scale": 0.1744662970304489,
+          "zero_point": 171,
+          "range": [
+            -29.833736792206764,
+            14.655168950557709
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.5360640197517689,
+          "mAP50_95": 0.2758855469893124,
+          "detections_conf_0.25": 372,
+          "retention": 0.99373312822481
+        },
+        {
+          "tensor": "/model.22/dfl/Softmax_output_0",
+          "producer": "/model.22/dfl/Softmax",
+          "producer_op": "Softmax",
+          "consumers": [
+            "Conv"
+          ],
+          "scale": 0.003921568859368563,
+          "zero_point": 0,
+          "range": [
+            0.0,
+            1.0000000591389835
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.5376857998870562,
+          "mAP50_95": 0.27613261008090634,
+          "detections_conf_0.25": 372,
+          "retention": 0.9946230435594761
+        },
+        {
+          "tensor": "/model.22/dfl/conv/Conv_output_0",
+          "producer": "/model.22/dfl/conv/Conv",
+          "producer_op": "Conv",
+          "consumers": [
+            "Reshape"
+          ],
+          "scale": 0.04687318205833435,
+          "zero_point": 0,
+          "range": [
+            0.0,
+            11.95266142487526
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.5363561091275291,
+          "mAP50_95": 0.27434751905830845,
+          "detections_conf_0.25": 374,
+          "retention": 0.9881931884785902
+        },
+        {
+          "tensor": "/model.22/dfl/Reshape_1_output_0",
+          "producer": "/model.22/dfl/Reshape_1",
+          "producer_op": "Reshape",
+          "consumers": [
+            "Slice"
+          ],
+          "scale": 0.04687318205833435,
+          "zero_point": 0,
+          "range": [
+            0.0,
+            11.95266142487526
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.5363561091275291,
+          "mAP50_95": 0.27434751905830845,
+          "detections_conf_0.25": 374,
+          "retention": 0.9881931884785902
+        },
+        {
+          "tensor": "/model.22/Slice_output_0",
+          "producer": "/model.22/Slice",
+          "producer_op": "Slice",
+          "consumers": [
+            "Sub"
+          ],
+          "scale": 0.04687318205833435,
+          "zero_point": 0,
+          "range": [
+            0.0,
+            11.95266142487526
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.533826589737302,
+          "mAP50_95": 0.2755795547719485,
+          "detections_conf_0.25": 373,
+          "retention": 0.9926309515914497
+        },
+        {
+          "tensor": "/model.22/Slice_1_output_0",
+          "producer": "/model.22/Slice_1",
+          "producer_op": "Slice",
+          "consumers": [
+            "Add"
+          ],
+          "scale": 0.04687318205833435,
+          "zero_point": 0,
+          "range": [
+            0.0,
+            11.95266142487526
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.53832776947551,
+          "mAP50_95": 0.2777801525712794,
+          "detections_conf_0.25": 372,
+          "retention": 1.000557452123855
+        },
+        {
+          "tensor": "/model.22/Sub_output_0",
+          "producer": "/model.22/Sub",
+          "producer_op": "Sub",
+          "consumers": [
+            "Add",
+            "Sub"
+          ],
+          "scale": 0.33886855840682983,
+          "zero_point": 20,
+          "range": [
+            -6.777371168136597,
+            79.63411122560501
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.5051025363305166,
+          "mAP50_95": 0.2478500765686832,
+          "detections_conf_0.25": 403,
+          "retention": 0.8927500356838105
+        },
+        {
+          "tensor": "/model.22/Add_1_output_0",
+          "producer": "/model.22/Add_1",
+          "producer_op": "Add",
+          "consumers": [
+            "Add",
+            "Sub"
+          ],
+          "scale": 0.3305054306983948,
+          "zero_point": 0,
+          "range": [
+            0.0,
+            84.27888482809067
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.5039597388702435,
+          "mAP50_95": 0.2440447907190526,
+          "detections_conf_0.25": 401,
+          "retention": 0.8790434872530966
+        },
+        {
+          "tensor": "/model.22/Add_2_output_0",
+          "producer": "/model.22/Add_2",
+          "producer_op": "Add",
+          "consumers": [
+            "Div"
+          ],
+          "scale": 0.6283434629440308,
+          "zero_point": 0,
+          "range": [
+            0.0,
+            160.22758305072784
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.4616112863429605,
+          "mAP50_95": 0.21260473879982741,
+          "detections_conf_0.25": 463,
+          "retention": 0.7657971737503004
+        },
+        {
+          "tensor": "/model.22/Sub_1_output_0",
+          "producer": "/model.22/Sub_1",
+          "producer_op": "Sub",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.09056154638528824,
+          "zero_point": 0,
+          "range": [
+            0.0,
+            23.0931943282485
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.535953843472809,
+          "mAP50_95": 0.2740595954309776,
+          "detections_conf_0.25": 372,
+          "retention": 0.9871560944734865
+        },
+        {
+          "tensor": "/model.22/Div_1_output_0",
+          "producer": "/model.22/Div_1",
+          "producer_op": "Div",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 0.3141717314720154,
+          "zero_point": 0,
+          "range": [
+            0.0,
+            80.11379152536392
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.4616112863429605,
+          "mAP50_95": 0.21260473879982741,
+          "detections_conf_0.25": 463,
+          "retention": 0.7657971737503004
+        },
+        {
+          "tensor": "/model.22/Concat_2_output_0",
+          "producer": "/model.22/Concat_2",
+          "producer_op": "Concat",
+          "consumers": [
+            "Mul"
+          ],
+          "scale": 0.3141717314720154,
+          "zero_point": 0,
+          "range": [
+            0.0,
+            80.11379152536392
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.44807640296377715,
+          "mAP50_95": 0.20227947875693042,
+          "detections_conf_0.25": 478,
+          "retention": 0.7286058345368687
+        },
+        {
+          "tensor": "/model.22/Mul_2_output_0",
+          "producer": "/model.22/Mul_2",
+          "producer_op": "Mul",
+          "consumers": [
+            "Concat"
+          ],
+          "scale": 2.513373851776123,
+          "zero_point": 0,
+          "range": [
+            0.0,
+            640.9103322029114
+          ],
+          "is_output_concat": false,
+          "mAP50": 0.488920819576215,
+          "mAP50_95": 0.21835447449385142,
+          "detections_conf_0.25": 393,
+          "retention": 0.7865075839187231
+        },
+        {
+          "tensor": "output0_QuantizeLinear_Input",
+          "producer": "/model.22/Concat_3",
+          "producer_op": "Concat",
+          "consumers": [],
+          "scale": 2.513373851776123,
+          "zero_point": 0,
+          "range": [
+            0.0,
+            640.9103322029114
+          ],
+          "is_output_concat": true,
+          "mAP50": 0.0,
+          "mAP50_95": 0.0,
+          "detections_conf_0.25": 0,
+          "retention": 0.0
+        }
+      ]
+    }
+  }
+}

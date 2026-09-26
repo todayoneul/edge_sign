@@ -350,14 +350,26 @@
   - headless Chrome(RTX 5070) 자동 점검: 기본 30 FPS, 재생 중 전환, 10회 연속 전환, INT8+WASM
 - [ ] 브라우저 렌더 포함 재측정
 - [x] v4 서버 경로를 30 FPS 입력의 포화 조건에서 재측정 (2026-09-25). 처리 한계 head-excluded QDQ 14.908 FPS, FP32 11.152 FPS; 30 FPS 미달. [측정 결과](../paper_evidence/reports/HF_SPACE_V4_MEASUREMENT.md)
-- [x] 정확도·속도·크기 평가 기준안 작성 (FP32 대비 99% 유지, 30 FPS·p90 ≤33.3 ms, 최소 15 FPS, p90 측정 1,024프레임 이상). [기준안](../paper_evidence/reports/EVALUATION_CRITERIA.md)
+- [x] 정확도·속도·크기 평가 기준 작성 및 적용 (FP32 대비 99% 유지, 30 FPS·p90 ≤33.3 ms, 최소 15 FPS, p90 측정 1,024프레임 이상; 2026-09-26 95% 참고 등급 추가). [평가 기준](../paper_evidence/reports/EVALUATION_CRITERIA.md)
 - [x] 구성요소 × 정밀도 × 실행 환경 매트릭스 (2026-09-25~26). 검출기 12종(v3/v4 × FP32·FP16·INT8 헤드 포함/제외 × INT32/FP32 bias)과 인식기 6종을 대상으로 다음을 측정. 헤드 제외 INT8 유지율 v4 97.0%(99% 미달), v3 98.7%(판정 보류). WebGPU INT8은 `QuantizeLinear` CPU 폴백으로 49–83배 감속. [RUNTIME_MATRIX.md](../paper_evidence/reports/RUNTIME_MATRIX.md)
   - 독립 test 정확도(v3 첫 평가 포함)
   - ORT CPU 1·4T, WASM 1·4T, WebGPU(ORT-Web 1.22·1.30) 지연 1,024회
   - 연산자 배치, 브라우저 수치 일치성
 - [x] KoreanSignNet 실행 가능한 QDQ INT8 4종(`recognizer_variants.py`)과 독립 ROI 평가: 전체 INT8 Top-1 유지율 100.04%
 - [x] 가중치 전용 INT8 ablation: 헤드 붕괴 원인 = 활성값 양자화, v3 위치 손실 = DFL 고정 커널 반올림(제외 시 99.6%)
-- [x] 브라우저 파이프라인 배치 실험: 검출기 WebGPU + 인식기 WASM 16.2 ms(p90 18.0), 전부 WebGPU 17.5–17.8 ms
+- [x] 브라우저 파이프라인 배치 실험: 검출기 WebGPU + 인식기 WASM이 전부 WebGPU보다 빠름
+  - (2026-09-26) 주요 7개 구성을 브라우저 5회 재기동으로 반복 측정. 실행별 중앙값 16.7–17.3 ms 대 18.9–19.3 ms, 같은 회차 짝 비교 −1.84 ms(5/5)
+  - 첫 실행(밤)과 반복(낮, iCloud 동기화 부하) 사이 WASM 18–26% 편차를 기록함
+- [x] 붕괴 원인 확정 (2026-09-26)
+  - 활성값 전용 ablation과 디코드 단계 단일 텐서 검사를 수행함
+  - 점수를 박스 좌표와 한 척도로 담는 텐서 하나만 양자화해도 mAP가 0이 됨(v4 5개, v3 1개). 그 텐서들만 FP32로 두면 붕괴가 사라짐
+- [x] 검출→추적→인식 종단 정확도, 정밀도 조합별 (2026-09-26)
+  - INT8 헤드 제외 검출기의 종단 유지율은 94.2%로, mAP 유지율 97.0%보다 손실이 큼
+  - 인식기 INT8·FP16은 영향 없음
+- [x] 판정 기준 개정 (2026-09-26): 99% 사전 기준은 유지하고, 95%를 MLPerf YOLO 참고 등급으로 병기. 블록 부트스트랩(25프레임)으로도 판정 동일
+- [x] 논문 초안 개정 (2026-09-26)
+  - Fig. 1 개요, Fig. 3 정성 비교, 식 (1)–(5), Table 5(요인 분리)·6(종단)·9(5회 반복) 반영
+  - 참고문헌을 첫 인용 순으로 재번호(`renumber_references.py`)
 - [x] 두 번째 기기(Mac) 측정 번들·스크립트·안내 ([DEVICE_MEASUREMENT_GUIDE.md](../paper_evidence/reports/DEVICE_MEASUREMENT_GUIDE.md))
 - [x] 논문 초안 `paper_evidence/paper_draft_KSII_TIIS_ko.md` (제목: 「도로 영상 인식을 위한 브라우저 기반 엣지 비전의 구성요소·실행 환경별 양자화 실증 분석」)
 - [ ] Mac에서 `run_device_matrix.sh` 본측정 후 기기 간 비교 추가

@@ -443,6 +443,8 @@ def pipeline(args) -> None:
         if MODELS[det][0] != "v4" or MODELS[rec][0] != "rec":
             raise SystemExit(f"{config}: pipeline expects a v4 detector and a rec_* recognizer")
         run = f"pipeline_t{args.wasm_threads}_ort{args.ort.replace('.', '')}_{det}@{det_ep}+{rec}@{rec_ep}"
+        if args.tag:  # repeated launches of the same configuration (run-to-run variation)
+            run += f"_{args.tag}"
         if (args.output / f"{run}.json").exists():
             print(f"skip existing {run}")
             continue
@@ -516,6 +518,7 @@ def main() -> None:
     p = sub.add_parser("pipeline", parents=[common])
     p.add_argument("--server-url", default="http://127.0.0.1:8791")
     p.add_argument("--configs", nargs="+", required=True, help="det_key@ep+rec_key@ep")
+    p.add_argument("--tag", default="", help="suffix for repeated launches, e.g. r2")
     p.add_argument("--ort", default="1.30.0")
     p.add_argument("--frames", type=int, default=256)
     p.add_argument("--warmup", type=int, default=20)
