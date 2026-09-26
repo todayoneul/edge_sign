@@ -13,8 +13,10 @@
 #   QUICK=1 ... <bundle> /tmp/recheck_quick     # 5-minute smoke test, results not for the paper
 #
 # Options (environment): ROUNDS (YOLO26-n and pipeline, default 5), ROUNDS_V3 (YOLOv8s, default 3),
-# WITH_1T=1 adds three 1-thread rounds for YOLO26-n, QUIET_PCT (default 60) is the CPU % that all
-# other processes together must stay under for three samples in a row before a measurement.
+# WITH_1T=1 adds three 1-thread rounds for YOLO26-n, QUIET_PCT (default 30) is the CPU % that all
+# other processes together (everything except this script's own PIDs, including any personal
+# Chrome window) must stay under for three samples in a row before a measurement, QUIET_MAX
+# (default 300 s) is how long to wait for that.
 # Steps skip results that already exist, so an interrupted run can be restarted with the same command.
 set -u
 BUNDLE=${1:?bundle folder}
@@ -28,8 +30,9 @@ PORT=${PORT:-8791}
 URL="--server-url http://127.0.0.1:$PORT"
 ROUNDS=${ROUNDS:-5}
 ROUNDS_V3=${ROUNDS_V3:-3}
-QUIET_PCT=${QUIET_PCT:-60}
-if [ "${QUICK:-}" = "1" ]; then ITER=20; FRAMES=16; WARM=2; LIMIT="--limit 32"; ROUNDS=2; ROUNDS_V3=1;
+QUIET_PCT=${QUIET_PCT:-30}
+QUIET_MAX=${QUIET_MAX:-300}
+if [ "${QUICK:-}" = "1" ]; then ITER=20; FRAMES=16; WARM=2; LIMIT="--limit 32"; ROUNDS=2; ROUNDS_V3=1; QUIET_MAX=30;
 else ITER=1024; FRAMES=512; WARM=20; LIMIT=""; fi
 step() { echo "=== $(date +%H:%M:%S) $*"; }
 tag() { [ "$1" -eq 1 ] && echo "" || echo "--tag r$1"; }  # round 1 untagged, as in the first run
@@ -39,16 +42,24 @@ mkdir -p "$OUT"
 ( while true; do echo "--- $(date +%H:%M:%S)"; ps -Ao pcpu,comm -r | head -6; sleep 10; done ) > "$OUT/cpu_load.log" 2>&1 &
 SAMPLER=$!
 
-# wait until processes other than this run (Chrome, python) use < QUIET_PCT % CPU in total for
-# three 5-second samples in a row; give up after 5 minutes and log it (the run continues)
+# Wait until the rest of the machine is quiet before each measurement: all processes except this
+# script, its benchmark server and its load sampler (excluded by PID, never by name) must use
+# < QUIET_PCT % CPU in total for three 5-second samples in a row. The measurement Chrome of the
+# previous step is already closed here, so any Chrome or python still using CPU (a personal
+# browser window, another venv) counts as background load. Gives up after QUIET_MAX seconds and
+# logs NOT QUIET (the run continues).
+others() {  # "<pid> <%cpu> <command>" of every process except ours, busiest first
+  ps -Ao pid=,pcpu=,comm= -r | awk -v skip=" $$ ${SERVER:-} $SAMPLER " \
+    'index(skip, " " $1 " ") == 0 && $3 !~ /(^|\/)(ps|awk|sort|head)$/'
+}
 wait_quiet() {
   local ok=0 waited=0 busy top
-  while [ "$ok" -lt 3 ] && [ "$waited" -lt 300 ]; do
-    busy=$(ps -Ao pcpu=,comm= | awk '!/Google Chrome|python|awk$|ps$/ {s += $1} END {printf "%d", s}')
+  while [ "$ok" -lt 3 ] && [ "$waited" -lt "$QUIET_MAX" ]; do
+    busy=$(others | awk '{s += $2} END {printf "%d", s}')
     if [ "$busy" -lt "$QUIET_PCT" ]; then ok=$((ok + 1)); else ok=0; fi
     sleep 5; waited=$((waited + 5))
   done
-  top=$(ps -Ao pcpu=,comm= -r | awk '!/Google Chrome|python|awk$|ps$/' | head -3 | awk '{printf "%s %s; ", $1, $NF}')
+  top=$(others | head -3 | awk '{c = $3; for (i = 4; i <= NF; i++) c = c " " $i; n = split(c, p, "/"); printf "%s %s; ", $2, p[n]}')
   echo "$(date +%H:%M:%S) before $1: others ${busy}% (waited ${waited}s$([ "$ok" -lt 3 ] && echo ', NOT QUIET')) top: $top" >> "$OUT/quiet.log"
 }
 
