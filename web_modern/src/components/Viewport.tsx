@@ -26,7 +26,14 @@ import { useSession } from "../hooks/useSession";
 import { useHotkeys } from "../hooks/useHotkeys";
 import { renderTracks } from "../lib/draw";
 import { SAMPLES } from "../lib/samples";
-import { EP_LABEL, modelFile, modelName, slowCombination, type ExecutionProvider } from "../lib/models";
+import {
+  EP_LABEL,
+  modelFile,
+  modelName,
+  slowCombination,
+  type ExecutionProvider,
+  type OnDeviceConfig,
+} from "../lib/models";
 import SeekBar from "./SeekBar";
 import Hero from "./Hero";
 import Controls from "./Controls";
@@ -45,6 +52,8 @@ const _cctx640 = _cap640.getContext("2d", { willReadFrequently: true })!;
 // ROI 크롭 캔버스 (온디바이스 인식 — bbox 영역을 size×size RGBA로)
 const _roi = document.createElement("canvas");
 const _rctx = _roi.getContext("2d", { willReadFrequently: true })!;
+
+const onDeviceKeyOf = (c: OnDeviceConfig) => `${c.detector}/${c.precision}/${c.ep}`;
 
 /** 모드 구분 — app.js state.mode */
 type Mode = "client" | "server";
@@ -90,7 +99,7 @@ export default function Viewport() {
   const clientTimerRef = useRef<number | null>(null);
   // 온디바이스 추론이 켜져 있는지(모델 로드 중 포함)와 현재 선택 키 — 선택 변경 시 재로드 판단
   const onDeviceActiveRef = useRef(false);
-  const ondeviceKey = `${ondevice.detector}/${ondevice.precision}/${ondevice.ep}`;
+  const ondeviceKey = onDeviceKeyOf(ondevice);
   const ondeviceKeyRef = useRef(ondeviceKey);
   const clientBusyRef = useRef(false);
 
@@ -253,12 +262,15 @@ export default function Viewport() {
   const startCaptureInference = useCallback(async () => {
     if (pipelineMode === "ondevice") {
       onDeviceActiveRef.current = true;
-      const key = `${ondevice.detector}/${ondevice.precision}/${ondevice.ep}`;
-      const name = modelName(ondevice);
-      setStageStatus(`${name} 로딩… (${modelFile(ondevice).mb} MB, 최초 1회)`);
+      // 호출 시점의 최신 선택을 읽는다 — 재생 시작 콜백(video.play().then)이 샘플을 누른
+      // 당시의 선택을 붙잡고 있어도, 그 사이 바뀐 선택으로 시작하도록
+      const cfg = useStore.getState().ondevice;
+      const key = onDeviceKeyOf(cfg);
+      const name = modelName(cfg);
+      setStageStatus(`${name} 로딩… (${modelFile(cfg).mb} MB, 최초 1회)`);
       let ep: string;
       try {
-        ep = await client.ensureLoaded(ondevice);
+        ep = await client.ensureLoaded(cfg);
       } catch {
         setStageStatus("온디바이스 로드 실패 — 서버 처리로 폴백");
         stream.reset();
@@ -266,10 +278,10 @@ export default function Viewport() {
         return;
       }
       // 로드 중 정지했거나 선택이 또 바뀌었으면(새 호출이 이어받음) 여기서 멈춤
-      if (!onDeviceActiveRef.current || ondeviceKeyRef.current !== key) return;
+      if (!onDeviceActiveRef.current || onDeviceKeyOf(useStore.getState().ondevice) !== key) return;
       const epLabel = EP_LABEL[ep as ExecutionProvider] ?? ep;
-      if (ondevice.ep === "webgpu" && ep !== "webgpu") pushToast("이 브라우저는 WebGPU 미지원 — WASM으로 실행", "warn");
-      if (slowCombination({ ...ondevice, ep: ep as ExecutionProvider }))
+      if (cfg.ep === "webgpu" && ep !== "webgpu") pushToast("이 브라우저는 WebGPU 미지원 — WASM으로 실행", "warn");
+      if (slowCombination({ ...cfg, ep: ep as ExecutionProvider }))
         pushToast("INT8 + WebGPU: 양자화 연산이 CPU로 넘어가 매우 느립니다 (논문 4.3절)", "warn");
       setStageStatus(`${name} · ${epLabel} 추론 중`);
       setStageStatusLive(true);
@@ -278,7 +290,7 @@ export default function Viewport() {
       stream.reset();
       stream.start(getFrame);
     }
-  }, [pipelineMode, ondevice, client, startClientLoop, stream, getFrame, pushToast]);
+  }, [pipelineMode, client, startClientLoop, stream, getFrame, pushToast]);
 
   // 온디바이스로 재생 중 모델·정밀도·실행 환경을 바꾸면 즉시 다시 로드해 이어서 추론
   useEffect(() => {
