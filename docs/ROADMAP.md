@@ -382,6 +382,14 @@
 - [x] Mac(M2 Pro) 본측정·기기 간 비교 (2026-09-26, [runtime/matrix_mac](../paper_evidence/runtime/matrix_mac/), [RUNTIME_MATRIX §2.6](../paper_evidence/reports/RUNTIME_MATRIX.md)). WebGPU INT8 감속·FP16 버전 의존성·구성요소별 배치는 재현, WASM INT8 이득은 Mac에서 없음(기기 의존)
 - [x] 논문 초안 구조 개편(교수님 작성 예 기준): 3장 BRIQ Study Design, 4.1 실험 구성, 5.1–5.3, 선행 탐색 → 부록 A, 관련 연구 비교표 (2026-09-26)
 - [x] 논문 제목 BRIQ로 변경, 기여 5개를 3개로 압축, 붕괴 메커니즘 주장 범위를 평가한 검출기 그래프로 한정 (2026-09-26)
+- [x] 리뷰 반영 (2026-09-27):
+  - Table 1 Kim 등 태스크 정확도 ✓.
+  - 초록에서 도로 검출기 97.0–98.7%와 YOLO11l 99.2%를 분리하고, CPU INT8 이득을 모델·기기 의존으로 완화.
+  - 노드 배치 동일성과 정확도 일치의 주장 범위를 확인한 기기·조합으로 한정.
+  - Fig. 4–5를 Windows·Mac 비교 그림(fig11·fig12)으로 교체.
+  - Mac 배경 부하를 재집계(13%, 사용자 Chrome 포함).
+  - `matrix/summary.json`을 COCO 재측정값으로 갱신.
+- [ ] Mac 조용한 환경 재측정: WASM FP32 대 INT8 (`run_mac_wasm_recheck.sh`, [안내 8절](../paper_evidence/reports/DEVICE_MEASUREMENT_GUIDE.md))
 - [ ] 기준안 확정 후 카메라/렌더 포함 경로를 재측정하고 판정
 - [ ] 야간/다른 장소 test 확장 및 가능한 경우 manual identity GT 구축
 

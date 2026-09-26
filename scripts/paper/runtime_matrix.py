@@ -479,6 +479,8 @@ def browser(args) -> None:
         for ep in args.eps:
             tag = f"{ep}t{args.wasm_threads}" if ep == "wasm" and args.wasm_threads != 1 else ep
             run = f"{args.mode}_{tag}_ort{args.ort.replace('.', '')}_{key}"
+            if args.tag:  # repeated launches of the same measurement (run-to-run variation)
+                run += f"_{args.tag}"
             target = args.output / f"{run}.json"
             if target.exists():
                 print(f"skip existing {run}")
@@ -522,6 +524,7 @@ def main() -> None:
     p.add_argument("--iterations", type=int, default=1024)
     p.add_argument("--limit", type=int, default=None)
     p.add_argument("--wasm-threads", type=int, default=1)
+    p.add_argument("--tag", default="", help="suffix for repeated launches, e.g. r2")
     p.add_argument("--timeout", type=int, default=900)
     p.add_argument("--chrome", default=CHROME)
     p.add_argument("--headed", action="store_true", help="visible window (if headless Chrome has no GPU adapter)")

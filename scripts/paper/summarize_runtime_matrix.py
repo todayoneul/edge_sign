@@ -122,7 +122,7 @@ def main() -> None:
                 row[f"place_{v}_complete"] = all(d["listed"] == d["nodes"] for d in pl["placement"].values())
                 cpu = pl["placement"].get("CPUExecutionProvider")
                 row[f"place_{v}_cpu_ops"] = cpu["op_types"] if cpu else {}
-            for tag in ("webgpu", "wasm"):
+            for tag in ("webgpu", "wasm", "wasmt4"):  # parity does not depend on the WASM thread count
                 b = load(mx / f"accuracy_{tag}_ort{v}_{key}" / "metrics.json")
                 if b and acc:
                     row[f"parity_{tag}_{v}"] = {"mAP50_95": b["mAP50_95"], "delta_vs_cpu": b["mAP50_95"] - acc["mAP50_95"],

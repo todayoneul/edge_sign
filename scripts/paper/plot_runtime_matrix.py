@@ -4,8 +4,12 @@
   fig7_runtime_latency.png        batch-1 latency per variant x runtime (log scale), 30/15 FPS lines
   fig8_pipeline_assignment.png    browser detector+recognizer pipeline, per-stage ms per config
                                   (median over repeated launches, range whisker, pooled p90)
+  with --compare <second device matrix>:
+  fig11_runtime_latency_devices.png  detector latency, representative conditions, one panel per device
+  fig12_pipeline_devices.png         key pipeline placements, device A and B bars per placement
 
 Usage: python scripts/paper/plot_runtime_matrix.py --matrix paper_evidence/runtime/matrix
+       [--compare paper_evidence/runtime/matrix_mac]
 """
 
 from __future__ import annotations
@@ -177,9 +181,105 @@ def fig_pipeline(matrix: Path, out: Path) -> None:
     plt.close(fig)
 
 
+# Cross-device figures (paper Fig. 4 and 5): device A = --matrix, device B = --compare.
+# Representative conditions only; INT8 is the head-excluded variant with INT32 bias.
+DEVICE_CONDS = [  # (legend, runtime column, variant suffix, color, hatch)
+    ("ORT CPU 4T FP32", "cpu_t4", "fp32", "#8c8c8c", ""),
+    ("ORT CPU 4T INT8", "cpu_t4", "int8_head_excl", "#8c8c8c", "////"),
+    ("WASM 4T FP32", "wasmt4_1300", "fp32", "#ff7f0e", ""),
+    ("WASM 4T INT8", "wasmt4_1300", "int8_head_excl", "#ff7f0e", "////"),
+    ("WebGPU FP32", "webgpu_1300", "fp32", "#1f77b4", ""),
+    ("WebGPU FP16", "webgpu_1300", "fp16", "#9ecae1", ""),
+    ("WebGPU INT8", "webgpu_1300", "int8_head_excl", "#1f77b4", "////"),
+]
+DEVICE_MODELS = [("v4", "YOLO26-n"), ("v3", "YOLOv8s"), ("coco", "YOLO11l (COCO)")]
+DEVICE_PIPELINE_ROWS = PIPELINE_ROWS[:1] + PIPELINE_ROWS[2:7]  # WebGPU and 4-thread WASM placements
+
+
+def fig_latency_devices(rows_a: list[dict], rows_b: list[dict], names: tuple[str, str], out: Path) -> None:
+    """Batch-1 latency of the three detectors on both devices, one panel per device (log scale)."""
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4.0), sharey=True)
+    width = 0.8 / len(DEVICE_CONDS)
+    x = np.arange(len(DEVICE_MODELS))
+    for ax, rows, name in zip(axes, (rows_a, rows_b), names, strict=True):
+        by = {r["model"]: r for r in rows}
+        for i, (legend, col, suffix, color, hatch) in enumerate(DEVICE_CONDS):
+            cells = [by.get(f"{fam}_{suffix}", {}).get(col) for fam, _ in DEVICE_MODELS]
+            vals = [c["mean_ms"] if c else np.nan for c in cells]
+            errs = [max(0.0, c["p90_ms"] - c["mean_ms"]) if c else 0.0 for c in cells]
+            ax.bar(x + (i - (len(DEVICE_CONDS) - 1) / 2) * width, vals, width, yerr=[np.zeros(len(cells)), errs],
+                   color=color, hatch=hatch, edgecolor="black", linewidth=0.4, label=legend, capsize=1.5,
+                   error_kw={"lw": 0.6})
+        ax.axhline(1000 / 30, color="black", ls="--", lw=1, label="33.3 ms (30 FPS)")
+        ax.axhline(1000 / 15, color="gray", ls=":", lw=1, label="66.7 ms (15 FPS)")
+        ax.set_yscale("log")
+        ax.set_xticks(x, [m for _, m in DEVICE_MODELS], fontsize=8.5)
+        ax.set_title(name, fontsize=9)
+        ax.grid(axis="y", alpha=0.3, which="both")
+    axes[0].set_ylabel("Latency (ms, log)\nbar = mean, whisker = p90")
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, fontsize=7.5, ncol=5, loc="upper center", frameon=False)
+    fig.tight_layout(rect=(0, 0, 1, 0.88))
+    fig.savefig(out, dpi=200)
+    plt.close(fig)
+
+
+def fig_pipeline_devices(matrix_a: Path, matrix_b: Path, names: tuple[str, str], out: Path) -> None:
+    """Per-stage pipeline latency, device A (upper bar) and device B (lower bar) for each placement."""
+    groups = []
+    for run, label_ in DEVICE_PIPELINE_ROWS:
+        bars = []
+        for matrix in (matrix_a, matrix_b):
+            launches = pipeline_launches(matrix, run)
+            if not launches:
+                bars.append(None)
+                continue
+            stage = {k: float(np.median([x["metrics"][k]["mean_ms"] for x in launches])) for k, _, _ in STAGES}
+            means = [x["metrics"]["total_ms"]["mean_ms"] for x in launches]
+            p90s = [float(np.percentile(x["total"], 90)) for x in launches]
+            bars.append((stage, float(np.median(means)), min(means), max(means), float(np.median(p90s)), len(launches)))
+        groups.append((label_, bars))
+    fig, ax = plt.subplots(figsize=(8.8, 0.8 * len(groups) + 1.6))
+    height, limit = 0.36, 115.0
+    yticks = []
+    for g, (_, bars) in enumerate(groups):
+        base = len(groups) - 1 - g
+        yticks.append(base)
+        for d, bar in enumerate(bars):
+            if bar is None:
+                continue
+            stage, med, lo, hi, p90, n = bar
+            y = base + (0.2 if d == 0 else -0.2)
+            left = 0.0
+            for key, stage_label, color in STAGES:
+                ax.barh(y, stage[key], height, left=left, color=color, edgecolor="black" if d else "none",
+                        linewidth=0.4, label=stage_label if g == 0 and d == 0 else None)
+                left += stage[key]
+            if n > 1:
+                ax.errorbar(med, y, xerr=[[med - lo], [hi - med]], fmt="none", ecolor="black", capsize=2, lw=0.8)
+            spread = f", range {lo:.1f}-{hi:.1f}, n={n}" if n > 1 else ", n=1"
+            ax.text(max(med, hi) + 1, y, f"{'AB'[d]}: {med:.1f} ms (p90 {p90:.1f}{spread})", va="center", fontsize=6.8,
+                    bbox={"facecolor": "white", "edgecolor": "none", "pad": 0.5, "alpha": 0.85})
+    ax.axvline(1000 / 30, color="black", ls="--", lw=1)
+    ax.axvline(1000 / 15, color="gray", ls=":", lw=1)
+    ax.set_yticks(yticks, [label_ for label_, _ in groups], fontsize=7.5)
+    ax.set_xlim(0, limit)
+    ax.set_xlabel(f"Per-frame latency (ms). Upper bar = A ({names[0].split(':')[0]}), "
+                  f"lower bar = B ({names[1].split(':')[0]}).\n"
+                  "Bar = median over browser launches of the launch mean; whisker = range of launch means;\n"
+                  "dashed = 33.3 ms (30 FPS), dotted = 66.7 ms (15 FPS)", fontsize=7.5)
+    ax.legend(fontsize=7, ncol=5, loc="lower center", bbox_to_anchor=(0.5, 1.0), frameon=False)
+    fig.tight_layout()
+    fig.savefig(out, dpi=200)
+    plt.close(fig)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--matrix", type=Path, default=Path("paper_evidence/runtime/matrix"))
+    parser.add_argument("--compare", type=Path, default=None,
+                        help="second device's matrix (e.g. paper_evidence/runtime/matrix_mac): adds fig11 and fig12")
+    parser.add_argument("--names", nargs=2, default=["Windows: Ryzen 5 9600X + RTX 5070", "Mac: Apple M2 Pro"])
     parser.add_argument("--figures", type=Path, default=Path("paper_evidence/figures"))
     args = parser.parse_args()
     rows = json.loads((args.matrix / "summary.json").read_text(encoding="utf-8"))["rows"]
@@ -189,6 +289,11 @@ def main() -> None:
     fig_sensitivity(rows, pairs, args.figures / "fig6_component_sensitivity.png")
     fig_latency(rows, args.figures / "fig7_runtime_latency.png")
     fig_pipeline(args.matrix, args.figures / "fig8_pipeline_assignment.png")
+    if args.compare:
+        rows_b = json.loads((args.compare / "summary.json").read_text(encoding="utf-8"))["rows"]
+        names = (args.names[0], args.names[1])
+        fig_latency_devices(rows, rows_b, names, args.figures / "fig11_runtime_latency_devices.png")
+        fig_pipeline_devices(args.matrix, args.compare, names, args.figures / "fig12_pipeline_devices.png")
     print("figures written to", args.figures)
 
 

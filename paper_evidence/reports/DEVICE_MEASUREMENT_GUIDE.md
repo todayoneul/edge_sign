@@ -116,3 +116,61 @@ git push -u origin paper/mac-device-validation
 | 모든 브라우저 측정이 `timeout` | 방화벽이 127.0.0.1:8791을 막는지 확인한다. 포트를 바꾸려면 `PORT=8795`를 앞에 붙인다 |
 | `crossOriginIsolated`가 false이고 WASM 4스레드 결과의 스레드 수가 1 | 서버가 `--isolate`로 떠 있는지 `server.log`에서 확인한다 |
 | YOLO11l WASM 단계가 매우 오래 걸림 | 정상이다(Windows 기준 추론 1회 약 0.7초). 중단했다가 같은 명령으로 이어서 실행해도 된다 |
+
+## 8. 추가 재측정: WASM FP32 대 INT8 (약 1시간, 2026-09-27 추가)
+
+**목적.** 1차 Mac 측정에서 WASM INT8은 FP32보다 빠르지 않았다(0.89–1.01배). Windows와 반대 방향이라 논문 초록에 들어간 결과이지만, 근거가 약하다.
+- 모델마다 한 번씩만 측정했다.
+- 그 구간에 다른 앱(ChatGPT/Codex, Antigravity IDE, 평소 쓰는 Chrome 창)이 CPU를 썼다.
+- 파이프라인의 FP32@WASM도 1회만 측정했다.
+
+이 비교만 조용한 환경에서 반복해 결과를 확정한다. 스크립트는 `scripts/paper/run_mac_wasm_recheck.sh`이다.
+
+| 단계 | 내용 | 시간(대략) |
+|---|---|---|
+| 1 | YOLO26-n FP32·INT8 헤드 제외, WASM 4스레드, 5회 | 10분 |
+| 2 | YOLOv8s FP32·INT8 헤드 제외, WASM 4스레드, 3회 | 20분 |
+| 3 | 파이프라인 FP32@WASM 대 INT8@WASM, 5회 | 10분 |
+| 4 | WASM 수치 일치성(YOLO26-n FP32, INT8 헤드 제외 2종; test 전체) | 10분 |
+| 선택 | `WITH_1T=1`을 붙이면 YOLO26-n 1스레드 3회 추가 | +20분 |
+
+- 측정마다 Chrome을 새로 띄운다. 회차마다 FP32와 INT8의 순서를 바꿔, 발열이나 배경 작업이 한쪽에만 유리하지 않게 한다.
+- 측정 전마다 다른 프로세스의 CPU 사용 합이 60% 미만인 상태가 15초 이어질 때까지 기다린다(최대 5분). 기다린 결과는 `quiet.log`에 남는다.
+
+**준비.**
+1. 전원 어댑터를 연결하고 저전력 모드를 끈다.
+2. **모든 앱을 종료한다.** 특히 ChatGPT(Codex), Antigravity IDE, 평소 쓰는 Chrome 창(측정용 Chrome은 스크립트가 따로 띄운다), 다른 터미널의 python 작업. iCloud 동기화도 일시정지한다.
+3. 저장소를 최신으로 받는다(새 스크립트 포함).
+
+```bash
+cd edge_sign && git switch main && git pull --ff-only
+```
+
+4. 번들은 1차와 같은 `~/edge_sign_device_bundle`을 쓴다.
+
+**빠른 점검 (약 5분, 논문에 쓰지 않음).**
+
+```bash
+QUICK=1 PYTHON=.venv-bench/bin/python bash scripts/paper/run_mac_wasm_recheck.sh ~/edge_sign_device_bundle /tmp/recheck_quick
+```
+
+마지막 줄이 `=== ... recheck done`이고 요약 표가 나오면 된다. 빠른 점검은 32프레임만 쓰므로 일치성 표의 차이(delta)가 크게 나오는데, 정상이다.
+
+**본측정.** 측정 중에는 Mac을 쓰지 않는다. 중간에 멈추면 같은 명령을 다시 실행한다. 끝난 측정은 건너뛴다.
+
+```bash
+caffeinate -dimsu env PYTHON=.venv-bench/bin/python bash scripts/paper/run_mac_wasm_recheck.sh ~/edge_sign_device_bundle paper_evidence/runtime/matrix_mac_recheck 2>&1 | tee matrix_mac_recheck.log
+```
+
+**결과 확인.** `paper_evidence/runtime/matrix_mac_recheck/summary.md`를 본다.
+- 첫 표의 "FP32/INT8 per round"가 모든 회차에서 1보다 작으면, 1차 결과(INT8이 빠르지 않음)가 조용한 환경에서도 재현된 것이다. 1보다 크면 1차 결과는 배경 부하의 영향이었을 수 있다.
+- `Quiet gate` 줄의 `not quiet` 개수가 0인지 확인한다.
+
+**결과 올리기.** 예측 파일은 스크립트가 이미 압축해 둔다.
+
+```bash
+cp matrix_mac_recheck.log paper_evidence/runtime/matrix_mac_recheck/
+git add -f paper_evidence/runtime/matrix_mac_recheck
+git commit -m "feat(paper): quiet re-check of WASM FP32 vs INT8 on the Mac"
+git push origin main
+```

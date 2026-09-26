@@ -64,6 +64,8 @@ def main() -> None:
     out: dict = {"rounds": ["r1"] + [t[1:] for t in ROUNDS[1:]], "frames_per_launch": 512, "configs": {}, "pairs": []}
     for c, runs in data.items():
         ok = [r for r in runs if r]
+        if not ok:  # configuration not measured in this folder (e.g. a partial re-check)
+            continue
         means = {s: [float(r["trace"][s].mean()) for r in ok] for s in STAGES}
         pooled = np.concatenate([r["trace"]["total_ms"] for r in ok])
         p90s = [float(np.percentile(r["trace"]["total_ms"], 90)) for r in ok]
@@ -84,6 +86,8 @@ def main() -> None:
     for label, a, b in PAIRS:
         diffs = [float(ra["trace"]["total_ms"].mean() - rb["trace"]["total_ms"].mean())
                  for ra, rb in zip(data[a], data[b], strict=True) if ra and rb]
+        if not diffs:
+            continue
         out["pairs"].append({"label": label, "a": a, "b": b, "rounds": len(diffs), "diff_ms": diffs,
                              "mean_diff_ms": statistics.mean(diffs), "min_diff_ms": min(diffs), "max_diff_ms": max(diffs),
                              "rounds_a_faster": sum(d < 0 for d in diffs)})

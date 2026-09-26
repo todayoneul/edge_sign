@@ -22,6 +22,7 @@
 | 새 QDQ 변형의 생성 기록 | `models/quantize_variants_log.json`(검출기), `models/recognizer_variants_log.json`(인식기), `splits/recognition_calibration_manifest.jsonl` |
 | 인식기 변형 정확도 | `recognition/variants/{fp32,fp16,int8_*}_metrics.json`, `predictions.csv` |
 | 논문 그림 6–8 | `figures/fig6_component_sensitivity.png`, `fig7_runtime_latency.png`, `fig8_pipeline_assignment.png` (`scripts/paper/plot_runtime_matrix.py`) |
+| 기기 비교 그림 (논문 Fig. 4–5) | `figures/fig11_runtime_latency_devices.png`, `fig12_pipeline_devices.png` (`plot_runtime_matrix.py --compare runtime/matrix_mac`) |
 | 검출 붕괴 원인 (활성값 ablation) | `runtime/matrix/cpu_{v4,v3}_a8sim_{all,head,decode,outconcat,decode_no_outconcat}/`, `cpu_{v4,v3}_int8_decode_excl/`, `runtime/matrix/decode_tensor_scan.json`, `models/activation_ablation_log.json` (`activation_ablation.py`, `decode_tensor_scan.py`) |
 | 파이프라인 5회 반복 | `runtime/matrix/pipeline_t4_ort1300_*_r{2..5}.json`·`_trace.csv`, 집계 `pipeline_repeats_summary.json` (`summarize_pipeline_repeats.py`) |
 | 검출→추적→인식 종단 정확도 (정밀도 조합) | `runtime/end_to_end/{summary.json,per_frame.csv}` (`evaluate_end_to_end.py`) |

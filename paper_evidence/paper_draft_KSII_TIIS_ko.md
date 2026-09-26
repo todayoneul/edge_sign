@@ -2,15 +2,15 @@
 
 **English title:** BRIQ: A Component- and Runtime-Aware Study of Quantization for Browser-Based Vision Inference
 
-> 초안 상태(2026-09-26): 모든 수치는 `paper_evidence/`의 원시 기록에서 다시 계산할 수 있다. 수치별 원천은 [RUNTIME_MATRIX.md](reports/RUNTIME_MATRIX.md)(Windows·Mac), [COCO_VALIDATION.md](reports/COCO_VALIDATION.md), [TIIS_EVIDENCE_REPORT.md](reports/TIIS_EVIDENCE_REPORT.md)에 있다. Table 1(관련 연구 비교)의 ✓/– 표시는 각 논문 본문과 한 번 더 대조해야 한다.
+> 초안 상태(2026-09-27): 모든 수치는 `paper_evidence/`의 원시 기록에서 다시 계산할 수 있다. 수치별 원천은 [RUNTIME_MATRIX.md](reports/RUNTIME_MATRIX.md)(Windows·Mac), [COCO_VALIDATION.md](reports/COCO_VALIDATION.md), [TIIS_EVIDENCE_REPORT.md](reports/TIIS_EVIDENCE_REPORT.md)에 있다. Table 1의 표시는 원문과 대조하였다(Wang 등의 TOSEM 논문은 WebGPU를 평가에서 제외, Kim 등의 IEEE Access 논문은 정확도 손실을 함께 보고). 기기 B의 WASM FP32·INT8 비교를 조용한 환경에서 다시 재는 절차는 [DEVICE_MEASUREMENT_GUIDE.md](reports/DEVICE_MEASUREMENT_GUIDE.md) 8절에 있다.
 
 ---
 
 ## Abstract
 
-브라우저에서 비전 모델을 실행하면 설치 없이 배포할 수 있고 영상이 사용자 기기를 벗어나지 않지만, 실제 응용은 여러 모델로 이루어지고 브라우저의 실행 환경(WebAssembly, WebGPU)은 연산자 지원과 성능 특성이 서로 다르다. 기존 양자화 연구는 주로 단일 모델의 정확도나 한 가지 하드웨어의 지연을 다루어, 구성요소와 실행 환경을 함께 바꿀 때 양자화의 효과는 알려져 있지 않다. 본 연구는 이를 측정하는 실증 평가 틀 BRIQ(Browser Runtime-aware Inference Quantization)를 제시하고, 도로 표지판·신호등 검출–추적–인식 파이프라인의 두 검출기와 인식기에 18개 정밀도 변형을 적용해 시퀀스 독립 test 2,417프레임에서 구성요소 정확도와 종단 정확도를 평가하였다. 같은 모델 파일의 지연은 두 기기(Windows 데스크톱, Apple M2 Pro)의 네이티브 CPU, WebAssembly, 두 버전의 WebGPU에서 측정해 연산자 배치 로그로 원인을 확인하였고, 검출기 수준의 결과는 MLPerf가 채택한 YOLO11l과 COCO 부분집합에서 측정 전에 공개한 예측으로 검증하였다. 검출 헤드까지 INT8로 바꾸면 박스 좌표와 클래스 점수가 한 활성값 척도를 공유하는 텐서에서 모든 점수가 0으로 반올림되어 세 검출기 모두 검출이 사라졌고, 헤드를 제외한 INT8도 mAP 유지율 97.0–98.7%로 사전 기준 99%에 못 미쳤으며 종단 정답률 유지율은 94.2%로 더 낮았다. INT8은 네이티브 CPU에서 빨랐지만 WebGPU에서는 양자화 연산이 CPU로 배치되어 Windows에서 49–89배, Mac에서 7.6–14배 느렸고, WebAssembly에서의 이득은 기기에 따라 달라 Windows에서는 1.3–2.4배 빨랐으나 Mac에서는 빨라지지 않았다. 검출기를 WebGPU에, 인식기를 WebAssembly에 둔 구성요소별 배치는 두 기기 모두에서 가장 빨랐다(프레임당 중앙값 16.7 ms, 15.8 ms). 이 결과는 양자화 여부를 모델 단위로 한 번에 정하지 말고, 구성요소와 목표 실행 환경·기기의 조합마다 운영 조건의 태스크 지표와 실측 지연으로 정해야 함을 보여 준다.
+브라우저에서 비전 모델을 실행하면 설치 없이 배포할 수 있고 영상이 사용자 기기를 벗어나지 않지만, 실제 응용은 여러 모델로 이루어지고 브라우저의 실행 환경(WebAssembly, WebGPU)은 연산자 지원과 성능 특성이 서로 다르다. 기존 양자화 연구는 주로 단일 모델의 정확도나 한 가지 하드웨어의 지연을 다루어, 구성요소와 실행 환경을 함께 바꿀 때 양자화의 효과는 알려져 있지 않다. 본 연구는 이를 측정하는 실증 평가 틀 BRIQ(Browser Runtime-aware Inference Quantization)를 제시하고, 도로 표지판·신호등 검출–추적–인식 파이프라인의 두 검출기와 인식기에 18개 정밀도 변형을 적용해 시퀀스 독립 test 2,417프레임에서 구성요소 정확도와 종단 정확도를 평가하였다. 같은 모델 파일의 지연은 두 기기(Windows 데스크톱, Apple M2 Pro)의 네이티브 CPU, WebAssembly, 두 버전의 WebGPU에서 측정해 연산자 배치 로그로 원인을 확인하였고, 검출기 수준의 결과는 MLPerf가 채택한 YOLO11l과 COCO 부분집합에서 측정 전에 공개한 예측으로 검증하였다. 검출 헤드까지 INT8로 바꾸면 박스 좌표와 클래스 점수가 한 활성값 척도를 공유하는 텐서에서 모든 점수가 0으로 반올림되어 세 검출기 모두 검출이 사라졌다. 헤드를 제외한 INT8은 주 도로 워크로드의 두 검출기에서 FP32 mAP의 97.0–98.7%를 유지해 사전 기준 99%에 못 미쳤고 종단 정답률 유지율은 94.2%로 더 낮았으며, 외부 검증의 YOLO11l은 99.2%를 유지하였다. INT8은 네이티브 CPU에서 대체로 속도를 높였으나 그 이득의 크기와 존재 여부는 모델과 기기에 따라 달랐고, WebGPU에서는 양자화 연산이 CPU로 배치되어 Windows에서 49–89배, Mac에서 7.6–14배 느렸으며, WebAssembly에서는 Windows에서 1.3–2.4배 빨랐으나 시험한 Mac에서는 빨라지지 않았다. 검출기를 WebGPU에, 인식기를 WebAssembly에 둔 구성요소별 배치는 두 기기 모두에서 가장 빨랐다(프레임당 중앙값 16.7 ms, 15.8 ms). 이 결과는 양자화 여부를 모델 단위로 한 번에 정하지 말고, 구성요소와 목표 실행 환경·기기의 조합마다 운영 조건의 태스크 지표와 실측 지연으로 정해야 함을 보여 준다.
 
-**English abstract (working draft).** Running vision models in a web browser allows install-free deployment and keeps video on the user's device, but real applications combine several models, and the browser's runtimes (WebAssembly and WebGPU) differ in operator support and performance. Prior quantization studies mostly report the accuracy of a single model or the latency on a single piece of hardware, so the effect of quantization when both the component and the runtime change is not known. We present BRIQ (Browser Runtime-aware Inference Quantization), an empirical evaluation framework for this question, and apply 18 precision variants to the two detectors and the recognizer of a road-sign and traffic-light detection–tracking–recognition pipeline, evaluating component-level and end-to-end accuracy on 2,417 sequence-disjoint test frames. Latency of the same model files is measured on native CPU, WebAssembly, and WebGPU in two ONNX Runtime Web versions on two devices (a Windows desktop and an Apple M2 Pro laptop) and explained with operator-placement logs, and the detector-level findings are tested against predictions published before measurement on the YOLO11l model and COCO subset adopted by MLPerf. Quantizing the detection head removes every detection in all three detectors, because a tensor that carries class scores together with box coordinates shares one activation scale and rounds every score to zero; head-excluded INT8 retains 97.0–98.7% of FP32 mAP, below the preregistered 99% criterion, and only 94.2% of end-to-end accuracy. INT8 is faster on the native CPU but 49–89× slower on WebGPU on Windows and 7.6–14× slower on the Mac, because the quantize operators fall back to the CPU, and its WebAssembly speedup is device-dependent: 1.3–2.4× on Windows and none on the Mac. Placing the detector on WebGPU and the recognizer on WebAssembly is the fastest configuration on both devices (median 16.7 ms and 15.8 ms per frame). These results argue for choosing precision per component and per target runtime and device, using task metrics at the operating point and measured latency.
+**English abstract (working draft).** Running vision models in a web browser allows install-free deployment and keeps video on the user's device, but real applications combine several models, and the browser's runtimes (WebAssembly and WebGPU) differ in operator support and performance. Prior quantization studies mostly report the accuracy of a single model or the latency on a single piece of hardware, so the effect of quantization when both the component and the runtime change is not known. We present BRIQ (Browser Runtime-aware Inference Quantization), an empirical evaluation framework for this question, and apply 18 precision variants to the two detectors and the recognizer of a road-sign and traffic-light detection–tracking–recognition pipeline, evaluating component-level and end-to-end accuracy on 2,417 sequence-disjoint test frames. Latency of the same model files is measured on native CPU, WebAssembly, and WebGPU in two ONNX Runtime Web versions on two devices (a Windows desktop and an Apple M2 Pro laptop) and explained with operator-placement logs, and the detector-level findings are tested against predictions published before measurement on the YOLO11l model and COCO subset adopted by MLPerf. Quantizing the detection head removes every detection in all three detectors, because a tensor that carries class scores together with box coordinates shares one activation scale and rounds every score to zero. With the head kept in FP32, the two road-scene detectors retain 97.0–98.7% of FP32 mAP, below the preregistered 99% criterion, and 94.2% of end-to-end accuracy, whereas YOLO11l on COCO retains 99.2%. INT8 generally accelerates native-CPU inference, although the benefit depends on the model and device; on WebGPU it is 49–89× slower on Windows and 7.6–14× slower on the Mac because the quantize operators fall back to the CPU, and on WebAssembly it is 1.3–2.4× faster on Windows but not faster on the tested Mac. Placing the detector on WebGPU and the recognizer on WebAssembly is the fastest configuration on both devices (median 16.7 ms and 15.8 ms per frame). These results argue for choosing precision per component and per target runtime and device, using task metrics at the operating point and measured latency.
 
 **Keywords**: Neural network quantization, Browser-based inference, WebGPU, ONNX Runtime, Object detection, Traffic sign recognition
 
@@ -66,7 +66,7 @@ Fig. 1은 BRIQ의 구성요소, 양자화 변형, 실행 환경과 연구 질문
 
 ### 2.3. Browser-Based DNN Inference and Runtime Backends
 
-Ma 등 [1]은 브라우저 딥러닝 프레임워크의 성능을 네이티브 실행과 비교해 큰 격차를 보고하였다. Wang 등 [2]은 브라우저 추론의 지연과 정확도가 백엔드, 기기, 프레임워크에 따라 크게 달라짐을 보였다. Lee와 Jeon [19]은 JavaScript, WebAssembly, 그리고 입력 해상도와 성능 지표에 따라 둘 중 하나를 동적으로 고르는 혼합 방식을 비교하였다. WebAssembly는 더 빨랐고 JavaScript는 메모리 효율이 높아, 실행 방식에 따라 추론 시간과 메모리 사용이 서로 절충되었다. 다만 이 연구의 대상은 ResNet 계열 분류 모델이었고, 모델 양자화, WebGPU 실행, 여러 구성요소로 이루어진 파이프라인은 다루지 않았다. Kim 등 [11]은 모바일 GPU에서 INT8 추론이 항상 빠르지 않음을 측정하였다. ONNX Runtime과 ONNX Runtime Web [20]은 같은 ONNX 그래프를 네이티브 CPU, WASM, WebGPU에서 실행하므로, 모델 파일을 고정하고 실행 환경만 바꿔 비교할 수 있다. 성능 판정은 MLPerf Inference를 따른다. 정확도는 FP32 기준 대비 품질 등급(95%·99%)으로 [21], [22], 지연은 단일 스트림 방식(p90, 1,024회 이상)으로 보고한다 [21]. 본 연구는 이 틀을 브라우저 파이프라인에 적용해, 양자화 효과가 구성요소, 실행 환경, 기기에 따라 어떻게 달라지는지를 연산자 배치 수준까지 확인한다.
+Ma 등 [1]은 브라우저 딥러닝 프레임워크의 성능을 네이티브 실행과 비교해 큰 격차를 보고하였다. Wang 등 [2]은 브라우저 추론의 지연과 정확도가 백엔드, 기기, 프레임워크에 따라 크게 달라짐을 보였다. 다만 WebGPU는 당시 초기 단계여서 평가에서 제외하고 WASM과 WebGL 백엔드만 다루었다. Lee와 Jeon [19]은 JavaScript, WebAssembly, 그리고 입력 해상도와 성능 지표에 따라 둘 중 하나를 동적으로 고르는 혼합 방식을 비교하였다. WebAssembly는 더 빨랐고 JavaScript는 메모리 효율이 높아, 실행 방식에 따라 추론 시간과 메모리 사용이 서로 절충되었다. 다만 이 연구의 대상은 ResNet 계열 분류 모델이었고, 모델 양자화, WebGPU 실행, 여러 구성요소로 이루어진 파이프라인은 다루지 않았다. Kim 등 [11]은 모바일 GPU에서 INT8 추론의 지연과 정확도를 함께 평가해, INT8이 항상 빠르지는 않음을 보였다. ONNX Runtime과 ONNX Runtime Web [20]은 같은 ONNX 그래프를 네이티브 CPU, WASM, WebGPU에서 실행하므로, 모델 파일을 고정하고 실행 환경만 바꿔 비교할 수 있다. 성능 판정은 MLPerf Inference를 따른다. 정확도는 FP32 기준 대비 품질 등급(95%·99%)으로 [21], [22], 지연은 단일 스트림 방식(p90, 1,024회 이상)으로 보고한다 [21]. 본 연구는 이 틀을 브라우저 파이프라인에 적용해, 양자화 효과가 구성요소, 실행 환경, 기기에 따라 어떻게 달라지는지를 연산자 배치 수준까지 확인한다.
 
 Table 1은 대표 관련 연구와 본 연구의 범위를 비교한다.
 
@@ -77,7 +77,7 @@ Table 1은 대표 관련 연구와 본 연구의 범위를 비교한다.
 | Ma 등 [1] | – | ✓ | – | – | – | – |
 | Wang 등 [2] | – | ✓ | – | – | ✓ | – |
 | Lee와 Jeon [19] | – | ✓ | – | – | – | – |
-| Kim 등 [11] | ✓ | – | – | – | – | – |
+| Kim 등 [11] | ✓ | – | – | – | ✓ | – |
 | Q-YOLO [8], Reg-PTQ [9] | ✓ | – | – | – | ✓ | – |
 | Moon 등 [10] | ✓ | – | – | – | ✓ | – |
 | Niu 등 [18] | ✓ | – | – | – | ✓ | – |
@@ -97,7 +97,7 @@ Table 1은 대표 관련 연구와 본 연구의 범위를 비교한다.
 
 $$\pi^\ast=\arg\min_{\pi}\ L(\pi)\quad\text{s.t.}\quad R_{\text{E2E}}(p_D,p_R)\ge\tau \tag{1}$$
 
-BRIQ는 이 문제를 최적화하는 알고리즘이 아니라, 문제의 두 항이 무엇에 의존하는지를 측정한다. $R_{\text{E2E}}$는 정밀도에만 의존하고 실행 환경과는 무관한지(RQ1과 4.3절의 수치 일치성), $L$은 정밀도·실행 환경·기기에 따라 어떻게 바뀌는지(RQ2), 구성요소별로 $e_c$를 나누면 $L$이 얼마나 줄어드는지(RQ3)를 확인한다. 기준 $\tau$는 4.1.5절에서 정한다. Table 2는 실험에 쓴 세 구성요소를 요약한다.
+BRIQ는 이 문제를 최적화하는 알고리즘이 아니라, 문제의 두 항이 무엇에 의존하는지를 측정한다. $R_{\text{E2E}}$가 정밀도 조합에 따라 어떻게 달라지는지(RQ1)와 CPU에서 구한 정확도를 어느 브라우저 실행 환경까지 옮길 수 있는지(4.3절의 수치 일치성), $L$은 정밀도·실행 환경·기기에 따라 어떻게 바뀌는지(RQ2), 구성요소별로 $e_c$를 나누면 $L$이 얼마나 줄어드는지(RQ3)를 확인한다. 기준 $\tau$는 4.1.5절에서 정한다. Table 2는 실험에 쓴 세 구성요소를 요약한다.
 
 **Table 2.** 구성요소 모델. 파라미터 수는 FP32 ONNX의 부동소수점 initializer 합계이다.
 
@@ -165,7 +165,7 @@ FP16 변형은 가중치와 활성값을 반정밀도로 변환한 그래프이�
 측정 절차는 세 가지이다.
 - **단일 모델 지연:** 측정 서버가 모든 실행 환경에 같은 RGB 입력(검출기 640×640, 인식기 32×32)을 주고, 각 환경은 정규화만 수행한다. 배치 1, 고정 프레임에서 워밍업 뒤 추론 호출만 반복 측정한다.
 - **연산자 배치:** WebGPU 세션을 verbose 로그로 만들고, 각 노드가 배치된 실행 제공자(WebGPU 또는 CPU)를 로그에서 읽는다. 지연 차이는 이 배치로 설명한다.
-- **수치 일치성:** WebGPU와 WASM의 검출 출력을 test 전체에 대해 수집하고, CPU와 같은 디코더로 mAP를 다시 계산한다. 일치하면 CPU에서 구한 정확도(식 (1)의 $R_{\text{E2E}}$ 포함)를 브라우저 배치에 그대로 쓸 수 있다.
+- **수치 일치성:** WebGPU와 WASM의 검출 출력을 test 전체에 대해 수집하고, CPU와 같은 디코더로 mAP를 다시 계산한다. 일치가 확인된 정밀도·실행 환경 조합에서는 CPU에서 구한 검출 정확도를 브라우저 배치에도 쓸 수 있다. 인식기의 브라우저 출력은 이 절차로 확인하지 않았으므로, 식 (1)의 $R_{\text{E2E}}$는 CPU에서 계산한 값으로 보고한다.
 
 **구성요소별 배치.** 한 브라우저 페이지에서 검출기와 인식기 세션을 각각 지정한 실행 환경으로 만든다. test 프레임을 순서대로 처리하며 정규화, 검출, 디코딩(신뢰도 0.25 이상), ROI 추출, 인식의 시간을 단계별로 기록한다.
 - 각 프레임은 시간 측정 구간 밖에서 받아 온다(카메라 입력에 해당). 추적기(가중치 없는 JavaScript ByteTrack)와 화면 렌더링은 측정 범위에서 제외한다. 따라서 이 값은 전체 응용의 지연이 아니라 **검출–인식 프레임 지연**이다.
@@ -205,7 +205,7 @@ Table 2의 세 구성요소마다 FP32, FP16, INT8 4종(양자화 범위 2 × bi
 지연은 두 기기에서 같은 스크립트로 측정하였다.
 - **기기 A (Windows):** AMD Ryzen 5 9600X(6코어 12스레드), NVIDIA GeForce RTX 5070, Windows 11, Chrome 153.
 - **기기 B (Mac):** Apple MacBook Pro, M2 Pro(성능 코어 6 + 효율 코어 4, GPU 16코어, 통합 메모리 16 GB), macOS 26.6.2, Chrome 153.0.8010.54. headless Chrome에서 하드웨어 WebGPU 어댑터(Metal)를 사용하였다.
-- **공통:** 네이티브 ONNX Runtime 1.23.2, ONNX Runtime Web 1.30.0(WebGPU 실행 제공자)과 1.22.0(JSEP).
+- **공통:** 네이티브 ONNX Runtime 1.23.2, ONNX Runtime Web 1.30.0(WebGPU 실행 제공자)과 1.22.0(JSEP). 두 기기의 WebGPU 어댑터는 모두 `shader-f16` 기능을 지원하였다(어댑터 정보는 측정 기록마다 저장).
 
 정확도는 두 기기에서 같은 모델 파일을 쓰므로 기기 A의 ONNX Runtime CPU에서 계산하였다. 기기 B에서도 WebGPU의 수치 일치성을 test 전체로 다시 확인하였다(4.3절).
 
@@ -373,7 +373,7 @@ $$d=\sum_{i=0}^{15} w_i\,p_i,\qquad w_i=i,\qquad \sum_{i} p_i=1 \tag{6}$$
 
 ### 4.3. RQ2: Runtime-Dependent Latency and Its Causes
 
-Table 7은 기기 A(Windows)에서 같은 모델 파일의 배치 1 추론 지연이다. 결과는 세 가지로 요약되며, 기기 B(Mac)에서의 재현 여부는 이 절의 끝에서 Table 9로 정리한다.
+Table 7은 기기 A(Windows)에서 같은 모델 파일의 배치 1 추론 지연이다. 결과는 세 가지로 요약되며, 기기 B(Mac)에서의 재현 여부는 이 절의 끝에서 Table 9와 Fig. 4로 정리한다.
 
 **Table 7.** 기기 A의 실행 환경별 추론 지연, 평균 / p90 (ms). 1,024회 측정(WebGPU INT8만 128회). INT8은 INT32 bias 변형이며, 1.22 WebGPU에서는 실행에 실패하였다. 인식기 WASM은 1스레드이다.
 
@@ -422,14 +422,10 @@ Table 7은 기기 A(Windows)에서 같은 모델 파일의 배치 1 추론 지�
 **브라우저 수치 일치성.**
 - FP32 검출기를 WebGPU에서 test 전체로 실행한 mAP는 ONNX Runtime CPU와 소수 여섯째 자리까지 같았다. 기기 B의 WebGPU(Metal)에서도 같았다.
 - FP16은 GPU 누산 차이로 mAP@0.5:0.95가 최대 0.0011(기기 A), 0.0012(기기 B) 달랐다. 유지율은 99.5% 이상으로 여전히 기준 안이다.
-- WASM에서는 FP32 검출기가 CPU와 같았고, INT8 헤드 제외 검출기도 0.0003 이내로 일치하였다.
-- 따라서 Table 4와 Table 6의 정확도는 두 기기의 브라우저 실행 환경에도 그대로 적용된다. 식 (1)의 $R_{\text{E2E}}$는 실행 환경과 무관하게 정밀도 조합만으로 정해진다.
+- WASM의 일치성은 기기 A에서 YOLO26-n의 FP32와 INT8 헤드 제외(FP32 bias) 변형으로 확인하였다. FP32는 CPU와 같았고, INT8은 0.0003 이내로 일치하였다.
+- 따라서 FP32·FP16 검출기는 두 기기의 WebGPU 모두에서 CPU 평가와 실질적으로 같은 정확도를 보였고, Table 4의 검출기 정확도는 이 조합의 브라우저 배치에 적용된다. 인식기와 종단 정확도(Table 6)는 CPU에서만 계산했고, INT8 변형의 태스크 수준 일치는 기기 A의 WASM에서만 확인했으므로, 정확도가 기기와 실행 환경에 무관하다고까지 주장하지는 않는다.
 
-![Fig. 4](figures/fig7_runtime_latency.png)
-
-**Fig. 4.** 기기 A의 변형·실행 환경별 배치 1 추론 지연(로그 축, 막대 = 평균, 수염 = p90). 점선은 30 FPS(33.3 ms), 점점선은 15 FPS(66.7 ms) 예산이다. 막대가 없는 칸은 실행 실패(1.22의 INT32 bias INT8), 측정 안 함(1.22의 검출기 INT8 속도), 또는 해당 없음(인식기 WASM 4스레드)이다.
-
-**두 번째 기기에서의 재현.** 같은 모델 파일과 절차로 기기 B(Apple M2 Pro)에서 다시 측정하였다. Table 9는 두 기기에서 정밀도의 효과를 같은 실행 환경 안의 비율로 비교한다.
+**두 번째 기기에서의 재현.** 같은 모델 파일과 절차로 기기 B(Apple M2 Pro)에서 다시 측정하였다. Table 9는 두 기기에서 정밀도의 효과를 같은 실행 환경 안의 비율로 비교하고, Fig. 4는 대표 조건의 절대 지연을 두 기기에 나란히 보여 준다.
 
 **Table 9.** 기기별 정밀도 효과(평균 지연의 비). 1보다 크면 앞의 변형이 느리다. INT8은 헤드 제외(INT32 bias) 변형이다. 기기 B의 절대 지연(평균 / p90, ms)은 공개 기록 `runtime/matrix_mac/`에 있다.
 
@@ -451,18 +447,22 @@ Table 7은 기기 A(Windows)에서 같은 모델 파일의 배치 1 추론 지�
 | 인식기: WebGPU 1.30 / WASM 1T | KoreanSignNet FP32 | 14× | 6.0× | 같음 |
 
 두 기기의 결과는 두 갈래로 나뉜다.
-- **기기와 무관하게 유지된 것.** WebGPU에서 INT8이 느린 현상, FP16의 효과가 런타임 버전에 달린 현상, 작은 인식기가 WebGPU보다 WASM에서 빠른 현상은 두 기기에서 같은 방향이었다. 원인이 되는 연산자 배치(`QuantizeLinear` YOLO26-n 312개, YOLOv8s 177개, YOLO11l 556개; 1.22 FP16의 `Split` 12개 등)도 노드 수까지 같았다. 배치는 런타임과 모델 그래프가 정하므로 기기가 바뀌어도 그대로이고, 그 비용의 크기만 기기에 따라 달라진 것이다. 기기 B의 감속 폭이 작은 것(7.6–14배 대 49–89배)은 CPU와 GPU가 메모리를 공유하는 통합 메모리 구조에서 CPU 배치의 전송 비용이 작기 때문일 가능성이 있지만, 본 연구에서 이를 분리하지는 않았다.
-- **기기에 따라 달라진 것.** WASM에서 INT8의 속도 이득은 기기 A에서만 나타났다. 기기 B에서는 네이티브 CPU의 INT8이 1.7–2.7배 빨랐는데도, 같은 모델의 WASM INT8은 FP32와 같거나 느렸다(0.89–1.01배, 1스레드 포함). 기기 B의 FP32 WASM 지연은 기기 A와 비슷했으므로(YOLO26-n 4T 47.9 ms 대 49.8 ms), 차이는 INT8 경로에서 생긴다. 브라우저가 WASM의 정수 SIMD 연산을 각 CPU의 명령어로 옮기는 방식이 x86과 ARM에서 다르기 때문일 수 있으나, 원인은 확인하지 않았다. 이 결과는 "WASM에서는 INT8이 빠르다"는 결론이 기기에 따라 달라짐을 보여 준다.
+- **두 기기에서 같았던 것.** WebGPU에서 INT8이 느린 현상, FP16의 효과가 런타임 버전에 달린 현상, 작은 인식기가 WebGPU보다 WASM에서 빠른 현상은 두 기기에서 같은 방향이었다. 원인이 되는 연산자 배치(`QuantizeLinear` YOLO26-n 312개, YOLOv8s 177개, YOLO11l 556개; 1.22 FP16의 `Split` 12개 등)도 두 기기에서 노드 수까지 같았다. 즉 두 시험 기기(두 GPU 모두 `shader-f16` 지원)에서는 같은 ORT-Web 버전과 모델 그래프이면 노드 배치가 동일했고, 그 비용의 크기만 달랐다. 어댑터 기능이나 셰이더 지원이 다른 GPU(예: `shader-f16` 미지원)에서는 배치가 달라질 수 있으므로, 이 동일성을 모든 기기로 일반화하지는 않는다. 기기 B의 감속 폭이 작은 것(7.6–14배 대 49–89배)은 CPU와 GPU가 메모리를 공유하는 통합 메모리 구조에서 CPU 배치의 전송 비용이 작기 때문일 가능성이 있지만, 본 연구에서 이를 분리하지는 않았다.
+- **두 기기에서 달랐던 것.** WASM에서 INT8의 속도 이득은 기기 A에서만 나타났다. 시험한 기기 B에서는 네이티브 CPU의 INT8이 1.7–2.7배 빨랐는데도, 같은 모델의 WASM INT8은 세 검출기 모두 FP32와 같거나 느렸다(0.89–1.01배, 1스레드 포함). 기기 B의 FP32 WASM 지연은 기기 A와 비슷했으므로(YOLO26-n 4T 47.9 ms 대 49.8 ms), 차이는 INT8 경로에서 생긴 것으로 보인다. 원인(예: 브라우저 WASM 엔진이 정수 SIMD 연산을 기계어로 옮기는 방식)은 분리하지 않았다. 또한 이 값은 모델마다 한 번의 측정이고 측정 중 배경 부하가 있었으므로(4.6절), 한 대의 Mac에서 관찰된 결과로만 보고하며 ARM 계열 기기 전반의 성질로 일반화하지 않는다. 그래도 이 관찰은 "WASM에서는 INT8이 빠르다"는 결론이 기기에 따라 달라질 수 있음을 보여 준다.
+
+![Fig. 4](figures/fig11_runtime_latency_devices.png)
+
+**Fig. 4.** 두 기기의 검출기 배치 1 추론 지연(로그 축, 막대 = 평균, 수염 = p90). 대표 조건만 표시하였다: 네이티브 ORT CPU 4스레드, WASM 4스레드, WebGPU(ORT-Web 1.30)의 FP32·FP16과 INT8(헤드 제외, INT32 bias). 파선은 30 FPS(33.3 ms), 점선은 15 FPS(66.7 ms) 예산이다. 기기 A의 전체 조건(1스레드, ORT-Web 1.22, 인식기)은 Table 7에 있다.
 
 ### 4.4. RQ3: Component-Wise Runtime Placement
 
-Table 10은 한 브라우저 페이지에서 검출기(YOLO26-n)와 인식기를 각각 지정한 실행 환경에 배치한 파이프라인의 프레임당 지연이다. 반복 측정한 배치는 같은 회차에 측정한 배치끼리 짝지어 차이를 비교하였다.
+Table 10은 한 브라우저 페이지에서 검출기(YOLO26-n)와 인식기를 각각 지정한 실행 환경에 배치한 파이프라인의 프레임당 지연이고, Fig. 5는 주요 배치의 단계별 지연을 두 기기에 나란히 보여 준다. 반복 측정한 배치는 같은 회차에 측정한 배치끼리 짝지어 차이를 비교하였다.
 
 **Table 10.** 브라우저 파이프라인 배치별 프레임당 검출–인식 지연(ms), 기기 A / 기기 B.
 - 반복 측정한 배치(기기 A 7개, 기기 B 4개; † 표시)는 브라우저 실행 5회(각 512프레임) 결과의 중앙값이고, 대괄호는 실행 간 [최소–최대]이다. 나머지는 1회(512프레임) 측정이다.
 - 기준 판정은 실행별 p90의 중앙값으로 하였다. 5회의 2,560프레임을 합친 p90으로 판정해도 모든 배치에서 결과가 같았다. 판정 열은 "기기 A / 기기 B"이다.
 - WASM은 교차 출처 격리 페이지의 4스레드이다(1T 표시 행 제외).
-- 종단 유지율은 같은 정밀도 조합의 Table 6 값이다(두 기기 공통).
+- 종단 유지율은 같은 정밀도 조합의 Table 6 값(ONNX Runtime CPU)이다. 브라우저 실행 환경과의 수치 일치를 확인한 범위는 4.3절에 있다.
 
 | 검출기 @실행 환경 | 인식기 @실행 환경 | 기기 A 합계 | 기기 A p90 | 기기 B 합계 | 기기 B p90 | 30 FPS | 15 FPS | 종단 유지율 (%) |
 | :--- | :--- | ---: | ---: | ---: | ---: | :---: | :---: | ---: |
@@ -484,18 +484,18 @@ Table 10은 한 브라우저 페이지에서 검출기(YOLO26-n)와 인식기를
 - **인식기 정밀도는 속도에 영향이 없었다.** 기기 A에서 WASM 인식기를 INT8로 바꾼 차이는 평균 +0.1 ms(−0.2–+0.6 ms)였고 5회 중 2회만 INT8이 빨랐다. 기기 B(1회)에서도 INT8이 0.12 ms 느렸다.
 - **WebGPU를 쓸 수 없는 환경에서의 선택은 기기에 따라 달랐다.**
   - 기기 A의 WASM 4스레드에서는 INT8 헤드 제외 검출기가 FP32보다 파이프라인을 1.31–1.38배 빠르게 했고(5회 모두), INT8만 15 FPS 기준을 통과하였다(p90 중앙값 52.9 ms 대 67.4 ms). FP32는 실행별로 5회 중 1회만 통과하였다.
-  - 기기 B에서는 반대로 FP32(45.6 ms)가 INT8(54.6 ms)보다 빨랐고, 두 구성 모두 15 FPS 기준을 통과하였다. Table 9의 WASM INT8 결과가 파이프라인에서도 그대로 나타난 것이다.
-  - INT8의 대가는 검출 mAP 유지율 97.0%, 종단 유지율 94.4%이므로, 기기 B에서 WASM INT8을 쓸 이유는 없다.
+  - 기기 B에서는 반대로 FP32(45.6 ms, 1회)가 INT8(54.6 ms, 5회의 중앙값)보다 빨랐고, 두 구성 모두 15 FPS 기준을 통과하였다. Table 9의 WASM INT8 결과와 같은 방향이다. 다만 FP32는 1회만 측정해 같은 회차의 짝 비교도 1회(INT8이 8.9 ms 느림)뿐이므로, 기기 A의 5회 짝 비교만큼 강한 근거는 아니다.
+  - INT8의 대가는 검출 mAP 유지율 97.0%, 종단 유지율 94.4%이므로, 이 관찰이 유지된다면 기기 B에서는 WASM INT8을 쓸 이유가 없다.
   - 교차 출처 격리가 없는 페이지(WASM 1스레드)에서는 두 기기 모두 15 FPS에도 미치지 못했다.
-- **실행 간 편차.** 기기 A의 첫 실행은 나머지 네 실행과 다른 시간대에 측정되었고, WASM 배치에서 18–26%, WebGPU 배치에서 3–12% 빨랐다. 기기 B의 실행 간 범위는 모든 반복 배치에서 0.4 ms 이내였다. 두 기기 모두 짝 비교의 방향은 5회 모두 같았다.
+- **실행 간 편차.** 기기 A의 첫 실행은 나머지 네 실행과 다른 시간대에 측정되었고, WASM 배치에서 18–26%, WebGPU 배치에서 3–12% 빨랐다. 기기 B의 실행 간 범위는 모든 반복 배치에서 0.4 ms 이내였다. 5회 반복한 짝 비교는 기기 A의 인식기 정밀도(INT8이 빠른 회차 2/5)와 전체 FP16 대 전체 FP32(FP16이 빠른 회차 4/5)를 제외하면, 두 기기 모두 모든 회차에서 같은 방향이었다.
 - **정리하면 구성요소별 권장 배치는 다음과 같다.**
   - 검출기: WebGPU가 있으면 FP32 또는 FP16(ORT-Web 1.30 이상). 없으면 대상 기기에서 INT8 헤드 제외와 FP32를 실측해 고른다. 기기 A처럼 INT8만 예산을 지키는 기기에서는 약 6%의 종단 손실을 감수해야 한다.
   - 인식기: 두 기기 모두 WASM. 이 규모에서는 정밀도 선택이 속도에 영향이 없고, 종단 정확도도 모두 유지된다(Table 6).
   - WebGPU에 INT8을 두는 배치는 두 기기 모두에서 가장 느렸으므로 피해야 한다.
 
-![Fig. 5](figures/fig8_pipeline_assignment.png)
+![Fig. 5](figures/fig12_pipeline_devices.png)
 
-**Fig. 5.** 기기 A의 브라우저 파이프라인 배치별 단계 지연. 막대는 실행별 평균의 중앙값, 수염은 실행 간 범위이고, 숫자는 합계와 p90의 중앙값이다. 파선은 30 FPS, 점선은 15 FPS 예산이다. WebGPU INT8 배치는 축 밖(897 ms)이다.
+**Fig. 5.** 두 기기의 주요 파이프라인 배치별 단계 지연. 배치마다 위 막대는 기기 A, 아래 막대는 기기 B이다. 막대는 실행별 평균의 중앙값, 수염은 실행 간 범위이고, 숫자는 합계와 p90의 중앙값 및 실행 횟수(n)이다. 파선은 30 FPS, 점선은 15 FPS 예산이다. WASM 1스레드 배치와 WebGPU INT8 배치(기기 A 897 ms, 기기 B 225 ms)는 Table 10에만 표시하였다.
 
 ### 4.5. Cross-Workload Validation (YOLO11l, COCO)
 
@@ -554,18 +554,19 @@ Table 10은 한 브라우저 페이지에서 검출기(YOLO26-n)와 인식기를
 ### 4.6. Discussion and Threats to Validity
 
 **논의.**
-- **정확도는 그래프가, 지연은 그래프·런타임·기기가 정한다.** 붕괴 메커니즘과 연산자 배치는 모델 그래프와 런타임 버전만으로 정해져 세 검출기와 두 기기에서 같았다. 반면 같은 배치의 비용과 WASM의 INT8 이득은 기기에 따라 달랐다. 따라서 정확도 판정은 한 번 해 두면 기기 사이에 옮길 수 있지만(4.3절의 수치 일치성), 지연 판정은 목표 기기마다 다시 해야 한다.
-- **구성요소별 배치의 이득은 기기와 무관했다.** 인식기의 WASM 배치가 WebGPU 배치보다 빠른 현상은 두 기기에서 모두 5회 전부 나타났다. 작은 모델은 GPU 디스패치 비용이 계산 시간보다 크다는 구조적 이유에서 나오므로, 규모가 크게 다른 구성요소를 섞는 다른 브라우저 파이프라인에도 적용될 가능성이 높다.
+- **정확도 판정과 지연 판정은 옮길 수 있는 범위가 다르다.** 붕괴 메커니즘은 평가한 세 검출기 그래프에서 같았고, 연산자 배치는 같은 ORT-Web 버전과 모델 그래프에서 두 시험 기기 사이에 동일하였다. FP32·FP16 검출기의 WebGPU 정확도도 두 기기 모두 CPU 평가와 실질적으로 같았다. 반면 같은 배치의 비용과 WASM의 INT8 이득은 기기에 따라 달랐다. 따라서 확인한 정밀도·실행 환경 조합에서는 정확도를 CPU에서 한 번 평가해 다시 쓸 수 있지만, 지연은 목표 기기마다 다시 측정해야 한다. INT8 변형의 기기 간 태스크 수준 일치는 모든 실행 환경에서 확인하지 않았다.
+- **구성요소별 배치의 이득은 두 기기에서 같았다.** 인식기의 WASM 배치가 WebGPU 배치보다 빠른 현상은 두 기기에서 모두 5회 전부 나타났다. 작은 모델은 GPU 디스패치 비용이 계산 시간보다 크다는 구조적 이유에서 나오므로, 규모가 크게 다른 구성요소를 섞는 다른 브라우저 파이프라인에도 적용될 가능성이 높다.
 - **mAP 유지율은 파이프라인 손실을 과소평가한다.** INT8의 손실은 신뢰도 분포의 이동으로 나타났고, 운영 임계값에서 종단 손실이 mAP 손실의 약 두 배가 되었다(4.2절). 식 (1)의 제약을 mAP로 대신하면 실제보다 관대한 결정을 내리게 된다.
 
 **타당성의 위협.**
-- **기기와 브라우저:** 지연은 데스크톱 한 대(x86 CPU, 외장 GPU)와 노트북 한 대(ARM CPU, 통합 GPU)에서 측정하였다. 두 기기 모두 Chrome 153과 ONNX Runtime Web만 사용했으며, Safari·Firefox, 다른 추론 프레임워크, 모바일 기기는 측정하지 않았다. 기기 B의 WASM INT8 결과처럼 기기에 따라 결론이 달라질 수 있다.
+- **기기와 브라우저:** 지연은 데스크톱 한 대(x86 CPU, 외장 GPU)와 노트북 한 대(ARM CPU, 통합 GPU)에서 측정하였다. 두 기기 모두 Chrome 153과 ONNX Runtime Web만 사용했으며, Safari·Firefox, 다른 추론 프레임워크, 모바일 기기는 측정하지 않았다. 기기 B의 WASM INT8 결과처럼 기기에 따라 결론이 달라질 수 있다. 노드 배치의 동일성은 `shader-f16`을 지원하는 두 GPU에서만, INT8 변형의 브라우저 정확도 일치는 기기 A의 WASM에서만 확인하였다.
 - **배경 부하:** 두 기기 모두 측정 전용으로 쓰지 못했다.
   - 기기 A의 파이프라인 반복 측정 직후에는 클라우드 동기화 프로세스가 논리 코어 약 1개를 쓰고 있었다. 첫 실행과 나머지 실행 사이의 차이(WASM 최대 26%)는 이런 조건 차이에서 왔을 수 있다.
-  - 기기 B에서는 10초 간격 CPU 부하 기록 1,062개 가운데 17%(182개)에서 측정과 무관한 프로세스(데스크톱 앱, IDE, 시스템 서비스)가 코어 하나의 50% 이상을 썼고, 특히 WASM 단일 모델 측정의 초반(1스레드 검출기)에 몰려 있었다. 기기 B는 10코어여서 4스레드 WASM에 미치는 영향은 기기 A보다 작을 것으로 보이며, 실제로 WASM 파이프라인 5회의 범위는 0.4 ms 이내였다. 그래도 절대 지연은 부하 조건에 따라 달라질 수 있으므로, 구성 간 비교는 같은 회차의 짝 비교로 보고하였다.
+  - 기기 B에서는 10초 간격 CPU 부하 기록 1,062개 가운데 13%(143개)에서 측정과 무관한 프로세스(데스크톱 앱, IDE, 시스템 서비스)가 코어 하나의 50% 이상을 썼다. 이런 표본은 WASM 단일 모델 측정 구간에서 가장 많았고(19%, 494개 중 93개), 네이티브 CPU·WebGPU 측정 구간에서는 1%였다. 또 22시 이후(파이프라인 반복과 YOLO11l 측정)에는 측정에 쓰지 않은 다른 Chrome 창이 약 0.2코어를 계속 썼다.
+  - 기기 B는 10코어여서 4스레드 WASM에 미치는 영향은 기기 A보다 작을 것으로 보이며, 실제로 WASM 파이프라인 5회의 범위는 0.4 ms 이내였다. 그래도 절대 지연은 부하 조건에 따라 달라질 수 있으므로, 구성 간 비교는 같은 회차의 짝 비교로 보고하였다. 특히 기기 B의 WASM 단일 모델 지연(Table 9)은 부하가 많던 구간에 모델마다 한 번 측정한 값이다.
 - **데이터:** 평가 분할은 같은 AI Hub 수집원의 시퀀스 독립 분할 하나이다. test의 야간 프레임은 16장뿐이어서 조명 조건별 결론을 내리지 않는다. test는 5 fps로 서브샘플링되어 있어 30 fps 영상에서의 추적 결과를 대표하지 않는다.
 - **측정 범위:** 파이프라인 지연에는 추적기, 캔버스 렌더링, 카메라·영상 디코딩이 빠져 있다. 30 FPS 기준 통과는 이 범위에 한정된다. 종단 정답률은 프레임 단위의 검출·인식 결과로 계산했고, 추적 정확도(정체성 유지)는 수동 정체성 주석이 없어 평가하지 않았다. 종단 정확도는 YOLO26-n 파이프라인에서만 측정하였다.
-- **통계:** 프레임 부트스트랩은 프레임 간 상관을 무시하므로 신뢰구간이 실제보다 좁다(블록 부트스트랩 결과는 4.2절). WebGPU INT8 지연은 128회만 측정하였다. 단일 텐서 검사는 test 242프레임의 선별 검사이며, 결론에 쓴 붕괴와 필요성은 test 전체로 다시 확인하였다. 기기 B의 결과는 P5 공개 뒤에 측정되었으므로 사전 예측의 검증이 아니라 사후 비교이다.
+- **통계:** 프레임 부트스트랩은 프레임 간 상관을 무시하므로 신뢰구간이 실제보다 좁다(블록 부트스트랩 결과는 4.2절). WebGPU INT8 지연은 128회만 측정하였다. 단일 텐서 검사는 test 242프레임의 선별 검사이며, 결론에 쓴 붕괴와 필요성은 test 전체로 다시 확인하였다. 기기 B의 결과는 P5 공개 뒤에 측정되었으므로 사전 예측의 검증이 아니라 사후 비교이다. 기기 B의 파이프라인에서 FP32@WASM은 1회만 측정되어, WASM에서 FP32와 INT8 검출기의 짝 비교는 기기 B에서 1회뿐이다.
 - **외부 검증의 범위:** 외부 검증은 YOLO 계열 검출기 하나(YOLO11l)와 COCO 부분집합으로 한정된다.
   - 붕괴 메커니즘은 박스와 점수를 한 출력으로 합치는 YOLO 계열 헤드에 대한 결론이다. 출력 구조가 다른 검출기(예: DETR 계열)나 다른 표지 데이터셋(GTSDB, TT100K)에서는 같은 절차를 수행하지 않았다.
   - 인식기, 종단 정확도, 구성요소별 배치는 COCO로 검증하지 않았다.
@@ -578,13 +579,14 @@ Table 10은 한 브라우저 페이지에서 검출기(YOLO26-n)와 인식기를
 ### 5.1. Summary
 
 본 연구는 브라우저 비전 추론에서 양자화의 효과를 구성요소, 정밀도, 실행 환경의 세 축으로 측정하는 실증 평가 틀 BRIQ를 도로 표지 인식 파이프라인에 적용하였다.
-- **구성요소별 양자화 분석(기여 1).** 같은 정적 INT8 설정이라도 구성요소에 따라 결과가 갈렸다. 검출 헤드의 양자화는 박스 좌표와 클래스 점수가 한 활성값 척도를 공유하는 텐서에서 모든 점수를 0으로 만들어 검출을 없앴고, 헤드를 제외해도 사전 기준 99%에 이르지 못했으며 손실은 종단 지표에서 더 커졌다. 반면 작은 인식기는 전체 INT8에서도 손실이 없었다. 양자화는 구성요소 단위로, 운영 조건의 종단 지표로 검증해야 한다.
-- **실행 환경별 분석(기여 2).** INT8과 FP16의 속도 효과는 실행 환경과 런타임 버전에 따라 방향이 바뀌었고, 그 원인은 연산자 배치로 설명되었다. 연산자 배치와 그에 따른 효과의 방향은 두 기기에서 같았지만, WASM에서 INT8의 이득은 기기에 따라 달랐다. "양자화하면 엣지에서 빨라진다"는 가정은 목표 실행 환경, 런타임 버전, 기기를 명시할 때만 성립한다.
+- **구성요소별 양자화 분석(기여 1).** 같은 정적 INT8 설정이라도 구성요소에 따라 결과가 갈렸다. 검출 헤드의 양자화는 박스 좌표와 클래스 점수가 한 활성값 척도를 공유하는 텐서에서 모든 점수를 0으로 만들어 검출을 없앴다. 헤드를 제외해도 도로 워크로드의 두 검출기는 사전 기준 99%에 이르지 못했으며, 손실은 종단 지표에서 더 커졌다. 반면 작은 인식기는 전체 INT8에서도 손실이 없었다. 양자화는 구성요소 단위로, 운영 조건의 종단 지표로 검증해야 한다.
+- **실행 환경별 분석(기여 2).** INT8과 FP16의 속도 효과는 실행 환경과 런타임 버전에 따라 방향이 바뀌었고, 그 원인은 연산자 배치로 설명되었다. 연산자 배치와 그에 따른 효과의 방향은 시험한 두 기기에서 같았지만, WASM에서 INT8의 이득은 두 기기에서 달랐다. "양자화하면 엣지에서 빨라진다"는 가정은 목표 실행 환경, 런타임 버전, 기기를 명시할 때만 성립한다.
 - **구성요소별 배치와 교차 워크로드 검증(기여 3).** 검출기를 WebGPU에, 인식기를 WASM에 둔 배치가 두 기기에서 모두 가장 빨랐다. 검출기 수준의 결과는 MLPerf가 채택한 표준 워크로드에서 사전 공개한 예측대로 재현되었고, 워크로드에 따라 달라진 것은 붕괴를 피한 뒤 남는 손실의 크기였다. 따라서 양자화 범위를 정하는 원칙(점수와 좌표가 섞인 텐서를 피한다)은 평가한 검출기 그래프들에서 일반화되지만, 남는 손실의 크기와 실제 속도 이득은 워크로드와 기기마다 확인해야 한다.
 
 ### 5.2. Limitations
 
-- **브라우저와 기기:** Chrome과 ONNX Runtime Web만 측정하였다. Safari·Firefox의 WebGPU 구현, 모바일 기기(스마트폰 GPU, 저전력 CPU)는 다루지 않았다. 기기도 두 대뿐이어서 기기 B에서 나타난 WASM INT8의 차이가 ARM 계열 전반의 성질인지는 알 수 없다.
+- **브라우저와 기기:** Chrome과 ONNX Runtime Web만 측정하였다. Safari·Firefox의 WebGPU 구현, 모바일 기기(스마트폰 GPU, 저전력 CPU)는 다루지 않았다. 기기도 두 대뿐이어서 기기 B에서 나타난 WASM INT8의 차이가 ARM 계열 전반의 성질인지는 알 수 없다. 노드 배치의 동일성과 INT8 변형의 브라우저 정확도 일치도 일부 기기와 실행 환경에서만 확인하였다.
+- **양자화 방법:** 표준 정적 PTQ(MinMax 보정, 텐서별 활성값 척도)만 평가하였고, 사전 기준 99%를 충족하는 도로 검출기의 INT8 구성은 찾지 못했다.
 - **검출기 구조:** 붕괴 메커니즘은 박스와 점수를 한 출력 텐서로 합치는 YOLO 계열 그래프(YOLOv8s, YOLO26-n, YOLO11l)에서만 확인하였다. 출력 구조가 다른 검출기(DETR 계열 등)에는 적용되지 않을 수 있다.
 - **종단 평가:** 종단 정확도는 한 워크로드(YOLO26-n 도로 파이프라인)에서만 측정하였고, 수동 정체성 주석이 없어 추적 품질(정체성 유지)은 평가하지 않았다.
 - **측정 범위:** 파이프라인 지연에서 카메라 입력, 영상 디코딩, 추적기, 렌더링을 제외하였다. 측정 기기에서 배경 부하를 완전히 없애지 못했다.
@@ -592,10 +594,10 @@ Table 10은 한 브라우저 페이지에서 검출기(YOLO26-n)와 인식기를
 ### 5.3. Future Work
 
 5.2절의 한계에 각각 대응하는 후속 연구는 다음과 같다.
-- **브라우저와 기기:** Safari·Firefox와 모바일 기기(Android Chrome, iOS Safari)에서 같은 번들과 스크립트로 측정하고, 여러 ARM·x86 기기에서 WASM INT8 커널의 동작을 비교해 기기 의존성의 원인을 규명한다.
+- **브라우저와 기기:** Safari·Firefox와 모바일 기기(Android Chrome, iOS Safari)에서 같은 번들과 스크립트로 측정하고, 여러 ARM·x86 기기에서 WASM INT8 커널의 동작과 INT8 변형의 브라우저 정확도 일치를 비교해 기기 의존성의 원인을 규명한다.
+- **양자화 방법:** 다른 보정 방법(백분위수, 엔트로피)과 점수·박스 좌표에 서로 다른 척도를 쓰는 디코드 단계 분리, 헤드 분기의 활성값 척도 보정으로 99% 기준을 충족하는 INT8 검출기를 탐색한다.
 - **검출기 구조:** 점수와 박스를 따로 출력하는 DETR 계열 등 다른 출력 구조의 검출기에 같은 원인 분리 절차를 적용한다.
 - **종단 평가:** 수동 정체성 주석을 구축해 양자화가 추적 품질(ID 전환, IDF1)에 미치는 영향을 평가하고, 다른 워크로드에서도 종단 정확도를 측정한다.
-- **양자화 방법:** 점수와 박스 좌표에 서로 다른 척도를 쓰도록 디코드 단계를 분리하고, 헤드 분기의 활성값 척도를 보정해 99% 기준을 충족하는 INT8 검출기를 탐색한다.
 - **측정 범위:** 카메라 입력부터 렌더링까지 포함한 전체 응용 지연을 측정하고, 측정 전용 환경에서 배경 부하의 영향을 정량화한다.
 
 **Data and Code Availability.** 소스 코드와 측정 스크립트는 https://github.com/todayoneul/edge_sign (AGPL-3.0)에 공개되어 있다. 평가 분할 목록, 모델 해시, 프레임별 예측, 두 기기의 지연 trace·연산자 배치 로그·CPU 부하 기록은 `paper_evidence/`에 있다(기기 B는 `runtime/matrix_mac/`). AI Hub 데이터는 제공처 약관에 따라 재배포하지 않는다.

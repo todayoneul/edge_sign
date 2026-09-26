@@ -94,6 +94,8 @@
 | v3_fp32 | webgpu_1300 | 0.565269 | -0.000001 | 0.280751 | -0.000000 |
 | v3_fp16 | webgpu_1300 | 0.564541 | -0.001083 | 0.279280 | -0.001184 |
 
+## Browser pipeline: five launches per key configuration
+
 | configuration | launches | det | rec | mean: median [min-max] | p90: median [min-max] | A 30 FPS | B 15 FPS | pooled p90 (check) |
 |---|---:|---:|---:|---:|---:|:-:|:-:|---:|
 | v4_fp32@webgpu+rec_fp32@wasm | 5 | 15.15 | 0.20 | 16.69 [16.64-16.69] | 17.49 [17.41-17.65] | Y (5/5) | Y (5/5) | 17.51 (same verdict) |
