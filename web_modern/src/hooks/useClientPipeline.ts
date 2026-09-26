@@ -35,11 +35,46 @@ export interface ClientStatus {
 
 const configKey = (cfg: OnDeviceConfig) => `${modelUrl(cfg)}@${executionProviders(cfg).join(">")}`;
 
+/** 새 선택 때문에 취소된 로드인지 (실패가 아니므로 서버 폴백하지 않는다). */
+export const isAbortError = (e: unknown): boolean => (e as { name?: string } | null)?.name === "AbortError";
+
+/** 진행률을 알리며 받는다 (공개 Space는 약 1 MB/s라 YOLOv8s FP32 44.7 MB에 50초 가까이 걸림). */
+async function download(
+  url: string,
+  signal: AbortSignal,
+  onProgress?: (received: number, total: number) => void,
+): Promise<Uint8Array> {
+  const resp = await fetch(url, { signal });
+  if (!resp.ok) throw new Error(`모델 HTTP ${resp.status} (/models 마운트·서버 확인)`);
+  const total = Number(resp.headers.get("content-length")) || 0;
+  if (!resp.body || !onProgress) return new Uint8Array(await resp.arrayBuffer());
+  const reader = resp.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let received = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    received += value.length;
+    onProgress(received, total);
+  }
+  const out = new Uint8Array(received);
+  let offset = 0;
+  for (const c of chunks) {
+    out.set(c, offset);
+    offset += c.length;
+  }
+  return out;
+}
+
 export function useClientPipeline() {
   const pipeRef = useRef<ClientPipeline | null>(null);
   const ortRef = useRef<OrtNamespace | null>(null);
   const loadingRef = useRef<Promise<void> | null>(null);
   const loadedKeyRef = useRef<string | null>(null);
+  // 진행 중인 로드의 구성과 취소 핸들 — 다른 구성이 요청되면 받던 모델을 버린다
+  const loadingKeyRef = useRef<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
   // ORT-Web's WebGPU build (JSEP/asyncify) is not re-entrant: a create/run/release that starts
   // while another call is suspended on the GPU can corrupt the shared WASM heap
   // ("memory access out of bounds"). Every ORT call goes through this queue, one at a time.
@@ -58,13 +93,21 @@ export function useClientPipeline() {
 
   /**
    * 선택한 구성의 검출기(+인식기)를 로드하고 실제 실행 환경(WebGPU 미지원이면 wasm)을 돌려준다.
-   * 같은 구성이면 캐시, 다른 구성이 로드 중이면 끝난 뒤 다시 로드.
+   * 같은 구성이면 캐시. 다른 구성이 받는 중이면 그 다운로드를 취소하고(그쪽 호출은 AbortError),
+   * 정리가 끝난 뒤 이 구성을 로드한다.
    */
-  const ensureLoaded = useCallback(async (cfg: OnDeviceConfig): Promise<string> => {
+  const ensureLoaded = useCallback(async (
+    cfg: OnDeviceConfig,
+    onProgress?: (received: number, total: number) => void,
+  ): Promise<string> => {
     const key = configKey(cfg);
+    if (loadingRef.current && loadingKeyRef.current !== key) abortRef.current?.abort();
     while (loadingRef.current) await loadingRef.current.catch(() => {});
     if (pipeRef.current?.loaded && loadedKeyRef.current === key) return pipeRef.current.activeEP;
 
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+    loadingKeyRef.current = key;
     const task = (async () => {
       setStatus((s) => ({ ...s, loading: true, error: null }));
       try {
@@ -73,9 +116,7 @@ export function useClientPipeline() {
           ortRef.current = mod.default ?? mod;
         }
         const ort = ortRef.current;
-        const resp = await fetch(modelUrl(cfg));
-        if (!resp.ok) throw new Error(`모델 HTTP ${resp.status} (/models 마운트·서버 확인)`);
-        const bytes = new Uint8Array(await resp.arrayBuffer());
+        const bytes = await download(modelUrl(cfg), ctrl.signal, onProgress);
         // 인식기(분류기 + 라벨) — 비치명적. 실패 시 라벨=클래스명으로 동작.
         let recognizer: { labels: RecognizerLabels; bytes: Uint8Array } | null = null;
         try {
@@ -89,6 +130,7 @@ export function useClientPipeline() {
           /* 검출+추적만으로 계속 */
         }
 
+        if (ctrl.signal.aborted) throw new DOMException("superseded", "AbortError");
         const pipe = new ClientPipeline();
         await serial(async () => {
           await pipe.load(ort, bytes, executionProviders(cfg), DETECTORS[cfg.detector].format, modelFile(cfg).inputDtype);
@@ -100,10 +142,13 @@ export function useClientPipeline() {
         });
         setStatus({ loading: false, loaded: true, ep: pipe.activeEP, error: null });
       } catch (e) {
-        setStatus({ loading: false, loaded: false, ep: "—", error: String(e) });
+        if (isAbortError(e)) setStatus((s) => ({ ...s, loading: false }));
+        else setStatus({ loading: false, loaded: false, ep: "—", error: String(e) });
         throw e;
       } finally {
         loadingRef.current = null;
+        loadingKeyRef.current = null;
+        if (abortRef.current === ctrl) abortRef.current = null;
       }
     })();
     loadingRef.current = task;

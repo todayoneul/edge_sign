@@ -21,7 +21,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useStore } from "../store";
 import { useStream } from "../hooks/useStream";
-import { useClientPipeline } from "../hooks/useClientPipeline";
+import { isAbortError, useClientPipeline } from "../hooks/useClientPipeline";
 import { useSession } from "../hooks/useSession";
 import { useHotkeys } from "../hooks/useHotkeys";
 import { renderTracks } from "../lib/draw";
@@ -102,6 +102,8 @@ export default function Viewport() {
   const ondeviceKey = onDeviceKeyOf(ondevice);
   const ondeviceKeyRef = useRef(ondeviceKey);
   const clientBusyRef = useRef(false);
+  // 재생이 (다시) 시작될 때 보여 줄 상태 문구, 예: "YOLO26-n FP32 · WebGPU 추론 중"
+  const inferLabelRef = useRef("");
 
   // 서버 프레임의 w/h를 sentDimsRef에 반영 (overlay letterbox 계산 기준)
   // useSession이 store.setFrame을 통해 트랙을 올리므로, seekInfo.pos 변화 시 체크
@@ -227,7 +229,10 @@ export default function Viewport() {
       // store.playing drives the header KPIs; the server modes set it on start/stop,
       // this loop keeps running while paused, so mirror the video state (write only on change)
       const active = !!video && video.readyState >= 2 && !video.paused && !video.ended;
-      if (useStore.getState().playing !== active) useStore.setState({ playing: active });
+      if (useStore.getState().playing !== active) {
+        useStore.setState({ playing: active });
+        if (active && inferLabelRef.current) setStageStatus(inferLabelRef.current);
+      }
       if (!video || !active || clientBusyRef.current) return;
       clientBusyRef.current = true;
       const vw = video.videoWidth || 640;
@@ -268,10 +273,18 @@ export default function Viewport() {
       const key = onDeviceKeyOf(cfg);
       const name = modelName(cfg);
       setStageStatus(`${name} 로딩… (${modelFile(cfg).mb} MB, 최초 1회)`);
+      let lastPct = -1;
+      const onProgress = (received: number, total: number) => {
+        const pct = total > 0 ? Math.floor((received / total) * 100) : -1;
+        if (pct === lastPct || pct < 0) return;
+        lastPct = pct;
+        setStageStatus(`${name} 다운로드 ${pct}% (${(received / 1e6).toFixed(1)}/${(total / 1e6).toFixed(1)} MB)`);
+      };
       let ep: string;
       try {
-        ep = await client.ensureLoaded(cfg);
-      } catch {
+        ep = await client.ensureLoaded(cfg, onProgress);
+      } catch (e) {
+        if (isAbortError(e)) return; // 더 새로운 선택이 이 다운로드를 취소함 — 그 호출이 이어받는다
         setStageStatus("온디바이스 로드 실패 — 서버 처리로 폴백");
         stream.reset();
         stream.start(getFrame);
@@ -283,7 +296,12 @@ export default function Viewport() {
       if (cfg.ep === "webgpu" && ep !== "webgpu") pushToast("이 브라우저는 WebGPU 미지원 — WASM으로 실행", "warn");
       if (slowCombination({ ...cfg, ep: ep as ExecutionProvider }))
         pushToast("INT8 + WebGPU: 양자화 연산이 CPU로 넘어가 매우 느립니다 (논문 4.3절)", "warn");
-      setStageStatus(`${name} · ${epLabel} 추론 중`);
+      inferLabelRef.current = `${name} · ${epLabel} 추론 중`;
+      // 로드하는 사이 영상이 끝났거나 멈췄으면 "추론 중"이라 하지 않는다 (재생하면 루프가 바꿈)
+      const video = videoRef.current;
+      setStageStatus(
+        video && !video.paused && !video.ended ? inferLabelRef.current : `${name} · ${epLabel} 준비됨 — 재생하면 추론`,
+      );
       setStageStatusLive(true);
       startClientLoop();
     } else {
