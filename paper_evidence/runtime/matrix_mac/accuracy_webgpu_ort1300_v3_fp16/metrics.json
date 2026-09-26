@@ -1,0 +1,59 @@
+{
+  "mAP50": 0.5645408800469304,
+  "mAP50_95": 0.27927951266036416,
+  "precision": 0.7587728978150519,
+  "recall": 0.5076786769049025,
+  "detection_count": 4531,
+  "ground_truth_count": 6772,
+  "true_positives": 3438,
+  "false_positives": 1093,
+  "false_negatives": 3334,
+  "per_class": {
+    "traffic_sign": {
+      "AP50": 0.5733309948363015,
+      "AP50_95": 0.31588738736566113,
+      "precision": 0.7573112178088172,
+      "recall": 0.5154486036838978,
+      "detection_count": 2291,
+      "ground_truth_count": 3366
+    },
+    "traffic_light": {
+      "AP50": 0.5557507652575593,
+      "AP50_95": 0.24267163795506722,
+      "precision": 0.7602678571428572,
+      "recall": 0.5,
+      "detection_count": 2240,
+      "ground_truth_count": 3406
+    }
+  },
+  "AP_confidence_floor": 0.001,
+  "AP_integration": "Ultralytics-compatible 101-point precision-envelope trapezoid",
+  "task_confidence_threshold": 0.25,
+  "IoU_thresholds": [
+    0.5,
+    0.55,
+    0.6,
+    0.65,
+    0.7,
+    0.75,
+    0.8,
+    0.85,
+    0.9,
+    0.95
+  ],
+  "runtime": "onnxruntime-web",
+  "ep": "webgpu",
+  "ort_web_version": "1.30.0",
+  "model": "v3_fp16",
+  "input_dtype": "float32",
+  "adapter": {
+    "vendor": "apple",
+    "architecture": "metal-3",
+    "device": "",
+    "description": "",
+    "is_fallback": false,
+    "shader_f16": true
+  },
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+  "frames_evaluated": 2417
+}

@@ -1,0 +1,57 @@
+{
+  "run": "speed_webgpu_ort1300_v4_int8_head_excl",
+  "model": "v4_int8_head_excl",
+  "ep": "webgpu",
+  "mode": "speed",
+  "runtime": "onnxruntime-web",
+  "ort_web_version": "1.30.0",
+  "input_dtype": "float32",
+  "status": "completed",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+  "hardware_concurrency": 10,
+  "cross_origin_isolated": true,
+  "requested_wasm_threads": 1,
+  "warmup": 20,
+  "iterations": 128,
+  "adapter": {
+    "vendor": "apple",
+    "architecture": "metal-3",
+    "device": "",
+    "description": "",
+    "is_fallback": false,
+    "shader_f16": true
+  },
+  "effective_wasm_threads": 1,
+  "model_bytes": 3416372,
+  "model_sha256": "a2ddfe7d07adeb3cc58d413a0936ca3833260e99a4af227b01dea4df7326c9eb",
+  "session_init_ms": 2678.194999933243,
+  "first_inference_ms": 355.414999961853,
+  "metrics": {
+    "prepare_ms": {
+      "n": 128,
+      "mean_ms": 9.571015607565641,
+      "std_ms": 0.2749746924258295,
+      "p50_ms": 9.584999918937683,
+      "p90_ms": 9.95600004196167,
+      "p95_ms": 10.002999997138977,
+      "p99_ms": 10.127999997138977,
+      "fps": 104.48211987132544
+    },
+    "inference_ms": {
+      "n": 128,
+      "mean_ms": 215.45929689332843,
+      "std_ms": 6.074854181618842,
+      "p50_ms": 214.24500000476837,
+      "p90_ms": 222.67200009822847,
+      "p95_ms": 225.7332500576973,
+      "p99_ms": 236.12954995870592,
+      "fps": 4.641247857107271
+    }
+  },
+  "logs": [
+    "[error] \u001b[0;93m2026-09-26 21:00:17.668250 [W:onnxruntime:, session_state.cc:1397 VerifyEachNodeIsAssignedToAnEp] Some nodes were not assigned to the preferred execution providers which may or may not have an negative impact on performance. e.g. ORT explicitly assigns shape related ops to CPU to improve perf.\u001b[m",
+    "[error] \u001b[0;93m2026-09-26 21:00:17.668995 [W:onnxruntime:, session_state.cc:1399 VerifyEachNodeIsAssignedToAnEp] Rerunning with verbose output on a non-minimal build will show node assignments.\u001b[m"
+  ],
+  "fetch_retries": 0,
+  "log_lines_total": 2
+}

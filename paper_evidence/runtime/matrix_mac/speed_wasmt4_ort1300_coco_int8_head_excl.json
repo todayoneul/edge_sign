@@ -1,0 +1,46 @@
+{
+  "run": "speed_wasmt4_ort1300_coco_int8_head_excl",
+  "model": "coco_int8_head_excl",
+  "ep": "wasm",
+  "mode": "speed",
+  "runtime": "onnxruntime-web",
+  "ort_web_version": "1.30.0",
+  "input_dtype": "float32",
+  "status": "completed",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+  "hardware_concurrency": 10,
+  "cross_origin_isolated": true,
+  "requested_wasm_threads": 4,
+  "warmup": 20,
+  "iterations": 1024,
+  "effective_wasm_threads": 4,
+  "model_bytes": 31053288,
+  "model_sha256": "9d9d3408695325bfd3604f02cb4d5a4722079805bd5c59a668b5d5d53e99adfd",
+  "session_init_ms": 2485.9050002098083,
+  "first_inference_ms": 677.7450001239777,
+  "metrics": {
+    "prepare_ms": {
+      "n": 1024,
+      "mean_ms": 9.175366207491606,
+      "std_ms": 0.44956411756912396,
+      "p50_ms": 8.945000171661377,
+      "p90_ms": 9.825000047683716,
+      "p95_ms": 9.944999933242798,
+      "p99_ms": 10.174999952316284,
+      "fps": 108.98747552806216
+    },
+    "inference_ms": {
+      "n": 1024,
+      "mean_ms": 583.0522656261455,
+      "std_ms": 12.31012227361851,
+      "p50_ms": 580.5900001525879,
+      "p90_ms": 584.920500087738,
+      "p95_ms": 591.4850000977516,
+      "p99_ms": 624.5938500022888,
+      "fps": 1.7151121073615763
+    }
+  },
+  "logs": [],
+  "fetch_retries": 0,
+  "log_lines_total": 0
+}

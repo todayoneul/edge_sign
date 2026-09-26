@@ -1,0 +1,130 @@
+=== 20:26:49 0 verify bundle
+=== 20:26:59 1 WebGPU probe: headless or headed
+ops_webgpu_ort1300_v4_fp32: completed mean 27.81 p90 27.81 ms  
+=== 20:27:04 2 WebGPU operator placement
+ops_webgpu_ort1300_v4_fp32: completed mean 26.72 p90 26.72 ms  
+ops_webgpu_ort1300_v4_fp16: completed mean 26.39 p90 26.39 ms  
+ops_webgpu_ort1300_v4_int8_head_excl: completed mean 270.46 p90 270.46 ms  
+ops_webgpu_ort1300_v4_int8_head_excl_fbias: completed mean 259.40 p90 259.40 ms  
+ops_webgpu_ort1300_v3_fp32: completed mean 31.66 p90 31.66 ms  
+ops_webgpu_ort1300_v3_fp16: completed mean 29.53 p90 29.53 ms  
+ops_webgpu_ort1300_v3_int8_head_excl: completed mean 326.11 p90 326.11 ms  
+ops_webgpu_ort1300_v3_int8_head_excl_fbias: completed mean 290.65 p90 290.65 ms  
+ops_webgpu_ort1300_rec_fp32: completed mean 2.46 p90 2.46 ms  
+ops_webgpu_ort1300_rec_fp16: completed mean 2.43 p90 2.43 ms  
+ops_webgpu_ort1300_rec_int8_full: completed mean 9.50 p90 9.50 ms  
+ops_webgpu_ort1300_rec_int8_full_fbias: completed mean 10.24 p90 10.24 ms  
+=== 20:27:57 3 native ORT CPU latency (1 and 4 threads)
+cpu t1 v4_fp32: mean 80.45 p90 81.30 ms
+cpu t1 v4_fp16: mean 83.66 p90 84.58 ms
+cpu t1 v4_int8_head_excl: mean 40.01 p90 40.54 ms
+cpu t1 v4_int8_head_excl_fbias: mean 40.66 p90 41.28 ms
+cpu t1 v3_fp32: mean 331.60 p90 334.01 ms
+cpu t1 v3_fp16: mean 336.43 p90 338.47 ms
+cpu t1 v3_int8_head_excl: mean 166.72 p90 167.56 ms
+cpu t1 v3_int8_head_excl_fbias: mean 166.49 p90 167.49 ms
+cpu t1 rec_fp32: mean 0.10 p90 0.11 ms
+cpu t1 rec_fp16: mean 0.10 p90 0.11 ms
+cpu t1 rec_int8_full: mean 0.06 p90 0.06 ms
+cpu t1 rec_int8_full_fbias: mean 0.06 p90 0.06 ms
+cpu t4 v4_fp32: mean 29.67 p90 30.56 ms
+cpu t4 v4_fp16: mean 31.86 p90 32.67 ms
+cpu t4 v4_int8_head_excl: mean 17.66 p90 17.95 ms
+cpu t4 v4_int8_head_excl_fbias: mean 17.70 p90 18.02 ms
+cpu t4 v3_fp32: mean 104.76 p90 105.91 ms
+cpu t4 v3_fp16: mean 107.45 p90 109.99 ms
+cpu t4 v3_int8_head_excl: mean 53.33 p90 53.69 ms
+cpu t4 v3_int8_head_excl_fbias: mean 53.26 p90 53.75 ms
+cpu t4 rec_fp32: mean 0.07 p90 0.07 ms
+cpu t4 rec_fp16: mean 0.07 p90 0.07 ms
+cpu t4 rec_int8_full: mean 0.04 p90 0.05 ms
+cpu t4 rec_int8_full_fbias: mean 0.05 p90 0.05 ms
+=== 20:57:17 4 WebGPU latency
+speed_webgpu_ort1300_v4_fp32: completed mean 15.37 p90 15.75 ms  
+speed_webgpu_ort1300_v4_fp16: completed mean 12.95 p90 13.31 ms  
+speed_webgpu_ort1300_v3_fp32: completed mean 30.90 p90 30.75 ms  
+speed_webgpu_ort1300_v3_fp16: completed mean 24.90 p90 24.71 ms  
+speed_webgpu_ort1300_rec_fp32: completed mean 1.26 p90 1.36 ms  
+speed_webgpu_ort1300_rec_fp16: completed mean 1.41 p90 1.57 ms  
+speed_webgpu_ort1300_rec_int8_full: completed mean 5.64 p90 6.14 ms  
+speed_webgpu_ort1300_rec_int8_full_fbias: completed mean 5.42 p90 5.88 ms  
+speed_webgpu_ort1300_v4_int8_head_excl: completed mean 215.46 p90 222.67 ms  
+speed_webgpu_ort1300_v4_int8_head_excl_fbias: completed mean 214.54 p90 220.06 ms  
+speed_webgpu_ort1300_v3_int8_head_excl: completed mean 233.52 p90 245.52 ms  
+speed_webgpu_ort1300_v3_int8_head_excl_fbias: completed mean 233.65 p90 250.67 ms  
+=== 21:02:53 4b ORT-Web version check: FP32 / FP16 on WebGPU 1.22
+speed_webgpu_ort1220_v4_fp32: completed mean 14.76 p90 15.25 ms  
+speed_webgpu_ort1220_v4_fp16: completed mean 23.55 p90 30.27 ms  
+ops_webgpu_ort1220_v4_fp32: completed mean 36.06 p90 36.06 ms  
+ops_webgpu_ort1220_v4_fp16: completed mean 58.45 p90 58.45 ms  
+=== 21:04:12 5 WASM latency (1 and 4 threads)
+speed_wasm_ort1300_v4_fp32: completed mean 156.19 p90 159.67 ms  
+speed_wasm_ort1300_v4_fp16: completed mean 164.13 p90 168.25 ms  
+speed_wasm_ort1300_v4_int8_head_excl: completed mean 171.43 p90 174.58 ms  
+speed_wasm_ort1300_v4_int8_head_excl_fbias: completed mean 173.07 p90 178.08 ms  
+speed_wasm_ort1300_v3_fp32: completed mean 710.04 p90 730.01 ms  
+speed_wasm_ort1300_v3_fp16: completed mean 698.31 p90 708.03 ms  
+speed_wasm_ort1300_v3_int8_head_excl: completed mean 703.37 p90 706.99 ms  
+speed_wasm_ort1300_v3_int8_head_excl_fbias: completed mean 712.28 p90 724.68 ms  
+speed_wasm_ort1300_rec_fp32: completed mean 0.21 p90 0.22 ms  
+speed_wasm_ort1300_rec_fp16: completed mean 0.22 p90 0.23 ms  
+speed_wasm_ort1300_rec_int8_full: completed mean 0.27 p90 0.29 ms  
+speed_wasm_ort1300_rec_int8_full_fbias: completed mean 0.27 p90 0.29 ms  
+speed_wasmt4_ort1300_v4_fp32: completed mean 47.95 p90 52.89 ms  
+speed_wasmt4_ort1300_v4_fp16: completed mean 48.64 p90 50.59 ms  
+speed_wasmt4_ort1300_v4_int8_head_excl: completed mean 53.71 p90 55.15 ms  
+speed_wasmt4_ort1300_v4_int8_head_excl_fbias: completed mean 55.51 p90 58.10 ms  
+speed_wasmt4_ort1300_v3_fp32: completed mean 193.45 p90 201.76 ms  
+speed_wasmt4_ort1300_v3_fp16: completed mean 197.16 p90 209.37 ms  
+speed_wasmt4_ort1300_v3_int8_head_excl: completed mean 203.00 p90 210.63 ms  
+speed_wasmt4_ort1300_v3_int8_head_excl_fbias: completed mean 199.17 p90 202.46 ms  
+speed_wasmt4_ort1300_rec_fp32: completed mean 0.13 p90 0.20 ms  
+speed_wasmt4_ort1300_rec_fp16: completed mean 0.16 p90 0.21 ms  
+speed_wasmt4_ort1300_rec_int8_full: completed mean 0.17 p90 0.23 ms  
+speed_wasmt4_ort1300_rec_int8_full_fbias: completed mean 0.21 p90 0.29 ms  
+=== 22:26:59 6 browser pipeline (detector + recognizer per EP)
+pipeline_t4_ort1300_v4_fp32@webgpu+rec_fp32@webgpu: completed det 15.27 rec 0.89 total 17.54 p90 18.44 
+pipeline_t4_ort1300_v4_fp16@webgpu+rec_fp16@webgpu: completed det 12.89 rec 0.93 total 16.79 p90 17.84 
+pipeline_t4_ort1300_v4_fp32@webgpu+rec_fp32@wasm: completed det 15.15 rec 0.20 total 16.69 p90 17.48 
+pipeline_t4_ort1300_v4_fp16@webgpu+rec_fp32@wasm: completed det 12.72 rec 0.20 total 15.79 p90 16.56 
+pipeline_t4_ort1300_v4_fp16@webgpu+rec_int8_full@wasm: completed det 12.75 rec 0.27 total 15.91 p90 16.80 
+pipeline_t4_ort1300_v4_fp32@wasm+rec_fp32@wasm: completed det 44.06 rec 0.17 total 45.56 p90 46.40 
+pipeline_t4_ort1300_v4_int8_head_excl@wasm+rec_int8_full@wasm: completed det 52.82 rec 0.24 total 54.50 p90 55.39 
+pipeline_t4_ort1300_v4_int8_head_excl_fbias@wasm+rec_int8_full@wasm: completed det 52.82 rec 0.24 total 54.46 p90 55.35 
+pipeline_t4_ort1300_v4_int8_head_excl_fbias@webgpu+rec_int8_full@webgpu: completed det 219.30 rec 3.78 total 224.54 p90 230.33 
+pipeline_t1_ort1300_v4_fp32@wasm+rec_fp32@wasm: completed det 152.15 rec 0.38 total 154.00 p90 156.16 
+pipeline_t1_ort1300_v4_int8_head_excl@wasm+rec_int8_full@wasm: completed det 167.96 rec 0.45 total 169.90 p90 171.61 
+pipeline_t1_ort1300_v4_int8_head_excl_fbias@wasm+rec_int8_full@wasm: completed det 168.06 rec 0.46 total 170.01 p90 171.90 
+=== 22:36:15 6b pipeline repeats: four more fresh launches (r2..r5) of the key placements
+pipeline_t4_ort1300_v4_fp16@webgpu+rec_fp32@wasm_r2: completed det 12.67 rec 0.20 total 15.76 p90 16.52 
+pipeline_t4_ort1300_v4_fp32@webgpu+rec_fp32@wasm_r2: completed det 15.15 rec 0.20 total 16.69 p90 17.61 
+pipeline_t4_ort1300_v4_fp32@webgpu+rec_fp32@webgpu_r2: completed det 15.16 rec 0.66 total 17.17 p90 18.19 
+pipeline_t4_ort1300_v4_int8_head_excl@wasm+rec_int8_full@wasm_r2: completed det 52.81 rec 0.24 total 54.40 p90 55.18 
+pipeline_t4_ort1300_v4_fp16@webgpu+rec_fp32@wasm_r3: completed det 12.74 rec 0.20 total 15.84 p90 16.71 
+pipeline_t4_ort1300_v4_fp32@webgpu+rec_fp32@wasm_r3: completed det 15.12 rec 0.20 total 16.65 p90 17.41 
+pipeline_t4_ort1300_v4_fp32@webgpu+rec_fp32@webgpu_r3: completed det 15.15 rec 0.65 total 17.15 p90 18.19 
+pipeline_t4_ort1300_v4_int8_head_excl@wasm+rec_int8_full@wasm_r3: completed det 52.91 rec 0.24 total 54.57 p90 55.33 
+pipeline_t4_ort1300_v4_fp16@webgpu+rec_fp32@wasm_r4: completed det 12.70 rec 0.20 total 15.77 p90 16.48 
+pipeline_t4_ort1300_v4_fp32@webgpu+rec_fp32@wasm_r4: completed det 15.10 rec 0.20 total 16.64 p90 17.49 
+pipeline_t4_ort1300_v4_fp32@webgpu+rec_fp32@webgpu_r4: completed det 15.21 rec 0.67 total 17.24 p90 18.27 
+pipeline_t4_ort1300_v4_int8_head_excl@wasm+rec_int8_full@wasm_r4: completed det 53.01 rec 0.24 total 54.66 p90 55.50 
+pipeline_t4_ort1300_v4_fp16@webgpu+rec_fp32@wasm_r5: completed det 12.68 rec 0.20 total 15.75 p90 16.58 
+pipeline_t4_ort1300_v4_fp32@webgpu+rec_fp32@wasm_r5: completed det 15.15 rec 0.20 total 16.69 p90 17.65 
+pipeline_t4_ort1300_v4_fp32@webgpu+rec_fp32@webgpu_r5: completed det 15.16 rec 0.68 total 17.20 p90 18.24 
+pipeline_t4_ort1300_v4_int8_head_excl@wasm+rec_int8_full@wasm_r5: completed det 53.16 rec 0.25 total 54.77 p90 55.59 
+=== 22:42:56 6c YOLO11l (COCO) representative runtimes (accuracy: same model files, measured on Windows)
+speed_webgpu_ort1300_coco_fp32: completed mean 80.61 p90 80.96 ms  
+speed_webgpu_ort1300_coco_fp16: completed mean 61.95 p90 63.53 ms  
+speed_webgpu_ort1300_coco_int8_head_excl: completed mean 721.83 p90 742.12 ms  
+speed_wasmt4_ort1300_coco_fp32: completed mean 564.77 p90 566.76 ms  
+speed_wasmt4_ort1300_coco_int8_head_excl: completed mean 583.05 p90 584.92 ms  
+ops_webgpu_ort1300_coco_int8_head_excl_fbias: completed mean 949.22 p90 949.22 ms  
+cpu t4 coco_fp32: mean 320.11 p90 323.21 ms
+cpu t4 coco_int8_head_excl: mean 117.35 p90 118.21 ms
+=== 23:16:07 7 WebGPU numeric parity on the full test set
+accuracy_webgpu_ort1300_v4_fp32: completed  mAP50_95 0.242181 
+accuracy_webgpu_ort1300_v4_fp16: completed  mAP50_95 0.242121 
+accuracy_webgpu_ort1300_v3_fp32: completed  mAP50_95 0.280751 
+accuracy_webgpu_ort1300_v3_fp16: completed  mAP50_95 0.279280 
+=== 23:24:29 8 summary
+=== 23:24:29 device done
