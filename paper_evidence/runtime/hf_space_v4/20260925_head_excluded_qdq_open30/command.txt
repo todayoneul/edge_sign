@@ -1,0 +1,1 @@
+python scripts/paper/benchmark_hf_space.py --variant head_excluded_qdq --warmup 10 --iterations 50 --status-path /api/paper-v4/status --ws-path /ws/paper-v4 --send-fps 30.0 --traffic-mode open_loop --output paper_evidence/runtime/hf_space_v4/20260925_head_excluded_qdq_open30

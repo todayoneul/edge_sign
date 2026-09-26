@@ -1,0 +1,28 @@
+Space repository: gyann/edge-sign
+Space source commit: 9fc2593358a678a5b1597e978a63778bc909fc31
+Space API runtime stage at measurement: RUNNING
+Space hardware tier: cpu-basic
+Space OS / exact CPU model / effective ORT thread count: not exposed by public Space API
+Execution provider specified by source/Dockerfile: CPUExecutionProvider (EDGE_SIGN_CPU_ONLY=1)
+Dockerfile base specified by source: python:3.11-slim
+ONNX Runtime specified by remote requirements-hf.txt: 1.23.2
+Actual running Python / ORT version: not independently attested by /api/status
+Remote Dockerfile SHA256: 29aa5a40dd6b1e113e9cb00c160467bd5efa0f2d521aaa61f9415d3b61ed1cf4
+Remote requirements-hf.txt SHA256: b30a003574a48ec5771affa456e8f8e8f8b31c05403ba0649dd291c66f108d5f
+Remote source files matched local repository copies at this Space commit.
+
+Client OS: Windows-11-10.0.26200-SP0
+Client CPU: AMD Ryzen 5 9600X 6-Core Processor
+Client Python: 3.13.11 (Anaconda)
+Client OpenCV: 4.13.0
+Client websockets: 15.0.1
+Client requests: 2.34.2
+Client huggingface_hub: 1.4.0
+Client geographical network route / RTT baseline: not controlled
+
+Space YOLOv8s v3 INT8 input: images [1,3,640,640]; output0 [1,6,8400]; opset 14.
+Input/output and file SHA256 were verified from the Space repository's ONNX artifact.
+Space YOLOv8s v3 FP32 input: images [1,3,640,640]; output0 [1,6,8400]; opset 14.
+FP32 file SHA256 was verified from the Space repository's ONNX artifact.
+Benchmark route: /ws/stream, open-loop 10 FPS enqueue of repeated public sample frames.
+The route returns JSON predictions; browser rendering is excluded.

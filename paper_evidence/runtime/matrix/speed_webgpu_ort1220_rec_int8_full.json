@@ -1,0 +1,35 @@
+{
+  "run": "speed_webgpu_ort1220_rec_int8_full",
+  "model": "rec_int8_full",
+  "ep": "webgpu",
+  "mode": "speed",
+  "runtime": "onnxruntime-web",
+  "ort_web_version": "1.22.0",
+  "input_dtype": "float32",
+  "status": "unsupported",
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+  "hardware_concurrency": 12,
+  "cross_origin_isolated": true,
+  "requested_wasm_threads": 1,
+  "warmup": 20,
+  "iterations": 1024,
+  "adapter": {
+    "vendor": "nvidia",
+    "architecture": "blackwell",
+    "device": "",
+    "description": "",
+    "is_fallback": false,
+    "shader_f16": true
+  },
+  "effective_wasm_threads": 1,
+  "model_bytes": 41894,
+  "model_sha256": "4d65ecfb63f6f5ae5f190aea0cb47b7c8d2645cea4563d29c45d8eb229a14dcc",
+  "session_init_ms": 1550.3650000095367,
+  "reason": "Error: [WebGPU] Kernel \"[DequantizeLinear] onnx::Conv_45_DequantizeLinear\" failed. Error: In the case of dequantizing int32 there is no zero point.\n    at Object._OrtRun (https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort-wasm-simd-threaded.jsep.mjs:10:281)\n    at async Ir (https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.webgpu.bundle.min.mjs:2827:26607)\n    at async ln.run (https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.webgpu.bundle.min.mjs:2827:33964)\n    at async e.run (https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.webgpu.bundle.min.mjs:6:18096)\n    at async main (http://127.0.0.1:8792/runtime_matrix.html?run=speed_webgpu_ort1220_rec_int8_full&model=rec_int8_full&ep=webgpu&mode=speed&ort=1.22.0&dtype=float32&warmup=20&iterations=1024&limit=0&threads=1&size=32&norm=pm1:92:27)\n    at async http://127.0.0.1:8792/runtime_matrix.html?run=speed_webgpu_ort1220_rec_int8_full&model=rec_int8_full&ep=webgpu&mode=speed&ort=1.22.0&dtype=float32&warmup=20&iterations=1024&limit=0&threads=1&size=32&norm=pm1:108:7",
+  "logs": [
+    "[error] \u001b[0;93m2026-09-26 01:13:59.110380 [W:onnxruntime:, session_state.cc:1280 VerifyEachNodeIsAssignedToAnEp] Some nodes were not assigned to the preferred execution providers which may or may not have an negative impact on performance. e.g. ORT explicitly assigns shape related ops to CPU to improve perf.\u001b[m",
+    "[error] \u001b[0;93m2026-09-26 01:13:59.111325 [W:onnxruntime:, session_state.cc:1282 VerifyEachNodeIsAssignedToAnEp] Rerunning with verbose output on a non-minimal build will show node assignments.\u001b[m",
+    "[error] \u001b[1;31m2026-09-26 01:13:59.217040 [E:onnxruntime:, sequential_executor.cc:572 ExecuteKernel] Non-zero status code returned while running DequantizeLinear node. Name:'onnx::Conv_45_DequantizeLinear' Status Message: Failed to run JSEP kernel\u001b[m"
+  ],
+  "log_lines_total": 3
+}

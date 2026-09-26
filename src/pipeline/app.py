@@ -180,6 +180,13 @@ async def startup() -> None:
         logger.info("CPU 전용 — 서버 기본 검출기 INT8 설정 (CPU ~2.4×, near-lossless)")
 
 
+# 논문 재측정 경로는 명시적으로 켤 때만 등록한다. v3 데모 경로와 추적 상태는 공유하지 않는다.
+if _os.environ.get("EDGE_SIGN_PAPER_V4", "") == "1":
+    from src.pipeline.paper_v4 import register_routes
+
+    register_routes(app, ROOT)
+
+
 @app.on_event("shutdown")
 async def _shutdown() -> None:
     session_mgr.close()

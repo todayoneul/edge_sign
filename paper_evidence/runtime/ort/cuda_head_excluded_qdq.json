@@ -1,0 +1,36 @@
+{
+  "config": {
+    "run_id": "cuda_head_excluded_qdq",
+    "model": "model_space/yolo_v4_signs_int8_head_excluded.onnx",
+    "model_sha256": "a2ddfe7d07adeb3cc58d413a0936ca3833260e99a4af227b01dea4df7326c9eb",
+    "model_size_bytes": 3416372,
+    "test_manifest_sha256": "dfd1f54a5de52a3a3c3174c5412c14f2b1ace4f5b02e19ca85bfa3bf4caba219",
+    "frame_image_rel": "data/aihub_traffic/test/images/c_validation_1920_1200_night_1/s01333519.jpg",
+    "input_resolution": [
+      640,
+      640
+    ],
+    "original_resolution": [
+      1920,
+      1200
+    ],
+    "warmup_count": 10,
+    "measured_iterations": 100,
+    "intra_op_threads": 4,
+    "requested_providers": [
+      "CUDAExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "onnxruntime_version": "1.23.2",
+    "python": "3.10.19",
+    "OS": "Windows-10-10.0.26200-SP0",
+    "CPU": "AMD64 Family 26 Model 68 Stepping 0, AuthenticAMD",
+    "timing_scope": "in-memory BGR frame; preprocess + ONNX session.run + decode; excludes disk decode/download/render",
+    "session_init_ms": 107.74449999735225,
+    "actual_providers": [
+      "CPUExecutionProvider"
+    ]
+  },
+  "status": "unsupported",
+  "reason": "RuntimeError: CUDAExecutionProvider unavailable; session fell back to CPU"
+}

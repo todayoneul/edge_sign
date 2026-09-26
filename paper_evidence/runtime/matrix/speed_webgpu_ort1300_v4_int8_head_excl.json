@@ -1,0 +1,56 @@
+{
+  "run": "speed_webgpu_ort1300_v4_int8_head_excl",
+  "model": "v4_int8_head_excl",
+  "ep": "webgpu",
+  "mode": "speed",
+  "runtime": "onnxruntime-web",
+  "ort_web_version": "1.30.0",
+  "input_dtype": "float32",
+  "status": "completed",
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+  "hardware_concurrency": 12,
+  "cross_origin_isolated": false,
+  "requested_wasm_threads": 1,
+  "warmup": 5,
+  "iterations": 128,
+  "adapter": {
+    "vendor": "nvidia",
+    "architecture": "blackwell",
+    "device": "",
+    "description": "",
+    "is_fallback": false,
+    "shader_f16": true
+  },
+  "effective_wasm_threads": 1,
+  "model_bytes": 3416372,
+  "model_sha256": "a2ddfe7d07adeb3cc58d413a0936ca3833260e99a4af227b01dea4df7326c9eb",
+  "session_init_ms": 3465.0999999940395,
+  "first_inference_ms": 2488.300000011921,
+  "metrics": {
+    "prepare_ms": {
+      "n": 128,
+      "mean_ms": 7.381250001024455,
+      "std_ms": 0.8248816205550784,
+      "p50_ms": 7.299999982118607,
+      "p90_ms": 8.199999997019768,
+      "p95_ms": 9.065000015497207,
+      "p99_ms": 10.146000013053419,
+      "fps": 135.47840810990124
+    },
+    "inference_ms": {
+      "n": 128,
+      "mean_ms": 943.5273437493015,
+      "std_ms": 21.529448272007016,
+      "p50_ms": 942,
+      "p90_ms": 970.3199999898673,
+      "p95_ms": 976.6950000077486,
+      "p99_ms": 995.3679999837279,
+      "fps": 1.059852697036095
+    }
+  },
+  "logs": [
+    "[error] \u001b[0;93m2026-09-25 23:38:02.747199 [W:onnxruntime:, session_state.cc:1397 VerifyEachNodeIsAssignedToAnEp] Some nodes were not assigned to the preferred execution providers which may or may not have an negative impact on performance. e.g. ORT explicitly assigns shape related ops to CPU to improve perf.\u001b[m",
+    "[error] \u001b[0;93m2026-09-25 23:38:02.747999 [W:onnxruntime:, session_state.cc:1399 VerifyEachNodeIsAssignedToAnEp] Rerunning with verbose output on a non-minimal build will show node assignments.\u001b[m"
+  ],
+  "log_lines_total": 2
+}

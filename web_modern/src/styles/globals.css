@@ -526,6 +526,7 @@ main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
 }
 .var-delta b { font-weight: 600; color: var(--ink); }
 .var-delta .good { color: var(--c-sign); }
+.var-delta .var-warn { color: var(--c-board); font-weight: 600; }
 
 /* ── 우측 레일 ── */
 #rail {

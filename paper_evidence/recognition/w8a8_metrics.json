@@ -1,0 +1,6 @@
+{
+  "status": "unsupported",
+  "model": "model_space/korean_sign_net_w8a8.onnx",
+  "reason": "NotImplemented: [ONNXRuntimeError] : 9 : NOT_IMPLEMENTED : Could not find an implementation for ConvInteger(10) node with name '/conv1/Conv_quant'",
+  "onnxruntime_version": "1.23.2"
+}

@@ -1,0 +1,4 @@
+model,cosine_frames,mean_raw_output_cosine,mean_raw_output_sqnr_db,mean_best_same_class_fp32_iou_at_conf_025,task_detections
+yolo26_fp32,2417,1.0,,1.0,3798
+yolo26_full_qdq,2417,0.6271664170606336,2.0061014462526447,,0
+yolo26_head_excluded_qdq,2417,0.8484639171628958,5.724211806897409,0.903653183677507,3588

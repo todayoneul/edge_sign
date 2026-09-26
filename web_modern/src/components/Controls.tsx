@@ -5,12 +5,12 @@
  * 재생 컨트롤(재생/정지·탐색·속도·5초 점프)은 뷰포트 내부 오버레이
  * 트랜스포트 바(SeekBar)로 옮겼다. 여기는 소스 선택만 담당.
  *
- * 모드①(webcam/H.264 file) → useStream 경로 (Viewport가 직접 처리)
+ * 모드①(webcam/H.264 file) → 온디바이스 추론 (Viewport가 직접 처리)
  * 모드②(URL/image/incompatible) → useSession 서버 인제스트
+ * 추론 위치 토글은 없앴다: 공개 데모는 온디바이스 고정, 모델 선택은 PerfStrip.
  */
 
 import { useRef } from "react";
-import { useStore } from "../store";
 import { SAMPLES } from "../lib/samples";
 
 interface Props {
@@ -35,11 +35,6 @@ export default function Controls({
   stageStatusLive = false,
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const pipelineMode = useStore((s) => s.pipelineMode);
-  const setPipelineMode = useStore((s) => s.setPipelineMode);
-  const ondeviceModel = useStore((s) => s.ondeviceModel);
-  const setOndeviceModel = useStore((s) => s.setOndeviceModel);
-  const pushToast = useStore((s) => s.pushToast);
 
   function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
@@ -126,64 +121,6 @@ export default function Controls({
             e.target.value = "";
           }}
         />
-
-        {/* 추론 위치 토글: 서버 WS ⇄ 브라우저 온디바이스(WebGPU). 다음 소스 시작 시 적용. */}
-        <div
-          className="mode-toggle"
-          role="group"
-          aria-label="추론 위치"
-          title="추론을 서버에서 할지, 브라우저(WebGPU)에서 직접 할지"
-        >
-          {(["server", "ondevice"] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              className={`mode-btn${m === "ondevice" ? " mode-btn--edge" : ""}`}
-              aria-pressed={pipelineMode === m}
-              onClick={() => {
-                if (pipelineMode === m) return;
-                setPipelineMode(m);
-                pushToast(
-                  m === "ondevice"
-                    ? "온디바이스(WebGPU) — 다음 웹캠/영상 시작부터 브라우저에서 추론"
-                    : "서버 추론 모드로 전환",
-                  "ok",
-                );
-              }}
-            >
-              {m === "server" ? "서버" : "온디바이스"}
-            </button>
-          ))}
-        </div>
-
-        {/* 온디바이스 정밀도: fp32(빠름) ⇄ fp16(작음) — 다음 시작 시 적용 */}
-        {pipelineMode === "ondevice" && (
-          <div
-            className="mode-toggle"
-            role="group"
-            aria-label="온디바이스 모델 정밀도"
-            title="fp32=빠름(43MB) · fp16=작음(22MB). 다음 시작부터 적용"
-          >
-            {(["fp32", "fp16"] as const).map((p) => (
-              <button
-                key={p}
-                type="button"
-                className="mode-btn"
-                aria-pressed={ondeviceModel === p}
-                onClick={() => {
-                  if (ondeviceModel === p) return;
-                  setOndeviceModel(p);
-                  pushToast(
-                    p === "fp16" ? "온디바이스 FP16 (작음·22MB)" : "온디바이스 FP32 (빠름·43MB)",
-                    "ok",
-                  );
-                }}
-              >
-                {p.toUpperCase()}
-              </button>
-            ))}
-          </div>
-        )}
 
         <div className="spacer" />
         <span

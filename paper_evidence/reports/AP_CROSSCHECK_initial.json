@@ -1,0 +1,487 @@
+{
+  "max_absolute_AP_difference": 0.004663391020678618,
+  "comparison_count": 60,
+  "note": "Small differences arise from 101-point mean versus Ultralytics trapezoidal interpolation.",
+  "comparisons": [
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_sign",
+      "IoU": 0.5,
+      "local_AP": 0.49451762642393,
+      "ultralytics_AP": 0.4944514420018911,
+      "absolute_difference": 6.618442203887298e-05
+    },
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_sign",
+      "IoU": 0.55,
+      "local_AP": 0.47278041768421436,
+      "ultralytics_AP": 0.4725006493967426,
+      "absolute_difference": 0.0002797682874717822
+    },
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_sign",
+      "IoU": 0.6,
+      "local_AP": 0.4391341976163008,
+      "ultralytics_AP": 0.4385255395924639,
+      "absolute_difference": 0.0006086580238369166
+    },
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_sign",
+      "IoU": 0.65,
+      "local_AP": 0.3860156850100115,
+      "ultralytics_AP": 0.38484426477905864,
+      "absolute_difference": 0.0011714202309528465
+    },
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_sign",
+      "IoU": 0.7,
+      "local_AP": 0.32689924765590045,
+      "ultralytics_AP": 0.3251682401324595,
+      "absolute_difference": 0.0017310075234409639
+    },
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_sign",
+      "IoU": 0.75,
+      "local_AP": 0.26317933085933126,
+      "ultralytics_AP": 0.26081112416792457,
+      "absolute_difference": 0.0023682066914066935
+    },
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_sign",
+      "IoU": 0.8,
+      "local_AP": 0.17713734051681035,
+      "ultralytics_AP": 0.17390871392197843,
+      "absolute_difference": 0.003228626594831918
+    },
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_sign",
+      "IoU": 0.85,
+      "local_AP": 0.09757841742370066,
+      "ultralytics_AP": 0.09355420159793765,
+      "absolute_difference": 0.004024215825763011
+    },
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_sign",
+      "IoU": 0.9,
+      "local_AP": 0.033660897932137494,
+      "ultralytics_AP": 0.028997506911458876,
+      "absolute_difference": 0.004663391020678618
+    },
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_sign",
+      "IoU": 0.95,
+      "local_AP": 0.003626841830642812,
+      "ultralytics_AP": 0.001996443582282574,
+      "absolute_difference": 0.001630398248360238
+    },
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_light",
+      "IoU": 0.5,
+      "local_AP": 0.5052280551899617,
+      "ultralytics_AP": 0.5052795017366906,
+      "absolute_difference": 5.1446546728839415e-05
+    },
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_light",
+      "IoU": 0.55,
+      "local_AP": 0.45221814302308855,
+      "ultralytics_AP": 0.45173318434187587,
+      "absolute_difference": 0.00048495868121267716
+    },
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_light",
+      "IoU": 0.6,
+      "local_AP": 0.39368298141722535,
+      "ultralytics_AP": 0.3926198112313976,
+      "absolute_difference": 0.0010631701858277443
+    },
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_light",
+      "IoU": 0.65,
+      "local_AP": 0.3139131306354852,
+      "ultralytics_AP": 0.31205226194184005,
+      "absolute_difference": 0.0018608686936451568
+    },
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_light",
+      "IoU": 0.7,
+      "local_AP": 0.23604184038891618,
+      "ultralytics_AP": 0.23340225879280535,
+      "absolute_difference": 0.0026395815961108293
+    },
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_light",
+      "IoU": 0.75,
+      "local_AP": 0.16011162991064545,
+      "ultralytics_AP": 0.1567127462097519,
+      "absolute_difference": 0.003398883700893557
+    },
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_light",
+      "IoU": 0.8,
+      "local_AP": 0.08819396722381811,
+      "ultralytics_AP": 0.08407590689605632,
+      "absolute_difference": 0.004118060327761797
+    },
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_light",
+      "IoU": 0.85,
+      "local_AP": 0.03196717541457076,
+      "ultralytics_AP": 0.028953513835383134,
+      "absolute_difference": 0.0030136615791876258
+    },
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_light",
+      "IoU": 0.9,
+      "local_AP": 0.005578196173122851,
+      "ultralytics_AP": 0.003967311468187414,
+      "absolute_difference": 0.0016108847049354372
+    },
+    {
+      "model": "yolo26_fp32",
+      "class": "traffic_light",
+      "IoU": 0.95,
+      "local_AP": 0.00013201320132013203,
+      "ultralytics_AP": 6.666666666666667e-05,
+      "absolute_difference": 6.534653465346536e-05
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.5,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.55,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.6,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.65,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.7,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.75,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.8,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.85,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.9,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.95,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_light",
+      "IoU": 0.5,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_light",
+      "IoU": 0.55,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_light",
+      "IoU": 0.6,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_light",
+      "IoU": 0.65,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_light",
+      "IoU": 0.7,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_light",
+      "IoU": 0.75,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_light",
+      "IoU": 0.8,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_light",
+      "IoU": 0.85,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_light",
+      "IoU": 0.9,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_full_qdq",
+      "class": "traffic_light",
+      "IoU": 0.95,
+      "local_AP": 0.0,
+      "ultralytics_AP": 0.0,
+      "absolute_difference": 0.0
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.5,
+      "local_AP": 0.47848842833112337,
+      "ultralytics_AP": 0.47826872286149114,
+      "absolute_difference": 0.00021970546963223647
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.55,
+      "local_AP": 0.4598025142681144,
+      "ultralytics_AP": 0.4593697302023648,
+      "absolute_difference": 0.00043278406574959183
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.6,
+      "local_AP": 0.42564785275326344,
+      "ultralytics_AP": 0.42489272207337286,
+      "absolute_difference": 0.000755130679890581
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.65,
+      "local_AP": 0.3783973820089975,
+      "ultralytics_AP": 0.377180590910361,
+      "absolute_difference": 0.0012167910986364827
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.7,
+      "local_AP": 0.3229109017619259,
+      "ultralytics_AP": 0.3211400107795451,
+      "absolute_difference": 0.0017708909823807573
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.75,
+      "local_AP": 0.2517746215606285,
+      "ultralytics_AP": 0.24929236777623479,
+      "absolute_difference": 0.0024822537843937342
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.8,
+      "local_AP": 0.1714414510773415,
+      "ultralytics_AP": 0.1681558655881149,
+      "absolute_difference": 0.0032855854892265834
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.85,
+      "local_AP": 0.09066349510204409,
+      "ultralytics_AP": 0.08657013005306455,
+      "absolute_difference": 0.004093365048979544
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.9,
+      "local_AP": 0.034286271111750546,
+      "ultralytics_AP": 0.029629133822868053,
+      "absolute_difference": 0.004657137288882493
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_sign",
+      "IoU": 0.95,
+      "local_AP": 0.004141284628194146,
+      "ultralytics_AP": 0.0021826974744760886,
+      "absolute_difference": 0.0019585871537180577
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_light",
+      "IoU": 0.5,
+      "local_AP": 0.4870859666089094,
+      "ultralytics_AP": 0.4869306123545448,
+      "absolute_difference": 0.0001553542543645814
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_light",
+      "IoU": 0.55,
+      "local_AP": 0.437853105159895,
+      "ultralytics_AP": 0.43721940206877485,
+      "absolute_difference": 0.0006337030911201524
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_light",
+      "IoU": 0.6,
+      "local_AP": 0.377887123593744,
+      "ultralytics_AP": 0.3767650064700915,
+      "absolute_difference": 0.0011221171236525107
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_light",
+      "IoU": 0.65,
+      "local_AP": 0.3121184144325662,
+      "ultralytics_AP": 0.3103818749996561,
+      "absolute_difference": 0.0017365394329101336
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_light",
+      "IoU": 0.7,
+      "local_AP": 0.23226470163224447,
+      "ultralytics_AP": 0.22993822584154933,
+      "absolute_difference": 0.0023264757906951428
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_light",
+      "IoU": 0.75,
+      "local_AP": 0.15270995380706703,
+      "ultralytics_AP": 0.14986205334513775,
+      "absolute_difference": 0.002847900461929287
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_light",
+      "IoU": 0.8,
+      "local_AP": 0.08631407664245114,
+      "ultralytics_AP": 0.08382816080510208,
+      "absolute_difference": 0.0024859158373490564
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_light",
+      "IoU": 0.85,
+      "local_AP": 0.026555668049468833,
+      "ultralytics_AP": 0.024821224729963516,
+      "absolute_difference": 0.0017344433195053167
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_light",
+      "IoU": 0.9,
+      "local_AP": 0.004090596912134043,
+      "ultralytics_AP": 0.0031315028812553833,
+      "absolute_difference": 0.0009590940308786596
+    },
+    {
+      "model": "yolo26_head_excluded_qdq",
+      "class": "traffic_light",
+      "IoU": 0.95,
+      "local_AP": 0.0019801980198019802,
+      "ultralytics_AP": 0.001,
+      "absolute_difference": 0.0009801980198019802
+    }
+  ]
+}

@@ -8,6 +8,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useStore } from "../store";
+import { EP_LABEL, modelName, type ExecutionProvider } from "../lib/models";
 import LogoMark from "./LogoMark";
 
 interface Props {
@@ -78,17 +79,25 @@ export default function Header({ onToggleTheme, onOpenShortcuts }: Props) {
   const tracks = useStore((s) => s.tracks);
   const totalDetections = useStore((s) => s.totalDetections);
   const connected = useStore((s) => s.connected);
-  const pipelineMode = useStore((s) => s.pipelineMode);
   const playing = useStore((s) => s.playing);
   const variant = useStore((s) => s.telemetry.variant);
+  const ondevice = useStore((s) => s.ondevice);
+  const sourceKind = useStore((s) => s.sourceKind);
   const [fpsHistory, setFpsHistory] = useState<number[]>([]);
 
-  const onDevice = pipelineMode === "ondevice";
-  const engineLabel = onDevice
-    ? variant?.includes("wasm")
-      ? "온디바이스 · WASM"
-      : "온디바이스 · WebGPU"
-    : "서버 추론";
+  // 결과의 출처로 판단: 온디바이스 결과는 variant="ondevice-<ep>", 서버 결과는 서버 variant 이름
+  // (서버 인제스트, 또는 온디바이스 로드 실패 후 서버 폴백)
+  const onDevice = sourceKind !== "session" && (variant == null || variant.startsWith("ondevice-"));
+  const actualEp: ExecutionProvider =
+    variant === "ondevice-wasm" ? "wasm" : variant === "ondevice-webgpu" ? "webgpu" : ondevice.ep;
+  const engineLabel = onDevice ? `${modelName(ondevice)} · ${EP_LABEL[actualEp]}` : "서버 처리";
+
+  // While playing, drop FPS to 0 when results stop arriving (paused video, stalled server).
+  useEffect(() => {
+    if (!playing) return;
+    const id = window.setInterval(() => useStore.getState().decayFps(), 1000);
+    return () => clearInterval(id);
+  }, [playing]);
 
   // Accumulate FPS history for sparkline (app.js fpsHistory max 48)
   const prevFps = useRef(0);
@@ -167,10 +176,10 @@ export default function Header({ onToggleTheme, onOpenShortcuts }: Props) {
           </span>
         )}
 
-        {/* 추론 위치 인디케이터 — 서버 vs 브라우저 온디바이스(WebGPU) */}
+        {/* 추론 위치 인디케이터 — 브라우저 온디바이스(모델·실행 환경) vs 서버 처리 */}
         <span
           className={`engine-pill${onDevice ? " ondevice" : ""}`}
-          title="현재 추론이 실행되는 위치"
+          title={onDevice ? "브라우저에서 직접 추론 (온디바이스)" : "서버가 디코딩·추론 (브라우저가 못 여는 입력)"}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
             <rect x="6" y="6" width="12" height="12" rx="2" />

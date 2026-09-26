@@ -1,0 +1,17 @@
+{
+  "fig2": {
+    "frame_index": 0,
+    "image_rel": "data/aihub_traffic/test/images/c_validation_1920_1200_night_1/s01333519.jpg",
+    "rule": "first frame with FP32>=2, full QDQ=0, head-excluded>=2 detections at confidence>=0.25"
+  },
+  "fig4_night": {
+    "frame_index": 1,
+    "gt_index": 0,
+    "rule": "first night GT missed by head-excluded QDQ at IoU>=0.5"
+  },
+  "fig4_small": {
+    "frame_index": 20,
+    "gt_index": 0,
+    "rule": "first daylight GT with area fraction 0.00015..0.001 missed at IoU>=0.5"
+  }
+}

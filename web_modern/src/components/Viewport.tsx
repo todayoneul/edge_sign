@@ -21,11 +21,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useStore } from "../store";
 import { useStream } from "../hooks/useStream";
-import { useClientPipeline } from "../hooks/useClientPipeline";
+import { isAbortError, useClientPipeline } from "../hooks/useClientPipeline";
 import { useSession } from "../hooks/useSession";
 import { useHotkeys } from "../hooks/useHotkeys";
 import { renderTracks } from "../lib/draw";
 import { SAMPLES } from "../lib/samples";
+import {
+  EP_LABEL,
+  modelFile,
+  modelName,
+  slowCombination,
+  type ExecutionProvider,
+  type OnDeviceConfig,
+} from "../lib/models";
 import SeekBar from "./SeekBar";
 import Hero from "./Hero";
 import Controls from "./Controls";
@@ -44,6 +52,8 @@ const _cctx640 = _cap640.getContext("2d", { willReadFrequently: true })!;
 // ROI 크롭 캔버스 (온디바이스 인식 — bbox 영역을 size×size RGBA로)
 const _roi = document.createElement("canvas");
 const _rctx = _roi.getContext("2d", { willReadFrequently: true })!;
+
+const onDeviceKeyOf = (c: OnDeviceConfig) => `${c.detector}/${c.precision}/${c.ep}`;
 
 /** 모드 구분 — app.js state.mode */
 type Mode = "client" | "server";
@@ -64,9 +74,6 @@ export default function Viewport() {
   const tracks = useStore((s) => s.tracks);
   const hoverId = useStore((s) => s.hoverId);
   const setHoverId = useStore((s) => s.setHoverId);
-  // selectedVariant is set by PerfStrip; fall back to telemetry.variant from server
-  const selectedVariant = useStore((s) => s.selectedVariant ?? s.telemetry.variant);
-
   // Sent frame dimensions (for letterbox math source)
   // 모드② 에서는 서버가 보내는 w/h로 덮어씀 (handleServerFrame 패턴)
   const sentDimsRef = useRef({ w: 640, h: 480 });
@@ -86,13 +93,17 @@ export default function Viewport() {
   const session = useSession();
   const client = useClientPipeline();
   const pipelineMode = useStore((s) => s.pipelineMode);
-  const ondeviceModel = useStore((s) => s.ondeviceModel);
-  const recordFps = useStore((s) => s.recordFps);
+  const ondevice = useStore((s) => s.ondevice);
   const pushToast = useStore((s) => s.pushToast);
   // 온디바이스 추론 루프 (setInterval; busy 가드로 비중첩)
   const clientTimerRef = useRef<number | null>(null);
+  // 온디바이스 추론이 켜져 있는지(모델 로드 중 포함)와 현재 선택 키 — 선택 변경 시 재로드 판단
+  const onDeviceActiveRef = useRef(false);
+  const ondeviceKey = onDeviceKeyOf(ondevice);
+  const ondeviceKeyRef = useRef(ondeviceKey);
   const clientBusyRef = useRef(false);
-  const fpsEmaRef = useRef(0);
+  // 재생이 (다시) 시작될 때 보여 줄 상태 문구, 예: "YOLO26-n FP32 · WebGPU 추론 중"
+  const inferLabelRef = useRef("");
 
   // 서버 프레임의 w/h를 sentDimsRef에 반영 (overlay letterbox 계산 기준)
   // useSession이 store.setFrame을 통해 트랙을 올리므로, seekInfo.pos 변화 시 체크
@@ -111,7 +122,9 @@ export default function Viewport() {
   // ── getFrame callback (Viewport → useStream) ────────────────────────────
   const getFrame = useCallback((): { data: string; variant?: string | null } | null => {
     const video = videoRef.current;
-    if (!video || video.readyState < 2 || !isPlaying) return null;
+    // stream.start retains this callback while the timer runs. Read playback and
+    // variant at capture time so the first play and later A/B changes take effect.
+    if (!video || video.readyState < 2 || video.paused || video.ended) return null;
     const vw = video.videoWidth || 640;
     const vh = video.videoHeight || 480;
     const tw = Math.min(vw, 1280);
@@ -119,8 +132,12 @@ export default function Viewport() {
     _cap.height = Math.round((tw * vh) / vw);
     _cctx.drawImage(video, 0, 0, _cap.width, _cap.height);
     sentDimsRef.current = { w: _cap.width, h: _cap.height };
-    return { data: _cap.toDataURL("image/jpeg", 0.8), variant: selectedVariant ?? null };
-  }, [isPlaying, selectedVariant]);
+    const state = useStore.getState();
+    return {
+      data: _cap.toDataURL("image/jpeg", 0.8),
+      variant: state.selectedVariant ?? state.telemetry.variant ?? null,
+    };
+  }, []);
 
   // ── Overlay render loop (rAF) ────────────────────────────────────────────
   const renderOverlay = useCallback(() => {
@@ -201,15 +218,22 @@ export default function Viewport() {
     if (clientTimerRef.current != null) {
       clearInterval(clientTimerRef.current);
       clientTimerRef.current = null;
+      useStore.setState({ playing: false });
     }
   }, []);
 
   const startClientLoop = useCallback(() => {
     stopClientLoop();
-    let last = performance.now();
     clientTimerRef.current = window.setInterval(() => {
       const video = videoRef.current;
-      if (!video || video.readyState < 2 || video.paused || clientBusyRef.current) return;
+      // store.playing drives the header KPIs; the server modes set it on start/stop,
+      // this loop keeps running while paused, so mirror the video state (write only on change)
+      const active = !!video && video.readyState >= 2 && !video.paused && !video.ended;
+      if (useStore.getState().playing !== active) {
+        useStore.setState({ playing: active });
+        if (active && inferLabelRef.current) setStageStatus(inferLabelRef.current);
+      }
+      if (!video || !active || clientBusyRef.current) return;
       clientBusyRef.current = true;
       const vw = video.videoWidth || 640;
       const vh = video.videoHeight || 480;
@@ -229,48 +253,78 @@ export default function Viewport() {
       void client
         .processFrame(rgba, vw, vh, roiSampler)
         .then((r) => {
-          if (r) {
-            useStore.getState().setFrame(r);
-            const now = performance.now();
-            const fps = 1000 / Math.max(1, now - last);
-            last = now;
-            fpsEmaRef.current = fpsEmaRef.current ? fpsEmaRef.current * 0.8 + fps * 0.2 : fps;
-            recordFps(Math.round(fpsEmaRef.current * 10) / 10);
-          }
+          // setFrame also measures processing FPS (same path as the server modes)
+          if (r) useStore.getState().setFrame(r);
         })
         .catch(() => {})
         .finally(() => {
           clientBusyRef.current = false;
         });
     }, 33);
-  }, [client, stopClientLoop, recordFps]);
+  }, [client, stopClientLoop]);
 
   /** 클라 캡처 추론 시작 — 모드에 따라 서버 WS(stream) 또는 온디바이스 루프. */
   const startCaptureInference = useCallback(async () => {
     if (pipelineMode === "ondevice") {
-      const modelUrl =
-        ondeviceModel === "fp16"
-          ? "/models/yolov8s_signs_v3_fp16.onnx"
-          : "/models/yolov8s_signs_v3_fp32.onnx";
-      setStageStatus("온디바이스 모델 로딩… (최초 1회 ~수초)");
+      onDeviceActiveRef.current = true;
+      // 호출 시점의 최신 선택을 읽는다 — 재생 시작 콜백(video.play().then)이 샘플을 누른
+      // 당시의 선택을 붙잡고 있어도, 그 사이 바뀐 선택으로 시작하도록
+      const cfg = useStore.getState().ondevice;
+      const key = onDeviceKeyOf(cfg);
+      const name = modelName(cfg);
+      setStageStatus(`${name} 로딩… (${modelFile(cfg).mb} MB, 최초 1회)`);
+      let lastPct = -1;
+      const onProgress = (received: number, total: number) => {
+        const pct = total > 0 ? Math.floor((received / total) * 100) : -1;
+        if (pct === lastPct || pct < 0) return;
+        lastPct = pct;
+        setStageStatus(`${name} 다운로드 ${pct}% (${(received / 1e6).toFixed(1)}/${(total / 1e6).toFixed(1)} MB)`);
+      };
+      let ep: string;
       try {
-        await client.ensureLoaded(modelUrl);
-      } catch {
-        setStageStatus("온디바이스 로드 실패 — 서버 모드로 폴백");
+        ep = await client.ensureLoaded(cfg, onProgress);
+      } catch (e) {
+        if (isAbortError(e)) return; // 더 새로운 선택이 이 다운로드를 취소함 — 그 호출이 이어받는다
+        setStageStatus("온디바이스 로드 실패 — 서버 처리로 폴백");
         stream.reset();
         stream.start(getFrame);
         return;
       }
+      // 로드 중 정지했거나 선택이 또 바뀌었으면(새 호출이 이어받음) 여기서 멈춤
+      if (!onDeviceActiveRef.current || onDeviceKeyOf(useStore.getState().ondevice) !== key) return;
+      const epLabel = EP_LABEL[ep as ExecutionProvider] ?? ep;
+      if (cfg.ep === "webgpu" && ep !== "webgpu") pushToast("이 브라우저는 WebGPU 미지원 — WASM으로 실행", "warn");
+      if (slowCombination({ ...cfg, ep: ep as ExecutionProvider }))
+        pushToast("INT8 + WebGPU: 양자화 연산이 CPU로 넘어가 매우 느립니다 (논문 4.3절)", "warn");
+      inferLabelRef.current = `${name} · ${epLabel} 추론 중`;
+      // 로드하는 사이 영상이 끝났거나 멈췄으면 "추론 중"이라 하지 않는다 (재생하면 루프가 바꿈)
+      const video = videoRef.current;
+      setStageStatus(
+        video && !video.paused && !video.ended ? inferLabelRef.current : `${name} · ${epLabel} 준비됨 — 재생하면 추론`,
+      );
       setStageStatusLive(true);
       startClientLoop();
     } else {
       stream.reset();
       stream.start(getFrame);
     }
-  }, [pipelineMode, ondeviceModel, client, startClientLoop, stream, getFrame]);
+  }, [pipelineMode, client, startClientLoop, stream, getFrame, pushToast]);
+
+  // 온디바이스로 재생 중 모델·정밀도·실행 환경을 바꾸면 즉시 다시 로드해 이어서 추론
+  useEffect(() => {
+    if (ondeviceKeyRef.current === ondeviceKey) return;
+    ondeviceKeyRef.current = ondeviceKey;
+    if (!onDeviceActiveRef.current) return; // 온디바이스 추론 중이 아니면 다음 시작 때 적용
+    // 이전 모델의 결과 표시(실행 환경·단계 지연)를 지워 헤더가 새 선택만 보이게
+    useStore.setState((st) => ({ telemetry: { ...st.telemetry, variant: undefined, stageMs: undefined } }));
+    stopClientLoop();
+    client.reset();
+    void startCaptureInference();
+  }, [ondeviceKey, client, stopClientLoop, startCaptureInference]);
 
   // ── 공통 stopAll — 두 모드 모두 정리 ─────────────────────────────────────
   const stopAll = useCallback(() => {
+    onDeviceActiveRef.current = false;
     stream.stop();
     stopClientLoop();
     client.reset();

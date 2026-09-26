@@ -1,0 +1,20 @@
+{
+  "test_frames": 2417,
+  "test_objects": 6772,
+  "manual_identity_key_nonempty_counts": {},
+  "annotation_key_counts": {
+    "attribute": 3406,
+    "box": 6772,
+    "class": 6772,
+    "color": 3366,
+    "direction": 3385,
+    "kind": 3361,
+    "light_count": 3401,
+    "shape": 3366,
+    "text": 3366,
+    "type": 6750
+  },
+  "manual_cross_frame_identity_ground_truth_available": false,
+  "decision": "exclude MOTA/IDF1/HOTA from main quantitative claims",
+  "historical_tracking_results_status": "pseudo-GT only; not manual identity ground truth"
+}

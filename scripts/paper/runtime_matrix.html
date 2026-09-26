@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Edge-Sign runtime matrix</title>
+<body><pre id="status">starting</pre><script type="module">
+// Driven by scripts/paper/runtime_matrix.py. Input bytes are the server's cv2-resized RGB
+// uint8 640x640 frame, so preprocessing is identical to the ORT CPU runs.
+const q = new URLSearchParams(location.search);
+const run = q.get('run'), model = q.get('model'), ep = q.get('ep'), mode = q.get('mode') || 'speed';
+const ortVersion = q.get('ort') || '1.30.0', dtype = q.get('dtype') || 'float32';
+const warmup = Number(q.get('warmup') || 20), iterations = Number(q.get('iterations') || 1024);
+const limit = Number(q.get('limit') || 0), threads = Number(q.get('threads') || 1);
+const size = Number(q.get('size') || 640), norm = q.get('norm') || 'unit';  // norm pm1: (x/255 - 0.5)/0.5
+const status = document.querySelector('#status');
+const logs = [];
+for (const level of ['log', 'info', 'warn', 'error', 'debug']) {
+  const original = console[level].bind(console);
+  console[level] = (...args) => { logs.push(`[${level}] ${args.map(String).join(' ')}`); original(...args); };
+}
+const result = {run, model, ep, mode, runtime: 'onnxruntime-web', ort_web_version: ortVersion, input_dtype: dtype,
+  status: 'unsupported', user_agent: navigator.userAgent, hardware_concurrency: navigator.hardwareConcurrency,
+  cross_origin_isolated: crossOriginIsolated, requested_wasm_threads: threads, warmup, iterations};
+const now = () => performance.now();
+function summarize(xs) {
+  const s = [...xs].sort((a, b) => a - b), mean = xs.reduce((a, b) => a + b, 0) / xs.length;
+  const p = f => { const k = (s.length - 1) * f, lo = Math.floor(k), hi = Math.min(lo + 1, s.length - 1); return s[lo] + (s[hi] - s[lo]) * (k - lo); };
+  return {n: xs.length, mean_ms: mean, std_ms: Math.sqrt(xs.reduce((a, x) => a + (x - mean) ** 2, 0) / xs.length),
+          p50_ms: p(.5), p90_ms: p(.9), p95_ms: p(.95), p99_ms: p(.99), fps: 1000 / mean};
+}
+// A local request is occasionally refused ("Failed to fetch"); retry and record it.
+// Only the accuracy loop fetches inside its loop, and that loop is not timed.
+let fetchRetries = 0;
+async function fetchRetry(url, init) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const r = await fetch(url, init);
+      if (!r.ok) throw new Error(`${url}: HTTP ${r.status}`);
+      return r;
+    } catch (error) {
+      if (attempt >= 3) throw error;
+      fetchRetries++;
+      await new Promise(resolve => setTimeout(resolve, 250 * (attempt + 1)));
+    }
+  }
+}
+async function frameBytes(i) {
+  const r = await fetchRetry(`/frame?i=${i}&size=${size}`);
+  return new Uint8Array(await r.arrayBuffer());
+}
+function makeTensor(ort, rgb) {
+  const n = size * size, f32 = new Float32Array(3 * n);
+  const v = norm === 'pm1' ? x => (x / 255 - 0.5) / 0.5 : x => x / 255;
+  for (let i = 0, j = 0; i < n; i++, j += 3) { f32[i] = v(rgb[j]); f32[n + i] = v(rgb[j + 1]); f32[2 * n + i] = v(rgb[j + 2]); }
+  if (dtype === 'float16') {
+    if (typeof Float16Array === 'undefined') throw new Error('Float16Array unavailable');
+    return new ort.Tensor('float16', new Uint16Array(new Float16Array(f32).buffer), [1, 3, size, size]);
+  }
+  return new ort.Tensor('float32', f32, [1, 3, size, size]);
+}
+function toFloat32(data) {
+  if (data instanceof Float32Array) return data;
+  if (typeof Float16Array !== 'undefined' && data instanceof Uint16Array) return new Float32Array(new Float16Array(data.buffer, data.byteOffset, data.length));
+  return Float32Array.from(data);
+}
+async function main() {
+  if (ep === 'webgpu') {
+    if (!navigator.gpu) throw new Error('navigator.gpu unavailable');
+    const adapter = await navigator.gpu.requestAdapter();
+    if (!adapter) throw new Error('WebGPU adapter unavailable');
+    const i = adapter.info || {};
+    result.adapter = {vendor: i.vendor, architecture: i.architecture, device: i.device, description: i.description,
+                      is_fallback: adapter.isFallbackAdapter ?? i.isFallbackAdapter ?? null, shader_f16: adapter.features.has('shader-f16')};
+  }
+  status.textContent = 'loading ORT Web';
+  const mod = await import(`https://cdn.jsdelivr.net/npm/onnxruntime-web@${ortVersion}/dist/ort.webgpu.bundle.min.mjs`);
+  const ort = mod.default ?? mod;
+  ort.env.wasm.numThreads = threads;
+  ort.env.logLevel = mode === 'ops' ? 'verbose' : 'warning';
+  result.effective_wasm_threads = ort.env.wasm.numThreads;
+  status.textContent = 'downloading model';
+  const r = await fetch(`/model?key=${encodeURIComponent(model)}`);
+  if (!r.ok) throw new Error(`model HTTP ${r.status}`);
+  const bytes = new Uint8Array(await r.arrayBuffer());
+  result.model_bytes = bytes.length; result.model_sha256 = r.headers.get('X-Model-SHA256');
+  const t0 = now();
+  const session = await ort.InferenceSession.create(bytes, {executionProviders: [ep], graphOptimizationLevel: 'all',
+    logSeverityLevel: mode === 'ops' ? 0 : 2, logVerbosityLevel: 0});
+  result.session_init_ms = now() - t0;
+  const input = session.inputNames[0], output = session.outputNames[0];
+  if (mode === 'accuracy') {
+    const info = await (await fetch('/info')).json();
+    const frames = limit > 0 ? Math.min(limit, info.frames) : info.frames;
+    const batch = 16; let buffer = [], start = 0;
+    for (let i = 0; i < frames; i++) {
+      const out = await session.run({[input]: makeTensor(ort, await frameBytes(i))});
+      buffer.push(toFloat32(out[output].data).slice());
+      if (buffer.length === batch || i === frames - 1) {
+        const flat = new Float32Array(buffer.reduce((a, b) => a + b.length, 0)); let o = 0;
+        for (const b of buffer) { flat.set(b, o); o += b.length; }
+        await fetchRetry(`/outputs?run=${run}&start=${start}&count=${buffer.length}`, {method: 'POST', body: flat});
+        start = i + 1; buffer = [];
+        status.textContent = `accuracy ${start}/${frames}`;
+      }
+    }
+    result.frames = frames;
+  } else {
+    const rgb = await frameBytes(0);
+    const first0 = now(); await session.run({[input]: makeTensor(ort, rgb)}); result.first_inference_ms = now() - first0;
+    const count = mode === 'ops' ? 1 : warmup + iterations;
+    const trace = [];
+    for (let i = 0; i < count; i++) {
+      const a = now(), tensor = makeTensor(ort, rgb), b = now();
+      const out = await session.run({[input]: tensor});
+      const data = out[output].data; const c = now();
+      if (data.length === 0) throw new Error('empty output');
+      if (i >= warmup || mode === 'ops') trace.push({iteration: trace.length, prepare_ms: b - a, inference_ms: c - b});
+      if (i % 64 === 0) status.textContent = `${mode} ${i}/${count}`;
+    }
+    result.metrics = {prepare_ms: summarize(trace.map(t => t.prepare_ms)), inference_ms: summarize(trace.map(t => t.inference_ms))};
+    if (mode === 'speed') result.trace = trace;
+  }
+  result.status = 'completed';
+}
+try { await main(); } catch (error) { result.reason = String(error?.stack ?? error); }
+// node placement lines ("Node(s) placed on [EP]" and one "<OpType> (<name>)" line per node)
+// all come from VerifyEachNodeIsAssignedToAnEp
+const keep = logs.filter(l => /AssignedToAnEp|placed on|not assigned|fallback|unsupported|\[error\] (?!.*\[V:)|\[warn\]/i.test(l));
+result.logs = (mode === 'ops' ? keep : keep.slice(0, 50)).slice(0, 20000);
+result.fetch_retries = fetchRetries;
+result.log_lines_total = logs.length;
+status.textContent = JSON.stringify({status: result.status, reason: result.reason}, null, 2);
+await fetch('/result', {method: 'POST', body: JSON.stringify(result)});
+</script></body></html>

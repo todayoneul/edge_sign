@@ -322,3 +322,46 @@
 - [ ] 연구 보고서 (실험 결과 + 분석)
 - [x] 시연 시스템 (웹 앱 — 범용 실시간 입력, Phase 7·10 기반) (2026-05-31)
 - [ ] 코드 정리 + 문서 최종 업데이트 (진행 중 — README/ROADMAP/EXPERIMENTS v3 동기화 2026-06-01)
+
+---
+
+## TIIS 논문 evidence 재검증 (2026-09-24, `paper/tiis-evidence-revalidation`)
+
+- [x] 기존 체크아웃/main과 분리한 브랜치에서 PDF 9쪽 기준으로 원시 artifact 감사
+- [x] train 12,375 / calibration 150 / 독립 sequence test 2,417장 manifest와 누출 검사
+- [x] YOLO26 FP32/full QDQ/head-excluded QDQ 전 test 프레임 예측과 AP 재측정
+- [x] ORT CPU·Chrome WASM/WebGPU 반복 latency trace, 지원 실패 사유 기록
+- [x] KoreanSignNet GT ROI 14-class 평가, detector→ByteTrack→recognizer 순차 파이프라인 측정
+- [x] 수동 tracking identity GT 부재 확인; pseudo-GT MOTA를 논문 주 결과에서 제외
+- [x] 새 raw evidence 기반 Figure 1–5, 표, [TIIS evidence 보고서](../paper_evidence/reports/TIIS_EVIDENCE_REPORT.md)
+- [x] 공개 HF Space 실행 복구 후 YOLOv8s v3 실제 `/ws/stream` 재측정 (2026-09-24). INT8 결과 수신 2.500 FPS, FP32 1.991 FPS; 독립 에이전트가 최종 trace 재계산 검증. [Space 원시 근거](../paper_evidence/runtime/hf_space_v3/PILOT_NOTES.md)
+- [x] YOLO26 v4 전용 WebSocket·상태 경로를 격리 브랜치에서 준비하고 로컬 모델·짧은 입력으로 기능 검증. [검증 범위](../paper_evidence/reports/SPACE_V4_DEPLOYMENT_READINESS.md)
+- [x] v4 경로를 공개 Space(commit `f645ad5`, `EDGE_SIGN_PAPER_V4=1`)에 배포하고 v3와 같은 입력·절차로 서버 경로 측정 (2026-09-25). 파이프라인 평균 head-excluded QDQ 50.278 ms, FP32 77.619 ms; 10 FPS 입력에서 미포화. [측정 결과](../paper_evidence/reports/HF_SPACE_V4_MEASUREMENT.md)
+- [x] 공개 웹 화면의 서버 프레임 전송 수정(`Viewport.tsx`)을 Space에 반영 (2026-09-26, Space commit `1081b45`). 샘플 영상 서버 모드에서 검출·인식 표시 확인
+- [x] 헤더 "처리 FPS" 표시 오류 수정 (2026-09-26, Space `9b21f69`·`825ca66`)
+  - FPS를 모든 모드의 결과 경로(`store.setFrame`)에서 계산하고, 결과가 2초 넘게 없으면 0으로 표시
+  - 온디바이스 모드에서도 KPI가 보이도록 `playing` 반영
+  - Space에서 서버 모드 2.0 FPS, 온디바이스(앱 내 브라우저) 3.2 FPS 표시 확인
+- [x] 공개 시연을 온디바이스 추론으로 통일하고 모델 선택 추가 (2026-09-26)
+  - 검출기 YOLO26-n/YOLOv8s × FP32/FP16/INT8(헤드 제외) × WebGPU/WASM, 인식기는 WASM
+  - 서버 추론 토글 제거: 서버는 Q&A와 브라우저가 못 여는 입력만 처리
+  - ORT-Web 1.22 → 1.30으로 올림
+  - ORT 호출 직렬화: WASM 힙 손상 방지, 이전 세션 해제
+  - headless Chrome(RTX 5070) 자동 점검: 기본 30 FPS, 재생 중 전환, 10회 연속 전환, INT8+WASM
+- [ ] 브라우저 렌더 포함 재측정
+- [x] v4 서버 경로를 30 FPS 입력의 포화 조건에서 재측정 (2026-09-25). 처리 한계 head-excluded QDQ 14.908 FPS, FP32 11.152 FPS; 30 FPS 미달. [측정 결과](../paper_evidence/reports/HF_SPACE_V4_MEASUREMENT.md)
+- [x] 정확도·속도·크기 평가 기준안 작성 (FP32 대비 99% 유지, 30 FPS·p90 ≤33.3 ms, 최소 15 FPS, p90 측정 1,024프레임 이상). [기준안](../paper_evidence/reports/EVALUATION_CRITERIA.md)
+- [x] 구성요소 × 정밀도 × 실행 환경 매트릭스 (2026-09-25~26). 검출기 12종(v3/v4 × FP32·FP16·INT8 헤드 포함/제외 × INT32/FP32 bias)과 인식기 6종을 대상으로 다음을 측정. 헤드 제외 INT8 유지율 v4 97.0%(99% 미달), v3 98.7%(판정 보류). WebGPU INT8은 `QuantizeLinear` CPU 폴백으로 49–83배 감속. [RUNTIME_MATRIX.md](../paper_evidence/reports/RUNTIME_MATRIX.md)
+  - 독립 test 정확도(v3 첫 평가 포함)
+  - ORT CPU 1·4T, WASM 1·4T, WebGPU(ORT-Web 1.22·1.30) 지연 1,024회
+  - 연산자 배치, 브라우저 수치 일치성
+- [x] KoreanSignNet 실행 가능한 QDQ INT8 4종(`recognizer_variants.py`)과 독립 ROI 평가: 전체 INT8 Top-1 유지율 100.04%
+- [x] 가중치 전용 INT8 ablation: 헤드 붕괴 원인 = 활성값 양자화, v3 위치 손실 = DFL 고정 커널 반올림(제외 시 99.6%)
+- [x] 브라우저 파이프라인 배치 실험: 검출기 WebGPU + 인식기 WASM 16.2 ms(p90 18.0), 전부 WebGPU 17.5–17.8 ms
+- [x] 두 번째 기기(Mac) 측정 번들·스크립트·안내 ([DEVICE_MEASUREMENT_GUIDE.md](../paper_evidence/reports/DEVICE_MEASUREMENT_GUIDE.md))
+- [x] 논문 초안 `paper_evidence/paper_draft_KSII_TIIS_ko.md` (제목: 「도로 영상 인식을 위한 브라우저 기반 엣지 비전의 구성요소·실행 환경별 양자화 실증 분석」)
+- [ ] Mac에서 `run_device_matrix.sh` 본측정 후 기기 간 비교 추가
+- [ ] 기준안 확정 후 카메라/렌더 포함 경로를 재측정하고 판정
+- [ ] 야간/다른 장소 test 확장 및 가능한 경우 manual identity GT 구축
+
+과거 phase의 validation·예비 FPS·pseudo-GT 수치는 이번 독립 test 결과와 평가 범위가 다르다. 본 브랜치의 투고 근거는 `paper_evidence/`를 기준으로 한다.

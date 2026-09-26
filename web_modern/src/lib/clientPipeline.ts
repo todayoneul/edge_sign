@@ -68,11 +68,12 @@ export function postprocessDetections(
         bestC = c;
       }
     }
-    if (best <= confThres) continue;
+    if (!(best > confThres)) continue; // NaN이면 건너뜀
     const cx = at(a, 0);
     const cy = at(a, 1);
     const w = at(a, 2);
     const h = at(a, 3);
+    if (!Number.isFinite(cx + cy + w + h)) continue;
     cand.push({
       bbox: [cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2],
       score: best,
@@ -130,7 +131,8 @@ export function decodeEndToEnd(
   for (let a = 0; a < N; a++) {
     const o = a * 6;
     const conf = data[o + 4];
-    if (conf <= confThres) continue;
+    // NaN/Inf 행은 버림 (FP16 오버플로 대비, evaluate_qdq_detection.decode_v4와 동일)
+    if (!(conf > confThres) || !Number.isFinite(data[o] + data[o + 1] + data[o + 2] + data[o + 3] + data[o + 5])) continue;
     out.push({
       bbox: [
         Math.max(0, data[o]),
@@ -141,6 +143,48 @@ export function decodeEndToEnd(
       score: conf,
       cls: Math.round(data[o + 5]),
     });
+  }
+  return out;
+}
+
+// ── FP16 텐서 변환 (YOLO26-n FP16은 입출력이 FP16) ───────────────────────────
+// Float16Array (Chrome 135+) is not in the ES2023 lib typings, so read it from globalThis.
+type Float16Ctor = new (
+  src: ArrayLike<number> | ArrayBufferLike,
+  byteOffset?: number,
+  length?: number,
+) => ArrayLike<number> & { buffer: ArrayBufferLike };
+const Float16 = (globalThis as { Float16Array?: Float16Ctor }).Float16Array;
+
+/** float32 → IEEE half 비트(Uint16Array). Float16Array가 있으면 사용, 없으면 직접 변환. */
+export function toHalfBits(f32: Float32Array): Uint16Array {
+  if (Float16) return new Uint16Array(new Float16(f32).buffer);
+  const out = new Uint16Array(f32.length);
+  const view = new DataView(new ArrayBuffer(4));
+  for (let i = 0; i < f32.length; i++) {
+    view.setFloat32(0, f32[i]);
+    const x = view.getUint32(0);
+    const sign = (x >>> 16) & 0x8000;
+    const exp = ((x >>> 23) & 0xff) - 127 + 15;
+    const mant = x & 0x7fffff;
+    if (exp <= 0) out[i] = sign; // 비정규/언더플로 → 0 (0–1 입력에서 무시 가능한 오차)
+    else if (exp >= 31) out[i] = sign | 0x7c00;
+    else out[i] = sign | ((exp << 10) + ((mant + 0x1000) >>> 13)); // + so rounding carries into the exponent
+  }
+  return out;
+}
+
+/** FP16 출력(Uint16Array 비트 또는 Float16Array) → number 배열. 현재 모델 출력은 모두 FP32라 방어용. */
+export function fromHalf(data: ArrayLike<number>, type?: string): ArrayLike<number> {
+  if (type !== "float16" || !(data instanceof Uint16Array)) return data;
+  if (Float16) return new Float16(data.buffer, data.byteOffset, data.length);
+  const out = new Float32Array(data.length);
+  for (let i = 0; i < data.length; i++) {
+    const h = data[i];
+    const exp = (h >>> 10) & 0x1f;
+    const mant = h & 0x3ff;
+    const v = exp === 0 ? mant * 2 ** -24 : exp === 31 ? Infinity : (1 + mant / 1024) * 2 ** (exp - 15);
+    out[i] = h & 0x8000 ? -v : v;
   }
   return out;
 }
@@ -212,14 +256,16 @@ export type RoiSampler = (
 export interface OrtTensorLike {
   data: ArrayLike<number>;
   dims: readonly number[];
+  type?: string;
 }
 export interface OrtSession {
   inputNames: string[];
   outputNames: string[];
   run(feeds: Record<string, unknown>): Promise<Record<string, OrtTensorLike>>;
+  release?(): Promise<void>;
 }
 export interface OrtNamespace {
-  Tensor: new (type: string, data: Float32Array, dims: number[]) => unknown;
+  Tensor: new (type: string, data: Float32Array | Uint16Array, dims: number[]) => unknown;
   InferenceSession: {
     create(model: Uint8Array, opts: Record<string, unknown>): Promise<OrtSession>;
   };
@@ -236,6 +282,7 @@ export class ClientPipeline {
   private inputName = "images";
   private outputName = "output0";
   private detFormat: DetFormat = "v8";
+  private inputDtype: "float32" | "float16" = "float32";
   private tracker = new ByteTracker({ frameRate: 30 });
   private frameId = 0;
   activeEP = "—";
@@ -249,16 +296,24 @@ export class ClientPipeline {
   /**
    * ORT 네임스페이스 + 모델 바이트로 세션 생성. EP 순서대로 워밍업 검증 후 확정.
    * @param format 출력 디코딩 방식. "v8"(기본, [1,4+nc,8400]+NMS) | "yolo26"([1,N,6] NMS-free).
+   * @param inputDtype 입력 텐서 자료형. FP16 입력 모델(YOLO26-n FP16)만 "float16".
    */
   async load(
     ort: OrtNamespace,
     modelBytes: Uint8Array,
     eps: string[],
     format: DetFormat = "v8",
+    inputDtype: "float32" | "float16" = "float32",
   ): Promise<void> {
     this.ort = ort;
     this.detFormat = format;
-    if (ort.env?.wasm) ort.env.wasm.numThreads = 1;
+    this.inputDtype = inputDtype;
+    // 멀티스레드 WASM은 교차 출처 격리(COOP/COEP) 페이지에서만 가능 — 아니면 1스레드
+    if (ort.env?.wasm) {
+      const isolated = (globalThis as { crossOriginIsolated?: boolean }).crossOriginIsolated === true;
+      const cores = typeof navigator !== "undefined" ? navigator.hardwareConcurrency || 1 : 1;
+      ort.env.wasm.numThreads = isolated ? Math.min(4, cores) : 1;
+    }
     // 하이브리드 GPU(노트북) 환경에서 내장 GPU 대신 외장(고성능) GPU 선택 강제.
     // 미지정 시 브라우저가 저전력=내장을 골라 추론이 수배~수십배 느려짐.
     if (ort.env) {
@@ -266,17 +321,14 @@ export class ClientPipeline {
     }
     let lastErr: unknown = null;
     for (const ep of eps) {
+      let s: OrtSession | null = null;
       try {
-        const s = await ort.InferenceSession.create(modelBytes, {
+        s = await ort.InferenceSession.create(modelBytes, {
           executionProviders: [ep],
           graphOptimizationLevel: "all",
         });
-        // 워밍업 — WebGPU INT8 등 런타임 미지원을 로드 단계에서 감지(스파이크 교훈)
-        const warm = new ort.Tensor(
-          "float32",
-          new Float32Array(3 * DET_INPUT * DET_INPUT),
-          [1, 3, DET_INPUT, DET_INPUT],
-        );
+        // 워밍업 — 런타임 미지원 연산을 로드 단계에서 감지(스파이크 교훈)
+        const warm = this.detTensor(new Float32Array(3 * DET_INPUT * DET_INPUT));
         await s.run({ [s.inputNames[0]]: warm });
         this.session = s;
         this.inputName = s.inputNames[0];
@@ -285,6 +337,7 @@ export class ClientPipeline {
         return;
       } catch (e) {
         lastErr = e;
+        await s?.release?.().catch(() => {}); // 워밍업 실패한 세션 해제 후 다음 EP 시도
       }
     }
     throw lastErr ?? new Error("세션 생성 실패");
@@ -315,6 +368,15 @@ export class ClientPipeline {
       }
     }
     throw lastErr ?? new Error("분류기 세션 생성 실패");
+  }
+
+  /** 검출기 입력 텐서 [1,3,640,640] (모델 입력 자료형에 맞춤). */
+  private detTensor(f32: Float32Array): unknown {
+    if (!this.ort) throw new Error("미로드");
+    const dims = [1, 3, DET_INPUT, DET_INPUT];
+    return this.inputDtype === "float16"
+      ? new this.ort.Tensor("float16", toHalfBits(f32), dims)
+      : new this.ort.Tensor("float32", f32, dims);
   }
 
   get loaded(): boolean {
@@ -353,16 +415,16 @@ export class ClientPipeline {
     this.frameId += 1;
     const t0 = performance.now();
 
-    const input = imageDataToNCHW(rgba640);
-    const tensor = new this.ort.Tensor("float32", input, [1, 3, DET_INPUT, DET_INPUT]);
+    const tensor = this.detTensor(imageDataToNCHW(rgba640));
     const out = await this.session.run({ [this.inputName]: tensor });
     const tDetect = performance.now();
 
     const o = out[this.outputName];
+    const data = fromHalf(o.data, o.type);
     let dets =
       this.detFormat === "yolo26"
-        ? decodeEndToEnd(o.data, o.dims)
-        : postprocessDetections(o.data, o.dims);
+        ? decodeEndToEnd(data, o.dims)
+        : postprocessDetections(data, o.dims);
     dets = scaleDetections(dets, srcW, srcH);
 
     const stracks = this.tracker.update(dets);
@@ -411,6 +473,14 @@ export class ClientPipeline {
         recognize: Math.round((tRecognize - tTrack) * 10) / 10,
       },
     };
+  }
+
+  /** 모델 교체 시 GPU/WASM 메모리 해제 (세션이 누적되면 내장 GPU에서 페이지가 멈출 수 있음). */
+  async release(): Promise<void> {
+    const sessions = [this.session, this.clsSession];
+    this.session = null;
+    this.clsSession = null;
+    for (const s of sessions) await s?.release?.().catch(() => {});
   }
 
   reset(): void {

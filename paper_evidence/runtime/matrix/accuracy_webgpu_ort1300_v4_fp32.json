@@ -1,0 +1,36 @@
+{
+  "run": "accuracy_webgpu_ort1300_v4_fp32",
+  "model": "v4_fp32",
+  "ep": "webgpu",
+  "mode": "accuracy",
+  "runtime": "onnxruntime-web",
+  "ort_web_version": "1.30.0",
+  "input_dtype": "float32",
+  "status": "completed",
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+  "hardware_concurrency": 12,
+  "cross_origin_isolated": false,
+  "requested_wasm_threads": 1,
+  "warmup": 20,
+  "iterations": 1024,
+  "adapter": {
+    "vendor": "nvidia",
+    "architecture": "blackwell",
+    "device": "",
+    "description": "",
+    "is_fallback": false,
+    "shader_f16": true
+  },
+  "effective_wasm_threads": 1,
+  "model_bytes": 9805975,
+  "model_sha256": "4133272b340bc2e788277edce1b4abe3e41126df9d697746a06315fd5603c6f1",
+  "session_init_ms": 2327.0999999940395,
+  "frames": 2417,
+  "logs": [
+    "[error] \u001b[0;93m2026-09-25 23:54:42.185799 [W:onnxruntime:, session_state.cc:1397 VerifyEachNodeIsAssignedToAnEp] Some nodes were not assigned to the preferred execution providers which may or may not have an negative impact on performance. e.g. ORT explicitly assigns shape related ops to CPU to improve perf.\u001b[m",
+    "[error] \u001b[0;93m2026-09-25 23:54:42.187499 [W:onnxruntime:, session_state.cc:1399 VerifyEachNodeIsAssignedToAnEp] Rerunning with verbose output on a non-minimal build will show node assignments.\u001b[m"
+  ],
+  "log_lines_total": 2,
+  "mAP50": 0.4998653983500992,
+  "mAP50_95": 0.2421810989967712
+}

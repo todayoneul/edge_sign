@@ -1,0 +1,23 @@
+{
+  "run": "accuracy_wasm_ort1300_v4_fp32",
+  "model": "v4_fp32",
+  "ep": "wasm",
+  "mode": "accuracy",
+  "runtime": "onnxruntime-web",
+  "ort_web_version": "1.30.0",
+  "input_dtype": "float32",
+  "status": "unsupported",
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+  "hardware_concurrency": 12,
+  "cross_origin_isolated": false,
+  "requested_wasm_threads": 1,
+  "warmup": 20,
+  "iterations": 1024,
+  "effective_wasm_threads": 1,
+  "model_bytes": 9805975,
+  "model_sha256": "4133272b340bc2e788277edce1b4abe3e41126df9d697746a06315fd5603c6f1",
+  "session_init_ms": 2417.800000011921,
+  "reason": "TypeError: Failed to fetch\n    at frameBytes (http://127.0.0.1:8791/runtime_matrix.html?run=accuracy_wasm_ort1300_v4_fp32&model=v4_fp32&ep=wasm&mode=accuracy&ort=1.30.0&dtype=float32&warmup=20&iterations=1024&limit=0&threads=1&size=640&norm=unit:29:19)\n    at main (http://127.0.0.1:8791/runtime_matrix.html?run=accuracy_wasm_ort1300_v4_fp32&model=v4_fp32&ep=wasm&mode=accuracy&ort=1.30.0&dtype=float32&warmup=20&iterations=1024&limit=0&threads=1&size=640&norm=unit:78:69)\n    at async http://127.0.0.1:8791/runtime_matrix.html?run=accuracy_wasm_ort1300_v4_fp32&model=v4_fp32&ep=wasm&mode=accuracy&ort=1.30.0&dtype=float32&warmup=20&iterations=1024&limit=0&threads=1&size=640&norm=unit:108:7",
+  "logs": [],
+  "log_lines_total": 0
+}

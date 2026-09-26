@@ -1,0 +1,56 @@
+{
+  "run": "speed_webgpu_ort1220_v4_fp32",
+  "model": "v4_fp32",
+  "ep": "webgpu",
+  "mode": "speed",
+  "runtime": "onnxruntime-web",
+  "ort_web_version": "1.22.0",
+  "input_dtype": "float32",
+  "status": "completed",
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+  "hardware_concurrency": 12,
+  "cross_origin_isolated": false,
+  "requested_wasm_threads": 1,
+  "warmup": 20,
+  "iterations": 1024,
+  "adapter": {
+    "vendor": "nvidia",
+    "architecture": "blackwell",
+    "device": "",
+    "description": "",
+    "is_fallback": false,
+    "shader_f16": true
+  },
+  "effective_wasm_threads": 1,
+  "model_bytes": 9805975,
+  "model_sha256": "4133272b340bc2e788277edce1b4abe3e41126df9d697746a06315fd5603c6f1",
+  "session_init_ms": 1802.5,
+  "first_inference_ms": 1479.1000000238419,
+  "metrics": {
+    "prepare_ms": {
+      "n": 1024,
+      "mean_ms": 6.923535155743593,
+      "std_ms": 0.7732609037954983,
+      "p50_ms": 6.699999988079071,
+      "p90_ms": 7.700000017881393,
+      "p95_ms": 8.684999988973132,
+      "p99_ms": 10.076999995410441,
+      "fps": 144.43488442034194
+    },
+    "inference_ms": {
+      "n": 1024,
+      "mean_ms": 14.72744140677969,
+      "std_ms": 2.028266775182752,
+      "p50_ms": 14.650000005960464,
+      "p90_ms": 16.69999998807907,
+      "p95_ms": 17.69999998807907,
+      "p99_ms": 22.20000001102686,
+      "fps": 67.90045686684287
+    }
+  },
+  "logs": [
+    "[error] \u001b[0;93m2026-09-25 23:51:48.447499 [W:onnxruntime:, session_state.cc:1280 VerifyEachNodeIsAssignedToAnEp] Some nodes were not assigned to the preferred execution providers which may or may not have an negative impact on performance. e.g. ORT explicitly assigns shape related ops to CPU to improve perf.\u001b[m",
+    "[error] \u001b[0;93m2026-09-25 23:51:48.448799 [W:onnxruntime:, session_state.cc:1282 VerifyEachNodeIsAssignedToAnEp] Rerunning with verbose output on a non-minimal build will show node assignments.\u001b[m"
+  ],
+  "log_lines_total": 2
+}

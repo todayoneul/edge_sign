@@ -67,6 +67,8 @@ CNN_Quant/
 │   │   ├── sources.py           # [SP1] FrameSource 추상화 (Image/VideoFile/UrlStream) — 모든 코덱 디코딩
 │   │   ├── session.py           # [SP1] 서버 스트림 세션 매니저 (단일 세션 + 재생 제어)
 │   │   ├── app.py               # FastAPI 서버 (WS /ws/stream·/ws/session, /api/ingest, /api/qa SSE)
+│   │   ├── paper_v4.py          # [TIIS] YOLO26 v4 논문 측정 전용 경로 — EDGE_SIGN_PAPER_V4=1일 때만
+│   │   │                        #   /api/paper-v4/status·/ws/paper-v4 등록 (v3 데모 경로와 분리)
 │   │   └── logging_config.py    # [SP-A] 중앙 loguru 설정 + stdlib 인터셉트 (서버 startup 1회 호출)
 │   └── quant/                   # [Phase 2] 파이프라인 양자화
 │       ├── quantize_yolo.py     # W8A8/W4A16/SmoothQuant PTQ 구현
@@ -81,11 +83,12 @@ CNN_Quant/
 │
 ├── web_modern/                  # [SP-C] 웹 프론트엔드 (React 19 + Vite + TS) — 유일한 프론트
 │   ├── src/                     # 검출+추적+인식+Q&A 콘솔: components·hooks·store·lib·styles
-│   │   │                        #   양자화 A/B(PerfStrip)·단계 stage_ms·BYOK Q&A·통합 seek
-│   │   │                        #   서버⇄온디바이스 토글(Controls) — 추론을 브라우저 WebGPU로
+│   │   │                        #   온디바이스 모델 선택(PerfStrip)·단계 stage_ms·BYOK Q&A·통합 seek
+│   │   │                        #   추론은 온디바이스 고정; 서버는 Q&A와 브라우저가 못 여는 입력(ingest)만
 │   │   ├── lib/byteTrack.ts     # [SP-C] ByteTrack TS 포팅(클라 추적) — bytetrack.py 골든 검증
-│   │   ├── lib/clientPipeline.ts # [SP-C] 온디바이스 검출+추적(ORT-Web) → FrameResult (서버 렌더 재사용)
-│   │   └── hooks/useClientPipeline.ts # [SP-C] ORT-Web 로드(WebGPU ESM)+모델 fetch+추론
+│   │   ├── lib/models.ts        # [TIIS] 온디바이스 검출기 카탈로그: YOLO26-n/YOLOv8s × FP32/FP16/INT8 × WebGPU/WASM
+│   │   ├── lib/clientPipeline.ts # [SP-C] 온디바이스 검출+추적+인식(ORT-Web) → FrameResult (서버 렌더 재사용)
+│   │   └── hooks/useClientPipeline.ts # [SP-C] ORT-Web 1.30 로드+모델 fetch+추론 (ORT 호출 직렬화, 인식기 WASM)
 │   ├── public/
 │   │   ├── ocr/                 # Phase 1 한글 OCR 캔버스 데모(ORT-Web) — /detection/ocr/ 로 체험
 │   │   └── spike/               # [SP-C] 브라우저 온디바이스 타당성 스파이크 — /detection/spike/
@@ -112,6 +115,13 @@ CNN_Quant/
 │   │                            #   (스파이크 실측: INT8은 WebGPU 불가, fp16은 지원·크기 절반)
 │   ├── export_bytetrack_golden.py # [SP-C] ByteTrack 골든 출력 생성 → byteTrack.ts 검증 fixture
 │   ├── analyze_quant_collapse.py # [Phase 12] 붕괴 '원인' 분석(data-free) — OCR=비트폭/헤드=활성화 규명, README §8.3
+│   ├── paper/                   # [TIIS] 논문 근거 재검증: 분할 고정·QDQ 재평가·런타임·Space 측정
+│   │                            #   (benchmark_hf_space.py는 Python ≥3.11 필요 — 결과는 paper_evidence/)
+│   │                            #   runtime_matrix.py(+.html, browser_pipeline.html): 구성요소×정밀도×실행 환경
+│   │                            #   정확도·지연·연산자 배치·브라우저 파이프라인 → summarize/plot_runtime_matrix.py
+│   │                            #   quantize_detector_variants.py·recognizer_variants.py(QDQ 변형 생성, 덮어쓰기 금지)
+│   │                            #   weight_only_ablation.py·bootstrap_retention.py(원인 분석·CI)
+│   │                            #   export_device_bundle.py + run_device_matrix.sh(두 번째 기기 측정)
 │   └── archive/                 # 종료된 Phase 1·4·5 실험·플롯·벤치마크·다운로드 스크립트 보관
 │                                #   (plot_pareto/sensitivity/v2_extras/detection_samples,
 │                                #    benchmark_pipeline, quantize_onnx_real, download_*, export_* 등)
@@ -182,8 +192,9 @@ python scripts/build_demo_video.py --full --fps 15         # (옵션) 시퀀스 
 
 uvicorn src.pipeline.app:app --reload --port 8000
 # 브라우저 → http://localhost:8000/detection/   (헤더 'OCR 데모' → /detection/ocr/ 한글 OCR 캔버스)
-# [SP-C] 컨트롤 바 '서버 ⇄ 온디바이스' 토글 → 검출+추적+인식을 브라우저 WebGPU로 직접 실행
-#   (fp32/fp16 토글, /detection/spike/ 는 EP·FPS 실측 스파이크, /api/labels 인식 메타).
+# 검출+추적+인식은 브라우저에서 실행(온디바이스). '온디바이스 검출기' 칸에서
+#   YOLO26-n/YOLOv8s × FP32/FP16/INT8 × WebGPU/WASM 선택 (재생 중 변경 즉시 반영).
+#   /detection/spike/ 는 EP·FPS 실측 스파이크, /api/labels 인식 메타.
 #   온디바이스 fp16 사용 시: KMP_DUPLICATE_LIB_OK=TRUE python scripts/export_fp16_detector.py
 # [SP1] 범용 입력: 웹캠·이미지·URL/RTSP·모든 코덱 영상 지원.
 #   - H.264 등 브라우저 호환 영상/웹캠 → 클라 캡처(/ws/stream), 클라가 박스 렌더
