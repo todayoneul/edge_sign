@@ -1,0 +1,148 @@
+{
+  "v3_post_norm": {
+    "changes": {
+      "stride_tensor": "/model.22/Constant_15_output_0",
+      "inserted": "/model.22/BriqPostNorm"
+    },
+    "fp32_check": {
+      "frames": 64,
+      "max_abs_box_px": 3.0517578125e-05,
+      "max_abs_score_or_class": 0.0,
+      "passed": true
+    },
+    "source": "model_space/yolov8s_signs_v3_fp32.onnx",
+    "source_sha256": "033615c8ec96a62b36e3c5c3e4bd586403c165f9cb519f4352f3c33e50f8f323",
+    "fp32_model": "model_space/yolov8s_signs_v3_post_norm_fp32.onnx",
+    "fp32_sha256": "d1fae681a320b66cbf12018ae4fcc98a1c707c2800183c3b1b926bb41da43399",
+    "fp32_bytes": 44747596,
+    "int8_model": "model_space/yolov8s_signs_v3_post_norm_int8_full.onnx",
+    "int8_sha256": "9f5d2bef8b95c10cd3cf8672c285d386a4ce4d182c1be2bccd59e6c160cebe81",
+    "int8_bytes": 11656388,
+    "int8_quantize_linear": 241,
+    "int8_box_scales": {
+      "/model.22/dfl/Reshape_1_output_0": 0.04687318205833435,
+      "/model.22/Concat_2_output_0": 0.3141717314720154,
+      "/model.22/Mul_2_output_0": 2.513373851776123,
+      "briq_boxes_norm": 0.003927146550267935,
+      "output0_QuantizeLinear_Input": 0.003927146550267935
+    }
+  },
+  "v3_pre_norm": {
+    "changes": {
+      "stride_tensor": "/model.22/Constant_15_output_0",
+      "inserted": "/model.22/BriqPreNorm",
+      "removed": "/model.22/Mul_2"
+    },
+    "fp32_check": {
+      "frames": 64,
+      "max_abs_box_px": 0.0001220703125,
+      "max_abs_score_or_class": 0.0,
+      "passed": true
+    },
+    "source": "model_space/yolov8s_signs_v3_fp32.onnx",
+    "source_sha256": "033615c8ec96a62b36e3c5c3e4bd586403c165f9cb519f4352f3c33e50f8f323",
+    "fp32_model": "model_space/yolov8s_signs_v3_pre_norm_fp32.onnx",
+    "fp32_sha256": "a72738083508fef4d9ec72effb3c5e659b0cc1fc53cf7262136e05153c594952",
+    "fp32_bytes": 44915544,
+    "int8_model": "model_space/yolov8s_signs_v3_pre_norm_int8_full.onnx",
+    "int8_sha256": "44bb78d23ef1879df1303408efd17a8eab1da2dffbfe1c6f54724f3cddc3025b",
+    "int8_bytes": 11655076,
+    "int8_quantize_linear": 240,
+    "int8_box_scales": {
+      "/model.22/dfl/Reshape_1_output_0": 0.04687318205833435,
+      "briq_dist_norm": 0.0011718295281752944,
+      "/model.22/Concat_2_output_0": 0.003927146550267935,
+      "output0_QuantizeLinear_Input": 0.003927146550267935
+    }
+  },
+  "v4_post_norm": {
+    "changes": {
+      "stride_tensor": "/model.23/Constant_14_output_0",
+      "inserted": "/model.23/BriqPostNorm"
+    },
+    "fp32_check": {
+      "frames": 64,
+      "max_abs_box_px": 6.103515625e-05,
+      "max_abs_score_or_class": 0.0,
+      "passed": true
+    },
+    "source": "model_space/yolo_v4_signs_fp32.onnx",
+    "source_sha256": "4133272b340bc2e788277edce1b4abe3e41126df9d697746a06315fd5603c6f1",
+    "fp32_model": "model_space/yolo_v4_signs_post_norm_fp32.onnx",
+    "fp32_sha256": "8ec4f7f3f214ca43a7bc1ba6670b652592cd10b8a6a5ae9505b8e4d0f864bff0",
+    "fp32_bytes": 9806076,
+    "int8_model": "model_space/yolo_v4_signs_post_norm_int8_full.onnx",
+    "int8_sha256": "c87b3b174dad68683c0922a50ac1869d1701677b8d8714031506ad7b19833a95",
+    "int8_bytes": 3099341,
+    "int8_quantize_linear": 388,
+    "int8_box_scales": {
+      "/model.23/Concat_output_0": 0.0452592633664608,
+      "/model.23/Concat_2_output_0": 0.334667444229126,
+      "/model.23/Mul_2_output_0": 3.716289520263672,
+      "briq_boxes_norm": 0.005806702189147472,
+      "/model.23/Concat_3_output_0": 0.005806702189147472,
+      "output0_QuantizeLinear_Input": 0.003965709358453751
+    }
+  },
+  "v4_pre_norm": {
+    "changes": {
+      "stride_tensor": "/model.23/Constant_14_output_0",
+      "inserted": "/model.23/BriqPreNorm",
+      "removed": "/model.23/Mul_2"
+    },
+    "fp32_check": {
+      "frames": 64,
+      "max_abs_box_px": 6.103515625e-05,
+      "max_abs_score_or_class": 0.0,
+      "passed": true
+    },
+    "source": "model_space/yolo_v4_signs_fp32.onnx",
+    "source_sha256": "4133272b340bc2e788277edce1b4abe3e41126df9d697746a06315fd5603c6f1",
+    "fp32_model": "model_space/yolo_v4_signs_pre_norm_fp32.onnx",
+    "fp32_sha256": "7acdb74876034c931000ad3fb5e0b2874c5ee9fe741c7ee067155798c6d16914",
+    "fp32_bytes": 9974031,
+    "int8_model": "model_space/yolo_v4_signs_pre_norm_int8_full.onnx",
+    "int8_sha256": "88b81c7fbbccdef549fddf26dc3fecd1dd6c54d26496260ef05ceda6ddd73eb0",
+    "int8_bytes": 3098092,
+    "int8_quantize_linear": 387,
+    "int8_box_scales": {
+      "/model.23/Concat_output_0": 0.0452592633664608,
+      "briq_dist_norm": 0.0018423215951770544,
+      "/model.23/Concat_2_output_0": 0.00580670265480876,
+      "/model.23/Concat_3_output_0": 0.00580670265480876,
+      "output0_QuantizeLinear_Input": 0.003965708892792463
+    }
+  },
+  "v4_fold_norm": {
+    "changes": {
+      "stride_tensor": "/model.23/Constant_14_output_0",
+      "folded_convs": [
+        "/model.23/one2one_cv2.0/one2one_cv2.0.2/Conv",
+        "/model.23/one2one_cv2.1/one2one_cv2.1.2/Conv",
+        "/model.23/one2one_cv2.2/one2one_cv2.2.2/Conv"
+      ],
+      "removed": "/model.23/Mul_2"
+    },
+    "fp32_check": {
+      "frames": 64,
+      "max_abs_box_px": 6.103515625e-05,
+      "max_abs_score_or_class": 0.0,
+      "passed": true
+    },
+    "source": "model_space/yolo_v4_signs_fp32.onnx",
+    "source_sha256": "4133272b340bc2e788277edce1b4abe3e41126df9d697746a06315fd5603c6f1",
+    "fp32_model": "model_space/yolo_v4_signs_fold_norm_fp32.onnx",
+    "fp32_sha256": "4b723919af458eba7d9cb041407e860f16ad032f51f16e21a742fcf7c9c5e48b",
+    "fp32_bytes": 9941205,
+    "int8_model": "model_space/yolo_v4_signs_fold_norm_int8_full.onnx",
+    "int8_sha256": "222e4933ae79466784b37e0b2f6102cf07811b431d507085a0c246ebee9cac3c",
+    "int8_bytes": 3088022,
+    "int8_quantize_linear": 386,
+    "int8_box_scales": {
+      "/model.23/Concat_output_0": 0.0018423215951770544,
+      "/model.23/Concat_2_output_0": 0.00580670265480876,
+      "/model.23/Concat_3_output_0": 0.00580670265480876,
+      "output0_QuantizeLinear_Input": 0.003965708892792463
+    }
+  }
+}

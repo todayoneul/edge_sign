@@ -1,0 +1,11 @@
+{
+  "commit": "09db022f276e1b8f0e698475478ed3a9a9f6b2be",
+  "onnxruntime": "1.23.2",
+  "onnx": "1.21.0",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "calibration_manifest": "paper_evidence/splits/calibration_manifest.jsonl",
+  "calibration_manifest_sha256": "8823686475b1a0ebc7ff2af913821daec6e5278ed52a519b17775ba1bd0cfc7c",
+  "test_manifest_sha256": "2f2a421d15d1f7ac96c3e92720537cee816eeb166afaa9c75ffce074f33f8471",
+  "threads": 4,
+  "quantization": "quant_pre_process + quantize_static QDQ MinMax, per-channel QInt8 weights, QUInt8 activations, ActivationSymmetric False, WeightSymmetric True, INT32 bias, no exclusions"
+}

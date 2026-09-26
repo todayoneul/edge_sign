@@ -9,7 +9,7 @@ Detections are read from the saved ORT CPU predictions (runtime_matrix.py accura
 runs), so the figure shows exactly what the accuracy numbers were computed from.
 
 Usage: python scripts/paper/plot_qualitative.py --artifact-root <checkout with data/>
-Output: paper_evidence/figures/fig10_qualitative.png
+Output: paper_evidence/figures/fig10_qualitative.{pdf,png} (shared paper style, paper_style.py)
 """
 
 from __future__ import annotations
@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import gzip
 import json
+import sys
 from pathlib import Path
 
 import cv2
@@ -26,8 +27,11 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from scripts.paper.paper_style import FULL_WIDTH, OKABE_ITO, apply, save
+
 VARIANTS = [("v4_fp32", "FP32"), ("v4_int8_full", "INT8 full graph"), ("v4_int8_head_excl", "INT8 head kept FP32")]
-COLOR = {0: "#00e5ff", 1: "#ff6d00"}  # traffic sign, traffic light
+COLOR = {0: OKABE_ITO["sky"], 1: OKABE_ITO["orange"]}  # traffic sign, traffic light
 CONF = 0.25
 
 
@@ -65,14 +69,15 @@ def main() -> None:
     parser.add_argument("--matrix", type=Path, default=Path("paper_evidence/runtime/matrix"))
     parser.add_argument("--out", type=Path, default=Path("paper_evidence/figures/fig10_qualitative.png"))
     args = parser.parse_args()
+    apply()
     rows = [json.loads(line) for line in args.manifest.read_text(encoding="utf-8").splitlines()]
     preds = {key: predictions(args.matrix / f"cpu_{key}") for key, _ in VARIANTS}
     frames = pick_frames(rows)
     # rows = precision variants, columns = frames; each panel keeps the crop's aspect ratio
     crops = [crop_box(rows[i]["boxes_xyxy"], rows[i]["width"], rows[i]["height"]) for i in frames]
     ratios = [(c[2] - c[0]) / (c[3] - c[1]) for c in crops]
-    panel_h = 7.0 / sum(ratios)
-    fig, axes = plt.subplots(len(VARIANTS), len(frames), figsize=(7.2, panel_h * len(VARIANTS) + 0.5),
+    panel_h = (FULL_WIDTH - 0.3) / sum(ratios)
+    fig, axes = plt.subplots(len(VARIANTS), len(frames), figsize=(FULL_WIDTH, panel_h * len(VARIANTS) + 0.35),
                              gridspec_kw={"width_ratios": ratios, "wspace": 0.03, "hspace": 0.05})
     for c, index in enumerate(frames):
         row = rows[index]
@@ -91,18 +96,19 @@ def main() -> None:
                 x1, y1, x2, y2 = d["box_xyxy"]
                 color = COLOR[d["class_id"]]
                 ax.add_patch(Rectangle((x1 - left, y1 - top), x2 - x1, y2 - y1, fill=False, ec=color, lw=1.4))
-                ax.text(x1 - left, y1 - top - 3, f"{d['confidence']:.2f}", color=color, fontsize=5.5, va="bottom")
+                ax.text(x1 - left, y1 - top - 3, f"{d['confidence']:.2f}", color=color, fontsize=6, va="bottom")
             ax.set_xticks([])
             ax.set_yticks([])
+            for spine in ax.spines.values():
+                spine.set_visible(False)
             if r == 0:
-                ax.set_title(f"test frame {index} ({len(row['boxes_xyxy'])} objects)", fontsize=8.5)
+                ax.set_title(f"({'ab'[c]}) test frame {index}, {len(row['boxes_xyxy'])} objects", fontsize=8, loc="left")
             if c == 0:
-                ax.set_ylabel(title, fontsize=8.5)
+                ax.set_ylabel(title, fontsize=8)
             ax.text(0.01, 0.98, f"{len(shown)} detections", transform=ax.transAxes, va="top",
-                    fontsize=7, color="white", bbox={"facecolor": "black", "alpha": 0.55, "pad": 1.5, "lw": 0})
-    fig.subplots_adjust(left=0.05, right=0.995, top=0.95, bottom=0.01)
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(args.out, dpi=200)
+                    fontsize=6.5, color="white", bbox={"facecolor": "black", "alpha": 0.55, "pad": 1.2, "lw": 0})
+    fig.subplots_adjust(left=0.045, right=0.998, top=0.95, bottom=0.005)
+    save(fig, args.out, dpi=300)  # photographs
     print("wrote", args.out, "frames", frames)
 
 

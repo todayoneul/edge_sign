@@ -389,6 +389,13 @@
   - Fig. 4–5를 Windows·Mac 비교 그림(fig11·fig12)으로 교체.
   - Mac 배경 부하를 재집계(13%, 사용자 Chrome 포함).
   - `matrix/summary.json`을 COCO 재측정값으로 갱신.
+- [x] Moon 등(YOLOv6+) 선행 연구 반영과 기여 재정의, 단일 척도 부등식(식 6) 추가 (2026-09-27)
+- [x] 추가 실험 (2026-09-27, [extra/](../paper_evidence/extra/README.md)):
+  - 좌표 정규화 기준선: 붕괴는 사라짐, 유지율 34–55%.
+  - Percentile·Entropy 보정: 전체 INT8은 여전히 붕괴. 헤드 제외는 99% 통과 구성 없음(YOLOv8s Percentile 98.99%는 보류).
+  - 크기별 유지율: 좌표를 양자화하면 작은 객체의 손실이 큼 (사전 규칙으로 지지).
+  - YOLOv8s 종단 정확도: 98.2%.
+- [x] 논문 그림 공통 스타일(`paper_style.py`)과 표 캡션 형식 정리 (2026-09-27)
 - [ ] Mac 조용한 환경 재측정: WASM FP32 대 INT8 (`run_mac_wasm_recheck.sh`, [안내 8절](../paper_evidence/reports/DEVICE_MEASUREMENT_GUIDE.md))
 - [ ] 기준안 확정 후 카메라/렌더 포함 경로를 재측정하고 판정
 - [ ] 야간/다른 장소 test 확장 및 가능한 경우 manual identity GT 구축

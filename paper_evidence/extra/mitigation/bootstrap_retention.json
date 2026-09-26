@@ -1,0 +1,88 @@
+{
+  "resamples": 1000,
+  "seed": 0,
+  "block_frames": 25,
+  "note": "frame bootstrap is optimistic (frames within a sequence are correlated); see block",
+  "pairs": {
+    "v3_post_norm_int8_full": {
+      "reference": "v3_fp32",
+      "retention": 0.3413769502589083,
+      "frame": {
+        "ci95_low": 0.3289822640511238,
+        "ci95_high": 0.35602836236059704,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      },
+      "block": {
+        "ci95_low": 0.3256469041734205,
+        "ci95_high": 0.36199386664917776,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      }
+    },
+    "v3_pre_norm_int8_full": {
+      "reference": "v3_fp32",
+      "retention": 0.5502669412465843,
+      "frame": {
+        "ci95_low": 0.5352479543595797,
+        "ci95_high": 0.5657140116202856,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      },
+      "block": {
+        "ci95_low": 0.5278959620975432,
+        "ci95_high": 0.5769102948541783,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      }
+    },
+    "v4_fold_norm_int8_full": {
+      "reference": "v4_fp32",
+      "retention": 0.5098309754614506,
+      "frame": {
+        "ci95_low": 0.49276920610711406,
+        "ci95_high": 0.5272904725715906,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      },
+      "block": {
+        "ci95_low": 0.48678594017245513,
+        "ci95_high": 0.5356807450197285,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      }
+    },
+    "v4_post_norm_int8_full": {
+      "reference": "v4_fp32",
+      "retention": 0.42413425029409174,
+      "frame": {
+        "ci95_low": 0.4089550100940176,
+        "ci95_high": 0.4387743892948626,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      },
+      "block": {
+        "ci95_low": 0.40803530302537716,
+        "ci95_high": 0.447111356610641,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      }
+    },
+    "v4_pre_norm_int8_full": {
+      "reference": "v4_fp32",
+      "retention": 0.5090223575517745,
+      "frame": {
+        "ci95_low": 0.49436662332210296,
+        "ci95_high": 0.525545537632829,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      },
+      "block": {
+        "ci95_low": 0.4883834720559274,
+        "ci95_high": 0.5335473640173884,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      }
+    }
+  }
+}

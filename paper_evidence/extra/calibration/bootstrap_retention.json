@@ -1,0 +1,136 @@
+{
+  "resamples": 1000,
+  "seed": 0,
+  "block_frames": 25,
+  "note": "frame bootstrap is optimistic (frames within a sequence are correlated); see block",
+  "pairs": {
+    "v3_int8_full_entropy": {
+      "reference": "v3_fp32",
+      "retention": 0.0,
+      "frame": {
+        "ci95_low": 0.0,
+        "ci95_high": 0.0,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      },
+      "block": {
+        "ci95_low": 0.0,
+        "ci95_high": 0.0,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      }
+    },
+    "v3_int8_full_percentile": {
+      "reference": "v3_fp32",
+      "retention": 0.0,
+      "frame": {
+        "ci95_low": 0.0,
+        "ci95_high": 0.0,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      },
+      "block": {
+        "ci95_low": 0.0,
+        "ci95_high": 0.0,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      }
+    },
+    "v3_int8_head_excl_entropy": {
+      "reference": "v3_fp32",
+      "retention": 0.9287411845749153,
+      "frame": {
+        "ci95_low": 0.9191556891670115,
+        "ci95_high": 0.9389741208181264,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      },
+      "block": {
+        "ci95_low": 0.9137609468600402,
+        "ci95_high": 0.9428122698476036,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 0.998
+      }
+    },
+    "v3_int8_head_excl_percentile": {
+      "reference": "v3_fp32",
+      "retention": 0.9899059573159358,
+      "frame": {
+        "ci95_low": 0.9862024907129971,
+        "ci95_high": 0.9933824890873177,
+        "share_below_0.99": 0.513,
+        "share_below_0.95": 0.0
+      },
+      "block": {
+        "ci95_low": 0.9859841030061025,
+        "ci95_high": 0.9939682377919768,
+        "share_below_0.99": 0.493,
+        "share_below_0.95": 0.0
+      }
+    },
+    "v4_int8_full_entropy": {
+      "reference": "v4_fp32",
+      "retention": 0.0,
+      "frame": {
+        "ci95_low": 0.0,
+        "ci95_high": 0.0,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      },
+      "block": {
+        "ci95_low": 0.0,
+        "ci95_high": 0.0,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      }
+    },
+    "v4_int8_full_percentile": {
+      "reference": "v4_fp32",
+      "retention": 0.0,
+      "frame": {
+        "ci95_low": 0.0,
+        "ci95_high": 0.0,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      },
+      "block": {
+        "ci95_low": 0.0,
+        "ci95_high": 0.0,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 1.0
+      }
+    },
+    "v4_int8_head_excl_entropy": {
+      "reference": "v4_fp32",
+      "retention": 0.9558471043040673,
+      "frame": {
+        "ci95_low": 0.947952787573885,
+        "ci95_high": 0.9637081414466784,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 0.087
+      },
+      "block": {
+        "ci95_low": 0.9451094380073587,
+        "ci95_high": 0.9658323020643527,
+        "share_below_0.99": 1.0,
+        "share_below_0.95": 0.142
+      }
+    },
+    "v4_int8_head_excl_percentile": {
+      "reference": "v4_fp32",
+      "retention": 0.9835652204895393,
+      "frame": {
+        "ci95_low": 0.9779974553809305,
+        "ci95_high": 0.9889479398782967,
+        "share_below_0.99": 0.991,
+        "share_below_0.95": 0.0
+      },
+      "block": {
+        "ci95_low": 0.97744800730038,
+        "ci95_high": 0.9896876406683639,
+        "share_below_0.99": 0.983,
+        "share_below_0.95": 0.0
+      }
+    }
+  }
+}

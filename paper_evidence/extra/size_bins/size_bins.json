@@ -1,0 +1,619 @@
+{
+  "commit": "09db022f276e1b8f0e698475478ed3a9a9f6b2be",
+  "hypothesis": "Accuracy retention per object-size bin from saved predictions (no new inference).\n\nHypothesis (fixed before this script computed any retention): coordinate quantization costs\nsmall objects more. An 8-bit tensor that spans 0-640 px has a step of about 2.5 px at the model\ninput, which is large for the road objects (median side 8.7 px at 640 input).\nDecision rule: supported only if, in each of the three coordinate-quantized conditions\n(v3 a8sim_decode_no_outconcat, v4 a8sim_decode_no_collapse, COCO a8sim_decode_no_outconcat),\nretention in the smallest bin is below retention in the largest bin and the 95% bootstrap CI of\nthe paired difference (large - small) excludes 0. Otherwise the claim stays out of the paper.",
+  "road_bins_side_px_at_640": {
+    "small": [
+      0.0,
+      8.0
+    ],
+    "medium": [
+      8.0,
+      16.0
+    ],
+    "large": [
+      16.0,
+      100000.0
+    ]
+  },
+  "coco_bins_side_px": {
+    "small": [
+      0.0,
+      32.0
+    ],
+    "medium": [
+      32.0,
+      96.0
+    ],
+    "large": [
+      96.0,
+      100000.0
+    ]
+  },
+  "resamples": 1000,
+  "seed": 0,
+  "workloads": {
+    "road_v3": {
+      "gt_counts": {
+        "all": 6772,
+        "small": 1870,
+        "medium": 2755,
+        "large": 2183
+      },
+      "images": 2417,
+      "conditions": {
+        "fp32": {
+          "meta": {
+            "model": "v3_fp32",
+            "model_path": "model_space/yolov8s_signs_v3_fp32.onnx",
+            "model_sha256": "033615c8ec96a62b36e3c5c3e4bd586403c165f9cb519f4352f3c33e50f8f323",
+            "mAP50_95": 0.2807514357786426,
+            "mAP50": 0.565269644120235,
+            "frames_evaluated": 2417
+          },
+          "AP": {
+            "all": 0.28252371645056373,
+            "small": 0.06298966239868534,
+            "medium": 0.24750236261416173,
+            "large": 0.4816632117060978
+          }
+        },
+        "int8_head_excl": {
+          "meta": {
+            "model": "v3_int8_head_excl",
+            "model_path": "model_space/yolov8s_signs_v3_int8_static.onnx",
+            "model_sha256": "cac42647fd5781c808f3eb192e3003c12f44e83fefb3beabc9b1e0727a9e6aee",
+            "mAP50_95": 0.27722603895926123,
+            "mAP50": 0.5584535040540108,
+            "frames_evaluated": 2417
+          },
+          "AP": {
+            "all": 0.2790442978425128,
+            "small": 0.06391294879632664,
+            "medium": 0.24507088241110514,
+            "large": 0.4750955878278663
+          },
+          "retention": {
+            "all": 0.9876845078644582,
+            "small": 1.0146577448184668,
+            "medium": 0.99017593134314,
+            "large": 0.98636469691142
+          },
+          "retention_ci95": {
+            "all": [
+              0.9823545686578445,
+              0.9929457183025795
+            ],
+            "small": [
+              0.9813860300802875,
+              1.0466142059872197
+            ],
+            "medium": [
+              0.9790173183909318,
+              0.9987087807191878
+            ],
+            "large": [
+              0.9799856344722698,
+              0.991498341291052
+            ]
+          },
+          "large_minus_small": {
+            "point": -0.028293047907046787,
+            "ci95": [
+              -0.061615348692220996,
+              0.005942726320711209
+            ]
+          }
+        },
+        "int8_decode_excl": {
+          "meta": {
+            "model": "v3_int8_decode_excl",
+            "model_path": "model_space/yolov8s_signs_v3_int8_decode_excluded.onnx",
+            "model_sha256": "0529f5ba317db6505e9705dbf3c4fe8e84634ca85aadd915baba1d7f3f7077f9",
+            "mAP50_95": 0.2605933264263499,
+            "mAP50": 0.5399406159004462,
+            "frames_evaluated": 2417
+          },
+          "AP": {
+            "all": 0.2618434877784531,
+            "small": 0.05801101680518455,
+            "medium": 0.2307212165804336,
+            "large": 0.4510516794918
+          },
+          "retention": {
+            "all": 0.926801795856564,
+            "small": 0.9209609100301401,
+            "medium": 0.9321980369945448,
+            "large": 0.9364461900549372
+          },
+          "retention_ci95": {
+            "all": [
+              0.9168927523256294,
+              0.9395215951344902
+            ],
+            "small": [
+              0.8788563788329727,
+              0.9671472425664739
+            ],
+            "medium": [
+              0.9159949592525745,
+              0.949164856300967
+            ],
+            "large": [
+              0.9234164871993857,
+              0.9505065052243256
+            ]
+          },
+          "large_minus_small": {
+            "point": 0.015485280024797099,
+            "ci95": [
+              -0.03176486459161645,
+              0.058310043632127655
+            ]
+          }
+        },
+        "a8sim_decode_no_outconcat": {
+          "meta": {
+            "model": "v3_a8sim_decode_no_outconcat",
+            "model_path": "model_space/yolov8s_signs_v3_fp32_a8sim_decode_no_outconcat.onnx",
+            "model_sha256": "95312f903881adb59c5ccf0cf13dfc038d4f6052c7657ea9c8a846a77b239a75",
+            "mAP50_95": 0.17168989878198312,
+            "mAP50": 0.4093979622220876,
+            "frames_evaluated": 2417
+          },
+          "AP": {
+            "all": 0.17394683996754753,
+            "small": 0.01331898373695358,
+            "medium": 0.12421325135476793,
+            "large": 0.3577759944630824
+          },
+          "retention": {
+            "all": 0.6156893380594649,
+            "small": 0.21144713639918733,
+            "medium": 0.5018669318660501,
+            "large": 0.7427928597573502
+          },
+          "retention_ci95": {
+            "all": [
+              0.6038525836420195,
+              0.6303911854892281
+            ],
+            "small": [
+              0.18456334998474966,
+              0.2540660756321713
+            ],
+            "medium": [
+              0.4807305866545113,
+              0.5248104304936055
+            ],
+            "large": [
+              0.7293160340042496,
+              0.7578780102678292
+            ]
+          },
+          "large_minus_small": {
+            "point": 0.5313457233581629,
+            "ci95": [
+              0.4890507100407897,
+              0.5601009324837714
+            ]
+          }
+        },
+        "w8sim_head": {
+          "meta": {
+            "model": "v3_w8sim_head",
+            "model_path": "model_space/yolov8s_signs_v3_fp32_w8sim_head.onnx",
+            "model_sha256": "7409899d3e97549d5c03dc3ca307442667a0e9afb24c6ece7e71b62f80ef602e",
+            "mAP50_95": 0.2706148984304497,
+            "mAP50": 0.5638780598120597,
+            "frames_evaluated": 2417
+          },
+          "AP": {
+            "all": 0.2724877280632775,
+            "small": 0.06044612778472477,
+            "medium": 0.23195713624966305,
+            "large": 0.47082919865717227
+          },
+          "retention": {
+            "all": 0.9644773595881734,
+            "small": 0.9596198087574819,
+            "medium": 0.9371916041515428,
+            "large": 0.9775070780046696
+          },
+          "retention_ci95": {
+            "all": [
+              0.9579761245622935,
+              0.9708707353774899
+            ],
+            "small": [
+              0.9245202958760784,
+              1.003183636189286
+            ],
+            "medium": [
+              0.9239135982255294,
+              0.9492746740734154
+            ],
+            "large": [
+              0.9709388577110497,
+              0.9832758458164611
+            ]
+          },
+          "large_minus_small": {
+            "point": 0.017887269247187754,
+            "ci95": [
+              -0.026701135587792496,
+              0.05262594513768655
+            ]
+          }
+        }
+      }
+    },
+    "road_v4": {
+      "gt_counts": {
+        "all": 6772,
+        "small": 1870,
+        "medium": 2755,
+        "large": 2183
+      },
+      "images": 2417,
+      "conditions": {
+        "fp32": {
+          "meta": {
+            "model": "v4_fp32",
+            "model_path": "model_space/yolo_v4_signs_fp32.onnx",
+            "model_sha256": "4133272b340bc2e788277edce1b4abe3e41126df9d697746a06315fd5603c6f1",
+            "mAP50_95": 0.24218106446024265,
+            "mAP50": 0.49986547186929087,
+            "frames_evaluated": 2417
+          },
+          "AP": {
+            "all": 0.24407985677655666,
+            "small": 0.03996743157409536,
+            "medium": 0.18924029406129816,
+            "large": 0.46039285251494255
+          }
+        },
+        "int8_head_excl": {
+          "meta": {
+            "model": "v4_int8_head_excl",
+            "model_path": "model_space/yolo_v4_signs_int8_head_excluded.onnx",
+            "model_sha256": "a2ddfe7d07adeb3cc58d413a0936ca3833260e99a4af227b01dea4df7326c9eb",
+            "mAP50_95": 0.23502800175189847,
+            "mAP50": 0.482599667608018,
+            "frames_evaluated": 2417
+          },
+          "AP": {
+            "all": 0.23682070037308325,
+            "small": 0.038707724747510316,
+            "medium": 0.18208648359670437,
+            "large": 0.4500539257089553
+          },
+          "retention": {
+            "all": 0.970259092661961,
+            "small": 0.9684816667728653,
+            "medium": 0.9621972133362012,
+            "large": 0.9775432508356509
+          },
+          "retention_ci95": {
+            "all": [
+              0.9638930304662132,
+              0.9778515154544639
+            ],
+            "small": [
+              0.913981381515085,
+              0.9988370670457851
+            ],
+            "medium": [
+              0.9489090639941136,
+              0.9784041466102469
+            ],
+            "large": [
+              0.9694352462804041,
+              0.9849743695636175
+            ]
+          },
+          "large_minus_small": {
+            "point": 0.009061584062785566,
+            "ci95": [
+              -0.023448431014617643,
+              0.06446055139514897
+            ]
+          }
+        },
+        "int8_decode_excl": {
+          "meta": {
+            "model": "v4_int8_decode_excl",
+            "model_path": "model_space/yolo_v4_signs_int8_decode_excluded.onnx",
+            "model_sha256": "4aa9e53e535e60e1ee5a3e77c6566b2026e8430684737ba3ea808d13d6a913b3",
+            "mAP50_95": 0.22836945379501597,
+            "mAP50": 0.4754545992546889,
+            "frames_evaluated": 2417
+          },
+          "AP": {
+            "all": 0.23046115844118575,
+            "small": 0.036471978553714715,
+            "medium": 0.17631484740203576,
+            "large": 0.4377694481363342
+          },
+          "retention": {
+            "all": 0.94420392360424,
+            "small": 0.9125424656347895,
+            "medium": 0.9316982320103792,
+            "large": 0.9508606524731527
+          },
+          "retention_ci95": {
+            "all": [
+              0.936066016229965,
+              0.9528904815536607
+            ],
+            "small": [
+              0.8621304344641749,
+              0.9716182562587601
+            ],
+            "medium": [
+              0.9152155328900514,
+              0.9516537728330073
+            ],
+            "large": [
+              0.9418875212015182,
+              0.9607350720159058
+            ]
+          },
+          "large_minus_small": {
+            "point": 0.03831818683836319,
+            "ci95": [
+              -0.022393009101697364,
+              0.08975970711133253
+            ]
+          }
+        },
+        "a8sim_decode_no_collapse": {
+          "meta": {
+            "model": "v4_a8sim_decode_no_collapse",
+            "model_path": "model_space/yolo_v4_signs_fp32_a8sim_decode_no_collapse.onnx",
+            "model_sha256": "cb9c13fa1384ee0555d348bea8c3ff0247a013b11fd4541a33a1a7803e8e9ea1",
+            "mAP50_95": 0.1379444522680322,
+            "mAP50": 0.3788937027625882,
+            "frames_evaluated": 2417
+          },
+          "AP": {
+            "all": 0.1404182122753606,
+            "small": 0.004238576773343143,
+            "medium": 0.07398634397026604,
+            "large": 0.33266323956332433
+          },
+          "retention": {
+            "all": 0.5752961925240178,
+            "small": 0.10605076699725559,
+            "medium": 0.39096506553884663,
+            "large": 0.722563866372203
+          },
+          "retention_ci95": {
+            "all": [
+              0.5588958205592642,
+              0.590681865633929
+            ],
+            "small": [
+              0.08602538546392043,
+              0.14836531299177166
+            ],
+            "medium": [
+              0.36630987635111156,
+              0.4182411873006191
+            ],
+            "large": [
+              0.7089337733655011,
+              0.7373392375436135
+            ]
+          },
+          "large_minus_small": {
+            "point": 0.6165130993749475,
+            "ci95": [
+              0.5688083580305898,
+              0.6427485716085027
+            ]
+          }
+        }
+      }
+    },
+    "coco": {
+      "gt_counts": {
+        "all": 11120,
+        "small": 4571,
+        "medium": 3822,
+        "large": 2727
+      },
+      "images": 1525,
+      "conditions": {
+        "fp32": {
+          "meta": {
+            "variant": "fp32",
+            "model": null,
+            "model_sha256": "2120d8d42da0996bcdce80bb77360884c99948684b670504b36f845a82f4f6c7",
+            "mAP50_95": 0.5401213724772201,
+            "mAP50": 0.7091133306834746
+          },
+          "AP": {
+            "all": 0.54012137247722,
+            "small": 0.37010550676739196,
+            "medium": 0.5975265181514559,
+            "large": 0.7231301078867752
+          }
+        },
+        "int8_head_excl": {
+          "meta": {
+            "variant": "int8_head_excl",
+            "model": null,
+            "model_sha256": "9d9d3408695325bfd3604f02cb4d5a4722079805bd5c59a668b5d5d53e99adfd",
+            "mAP50_95": 0.5356060788787705,
+            "mAP50": 0.7009542207719116
+          },
+          "AP": {
+            "all": 0.5356060788787707,
+            "small": 0.36233846496120087,
+            "medium": 0.5885215385840675,
+            "large": 0.704394888507867
+          },
+          "retention": {
+            "all": 0.9916402241634313,
+            "small": 0.9790139793540749,
+            "medium": 0.9849295733430431,
+            "large": 0.9740914958807915
+          },
+          "retention_ci95": {
+            "all": [
+              0.9842734166452096,
+              0.9977865053618031
+            ],
+            "small": [
+              0.9551836686476262,
+              0.9992948497508071
+            ],
+            "medium": [
+              0.9748345671505658,
+              0.9987400509493702
+            ],
+            "large": [
+              0.9645588559819015,
+              0.994127057696975
+            ]
+          },
+          "large_minus_small": {
+            "point": -0.00492248347328339,
+            "ci95": [
+              -0.024413241725829943,
+              0.030053081106986703
+            ]
+          }
+        },
+        "int8_decode_excl": {
+          "meta": {
+            "variant": "int8_decode_excl",
+            "model": null,
+            "model_sha256": "eb416b4c945b3a61ea9f31d0ddd24ec9a91385ec363bf1ade42289fa0e2f0a5d",
+            "mAP50_95": 0.5346786204440777,
+            "mAP50": 0.700838383435468
+          },
+          "AP": {
+            "all": 0.5346786204440778,
+            "small": 0.36059595126384675,
+            "medium": 0.5844210529411694,
+            "large": 0.7044673122573872
+          },
+          "retention": {
+            "all": 0.9899230944922999,
+            "small": 0.9743058254209607,
+            "medium": 0.9780671404328124,
+            "large": 0.9741916490188373
+          },
+          "retention_ci95": {
+            "all": [
+              0.9816306538811519,
+              0.9955638912568116
+            ],
+            "small": [
+              0.9494823251030978,
+              0.9962261410429987
+            ],
+            "medium": [
+              0.9662254727237428,
+              0.9922149628133557
+            ],
+            "large": [
+              0.9648445419883165,
+              0.9945286706746798
+            ]
+          },
+          "large_minus_small": {
+            "point": -0.00011417640212341151,
+            "ci95": [
+              -0.022181175477718997,
+              0.03569659565764008
+            ]
+          }
+        },
+        "a8sim_decode_no_outconcat": {
+          "meta": {
+            "variant": "a8sim_decode_no_outconcat",
+            "model": null,
+            "model_sha256": "6efb48e4dd684afa19803707c422d686d538acddefef0adb3354d0798360beea",
+            "mAP50_95": 0.4683281129651579,
+            "mAP50": 0.6765865786480124
+          },
+          "AP": {
+            "all": 0.4683281129651579,
+            "small": 0.25886342644743,
+            "medium": 0.5197132937629715,
+            "large": 0.6810644231935268
+          },
+          "retention": {
+            "all": 0.8670793951685553,
+            "small": 0.699431437020264,
+            "medium": 0.869774441761661,
+            "large": 0.9418283318112998
+          },
+          "retention_ci95": {
+            "all": [
+              0.8622466873302734,
+              0.8772064583068586
+            ],
+            "small": [
+              0.6894076759532747,
+              0.7395880195687681
+            ],
+            "medium": [
+              0.8614383851927958,
+              0.883229697155236
+            ],
+            "large": [
+              0.9364764162182326,
+              0.9485111556594332
+            ]
+          },
+          "large_minus_small": {
+            "point": 0.24239689479103577,
+            "ci95": [
+              0.20330976921370866,
+              0.25400495627549646
+            ]
+          }
+        }
+      }
+    }
+  },
+  "verdicts": {
+    "road_v3": {
+      "condition": "a8sim_decode_no_outconcat",
+      "large_minus_small": {
+        "point": 0.5313457233581629,
+        "ci95": [
+          0.4890507100407897,
+          0.5601009324837714
+        ]
+      },
+      "supports": true
+    },
+    "road_v4": {
+      "condition": "a8sim_decode_no_collapse",
+      "large_minus_small": {
+        "point": 0.6165130993749475,
+        "ci95": [
+          0.5688083580305898,
+          0.6427485716085027
+        ]
+      },
+      "supports": true
+    },
+    "coco": {
+      "condition": "a8sim_decode_no_outconcat",
+      "large_minus_small": {
+        "point": 0.24239689479103577,
+        "ci95": [
+          0.20330976921370866,
+          0.25400495627549646
+        ]
+      },
+      "supports": true
+    }
+  },
+  "hypothesis_supported": true
+}

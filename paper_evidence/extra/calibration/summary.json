@@ -1,0 +1,98 @@
+[
+  {
+    "family": "v3",
+    "scope": "full",
+    "calibration": "minmax",
+    "mAP50": 0.0,
+    "mAP50_95": 0.0,
+    "retention": 0.0
+  },
+  {
+    "family": "v3",
+    "scope": "full",
+    "calibration": "percentile",
+    "mAP50": 0.0,
+    "mAP50_95": 0.0,
+    "retention": 0.0
+  },
+  {
+    "family": "v3",
+    "scope": "full",
+    "calibration": "entropy",
+    "mAP50": 0.0,
+    "mAP50_95": 0.0,
+    "retention": 0.0
+  },
+  {
+    "family": "v3",
+    "scope": "head_excl",
+    "calibration": "minmax",
+    "mAP50": 0.5584535040540108,
+    "mAP50_95": 0.27722603895926123,
+    "retention": 98.74429962945553
+  },
+  {
+    "family": "v3",
+    "scope": "head_excl",
+    "calibration": "percentile",
+    "mAP50": 0.5596003680082173,
+    "mAP50_95": 0.27791751880228066,
+    "retention": 98.99059573159357
+  },
+  {
+    "family": "v3",
+    "scope": "head_excl",
+    "calibration": "entropy",
+    "mAP50": 0.5249832977486144,
+    "mAP50_95": 0.26074542103616477,
+    "retention": 92.87411845749153
+  },
+  {
+    "family": "v4",
+    "scope": "full",
+    "calibration": "minmax",
+    "mAP50": 0.0,
+    "mAP50_95": 0.0,
+    "retention": 0.0
+  },
+  {
+    "family": "v4",
+    "scope": "full",
+    "calibration": "percentile",
+    "mAP50": 0.0,
+    "mAP50_95": 0.0,
+    "retention": 0.0
+  },
+  {
+    "family": "v4",
+    "scope": "full",
+    "calibration": "entropy",
+    "mAP50": 0.0,
+    "mAP50_95": 0.0,
+    "retention": 0.0
+  },
+  {
+    "family": "v4",
+    "scope": "head_excl",
+    "calibration": "minmax",
+    "mAP50": 0.482599667608018,
+    "mAP50_95": 0.23502800175189847,
+    "retention": 97.04639884861088
+  },
+  {
+    "family": "v4",
+    "scope": "head_excl",
+    "calibration": "percentile",
+    "mAP50": 0.4883286727858518,
+    "mAP50_95": 0.2382008720642299,
+    "retention": 98.35652204895393
+  },
+  {
+    "family": "v4",
+    "scope": "head_excl",
+    "calibration": "entropy",
+    "mAP50": 0.47272827987971544,
+    "mAP50_95": 0.2314880691815996,
+    "retention": 95.58471043040673
+  }
+]

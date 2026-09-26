@@ -1,0 +1,184 @@
+{
+  "v4_int8_full_percentile": {
+    "head_module": "model.23",
+    "excluded_nodes": 0,
+    "calibrator": {
+      "method": "percentile",
+      "symmetric": false,
+      "num_bins": 2048,
+      "num_quantized_bins": 2048,
+      "percentile": 99.999
+    },
+    "seconds": 52.9,
+    "method": "percentile",
+    "scope": "full",
+    "source": "model_space/yolo_v4_signs_fp32.onnx",
+    "source_sha256": "4133272b340bc2e788277edce1b4abe3e41126df9d697746a06315fd5603c6f1",
+    "model": "model_space/yolo_v4_signs_int8_full_percentile.onnx",
+    "model_sha256": "c136e708b81b251e4884c5c98f34499d914d4823584e3412edb0f5461c33a873",
+    "bytes": 3098524,
+    "box_scales": {
+      "/model.23/Concat_output_0": 0.04142526909708977,
+      "/model.23/Concat_2_output_0": 0.3328806459903717,
+      "/model.23/Mul_2_output_0": 3.6109766960144043,
+      "/model.23/Concat_3_output_0": 3.5809102058410645,
+      "output0_QuantizeLinear_Input": 2.535590887069702
+    }
+  },
+  "v4_int8_head_excl_percentile": {
+    "head_module": "model.23",
+    "excluded_nodes": 95,
+    "calibrator": {
+      "method": "percentile",
+      "symmetric": false,
+      "num_bins": 2048,
+      "num_quantized_bins": 2048,
+      "percentile": 99.999
+    },
+    "seconds": 59.5,
+    "method": "percentile",
+    "scope": "head_excl",
+    "source": "model_space/yolo_v4_signs_fp32.onnx",
+    "source_sha256": "4133272b340bc2e788277edce1b4abe3e41126df9d697746a06315fd5603c6f1",
+    "model": "model_space/yolo_v4_signs_int8_head_excl_percentile.onnx",
+    "model_sha256": "7075c89a0af8d18f3bd60badc31062804764016ef9d09cc8bb7c212f1475e9a5",
+    "bytes": 3416376,
+    "box_scales": {}
+  },
+  "v4_int8_full_entropy": {
+    "head_module": "model.23",
+    "excluded_nodes": 0,
+    "calibrator": {
+      "method": "entropy",
+      "symmetric": false,
+      "num_bins": 2048,
+      "num_quantized_bins": 128,
+      "percentile": 99.999
+    },
+    "seconds": 185.5,
+    "method": "entropy",
+    "scope": "full",
+    "source": "model_space/yolo_v4_signs_fp32.onnx",
+    "source_sha256": "4133272b340bc2e788277edce1b4abe3e41126df9d697746a06315fd5603c6f1",
+    "model": "model_space/yolo_v4_signs_int8_full_entropy.onnx",
+    "model_sha256": "99961667505d9b111d27ba3ea99c63417189a0999920076faaac43d612d14847",
+    "bytes": 3098467,
+    "box_scales": {
+      "/model.23/Concat_output_0": 0.04041028767824173,
+      "/model.23/Concat_2_output_0": 0.334667444229126,
+      "/model.23/Mul_2_output_0": 3.532884359359741,
+      "/model.23/Concat_3_output_0": 3.3404593467712402,
+      "output0_QuantizeLinear_Input": 2.5380537509918213
+    }
+  },
+  "v4_int8_head_excl_entropy": {
+    "head_module": "model.23",
+    "excluded_nodes": 95,
+    "calibrator": {
+      "method": "entropy",
+      "symmetric": false,
+      "num_bins": 2048,
+      "num_quantized_bins": 128,
+      "percentile": 99.999
+    },
+    "seconds": 187.3,
+    "method": "entropy",
+    "scope": "head_excl",
+    "source": "model_space/yolo_v4_signs_fp32.onnx",
+    "source_sha256": "4133272b340bc2e788277edce1b4abe3e41126df9d697746a06315fd5603c6f1",
+    "model": "model_space/yolo_v4_signs_int8_head_excl_entropy.onnx",
+    "model_sha256": "6b51aea0a5df83884f4651892fea5334e2af6b950d55f7a79bef902d754b2224",
+    "bytes": 3416326,
+    "box_scales": {}
+  },
+  "v3_int8_full_percentile": {
+    "head_module": "model.22",
+    "excluded_nodes": 0,
+    "calibrator": {
+      "method": "percentile",
+      "symmetric": false,
+      "num_bins": 2048,
+      "num_quantized_bins": 2048,
+      "percentile": 99.999
+    },
+    "seconds": 127.2,
+    "method": "percentile",
+    "scope": "full",
+    "source": "model_space/yolov8s_signs_v3_fp32.onnx",
+    "source_sha256": "033615c8ec96a62b36e3c5c3e4bd586403c165f9cb519f4352f3c33e50f8f323",
+    "model": "model_space/yolov8s_signs_v3_int8_full_percentile.onnx",
+    "model_sha256": "d2b2eb9c46d101db31b810dfe1c5c80f03282a5f2050540f19e772b1b3b01b26",
+    "bytes": 11655571,
+    "box_scales": {
+      "/model.22/dfl/Reshape_1_output_0": 0.04636966437101364,
+      "/model.22/Concat_2_output_0": 0.3129445016384125,
+      "/model.22/Mul_2_output_0": 2.5035560131073,
+      "output0_QuantizeLinear_Input": 2.5035560131073
+    }
+  },
+  "v3_int8_head_excl_percentile": {
+    "head_module": "model.22",
+    "excluded_nodes": 66,
+    "calibrator": {
+      "method": "percentile",
+      "symmetric": false,
+      "num_bins": 2048,
+      "num_quantized_bins": 2048,
+      "percentile": 99.999
+    },
+    "seconds": 127.2,
+    "method": "percentile",
+    "scope": "head_excl",
+    "source": "model_space/yolov8s_signs_v3_fp32.onnx",
+    "source_sha256": "033615c8ec96a62b36e3c5c3e4bd586403c165f9cb519f4352f3c33e50f8f323",
+    "model": "model_space/yolov8s_signs_v3_int8_head_excl_percentile.onnx",
+    "model_sha256": "3782910ad331b48d413f8926eb6fc36f3b00ab0a410a5fda6066a6dad4fc9698",
+    "bytes": 17997729,
+    "box_scales": {}
+  },
+  "v3_int8_full_entropy": {
+    "head_module": "model.22",
+    "excluded_nodes": 0,
+    "calibrator": {
+      "method": "entropy",
+      "symmetric": false,
+      "num_bins": 2048,
+      "num_quantized_bins": 128,
+      "percentile": 99.999
+    },
+    "seconds": 198.7,
+    "method": "entropy",
+    "scope": "full",
+    "source": "model_space/yolov8s_signs_v3_fp32.onnx",
+    "source_sha256": "033615c8ec96a62b36e3c5c3e4bd586403c165f9cb519f4352f3c33e50f8f323",
+    "model": "model_space/yolov8s_signs_v3_int8_full_entropy.onnx",
+    "model_sha256": "86e76c6addec219d00030d16ab2c0305718399fb6653a589deeea354b071e207",
+    "bytes": 11655529,
+    "box_scales": {
+      "/model.22/dfl/Reshape_1_output_0": 0.04687318205833435,
+      "/model.22/Concat_2_output_0": 0.3141717314720154,
+      "/model.22/Mul_2_output_0": 2.513373851776123,
+      "output0_QuantizeLinear_Input": 2.513373851776123
+    }
+  },
+  "v3_int8_head_excl_entropy": {
+    "head_module": "model.22",
+    "excluded_nodes": 66,
+    "calibrator": {
+      "method": "entropy",
+      "symmetric": false,
+      "num_bins": 2048,
+      "num_quantized_bins": 128,
+      "percentile": 99.999
+    },
+    "seconds": 152.3,
+    "method": "entropy",
+    "scope": "head_excl",
+    "source": "model_space/yolov8s_signs_v3_fp32.onnx",
+    "source_sha256": "033615c8ec96a62b36e3c5c3e4bd586403c165f9cb519f4352f3c33e50f8f323",
+    "model": "model_space/yolov8s_signs_v3_int8_head_excl_entropy.onnx",
+    "model_sha256": "42c5a219c5265bc88288686f4267eb3cd29a3e10d983ecf6da5cae2bd5caa95e",
+    "bytes": 17997698,
+    "box_scales": {}
+  }
+}
