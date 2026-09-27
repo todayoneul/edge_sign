@@ -13,7 +13,7 @@
 
 독립 검토 에이전트가 양쪽 60프레임 trace의 계산값, 프레임 ID 1–60, 동일 입력, 약 100 ms 전송 간격을 재검산했다. 공개 웹 화면의 서버 영상 경로에는 첫 재생 시 프레임 전송 콜백과 FPS 표시 문제도 발견돼, 화면 렌더까지 포함한 수치는 별도로 측정해야 한다.
 
-- [상세 TIIS evidence 보고서](TIIS_EVIDENCE_REPORT.md)
+- [원시 기록 색인](../README.md)
 - INT8: [설정](../runtime/hf_space_v3/20260924_int8_final/config.json) · [요약](../runtime/hf_space_v3/20260924_int8_final/metrics.json) · [프레임별 trace](../runtime/hf_space_v3/20260924_int8_final/trace.jsonl)
 - FP32: [설정](../runtime/hf_space_v3/20260924_fp32_final/config.json) · [요약](../runtime/hf_space_v3/20260924_fp32_final/metrics.json) · [프레임별 trace](../runtime/hf_space_v3/20260924_fp32_final/trace.jsonl)
 - [환경과 한계](../runtime/hf_space_v3/ENVIRONMENT.txt) · [예비 실행 제외 이유](../runtime/hf_space_v3/PILOT_NOTES.md)

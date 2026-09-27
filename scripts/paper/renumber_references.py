@@ -5,7 +5,7 @@ added while editing; every placeholder must also start a line in the References 
 The body (everything before "## References") is rewritten with the new numbers and the
 list is reordered. Uncited entries are reported and kept at the end.
 
-Usage: python scripts/paper/renumber_references.py paper_evidence/paper_draft_KSII_TIIS_ko.md [--check]
+Usage: python scripts/paper/renumber_references.py path/to/draft.md [--check]
 """
 
 from __future__ import annotations

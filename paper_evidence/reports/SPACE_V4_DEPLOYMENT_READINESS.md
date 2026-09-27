@@ -69,4 +69,4 @@ Codex 작업 중단 후 같은 워크트리에서 다시 확인했다. 수치는
 4. [x] 같은 샘플과 절차로 v4 head-excluded QDQ와 FP32를 각각 10 warm-up + 50프레임 측정하고 원시 trace를 `runtime/hf_space_v4/`에 보존했다. 측정 중 다른 방문자 유무는 확인할 수 없었다.
 5. [ ] 브라우저의 카메라/영상 캡처 및 렌더까지 포함한 측정은 별도 수행한다. v4 WebSocket 측정만으로 배포 30 FPS를 PASS라고 판정하지 않는다. 10 FPS 입력에서는 Space가 포화되지 않았으므로, 처리량 판정에는 포화 조건의 입력 속도를 미리 정해야 한다.
 
-현재 공개 Space v3 실측은 [HF_SPACE_V3_MEASUREMENT.md](HF_SPACE_V3_MEASUREMENT.md), 논문 주장 판정은 [TIIS_EVIDENCE_REPORT.md](TIIS_EVIDENCE_REPORT.md)에 있다.
+현재 공개 Space v3 실측은 [HF_SPACE_V3_MEASUREMENT.md](HF_SPACE_V3_MEASUREMENT.md)에 있다.

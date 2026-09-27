@@ -327,13 +327,13 @@
 
 ## TIIS 논문 evidence 재검증 (2026-09-24, `paper/tiis-evidence-revalidation`)
 
-- [x] 기존 체크아웃/main과 분리한 브랜치에서 PDF 9쪽 기준으로 원시 artifact 감사
+- [x] 기존 체크아웃/main과 분리한 브랜치에서 원시 artifact 감사
 - [x] train 12,375 / calibration 150 / 독립 sequence test 2,417장 manifest와 누출 검사
 - [x] YOLO26 FP32/full QDQ/head-excluded QDQ 전 test 프레임 예측과 AP 재측정
 - [x] ORT CPU·Chrome WASM/WebGPU 반복 latency trace, 지원 실패 사유 기록
 - [x] KoreanSignNet GT ROI 14-class 평가, detector→ByteTrack→recognizer 순차 파이프라인 측정
 - [x] 수동 tracking identity GT 부재 확인; pseudo-GT MOTA를 논문 주 결과에서 제외
-- [x] 새 raw evidence 기반 Figure 1–5, 표, [TIIS evidence 보고서](../paper_evidence/reports/TIIS_EVIDENCE_REPORT.md)
+- [x] 새 raw evidence 기반 Figure 1–5와 표 ([원시 기록 색인](../paper_evidence/README.md))
 - [x] 공개 HF Space 실행 복구 후 YOLOv8s v3 실제 `/ws/stream` 재측정 (2026-09-24). INT8 결과 수신 2.500 FPS, FP32 1.991 FPS; 독립 에이전트가 최종 trace 재계산 검증. [Space 원시 근거](../paper_evidence/runtime/hf_space_v3/PILOT_NOTES.md)
 - [x] YOLO26 v4 전용 WebSocket·상태 경로를 격리 브랜치에서 준비하고 로컬 모델·짧은 입력으로 기능 검증. [검증 범위](../paper_evidence/reports/SPACE_V4_DEPLOYMENT_READINESS.md)
 - [x] v4 경로를 공개 Space(commit `f645ad5`, `EDGE_SIGN_PAPER_V4=1`)에 배포하고 v3와 같은 입력·절차로 서버 경로 측정 (2026-09-25). 파이프라인 평균 head-excluded QDQ 50.278 ms, FP32 77.619 ms; 10 FPS 입력에서 미포화. [측정 결과](../paper_evidence/reports/HF_SPACE_V4_MEASUREMENT.md)
@@ -373,29 +373,16 @@
     - CPU·WASM에서 INT8이 2.0–2.6배 빠름, WebGPU에서는 75–89배 느림
     - FP16의 ORT-Web 버전 의존
   - 헤드 제외 INT8 유지율 99.2%(99% 기준 보류)
-  - 논문 제목을 「브라우저 기반 비전 추론의 구성요소·실행 환경별 양자화 실증 분석: 도로 표지 인식 파이프라인을 중심으로」로 변경
-- [x] 논문 초안 개정 (2026-09-26)
-  - Fig. 1 개요, Fig. 3 정성 비교, 식 (1)–(5), Table 5(요인 분리)·6(종단)·9(5회 반복) 반영
-  - 참고문헌을 첫 인용 순으로 재번호(`renumber_references.py`)
 - [x] 두 번째 기기(Mac) 측정 번들·스크립트·안내 ([DEVICE_MEASUREMENT_GUIDE.md](../paper_evidence/reports/DEVICE_MEASUREMENT_GUIDE.md))
-- [x] 논문 초안 `paper_evidence/paper_draft_KSII_TIIS_ko.md` (제목: 「도로 영상 인식을 위한 브라우저 기반 엣지 비전의 구성요소·실행 환경별 양자화 실증 분석」)
 - [x] Mac(M2 Pro) 본측정·기기 간 비교 (2026-09-26, [runtime/matrix_mac](../paper_evidence/runtime/matrix_mac/), [RUNTIME_MATRIX §2.6](../paper_evidence/reports/RUNTIME_MATRIX.md)). WebGPU INT8 감속·FP16 버전 의존성·구성요소별 배치는 재현, WASM INT8 이득은 Mac에서 없음(기기 의존)
-- [x] 논문 초안 구조 개편(교수님 작성 예 기준): 3장 BRIQ Study Design, 4.1 실험 구성, 5.1–5.3, 선행 탐색 → 부록 A, 관련 연구 비교표 (2026-09-26)
-- [x] 논문 제목 BRIQ로 변경, 기여 5개를 3개로 압축, 붕괴 메커니즘 주장 범위를 평가한 검출기 그래프로 한정 (2026-09-26)
-- [x] 리뷰 반영 (2026-09-27):
-  - Table 1 Kim 등 태스크 정확도 ✓.
-  - 초록에서 도로 검출기 97.0–98.7%와 YOLO11l 99.2%를 분리하고, CPU INT8 이득을 모델·기기 의존으로 완화.
-  - 노드 배치 동일성과 정확도 일치의 주장 범위를 확인한 기기·조합으로 한정.
-  - Fig. 4–5를 Windows·Mac 비교 그림(fig11·fig12)으로 교체.
-  - Mac 배경 부하를 재집계(13%, 사용자 Chrome 포함).
-  - `matrix/summary.json`을 COCO 재측정값으로 갱신.
-- [x] Moon 등(YOLOv6+) 선행 연구 반영과 기여 재정의, 단일 척도 부등식(식 6) 추가 (2026-09-27)
+- [x] Windows·Mac 비교 그림(fig11·fig12), Mac 배경 부하 재집계(13%, 사용자 Chrome 포함), `matrix/summary.json`을 COCO 재측정값으로 갱신 (2026-09-27)
 - [x] 추가 실험 (2026-09-27, [extra/](../paper_evidence/extra/README.md)):
   - 좌표 정규화 기준선: 붕괴는 사라짐, 유지율 34–55%.
   - Percentile·Entropy 보정: 전체 INT8은 여전히 붕괴. 헤드 제외는 99% 통과 구성 없음(YOLOv8s Percentile 98.99%는 보류).
   - 크기별 유지율: 좌표를 양자화하면 작은 객체의 손실이 큼 (사전 규칙으로 지지).
   - YOLOv8s 종단 정확도: 98.2%.
-- [x] 논문 그림 공통 스타일(`paper_style.py`)과 표 캡션 형식 정리 (2026-09-27)
+- [x] 그림 공통 스타일(`paper_style.py`) 적용 (2026-09-27)
+- [x] 논문 원고와 원고 작업 메모는 저장소에 두지 않고 비공개로 관리 (2026-09-27)
 - [ ] Mac 조용한 환경 재측정: WASM FP32 대 INT8 (`run_mac_wasm_recheck.sh`, [안내 8절](../paper_evidence/reports/DEVICE_MEASUREMENT_GUIDE.md))
 - [ ] 기준안 확정 후 카메라/렌더 포함 경로를 재측정하고 판정
 - [ ] 야간/다른 장소 test 확장 및 가능한 경우 manual identity GT 구축

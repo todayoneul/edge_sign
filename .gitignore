@@ -1,4 +1,6 @@
 .env
+# Manuscript drafts and paper-writing notes stay local (not published)
+/paper_private/
 *.md
 /checkpoints
 */__pycache__

@@ -3,24 +3,23 @@
 
 # Edge-Sign: 초경량 온디바이스 신호등·표지판 인식 시스템
 
-> 웹 브라우저에 영상을 넣으면 **검출 → 추적 → 인식**이 실시간으로 동작하고,
+> 웹 브라우저에 영상을 넣으면 **검출 → 추적 → 인식**이 브라우저 안에서 실시간으로 동작하고,
 > 그 결과(JSON)를 바탕으로 LLM이 "지금 앞에 어떤 표지판이 있나?" 같은 주행 질문에 답변.
-> 전체 모델 15 MB 이하, CPU 56 FPS, 엣지 디바이스 구동.
+> 검출기는 WebGPU, 인식기는 WebAssembly에서 실행해 프레임당 검출–인식 지연 16.7 ms(Windows)·15.8 ms(Mac) 실측.
 
-> **최신 결과 안내 (2026-09-26).** 논문(KSII TIIS 투고 준비) 기준의 최신 결과는 [`paper_evidence/`](paper_evidence/README.md)가 기준입니다.
-> - 무엇을 다시 평가했나: 학습·보정과 겹치지 않는 test 2,417프레임과 반복 측정으로 다시 평가했습니다.
-> - 어디를 보면 되나: [논문 초안](paper_evidence/paper_draft_KSII_TIIS_ko.md)과 [RUNTIME_MATRIX.md](paper_evidence/reports/RUNTIME_MATRIX.md)를 보세요.
-> - 아래 본문 중 새 결과와 다른 서술: 다음은 이전 단계의 결과이며, 새 측정과 다릅니다.
->   - CPU 56 FPS·15 MB 목표 달성
->   - "DFL이 INT8의 진짜 벽"
->   - "INT8은 WebGPU에서 실행 불가"
->   - "YOLO26도 DFL 헤드 유지"
+> **최신 결과 안내 (2026-09-27).** 논문(투고 준비 중)의 수치는 아래 [「핵심 요약」](#핵심-요약-논문-기준)과 [`paper_evidence/`](paper_evidence/README.md)의 원시 기록이 기준입니다. 결과 요약은 [RUNTIME_MATRIX.md](paper_evidence/reports/RUNTIME_MATRIX.md), [COCO_VALIDATION.md](paper_evidence/reports/COCO_VALIDATION.md), [추가 실험](paper_evidence/extra/README.md)에 있습니다.
+> - 「프로젝트 개요」부터의 본문은 이전 단계(Phase 1–3)의 개발 기록입니다. 평가 데이터와 방법이 달라 수치가 새 결과와 다르며, 특히 다음 서술은 새 평가로 대체되었습니다.
+>   - "CPU 56 FPS·15 MB 목표 달성": 이 속도를 낸 11.7 MB 파일은 검출 헤드까지 양자화한 전체 INT8이며, 새 평가에서 같은 구조의 전체 INT8 검출기는 검출이 0으로 붕괴했습니다.
+>   - "DFL이 INT8의 진짜 벽": 붕괴 원인은 박스 좌표와 클래스 점수를 한 척도로 담는 디코드 단계 텐서입니다.
+>   - "검출기 W8A8 무손실": 가중치만 모사한 이전 실험의 결과입니다. 실제 정적 INT8은 헤드를 FP32로 둬도 FP32 mAP의 97.0–98.7%입니다.
+>   - "INT8은 WebGPU에서 실행 불가": ORT-Web 1.30에서는 실행되지만 FP32보다 수십 배 느립니다.
+>   - "YOLO26도 DFL 헤드 유지": YOLO26-n의 추론 그래프에는 DFL 적분이 없습니다.
 > - 공개 데모의 현재 구성: 서버⇄온디바이스 토글 없이 온디바이스 추론만 제공하며, 검출기·정밀도·실행 환경을 화면에서 고릅니다.
 
 ## 실시간 시연
 
 **huggingface 온라인 체험: https://huggingface.co/spaces/gyann/edge-sign**
-브라우저에서 검출·추적·한국어 인식과 **서버 ⇄ 온디바이스(WebGPU)** · **FP32 ⇄ INT8** 토글, 장면 Q&A 직접 체험 가능.
+브라우저 안에서 검출·추적·한국어 인식을 실행하며, 검출기(YOLO26-n·YOLOv8s)·정밀도(FP32·FP16·INT8)·실행 환경(WebGPU·WebAssembly)을 골라 비교하고 장면 Q&A를 직접 체험 가능.
 
 > **체험 가이드 — 입력 코덱이 경로를 가름.** 내장 **샘플 2종**(① 주간 도심 ② 도로주행, 모두
 > H.264 720p)과 웹캠은 브라우저가 바로 디코딩하므로 **온디바이스(WebGPU)** 로 매끄럽게 구동.
@@ -47,21 +46,35 @@ https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=59
 
 ---
 
-## 핵심 요약
+## 핵심 요약 (논문 기준)
 
-**문제** — 검출·추적·인식 파이프라인을 엣지에서 실시간으로 구동하려면 양자화가 필수. *어느 단계를, 어떤 정밀도로, 어떤 런타임에서* 압축해야 하는지는 자명하지 않음.
+**질문** — 검출·추적·인식 파이프라인을 브라우저에서 실행할 때, 양자화의 효과는 구성요소(검출기·인식기)와 실행 환경(네이티브 CPU·WebAssembly·WebGPU)에 따라 어떻게 달라지는가?
 
-**논지** — 양자화 민감도는 흔히 믿는 기법(W8A8냐 SmoothQuant냐)이 아니라 **모델 아키텍처와 배포 런타임에 의존.** 깨끗한 분류 backbone(대조군)에서 실제 검출 파이프라인까지 동일한 양자화를 적용하여 이 의존성을 실측으로 드러냄.
+**방법** — 같은 ONNX 모델 파일을 구성요소 × 정밀도(18개 변형) × 실행 환경 × 기기 2대(Windows/NVIDIA, Mac/Apple M2 Pro)로 바꿔 측정했습니다. 정확도는 학습·보정과 겹치지 않는 시퀀스 독립 test 2,417프레임에서, 원인은 텐서 수준 분리 실험과 연산자 배치 로그로 확인했습니다. 검출기 결과는 MLPerf가 채택한 YOLO11l과 COCO 부분집합에서, 측정 전에 공개한 예측으로 외부 검증했습니다.
 
-**핵심 발견 3가지**
+**주요 결과**
 
-1. **검출 헤드(DFL)가 INT8의 진짜 벽.** backbone에서 무손실인 INT8도 YOLO 검출 헤드까지 적용하면 출력 CosSim이 **0.9995여도 검출이 0으로 붕괴**. 헤드는 FP32로 남겨야 하며, **CosSim 같은 텐서 유사도는 양자화 검증에 무용** — 실프레임 검출 수·conf로 검증. (Phase 12에서 YOLO26으로 직접 시험: NMS-free로도 헤드 INT8 붕괴는 해결되지 않음 — §8.3.)
-2. **"저정밀 = 고속"은 런타임에 따라 거짓.** 브라우저 온디바이스에서는 **FP32/WebGPU 62 FPS**가 INT8/WASM(2.2 FPS)·FP16/WebGPU(24 FPS)보다 빠름. INT8 가속은 *서버 CPU에서만* 유효(2.4×). 정밀도 선택은 성능표가 아니라 **타깃 런타임**이 결정.
-3. **단계별 민감도는 인식기 > 검출기이지만, '예상된' 인식기보다 검출 헤드가 더 단단한 벽.** 검출기 W8A8은 mAP −0.07%p로 무손실인 반면, 인식기 OCR은 W4A16에서 **−43.9%p 붕괴**. 민감도 순위 자체는 예상대로이나, 진짜 배포 난점은 발견 ①의 *헤드(head)*.
+1. **검출 헤드까지 INT8이면 검출이 0으로 붕괴.** 박스 좌표(0–640)와 클래스 점수(0–1)를 한 양자화 척도로 담는 디코드 단계 텐서에서 점수가 모두 0으로 반올림됩니다. 이 실패는 [Moon 등(2025)](https://doi.org/10.1007/s11760-025-04234-0)이 모바일 TFLite 변환에서 먼저 보고했습니다. 여기서는 브라우저가 쓰는 ONNX QDQ 그래프(YOLOv8s·YOLO26-n·YOLO11l)에서 이를 재현하고, 원인 텐서를 가중치·활성값·단일 텐서 분리로 좁혔습니다. 출력 텐서의 코사인 유사도로는 이 붕괴를 알아챌 수 없습니다.
+2. **붕괴를 피해도 손실은 남음.** 헤드를 FP32로 둔 INT8은 도로 검출기에서 FP32 mAP의 97.0–98.7%로 사전 기준 99%에 못 미쳤고, 검출→추적→인식 종단 정답률 유지율은 94.2–98.2%로 더 낮았습니다. 알려진 좌표 정규화는 붕괴를 없애지만 유지율이 34–55%이며, 손실이 작은 객체에 몰립니다. 작은 인식기(2.9만 파라미터)는 전체 INT8에서도 손실이 없었습니다.
+3. **INT8의 속도 효과는 실행 환경과 기기에 따라 뒤집힘.** WebGPU에서는 양자화 연산이 CPU로 배치되어 INT8이 FP32보다 Windows에서 49–89배, Mac에서 7.6–14배 느렸습니다. WebAssembly에서는 Windows에서 1.3–2.4배 빨랐지만 시험한 Mac에서는 빨라지지 않았습니다. 검출기를 WebGPU, 인식기를 WebAssembly에 둔 배치가 두 기기 모두에서 가장 빨랐습니다.
 
-**정직한 한계** — 추적 MOTA 절대값 **0.295**는 높지 않음(주·야간·다중클래스·소형객체·저프레임 도심 시퀀스라는 난조건). 본 연구의 측정 변수는 절대 성능이 아니라 **양자화에 따른 상대 열화**. "Edge"는 브라우저/WASM/WebGPU·서버 CPU 런타임 기준이며, Jetson/Pi 등 전용 하드웨어 실측은 범위 밖.
+**한계** — Chrome과 ONNX Runtime Web, 기기 2대에서만 측정했습니다. 파이프라인 지연에는 추적기·렌더링·영상 디코딩이 빠져 있고, 추적 품질(정체성 유지)은 수동 주석이 없어 평가하지 않았습니다.
 
-**배포 결과** — 총 모델 22.3 MB → **실측 INT8 11.7 MB**(2.42× 가속, 목표 15 MB 충족) · 이론 INT 최소 **5.6 MB**(4.0× 압축), CPU **56 FPS**(목표 30의 1.9배) 달성. 브라우저 WebGPU 온디바이스 동작, HF Spaces(Docker) 패키징. ▶ [실시간 시연](#-실시간-시연-live-demo) · [붕괴 원인 분석](#83-붕괴-원인-분석-왜-망가지는가) · [온디바이스 교훈](#8-실시간-시연-시스템-및-웹-배포-아키텍처) · [재현 가이드](#9-재현-가이드-reproduction-guide)
+## 논문 결과 재현
+
+- **원시 기록 색인:** [`paper_evidence/README.md`](paper_evidence/README.md). 수치마다 원시 예측, 지연 trace, 연산자 배치 로그, 모델 해시가 있는 위치를 정리했습니다.
+- **스크립트:** [`scripts/paper/`](scripts/paper/)
+  - 정확도: `evaluate_qdq_detection.py`
+  - 실행 환경별 지연: `runtime_matrix.py`, `summarize_runtime_matrix.py`
+  - 종단 정확도: `evaluate_end_to_end.py`
+  - 외부 검증: `coco_validation.py`
+  - 원인 분리: `weight_only_ablation.py`, `activation_ablation.py`, `decode_tensor_scan.py`
+  - 좌표 정규화·보정·객체 크기: `normalization_baseline.py`, `calibration_robustness.py`, `size_bin_retention.py`
+- **사전 공개:** 외부 검증의 예측과 판정 규칙은 측정 전에 [`COCO_VALIDATION_PLAN.md`](paper_evidence/reports/COCO_VALIDATION_PLAN.md)(커밋 `557dcc3`)로 공개했습니다. 판정 기준은 [`EVALUATION_CRITERIA.md`](paper_evidence/reports/EVALUATION_CRITERIA.md)에 있습니다.
+- **데이터와 모델:** AI Hub 원본 데이터와 ONNX 모델은 저장소에 없습니다. 분할 목록은 `paper_evidence/splits/`, 모델 해시는 `paper_evidence/models/`에 있습니다.
+- **두 번째 기기 측정 절차:** [`DEVICE_MEASUREMENT_GUIDE.md`](paper_evidence/reports/DEVICE_MEASUREMENT_GUIDE.md)
+
+> 아래 「프로젝트 개요」부터는 이전 단계(Phase 1–3)의 개발 기록입니다. 논문 수치는 위 「핵심 요약」과 `paper_evidence/`를 기준으로 합니다.
 
 ---
 

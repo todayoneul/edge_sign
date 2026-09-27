@@ -1,6 +1,6 @@
 # Edge-Sign TIIS evidence index
 
-이 폴더는 첨부 `Edge-Sign_개정원고_v2_검토본.pdf`의 주장 중 **이번 브랜치에서 새로 검증한 결과**를 담습니다. 먼저 [TIIS_EVIDENCE_REPORT.md](reports/TIIS_EVIDENCE_REPORT.md)를 읽으면 됩니다. 기존 v2/v3 문서의 숫자는 새 결과와 합치지 않았습니다.
+이 폴더는 논문(투고 준비 중)의 수치를 다시 계산할 수 있는 원시 기록을 담습니다. 결과 요약은 [RUNTIME_MATRIX.md](reports/RUNTIME_MATRIX.md)와 [COCO_VALIDATION.md](reports/COCO_VALIDATION.md), 추가 실험은 [extra/README.md](extra/README.md)에 있습니다. 기존 v2/v3 문서의 숫자는 새 결과와 합치지 않았습니다.
 
 | 질문 | 새 원시 evidence |
 |---|---|
@@ -17,7 +17,6 @@
 | 독립 시험 프레임의 14-class 인식 | `recognition/fp32_{metrics.json,predictions.jsonl}` |
 | tracking identity GT 감사 | [annotation_audit.json](tracking/annotation_audit.json) |
 | 논문용 그림과 표 | `figures/fig1_*.png`–`fig5_*.png`, `tables/` |
-| **논문 초안** | [paper_draft_KSII_TIIS_ko.md](paper_draft_KSII_TIIS_ko.md) — 구성요소·실행 환경별 양자화 실증 분석 |
 | 구성요소 × 정밀도 × 실행 환경 매트릭스 | [RUNTIME_MATRIX.md](reports/RUNTIME_MATRIX.md); `runtime/matrix/`(`summary.json`, `placement.json`, `bootstrap_retention.json`, 실행별 JSON·trace, `*/predictions.jsonl.gz`, `failed_attempts/`) |
 | 새 QDQ 변형의 생성 기록 | `models/quantize_variants_log.json`(검출기), `models/recognizer_variants_log.json`(인식기), `splits/recognition_calibration_manifest.jsonl` |
 | 인식기 변형 정확도 | `recognition/variants/{fp32,fp16,int8_*}_metrics.json`, `predictions.csv` |
