@@ -1,10 +1,10 @@
-"""Study overview figure: pipeline components, quantization variants, runtimes and research questions.
+"""Connected technical schematic of the studied pipeline and precision boundary.
 
-Drawn at the final print width (6.3 in, 7-8 pt text) in the shared paper style (paper_style.py).
-Output: paper_evidence/figures/fig9_study_overview.{pdf,png} (Fig. 1 of the draft).
-Usage: python scripts/paper/plot_study_overview.py
+Tensor glyphs are schematic, not layer-count or feature-dimension claims.
+Solid arrows show inference data flow; dashed lines show runtime assignment.
+The precision rows illustrate detector full/head-excluded INT8 conditions.
+Outputs: fig9_study_overview.{png,pdf,svg}; SVG text remains editable.
 """
-
 from __future__ import annotations
 
 import argparse
@@ -12,82 +12,140 @@ import sys
 from pathlib import Path
 
 import matplotlib
-
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
+from matplotlib.patches import Rectangle, FancyArrowPatch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from scripts.paper.paper_style import FULL_WIDTH, OKABE_ITO, apply, save
+from scripts.paper.paper_style import FULL_WIDTH, apply, save
 
-INK, MUTED, EDGE = "#1A1A1A", "#4D4D4D", "#8C8C8C"
-FILL = {"det": "#DCEBF7", "trk": "#F2F2F2", "rec": "#D9F2E9", "rt": "#FCEFD6"}
-
-
-def box(ax, x, y, w, h, title, lines, color, title_size=8):
-    ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.008,rounding_size=0.015",
-                                facecolor=color, edgecolor=EDGE, linewidth=0.6))
-    ax.text(x + w / 2, y + h - 0.04, title, ha="center", va="top", fontsize=title_size, fontweight="bold", color=INK)
-    for k, line in enumerate(lines):
-        ax.text(x + w / 2, y + h - 0.115 - k * 0.062, line, ha="center", va="top", fontsize=6.8, color=MUTED)
+INK = "#252525"
+GRAY = "#62686D"
+EDGE = "#92999E"
+BLUE = "#3B7396"
+TINT = "#DCE9F1"
+LIGHT = "#F3F4F4"
 
 
-def arrow(ax, x0, y0, x1, y1, text=None, style="-|>", ls="-"):
-    ax.add_patch(FancyArrowPatch((x0, y0), (x1, y1), arrowstyle=style, mutation_scale=7, color=INK,
-                                 linewidth=0.7, linestyle=ls, shrinkA=0, shrinkB=0))
-    if text:
-        ax.text((x0 + x1) / 2, (y0 + y1) / 2 + 0.02, text, ha="center", va="bottom", fontsize=6.3, color=MUTED)
+def text(ax, x, y, s, size=7.2, *, color=INK, weight="normal", ha="center"):
+    return ax.text(x, y, s, fontsize=size, color=color, fontweight=weight,
+                   ha=ha, va="center", linespacing=1.12)
 
 
-def badge(ax, x, y, text):
-    ax.text(x, y, text, ha="center", va="center", fontsize=6.3, fontweight="bold", color="white",
-            bbox={"boxstyle": "round,pad=0.22", "facecolor": OKABE_ITO["blue"], "edgecolor": "none"})
+def rect(ax, x, y, w, h, fill="white", edge=EDGE, lw=0.65, ls="-"):
+    ax.add_patch(Rectangle((x, y), w, h, facecolor=fill, edgecolor=edge,
+                           linewidth=lw, linestyle=ls))
 
 
-def main() -> None:
+def arrow(ax, x0, y0, x1, y1, *, dashed=False, color=INK):
+    ax.add_patch(FancyArrowPatch((x0, y0), (x1, y1), arrowstyle="-|>",
+                                 mutation_scale=6.5, linewidth=0.7, color=color,
+                                 linestyle=(0, (3, 2)) if dashed else "-",
+                                 shrinkA=0, shrinkB=0))
+
+
+def tensor(ax, x, y, w=27, h=50):
+    # A generic feature-tensor glyph; not an architecture layer inventory.
+    rect(ax, x+12, y+10, w, h, "#F5F7F8", EDGE, 0.5)
+    rect(ax, x+6, y+5, w, h, "#E7EDF1", EDGE, 0.5)
+    rect(ax, x, y, w, h, TINT, BLUE, 0.65)
+    for f in (1/3, 2/3):
+        ax.plot([x+w*f, x+w*f], [y, y+h], color=BLUE, alpha=0.3, linewidth=0.4)
+    for f in (0.25, 0.5, 0.75):
+        ax.plot([x, x+w], [y+h*f, y+h*f], color=BLUE, alpha=0.3, linewidth=0.4)
+
+
+def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--out", type=Path, default=Path("paper_evidence/figures/fig9_study_overview.png"))
+    parser.add_argument("--out", type=Path,
+                        default=Path("paper_evidence/figures/fig9_study_overview.png"))
     args = parser.parse_args()
     apply()
-    fig, ax = plt.subplots(figsize=(FULL_WIDTH, 3.2))
-    ax.set_xlim(-0.012, 1.012)
-    ax.set_ylim(0, 1)
+    matplotlib.rcParams["svg.fonttype"] = "none"
+    fig, ax = plt.subplots(figsize=(FULL_WIDTH, 2.7))
+    fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
+    ax.set(xlim=(0, 1000), ylim=(0, 410))
     ax.axis("off")
 
-    # top row: the pipeline; RQ1 badges on the two quantized components
-    y, h = 0.47, 0.47
-    mid = y + 0.25
-    box(ax, 0.0, y + 0.13, 0.09, 0.24, "Frame", ["video", "640×640"], FILL["trk"])
-    box(ax, 0.12, y, 0.275, h, "Detector", ["YOLOv8s (DFL head, NMS)", "YOLO26-n (NMS-free)",
-                                            "FP32 · FP16 · INT8 (QDQ)", "INT8: full / head / decode FP32",
-                                            "+ box normalization, calibration"], FILL["det"])
-    box(ax, 0.445, y + 0.08, 0.12, 0.33, "Tracker", ["ByteTrack", "no weights,", "not quantized"], FILL["trk"])
-    box(ax, 0.615, y, 0.25, h, "Recognizer", ["KoreanSignNet, 14 classes", "32×32 ROI, 29k params",
-                                              "FP32 · FP16 · INT8 (QDQ)", "INT8: full / head FP32"], FILL["rec"])
-    box(ax, 0.9, y + 0.13, 0.1, 0.24, "Output", ["sign / light", "fine class"], FILL["trk"])
-    arrow(ax, 0.09, mid, 0.12, mid)
-    arrow(ax, 0.395, mid, 0.445, mid, "boxes")
-    arrow(ax, 0.565, mid, 0.615, mid, "ROIs")
-    arrow(ax, 0.865, mid, 0.9, mid)
-    badge(ax, 0.366, y + h - 0.045, "RQ1")
-    badge(ax, 0.836, y + h - 0.045, "RQ1")
+    # Continuous inference path, with the studied model boundaries expanded.
+    rect(ax, 24, 279, 69, 53, LIGHT)
+    rect(ax, 18, 273, 69, 53, "white")
+    rect(ax, 12, 267, 69, 53, "white", GRAY)
+    # Tiny road-frame symbol, explicitly schematic rather than sample data.
+    ax.plot([19, 37, 51, 73], [278, 296, 280, 309], color=EDGE, linewidth=0.65)
+    text(ax, 48, 244, "RGB frame", 7.2)
+    text(ax, 48, 226, "640 × 640", 6.8, color=GRAY)
+    arrow(ax, 98, 299, 144, 299)
 
-    # bottom: execution environments on two devices (RQ2); each component can be placed on any (RQ3)
-    box(ax, 0.1, 0.07, 0.8, 0.29, "Execution environments (same ONNX file and input tensor)",
-        ["ORT CPU 1/4 threads  ·  ORT-Web WASM 1/4 threads  ·  ORT-Web WebGPU 1.22 / 1.30",
-         "two devices: Windows (Ryzen 5 9600X + RTX 5070), Mac (Apple M2 Pro)",
-         "batch-1 latency, 1,024 calls, mean / p90; operator placement from session logs"],
-        FILL["rt"], title_size=7.6)
-    badge(ax, 0.873, 0.33, "RQ2")
-    arrow(ax, 0.2575, 0.36, 0.2575, y, style="<|-|>", ls="--")
-    arrow(ax, 0.74, 0.36, 0.74, y, style="<|-|>", ls="--")
-    badge(ax, 0.325, 0.415, "RQ3")
-    ax.text(0.362, 0.415, "per-component placement in the browser", ha="left", va="center", fontsize=6.5, color=MUTED)
+    rect(ax, 149, 168, 328, 211, fill="none", edge=EDGE, lw=0.65, ls=(0, (4, 3)))
+    text(ax, 313, 362, "Detector", 8.1, weight="bold")
+    text(ax, 313, 344, "YOLOv8s / YOLO26-n", 7.0, color=GRAY)
+    tensor(ax, 183, 274, 29, 45)
+    text(ax, 207, 247, "Backbone\n+ neck", 6.8)
+    arrow(ax, 233, 299, 286, 299)
+    rect(ax, 289, 272, 78, 53, TINT, BLUE)
+    text(ax, 328, 299, "Head", 7.2)
+    arrow(ax, 369, 299, 395, 299)
+    rect(ax, 398, 272, 63, 53, LIGHT)
+    text(ax, 429, 299, "Decode", 6.8)
+    # Two short precision strips share the same body/head column boundary.
+    text(ax, 163, 216, "Full INT8", 6.8, ha="left")
+    text(ax, 163, 187, "Head-excluded", 6.8, ha="left")
+    for y, head_fill, head_label in ((206, TINT, "INT8"), (177, "white", "FP32")):
+        rect(ax, 288, y, 74, 20, TINT, BLUE, 0.5)
+        rect(ax, 366, y, 95, 20, head_fill, BLUE if head_label=="INT8" else EDGE, 0.5)
+        text(ax, 325, y+10, "INT8", 6.5)
+        text(ax, 414, y+10, head_label, 6.5)
+    text(ax, 325, 239, "body", 6.5, color=GRAY)
+    text(ax, 414, 239, "head / decode", 6.5, color=GRAY)
 
-    ax.text(0.5, 0.0, "RQ1: where INT8 loses accuracy  ·  RQ2: why latency changes by runtime and device  ·  "
-            "RQ3: which runtime each component uses", ha="center", va="bottom", fontsize=6.3, color=INK)
+    arrow(ax, 478, 299, 512, 299)
+    rect(ax, 514, 275, 99, 49, LIGHT, GRAY)
+    text(ax, 563, 299, "ByteTrack", 7.0)
+    text(ax, 563, 254, "association", 6.7, color=GRAY)
+    arrow(ax, 615, 299, 644, 299)
+    rect(ax, 651, 284, 29, 29, "white", GRAY, 0.65)
+    rect(ax, 646, 279, 29, 29, "white", GRAY, 0.65)
+    text(ax, 663, 254, "ROIs", 6.7, color=GRAY)
+    arrow(ax, 684, 299, 714, 299)
+
+    rect(ax, 717, 168, 174, 211, fill="none", edge=EDGE, lw=0.65, ls=(0, (4, 3)))
+    text(ax, 804, 362, "Recognizer", 8.1, weight="bold")
+    text(ax, 804, 344, "KoreanSignNet", 7.0, color=GRAY)
+    tensor(ax, 735, 277, 20, 39)
+    arrow(ax, 773, 299, 802, 299)
+    rect(ax, 805, 278, 70, 43, TINT, BLUE)
+    text(ax, 840, 299, "Classifier", 6.6)
+    text(ax, 804, 251, "14 fine classes", 7.0)
+    text(ax, 804, 194, "FP32 / FP16 / INT8", 6.7, color=GRAY)
+    arrow(ax, 893, 299, 929, 299)
+    text(ax, 960, 299, "Fine\nclass", 7.2)
+
+    # Runtime assignment is connected to the model groups, not a separate panel.
+    ax.plot([313, 313, 804, 804], [168, 113, 113, 168], color=GRAY,
+            linewidth=0.65, linestyle=(0, (3, 2)))
+    text(ax, 561, 136, "Independent ONNX sessions", 7.2)
+    for x, name in ((348, "ORT CPU"), (518, "WASM"), (688, "WebGPU")):
+        arrow(ax, x+66, 113, x+66, 92, dashed=True, color=GRAY)
+        rect(ax, x, 54, 132, 38, "white", GRAY)
+        text(ax, x+66, 73, name, 7.2)
+    text(ax, 584, 28, "Same model variant + input  ·  Windows / Mac", 7.0, color=GRAY)
     save(fig, args.out)
-    print("wrote", args.out, args.out.with_suffix(".pdf"))
+    fig.savefig(args.out.with_suffix(".svg"))
+    args.out.with_suffix(".caption.txt").write_text(
+        "Overview of the studied detection-tracking-recognition pipeline. "
+        "The detector precision strips contrast full INT8 QDQ with head-excluded "
+        "INT8, in which the head and decode operations retain FP32 precision. "
+        "FP32 and FP16 baselines and further diagnostic variants are described "
+        "in the text. ByteTrack associates detections without learned weights; "
+        "KoreanSignNet assigns the fine class to each cropped region. Solid arrows "
+        "denote inference data flow, and dashed lines denote independent runtime "
+        "assignment of the detector and recognizer sessions. Each model variant "
+        "is profiled with the same input across execution backends on Windows "
+        "and Mac. Tensor glyphs are schematic and do not encode layer counts "
+        "or feature dimensions.\n", encoding="utf-8")
+    plt.close(fig)
+    print("wrote", args.out, args.out.with_suffix(".pdf"), args.out.with_suffix(".svg"))
 
 
 if __name__ == "__main__":
