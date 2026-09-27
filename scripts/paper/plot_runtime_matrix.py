@@ -28,17 +28,25 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.lines import Line2D
+from matplotlib.ticker import FixedLocator, FuncFormatter, NullFormatter
+from matplotlib.transforms import blended_transform_factory
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from scripts.paper.paper_style import (
+    FONT_SIZE,
     FULL_WIDTH,
+    GRAY,
+    HAIR,
+    INK,
     MODEL_COLOR,
     OKABE_ITO,
-    RUNTIME_COLOR,
+    SOFT,
+    SOFT_STAGE,
     STAGE_COLOR,
     apply,
-    panel_label,
+    key_row,
     save,
+    swatch,
     value_grid,
 )
 
@@ -62,38 +70,116 @@ def label(key: str) -> str:
     return f"{MODEL_NAME[family]} {SHORT.get(rest, rest)}"
 
 
+# Table-style figures (Figs. 2, 5, 6 in the paper) share the look of the Fig. 1 schematic: fills with a darker
+# outline of the same hue, ink for primary text, gray for secondary text, hairline rules between groups.
+DASHED, DOTTED = (0, (4, 2.5)), (0, (1, 1.6))  # 99% criterion / 30 FPS, and 95% reference / 15 FPS
+CELL = FONT_SIZE - 1  # table cell text
+NOTE = FONT_SIZE - 1.5  # headers and secondary text
+
+
+class _Table:
+    """Text columns placed at x inches from the figure's left edge and y in the data units of `ax`.
+
+    Built on transFigure (not dpi_scale_trans) so the columns stay aligned with the axes under bbox='tight'.
+    """
+
+    def __init__(self, fig, ax, width_in: float):
+        self.ax, self.width = ax, width_in
+        self.tr = blended_transform_factory(fig.transFigure, ax.transData)
+
+    def text(self, x_in: float, y: float, s: str, *, ha: str = "left", color: str = INK, size: float = CELL, **kw):
+        return self.ax.text(x_in / self.width, y, s, transform=self.tr, ha=ha, va="center", color=color,
+                            fontsize=size, clip_on=False, **kw)
+
+    def rule(self, x0_in: float, x1_in: float, y: float, color: str = HAIR, lw: float = 0.5) -> None:
+        self.ax.add_line(Line2D([x0_in / self.width, x1_in / self.width], [y, y], transform=self.tr, color=color,
+                                linewidth=lw, clip_on=False))
+
+
+def _axes_in(fig, width_in: float, height_in: float, left: float, right: float, bottom: float, top: float):
+    """Axes whose edges are given in inches from the figure's left/bottom edge."""
+    return fig.add_axes([left / width_in, bottom / height_in, (right - left) / width_in, (top - bottom) / height_in])
+
+
+def _blend(hex_color: str, toward: str, amount: float) -> str:
+    """Mix a color toward white/black by `amount` (0..1); used to soften the Okabe-Ito hues."""
+    import matplotlib.colors as mcolors
+
+    a, b = np.array(mcolors.to_rgb(hex_color)), np.array(mcolors.to_rgb(toward))
+    return mcolors.to_hex(a + (b - a) * amount)
+
+
 def fig_sensitivity(rows: list[dict], bootstrap: dict, out: Path) -> None:
-    """Retention per component and variant, zoomed on 94-101% so the 95% and 99% lines are readable."""
+    """Forest plot of retention per component and variant: point = retention vs FP32, whisker = 95% bootstrap CI,
+    zoomed on 94-101% with the 95% reference and 99% criterion. Collapsed variants (no detections) cannot sit on the
+    truncated axis, so they get no point, only a cross and a label at a fixed position inside the plot."""
     by = {r["model"]: r for r in rows}
     keys = [k for k in SENS_ROWS if by.get(k, {}).get("retention") is not None]
-    lo_x, hi_x = 94.0, 101.2
-    fig, ax = plt.subplots(figsize=(FULL_WIDTH, 2.9))
-    y = np.arange(len(keys))[::-1]
-    for yi, key in zip(y, keys, strict=True):
-        r = by[key]
-        color = MODEL_COLOR[r["family"]]
+    families = list(dict.fromkeys(by[k]["family"] for k in keys))
+    y_of, head_y, gaps, y = {}, {}, [], 0.0
+    for i, fam in enumerate(families):
+        if i:
+            gaps.append(-(y - 0.1))
+            y += 0.2
+        head_y[fam] = -y  # model name on its own row, variants indented below it
+        y += 1.0
+        for k in (k for k in keys if by[k]["family"] == fam):
+            y_of[k] = -y
+            y += 1.0
+    top, bottom = 0.45, -(y - 1.0) - 0.5
+    lo_x, hi_x = 94.0, 101.0
+    marker = {"v4": ("o", 3.9), "v3": ("s", 3.5), "rec": ("^", 4.3), "coco": ("D", 3.4)}  # shape survives grayscale
+    role = {"v4": "detector · mAP", "v3": "detector · mAP", "rec": "recognizer · Top-1", "coco": "detector · mAP"}
+    ci_color, ref95, ref99 = "#333333", "#9A9FA4", "#333333"
+
+    width_in, height_in = FULL_WIDTH, 3.1
+    x_model, x_var = 0.02, 0.16
+    fig = plt.figure(figsize=(width_in, height_in))
+    ax = _axes_in(fig, width_in, height_in, left=1.3, right=width_in - 0.16, bottom=0.42, top=height_in - 0.17)
+    tab = _Table(fig, ax, width_in)
+    for fam in families:
+        name = tab.text(x_model, head_y[fam], MODEL_NAME[fam], weight="bold")
+        ax.annotate(f"  {role[fam]}", xy=(1, 0.5), xycoords=name, va="center", color=GRAY, fontsize=NOTE - 0.5)
+    for yg in gaps:
+        tab.rule(x_model, width_in - 0.08, yg, color="#ECEEF0", lw=0.35)
+
+    for key in keys:
+        r, yi = by[key], y_of[key]
+        base = MODEL_COLOR[r["family"]]  # Okabe-Ito hue, softened fill and slightly darker edge
         value = r["retention"] * 100
-        if value < lo_x:  # collapsed: hatched stub and a direct label
-            ax.barh(yi, 0.5, left=lo_x, height=0.62, color="white", edgecolor=color, hatch="////", linewidth=0.6)
-            ax.text(lo_x + 0.62, yi, f"{value:.0f}% (no detections)", va="center", color=color)
+        tab.text(x_var, yi, SHORT[key.split("_", 1)[1]])
+        if value < lo_x:  # collapsed: no point or CI, same cross position in every such row
+            ax.text(lo_x + 0.12, yi, "×  No detections", va="center", ha="left", color=GRAY, fontsize=NOTE,
+                    bbox={"facecolor": "white", "edgecolor": "none", "pad": 0.6})
             continue
-        ax.barh(yi, value - lo_x, left=lo_x, height=0.62, color=color)
-        ci = bootstrap.get(key)
         right = value
-        if ci:
-            ax.errorbar(value, yi, xerr=[[value - ci["ci95_low"] * 100], [ci["ci95_high"] * 100 - value]],
-                        fmt="none", ecolor=OKABE_ITO["black"], elinewidth=0.7, capsize=1.8)
-            right = ci["ci95_high"] * 100
-        ax.text(min(right, hi_x - 0.45) + 0.08, yi, f"{value:.1f}", va="center")
-    ax.set_yticks(y, [f"{MODEL_NAME[by[k]['family']]} {SHORT[k.split('_', 1)[1]]} ({by[k]['bytes'] / 1e6:.2f} MB)" for k in keys])
-    ax.axvline(99, color=OKABE_ITO["black"], ls="--", lw=0.8)
-    ax.axvline(95, color=OKABE_ITO["gray"], ls=":", lw=0.8)
-    ax.text(99.05, len(keys) - 0.45, "99% criterion", va="bottom")
-    ax.text(95.05, len(keys) - 0.45, "95% tier (reference)", va="bottom", color="#555555")
+        if ci := bootstrap.get(key):
+            lo, hi = ci["ci95_low"] * 100, ci["ci95_high"] * 100
+            ax.errorbar(value, yi, xerr=[[value - lo], [hi - value]], fmt="none", ecolor=ci_color, elinewidth=0.55,
+                        capsize=1.3, capthick=0.55, zorder=3)
+            right = hi
+        shape, size = marker[r["family"]]
+        ax.plot(value, yi, marker=shape, markersize=size, markerfacecolor=_blend(base, "#FFFFFF", 0.35),
+                markeredgecolor=_blend(base, "#000000", 0.25), markeredgewidth=0.6, linestyle="none", zorder=4)
+        # clear the whisker cap, or the marker itself when the CI is shorter than the marker
+        pt_per_unit = ax.get_position().width * width_in * 72 / (hi_x - lo_x)
+        gap = max(3.5, size / 2 + 2.5 - (right - value) * pt_per_unit)
+        ax.annotate(f"{value:.1f}", xy=(right, yi), xytext=(gap, 0), textcoords="offset points", va="center",
+                    ha="left", fontsize=NOTE, color=INK)
+
+    ax.axvline(95, color=ref95, ls=DOTTED, lw=0.7, zorder=1)
+    ax.axvline(99, color=ref99, ls=DASHED, lw=0.7, zorder=1)
+    for xv, s, color in ((95, "95% reference", GRAY), (99, "99% criterion", INK)):
+        ax.annotate(s, xy=(xv, 1), xycoords=ax.get_xaxis_transform(), xytext=(0, 1.5), textcoords="offset points",
+                    ha="center", va="bottom", fontsize=NOTE, color=color)
     ax.set_xlim(lo_x, hi_x)
-    ax.set_ylim(-0.6, len(keys) + 0.1)
-    ax.set_xlabel("Retention vs FP32 (%); whisker = 95% bootstrap CI")
-    value_grid(ax, "x")
+    ax.set_ylim(bottom, top)
+    ax.set_yticks([])
+    ax.spines["left"].set_visible(False)
+    ax.set_xticks(range(int(lo_x), int(hi_x) + 1))
+    ax.set_xlabel("Accuracy retention vs. FP32 (%)")
+    ax.grid(axis="x", which="major", color="#EEEEEE", linewidth=0.4)
+    ax.set_axisbelow(True)
     save(fig, out)
     plt.close(fig)
 
@@ -205,78 +291,191 @@ def fig_pipeline(matrix: Path, out: Path) -> None:
 
 # Cross-device figures (paper Fig. 4 and 5): device A = --matrix, device B = --compare.
 # Representative conditions only; INT8 is the head-excluded variant with INT32 bias.
-DEVICE_CONDS = [  # (legend, runtime column, variant suffix, color, hatch)
-    ("ORT CPU 4T FP32", "cpu_t4", "fp32", RUNTIME_COLOR["cpu"], ""),
-    ("ORT CPU 4T INT8", "cpu_t4", "int8_head_excl", RUNTIME_COLOR["cpu"], "////"),
-    ("WASM 4T FP32", "wasmt4_1300", "fp32", RUNTIME_COLOR["wasm"], ""),
-    ("WASM 4T INT8", "wasmt4_1300", "int8_head_excl", RUNTIME_COLOR["wasm"], "////"),
-    ("WebGPU FP32", "webgpu_1300", "fp32", RUNTIME_COLOR["webgpu"], ""),
-    ("WebGPU FP16", "webgpu_1300", "fp16", RUNTIME_COLOR["webgpu_fp16"], ""),
-    ("WebGPU INT8", "webgpu_1300", "int8_head_excl", RUNTIME_COLOR["webgpu"], "////"),
+DEVICE_RUNTIMES = [  # (label, summary column, base color): color = where it runs
+    ("ORT CPU 4T", "cpu_t4", "#8C8C8C"),
+    ("WASM 4T", "wasmt4_1300", OKABE_ITO["orange"]),
+    ("WebGPU", "webgpu_1300", OKABE_ITO["blue"]),
 ]
+DEVICE_PRECISIONS = {  # runtime column -> precisions measured there (INT8 = head-excluded, INT32 bias)
+    "cpu_t4": ["fp32", "int8_head_excl"], "wasmt4_1300": ["fp32", "int8_head_excl"],
+    "webgpu_1300": ["fp32", "fp16", "int8_head_excl"],
+}
+PRECISION_MARK = {"fp32": ("o", 5.6, "FP32"), "fp16": ("^", 6.2, "FP16"), "int8_head_excl": ("s", 5.2, "INT8")}
 DEVICE_MODELS = [("v4", "YOLO26-n"), ("v3", "YOLOv8s"), ("coco", "YOLO11l (COCO)")]
 DEVICE_PIPELINE_ROWS = PIPELINE_ROWS[:1] + PIPELINE_ROWS[2:7]  # WebGPU and 4-thread WASM placements
 
 
+def panel_title(ax, tag: str, name: str, y_pt: float = 4.0) -> None:
+    """Panel tag and device in bold ink followed by the hardware in gray, `y_pt` points above the axes."""
+    device, _, hardware = name.partition(":")
+    title = ax.annotate(f"{tag} {device}", xy=(0, 1), xycoords="axes fraction", xytext=(0, y_pt),
+                        textcoords="offset points", fontweight="bold", fontsize=FONT_SIZE - 0.5, color=INK, va="bottom")
+    if hardware:
+        ax.annotate(f"  {hardware.strip()}", xy=(1, 0), xycoords=title, va="bottom", color=GRAY, fontsize=NOTE)
+
+
+def _marker_key(marker: str, size: float, face: str, edge: str, tick: bool = False, width: float = 10, height: float = 8):
+    """Legend glyph: one marker (or a mean-to-p90 range glyph when `tick`) in a DrawingArea."""
+    from matplotlib.offsetbox import DrawingArea
+
+    area = DrawingArea(width + (16 if tick else 0), height, 0, 0)
+    y = height / 2
+    if tick:
+        area.add_artist(Line2D([5, width + 11], [y, y], color=face, linewidth=1.2))
+        area.add_artist(Line2D([width + 11], [y], marker="|", markersize=7.5, markeredgewidth=1.2, color=edge))
+    area.add_artist(Line2D([5], [y], marker=marker, markersize=size, markerfacecolor=face, markeredgecolor=edge,
+                           markeredgewidth=1.0, linestyle="none"))
+    return area
+
+
 def fig_latency_devices(rows_a: list[dict], rows_b: list[dict], names: tuple[str, str], out: Path) -> None:
-    """Batch-1 latency of the three detectors on both devices, one panel per device (log scale)."""
-    fig, axes = plt.subplots(1, 2, figsize=(FULL_WIDTH, 2.55), sharey=True)
-    width = 0.84 / len(DEVICE_CONDS)
-    x = np.arange(len(DEVICE_MODELS))
+    """Point-range plot of batch-1 detector latency, one panel per device on a shared log axis.
+
+    Rows: model > runtime. Color = runtime, marker shape = precision; filled marker = mean, tick = p90, joined by a
+    line. Precisions sharing a runtime row sit in fixed vertical lanes so near-equal values stay visible.
+    """
+    lanes = {2: [0.2, -0.2], 3: [0.27, 0.0, -0.27]}
+    y_row, head_y, gaps, y = {}, {}, [], 0.0
+    for i, (fam, _) in enumerate(DEVICE_MODELS):
+        if i:
+            gaps.append(-(y - 0.15))
+            y += 0.3
+        head_y[fam] = -y
+        y += 0.85
+        for _, col, _ in DEVICE_RUNTIMES:
+            y_row[fam, col] = -y
+            y += 1.0
+    top, bottom = 0.45, -(y - 1.0) - 0.55
+    lo_x, hi_x = 8.0, 6000.0
+
+    width_in, height_in = FULL_WIDTH, 3.45
+    a_left, a_right, b_left, b_right = 1.2, 3.66, 3.8, width_in - 0.04
+    plot_bottom, plot_top = 0.4, height_in - 0.5
+    fig = plt.figure(figsize=(width_in, height_in))
+    axes = [_axes_in(fig, width_in, height_in, left=a_left, right=a_right, bottom=plot_bottom, top=plot_top),
+            _axes_in(fig, width_in, height_in, left=b_left, right=b_right, bottom=plot_bottom, top=plot_top)]
+    tab = _Table(fig, axes[0], width_in)
+    for fam, name in DEVICE_MODELS:
+        tab.text(0.02, head_y[fam], name, weight="bold")
+        for runtime, col, _ in DEVICE_RUNTIMES:
+            tab.text(0.16, y_row[fam, col], runtime)
+    for yg in gaps:
+        tab.rule(0.02, b_right, yg, color="#E3E6E8", lw=0.6)
+
     for ax, rows, name, tag in zip(axes, (rows_a, rows_b), names, ("(a)", "(b)"), strict=True):
         by = {r["model"]: r for r in rows}
-        for i, (legend, col, suffix, color, hatch) in enumerate(DEVICE_CONDS):
-            cells = [by.get(f"{fam}_{suffix}", {}).get(col) for fam, _ in DEVICE_MODELS]
-            vals = [c["mean_ms"] if c else np.nan for c in cells]
-            errs = [max(0.0, c["p90_ms"] - c["mean_ms"]) if c else 0.0 for c in cells]
-            ax.bar(x + (i - (len(DEVICE_CONDS) - 1) / 2) * width, vals, width, yerr=[np.zeros(len(cells)), errs],
-                   color=color, hatch=hatch, edgecolor="white" if hatch else color, linewidth=0.0, label=legend,
-                   error_kw={"elinewidth": 0.5, "capsize": 1})
-        for yv, ls, color, fps in FPS_LINES:
-            ax.axhline(yv, color=color, ls=ls, lw=0.8, label=fps)
-        ax.set_yscale("log")
-        ax.set_ylim(5, 4000)
-        ax.set_xticks(x, [m for _, m in DEVICE_MODELS])
-        panel_label(ax, f"{tag} {name}")
-        value_grid(ax)
-    axes[0].set_ylabel("Latency (ms), mean; whisker = p90")
-    handles, labels = axes[0].get_legend_handles_labels()
-    order = [labels.index(c[0]) for c in DEVICE_CONDS] + [labels.index(f[3]) for f in FPS_LINES]  # bars, then FPS lines
-    fig.legend([handles[i] for i in order], [labels[i] for i in order], ncol=5, loc="upper center", bbox_to_anchor=(0.5, 1.13))
-    fig.tight_layout()
+        for fam, _ in DEVICE_MODELS:
+            for _, col, base in DEVICE_RUNTIMES:
+                face, edge = _blend(base, "#FFFFFF", 0.15), _blend(base, "#000000", 0.35)
+                precisions = DEVICE_PRECISIONS[col]
+                for precision, dy in zip(precisions, lanes[len(precisions)], strict=True):
+                    cell = by[f"{fam}_{precision}"][col]
+                    mean, p90, yi = cell["mean_ms"], cell["p90_ms"], y_row[fam, col] + dy
+                    marker, size, _ = PRECISION_MARK[precision]
+                    ax.plot([mean, p90], [yi, yi], color=face, linewidth=1.2, solid_capstyle="butt", zorder=2)
+                    ax.plot(mean, yi, marker=marker, markersize=size, markerfacecolor=face, markeredgecolor=edge,
+                            markeredgewidth=1.0, linestyle="none", zorder=4)
+                    # p90 tick drawn above the marker and slightly taller, so it stays visible when p90 ~ mean
+                    ax.plot(p90, yi, marker="|", markersize=7.5, markeredgewidth=1.2, color=edge, zorder=5)
+                    if col == "webgpu_1300" and precision == "int8_head_excl":  # the one outlier worth a number
+                        text = f"{mean:.0f} ms" if mean < 1000 else f"{mean / 1000:.2f} s"
+                        ax.annotate(text, xy=(max(mean, p90), yi), xytext=(5, 0), textcoords="offset points",
+                                    va="center", fontsize=NOTE, color=INK)
+        ax.axvline(1000 / 30, color="#333333", ls=DASHED, lw=1.0, zorder=1)
+        ax.axvline(1000 / 15, color="#8C8C8C", ls=DOTTED, lw=1.1, zorder=1)
+        ax.annotate("30 FPS", xy=(1000 / 30, 1), xycoords=ax.get_xaxis_transform(), xytext=(-2, 1.5),
+                    textcoords="offset points", ha="right", va="bottom", fontsize=NOTE - 0.5, color=INK)
+        ax.annotate("15 FPS", xy=(1000 / 15, 1), xycoords=ax.get_xaxis_transform(), xytext=(2, 1.5),
+                    textcoords="offset points", ha="left", va="bottom", fontsize=NOTE - 0.5, color=GRAY)
+        ax.set_xscale("log")
+        ax.set_xlim(lo_x, hi_x)
+        ax.set_ylim(bottom, top)
+        ax.xaxis.set_major_locator(FixedLocator([10, 100, 1000]))
+        ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:,.0f}"))
+        ax.xaxis.set_minor_formatter(NullFormatter())
+        ax.set_yticks([])
+        ax.spines["left"].set_visible(False)
+        ax.grid(axis="x", which="major", color="#EBEBEB", linewidth=0.5)
+        ax.set_axisbelow(True)
+        panel_title(ax, tag, name, y_pt=11.5)
+    fig.text((a_left + b_right) / 2 / width_in, 0.07 / height_in, "Latency (ms, log scale)", ha="center", va="bottom",
+             fontsize=FONT_SIZE, color=INK)
+
+    runtime_key = [("Runtime", {"color": GRAY, "fontsize": NOTE})]
+    for runtime, _, base in DEVICE_RUNTIMES:
+        runtime_key += [_marker_key("o", 5.6, _blend(base, "#FFFFFF", 0.15), _blend(base, "#000000", 0.35)),
+                        runtime.replace(" 4T", "")]
+    precision_key = [("Precision", {"color": GRAY, "fontsize": NOTE})]
+    for marker, size, label_text in PRECISION_MARK.values():
+        precision_key += [_marker_key(marker, size, "#FFFFFF", INK), label_text]
+    stat_key = [_marker_key("o", 5.6, "#9A9A9A", "#333333", tick=True),
+                ("filled = mean,  tick = p90", {"color": GRAY, "fontsize": NOTE})]
+    key_row(fig, [runtime_key, precision_key, stat_key], x=0.5, y=(height_in - 0.07) / height_in, gap=14.0)
     save(fig, out)
     plt.close(fig)
 
 
 def fig_pipeline_devices(matrix_a: Path, matrix_b: Path, names: tuple[str, str], out: Path) -> None:
-    """Per-stage pipeline latency, device A (upper bar) and device B (lower bar) for each placement."""
-    groups = [(name, [launch_summary(matrix_a, run), launch_summary(matrix_b, run)]) for run, name in DEVICE_PIPELINE_ROWS]
-    fig, ax = plt.subplots(figsize=(FULL_WIDTH, 0.52 * len(groups) + 0.8))
-    height, limit = 0.34, 108.0
-    yticks = []
-    for g, (_, bars) in enumerate(groups):
-        base = len(groups) - 1 - g
-        yticks.append(base)
+    """Per-stage pipeline latency on both devices, as a table: detector | recognizer | device, stacked stage bars,
+    then the median launch mean, its p90 and the number of launches."""
+    groups = []
+    for run, name in DEVICE_PIPELINE_ROWS:
+        det, rec = (part.split(" ", 1)[1].replace(" @", " · ") for part in name.split(" + "))
+        groups.append((det, rec, [launch_summary(matrix_a, run), launch_summary(matrix_b, run)]))
+    devices = [n.split(":")[0] for n in names]
+    top, bottom = 0.55, -(len(groups) - 1) - 0.55
+    axes_top = 0.42 + 0.36 * (top - bottom)  # 0.36 in per placement
+    width_in, height_in = FULL_WIDTH, axes_top + 0.5
+    x_det, x_rec, x_dev, x_mean, x_p90, x_n, x_end = 0.02, 1.3, 2.1, 5.6, 5.95, 6.24, 6.28
+    fig = plt.figure(figsize=(width_in, height_in))
+    ax = _axes_in(fig, width_in, height_in, left=2.56, right=5.2, bottom=0.42, top=axes_top)
+    tab = _Table(fig, ax, width_in)
+    limit, height = 72.0, 0.32
+
+    header = top + 0.5
+    for x, s, ha in ((x_det, "Detector", "left"), (x_rec, "Recognizer", "left"), (x_dev, "Device", "left"),
+                     (x_mean, "Mean", "right"), (x_p90, "p90", "right"), (x_n, "n", "right")):
+        tab.text(x, header, s, ha=ha, color=GRAY, size=NOTE)
+    tab.rule(x_det, x_end, top + 0.1, color="#C9CED2")
+    for g, (det, rec, bars) in enumerate(groups):
+        base = -g
+        tab.text(x_det, base, det)
+        tab.text(x_rec, base, rec)
+        if g:
+            tab.rule(x_det, x_end, base + 0.5)
         for d, bar in enumerate(bars):
             if bar is None:
                 continue
             stage, med, lo, hi, p90, n = bar
             y = base + (0.19 if d == 0 else -0.19)
-            stacked_bar(ax, y, stage, height, limit, first=g == 0 and d == 0, edge=d == 1)
+            left = 0.0
+            for key, _ in STAGES:
+                fill, edge, _ = SOFT[SOFT_STAGE[key]]
+                ax.barh(y, min(stage[key], limit - left), height, left=left, facecolor=fill, edgecolor=edge,
+                        linewidth=0.45)
+                left += stage[key]
             if n > 1:
-                ax.errorbar(med, y, xerr=[[med - lo], [hi - med]], fmt="none", ecolor=OKABE_ITO["black"], elinewidth=0.6, capsize=1.5)
-            ax.text(max(med, hi) + 1.2, y, f"{'AB'[d]}  {med:.1f} ms · p90 {p90:.1f} · n={n}", va="center", fontsize=7,
-                    bbox={"facecolor": "white", "edgecolor": "none", "pad": 0.4, "alpha": 0.9})
-    fps_lines(ax)
-    ax.set_yticks(yticks, [name for name, _ in groups])
+                ax.errorbar(med, y, xerr=[[med - lo], [hi - med]], fmt="none", ecolor=INK, elinewidth=0.6,
+                            capsize=1.3, capthick=0.6)
+            tab.text(x_dev, y, devices[d], color=GRAY, size=NOTE)
+            tab.text(x_mean, y, f"{med:.1f}", ha="right")
+            tab.text(x_p90, y, f"{p90:.1f}", ha="right", color=GRAY)
+            tab.text(x_n, y, f"{n}", ha="right", color=GRAY)
+
+    ax.axvline(1000 / 30, color=INK, ls=DASHED, lw=0.7)
+    ax.axvline(1000 / 15, color=INK, ls=DOTTED, lw=0.8)
+    for fps, xv in (("30 FPS", 1000 / 30), ("15 FPS", 1000 / 15)):
+        ax.text(xv, header, fps, ha="center", va="center", color=GRAY, fontsize=NOTE, clip_on=False)
     ax.set_xlim(0, limit)
-    ax.set_xlabel(f"Per-frame latency (ms). A (upper): {names[0].split(':')[0]}; B (lower, outlined): {names[1].split(':')[0]}; "
-                  "whisker: range over launches")
-    handles, labels = ax.get_legend_handles_labels()
-    handles += [Line2D([], [], color=OKABE_ITO["black"], ls="--", lw=0.8), Line2D([], [], color=OKABE_ITO["black"], ls=":", lw=0.8)]
-    labels += ["30 FPS", "15 FPS"]
-    ax.legend(handles, labels, ncol=7, loc="lower center", bbox_to_anchor=(0.5, 1.0))
-    value_grid(ax, "x")
+    ax.set_ylim(bottom, top)
+    ax.set_yticks([])
+    ax.set_xticks(range(0, int(limit) + 1, 10))
+    ax.set_xlabel("Per-frame latency (ms)")
+    ax.grid(axis="x", color=HAIR, linewidth=0.5)
+    ax.set_axisbelow(True)
+    key = [[swatch(SOFT[SOFT_STAGE[k]][0], SOFT[SOFT_STAGE[k]][1]), name] for k, name in STAGES]
+    key.append([("bar = median of launch means;  whisker = range over launches", {"color": GRAY, "fontsize": NOTE})])
+    key_row(fig, key, x=0.5, y=(height_in - 0.08) / height_in, gap=9.0)
     save(fig, out)
     plt.close(fig)
 
