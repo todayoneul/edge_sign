@@ -114,6 +114,17 @@ for k in $(seq 1 "$ROUNDS"); do
   done
 done
 
+step "3b pipeline FP16 all-WebGPU vs recognizer on WASM, $ROUNDS rounds"
+GPU_CFG="v4_fp16@webgpu+rec_fp16@webgpu"
+MIX_CFG="v4_fp16@webgpu+rec_fp32@wasm"
+for k in $(seq 1 "$ROUNDS"); do
+  if [ $((k % 2)) -eq 1 ]; then order="$GPU_CFG $MIX_CFG"; else order="$MIX_CFG $GPU_CFG"; fi
+  for c in $order; do
+    wait_quiet "$c round $k"
+    $P $(tag "$k") --configs "$c"
+  done
+done
+
 step "4 WASM numeric parity on the test set (accuracy does not depend on CPU load)"
 $RM browser $URL $COMMON --eps wasm --mode accuracy --ort 1.30.0 --wasm-threads 4 --timeout 3600 $LIMIT \
   --models v4_fp32 v4_int8_head_excl v4_int8_head_excl_fbias
