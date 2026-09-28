@@ -1,0 +1,78 @@
+=== 01:37:36 0 verify bundle
+=== 01:37:43 1 YOLO26-n WASM 4T, 5 rounds
+speed_wasmt4_ort1300_v4_fp32: completed mean 43.63 p90 43.74 ms  
+speed_wasmt4_ort1300_v4_int8_head_excl: completed mean 52.20 p90 52.55 ms  
+speed_wasmt4_ort1300_v4_int8_head_excl_r2: completed mean 52.16 p90 52.52 ms  
+speed_wasmt4_ort1300_v4_fp32_r2: completed mean 43.77 p90 43.98 ms  
+speed_wasmt4_ort1300_v4_fp32_r3: completed mean 43.57 p90 43.76 ms  
+speed_wasmt4_ort1300_v4_int8_head_excl_r3: completed mean 52.15 p90 52.48 ms  
+speed_wasmt4_ort1300_v4_int8_head_excl_r4: completed mean 52.19 p90 52.64 ms  
+speed_wasmt4_ort1300_v4_fp32_r4: completed mean 43.65 p90 44.12 ms  
+speed_wasmt4_ort1300_v4_fp32_r5: completed mean 43.71 p90 43.95 ms  
+speed_wasmt4_ort1300_v4_int8_head_excl_r5: completed mean 52.08 p90 52.36 ms  
+=== 01:51:48 2 YOLOv8s WASM 4T, 3 rounds
+speed_wasmt4_ort1300_v3_fp32: completed mean 187.24 p90 193.02 ms  
+speed_wasmt4_ort1300_v3_int8_head_excl: completed mean 196.98 p90 201.39 ms  
+speed_wasmt4_ort1300_v3_int8_head_excl_r2: completed mean 196.62 p90 200.73 ms  
+speed_wasmt4_ort1300_v3_fp32_r2: completed mean 186.74 p90 191.95 ms  
+speed_wasmt4_ort1300_v3_fp32_r3: completed mean 187.51 p90 193.19 ms  
+speed_wasmt4_ort1300_v3_int8_head_excl_r3: completed mean 196.82 p90 201.01 ms  
+=== 02:14:54 3 pipeline FP32 vs INT8 on WASM 4T, 5 rounds
+pipeline_t4_ort1300_v4_fp32@wasm+rec_fp32@wasm: completed det 43.28 rec 0.16 total 44.69 p90 45.17 
+pipeline_t4_ort1300_v4_int8_head_excl@wasm+rec_int8_full@wasm: completed det 52.13 rec 0.21 total 53.69 p90 54.46 
+pipeline_t4_ort1300_v4_int8_head_excl@wasm+rec_int8_full@wasm_r2: completed det 52.14 rec 0.21 total 53.69 p90 54.49 
+pipeline_t4_ort1300_v4_fp32@wasm+rec_fp32@wasm_r2: completed det 43.74 rec 0.16 total 45.15 p90 45.58 
+pipeline_t4_ort1300_v4_fp32@wasm+rec_fp32@wasm_r3: completed det 43.48 rec 0.16 total 44.92 p90 45.42 
+pipeline_t4_ort1300_v4_int8_head_excl@wasm+rec_int8_full@wasm_r3: completed det 52.24 rec 0.22 total 53.81 p90 54.50 
+pipeline_t4_ort1300_v4_int8_head_excl@wasm+rec_int8_full@wasm_r4: completed det 52.14 rec 0.22 total 53.68 p90 54.43 
+pipeline_t4_ort1300_v4_fp32@wasm+rec_fp32@wasm_r4: completed det 43.32 rec 0.16 total 44.73 p90 45.18 
+pipeline_t4_ort1300_v4_fp32@wasm+rec_fp32@wasm_r5: completed det 43.30 rec 0.16 total 44.78 p90 45.31 
+pipeline_t4_ort1300_v4_int8_head_excl@wasm+rec_int8_full@wasm_r5: completed det 52.16 rec 0.21 total 53.70 p90 54.45 
+=== 02:24:03 3b pipeline FP16 all-WebGPU vs recognizer on WASM, 5 rounds
+pipeline_t4_ort1300_v4_fp16@webgpu+rec_fp16@webgpu: completed det 12.66 rec 0.84 total 16.33 p90 17.15 
+pipeline_t4_ort1300_v4_fp16@webgpu+rec_fp32@wasm: completed det 12.59 rec 0.19 total 15.59 p90 16.27 
+pipeline_t4_ort1300_v4_fp16@webgpu+rec_fp32@wasm_r2: completed det 12.56 rec 0.19 total 15.57 p90 16.20 
+pipeline_t4_ort1300_v4_fp16@webgpu+rec_fp16@webgpu_r2: completed det 12.59 rec 0.67 total 16.07 p90 16.99 
+pipeline_t4_ort1300_v4_fp16@webgpu+rec_fp16@webgpu_r3: completed det 12.57 rec 0.67 total 16.04 p90 16.88 
+pipeline_t4_ort1300_v4_fp16@webgpu+rec_fp32@wasm_r3: completed det 12.53 rec 0.19 total 15.53 p90 16.12 
+pipeline_t4_ort1300_v4_fp16@webgpu+rec_fp32@wasm_r4: completed det 12.53 rec 0.19 total 15.52 p90 16.15 
+pipeline_t4_ort1300_v4_fp16@webgpu+rec_fp16@webgpu_r4: completed det 12.56 rec 0.66 total 15.95 p90 16.74 
+pipeline_t4_ort1300_v4_fp16@webgpu+rec_fp16@webgpu_r5: completed det 12.59 rec 0.66 total 16.01 p90 16.89 
+pipeline_t4_ort1300_v4_fp16@webgpu+rec_fp32@wasm_r5: completed det 12.51 rec 0.19 total 15.47 p90 15.98 
+=== 02:30:06 4 WASM numeric parity on the test set (accuracy does not depend on CPU load)
+accuracy_wasmt4_ort1300_v4_fp32: completed  mAP50_95 0.242181 
+accuracy_wasmt4_ort1300_v4_int8_head_excl: completed  mAP50_95 0.235839 
+accuracy_wasmt4_ort1300_v4_int8_head_excl_fbias: completed  mAP50_95 0.235393 
+=== 02:38:34 5 summary
+## WASM FP32 vs INT8 head-excluded, repeated fresh launches
+
+| models | WASM threads (seen) | rounds | FP32 mean: median | INT8 mean: median | FP32/INT8 per round | median [min-max] | rounds INT8 faster |
+|---|---|---:|---:|---:|---|---:|---:|
+| v4_fp32 vs v4_int8_head_excl | 4 (4) | 5 | 43.6 | 52.2 | 0.84, 0.84, 0.84, 0.84, 0.84 | 0.84 [0.84-0.84] | 0/5 |
+| v3_fp32 vs v3_int8_head_excl | 4 (4) | 3 | 187.2 | 196.8 | 0.95, 0.95, 0.95 | 0.95 [0.95-0.95] | 0/3 |
+
+## Browser pipeline: FP32 vs INT8 on WASM 4T, repeated launches
+
+| configuration | launches | det | rec | mean: median [min-max] | p90: median [min-max] | A 30 FPS | B 15 FPS | pooled p90 (check) |
+|---|---:|---:|---:|---:|---:|:-:|:-:|---:|
+| v4_fp16@webgpu+rec_fp32@wasm | 5 | 12.53 | 0.19 | 15.53 [15.47-15.59] | 16.15 [15.98-16.27] | Y (5/5) | Y (5/5) | 16.14 (same verdict) |
+| v4_fp16@webgpu+rec_fp16@webgpu | 5 | 12.59 | 0.67 | 16.04 [15.95-16.33] | 16.89 [16.74-17.15] | Y (5/5) | Y (5/5) | 16.95 (same verdict) |
+| v4_int8_head_excl@wasm+rec_int8_full@wasm | 5 | 52.14 | 0.21 | 53.69 [53.68-53.81] | 54.46 [54.43-54.50] | N (0/5) | Y (5/5) | 54.47 (same verdict) |
+| v4_fp32@wasm+rec_fp32@wasm | 5 | 43.32 | 0.16 | 44.78 [44.69-45.15] | 45.31 [45.17-45.58] | N (0/5) | Y (5/5) | 45.38 (same verdict) |
+
+| paired comparison (a - b, per round) | rounds | mean diff ms | [min, max] | rounds a faster |
+|---|---:|---:|---:|---:|
+| INT8 head-excluded instead of FP32 detector on WASM | 5 | +8.86 | [+8.54, +9.01] | 0/5 |
+
+## Quiet gate (see quiet.log)
+
+measurements: 36, not quiet after 5 min: 0
+
+## Browser numeric parity (vs ORT CPU, same frames and decoder)
+
+| model | runtime | mAP50 | delta | mAP50-95 | delta |
+|---|---|---:|---:|---:|---:|
+| v4_fp32 | wasmt4_1300 | 0.499865 | -0.000000 | 0.242181 | +0.000000 |
+| v4_int8_head_excl | wasmt4_1300 | 0.483577 | +0.000977 | 0.235839 | +0.000811 |
+| v4_int8_head_excl_fbias | wasmt4_1300 | 0.482775 | +0.000339 | 0.235393 | +0.000227 |
+=== 02:38:36 recheck done

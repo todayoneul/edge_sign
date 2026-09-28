@@ -1,0 +1,2555 @@
+--- 01:37:36
+ %CPU COMM
+  6.1 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  2.9 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  1.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  1.8 tee
+  1.5 /usr/libexec/runningboardd
+--- 01:37:46
+ %CPU COMM
+  8.6 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  2.6 /System/Library/PrivateFrameworks/MediaAnalysis.framework/Versions/A/mediaanalysisd
+  2.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  1.5 /System/Library/CoreServices/ControlCenter.app/Contents/MacOS/ControlCenter
+--- 01:37:56
+ %CPU COMM
+ 10.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  7.8 /Applications/Utilities/Adobe Creative Cloud Experience/CCXProcess/CCXProcess.app/Contents/MacOS/Creative Cloud Content Manager.node
+  6.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  2.3 /System/Library/CoreServices/loginwindow.app/Contents/MacOS/loginwindow
+  2.0 /usr/sbin/cfprefsd
+--- 01:38:06
+ %CPU COMM
+  2.9 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  1.1 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /usr/sbin/bluetoothd
+  0.4 /usr/libexec/searchpartyd
+--- 01:38:16
+ %CPU COMM
+ 31.6 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+ 12.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  2.4 /System/Library/CoreServices/loginwindow.app/Contents/MacOS/loginwindow
+  1.9 claude bg-spare
+  1.3 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 01:38:26
+ %CPU COMM
+  3.4 /Applications/Utilities/Adobe Creative Cloud Experience/CCXProcess/CCXProcess.app/Contents/MacOS/Creative Cloud Content Manager.node
+  2.3 claude bg-spare
+  1.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.8 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 01:38:36
+ %CPU COMM
+  2.2 claude bg-spare
+  1.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.0 /Users/gyuhan/.local/bin/claude
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.8 /usr/libexec/airportd
+--- 01:38:46
+ %CPU COMM
+403.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.2 /usr/sbin/cfprefsd
+  1.0 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /usr/libexec/airportd
+--- 01:38:56
+ %CPU COMM
+402.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  5.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  3.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.6 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  1.4 /Applications/Utilities/Adobe Creative Cloud Experience/CCXProcess/CCXProcess.app/Contents/MacOS/Creative Cloud Content Manager.node
+--- 01:39:06
+ %CPU COMM
+401.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.7 /usr/libexec/airportd
+  1.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 01:39:16
+ %CPU COMM
+399.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  6.9 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds_stores
+  5.4 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+  1.6 /usr/libexec/searchpartyd
+  0.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 01:39:26
+ %CPU COMM
+403.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  7.5 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds_stores
+  3.3 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+  1.4 /usr/sbin/bluetoothd
+  1.1 /Applications/Utilities/Adobe Creative Cloud Experience/CCXProcess/CCXProcess.app/Contents/MacOS/Creative Cloud Content Manager.node
+--- 01:39:36
+ %CPU COMM
+403.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.6 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /usr/libexec/airportd
+--- 01:39:46
+ %CPU COMM
+  1.5 /Users/gyuhan/.local/bin/claude
+  1.0 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.8 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.7 claude bg-spare
+--- 01:39:56
+ %CPU COMM
+589.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 15.6 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  9.4 (Google Chrome He)
+  8.2 /System/Library/Frameworks/ApplicationServices.framework/Frameworks/ATS.framework/Support/fontd
+  7.0 /System/Library/PrivateFrameworks/TCC.framework/Support/tccd
+--- 01:40:06
+ %CPU COMM
+403.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.4 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  2.9 /usr/libexec/opendirectoryd
+  2.3 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  1.7 /System/Library/Frameworks/NetFS.framework/Versions/A/XPCServices/PlugInLibraryService.xpc/Contents/MacOS/PlugInLibraryService
+--- 01:40:16
+ %CPU COMM
+400.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.4 /usr/libexec/searchpartyd
+  0.9 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 01:40:26
+ %CPU COMM
+401.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.8 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /Applications/Utilities/Adobe Creative Cloud Experience/CCXProcess/CCXProcess.app/Contents/MacOS/Creative Cloud Content Manager.node
+  0.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 01:40:36
+ %CPU COMM
+402.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.6 /usr/libexec/searchpartyd
+  0.6 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 01:40:46
+ %CPU COMM
+401.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.6 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.6 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.5 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 01:40:56
+ %CPU COMM
+400.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  6.4 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  1.0 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.9 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+--- 01:41:07
+ %CPU COMM
+  1.4 claude bg-spare
+  1.3 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  1.1 /Library/SystemExtensions/E9A2016A-F7D9-4CDE-BFDE-3AD046447497/io.tailscale.ipn.macsys.network-extension.systemextension/Contents/MacOS/io.tailscale.ipn.macsys.network-extension
+  1.0 /Users/gyuhan/.local/bin/claude
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 01:41:17
+ %CPU COMM
+  1.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  1.1 claude bg-spare
+  1.0 (bash)
+  0.9 /usr/libexec/ContinuityCaptureAgent
+  0.7 (bash)
+--- 01:41:27
+ %CPU COMM
+402.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.2 /usr/sbin/distnoted
+  0.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.1 claude bg-spare
+--- 01:41:37
+ %CPU COMM
+401.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  5.1 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  2.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.6 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  0.8 /usr/libexec/ContinuityCaptureAgent
+--- 01:41:47
+ %CPU COMM
+401.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.8 /Users/gyuhan/.local/bin/claude
+  0.5 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+--- 01:41:57
+ %CPU COMM
+401.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.3 /usr/libexec/lsd
+  1.6 /usr/libexec/timed
+  1.3 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+  1.2 /usr/sbin/mDNSResponder
+--- 01:42:07
+ %CPU COMM
+403.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.1 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.9 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds_stores
+  0.5 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.4 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+--- 01:42:17
+ %CPU COMM
+402.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.6 /usr/libexec/airportd
+  1.9 /usr/libexec/locationd
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 /usr/libexec/ContinuityCaptureAgent
+--- 01:42:27
+ %CPU COMM
+ 16.7 /usr/libexec/airportd
+ 16.6 /System/Library/CoreServices/WiFiAgent.app/Contents/MacOS/WiFiAgent
+  4.2 /System/Library/CoreServices/ControlCenter.app/Contents/MacOS/ControlCenter
+  2.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.1 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 01:42:37
+ %CPU COMM
+ 17.8 /usr/libexec/secd
+  2.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  2.2 /usr/libexec/trustd
+  1.9 /System/Library/PrivateFrameworks/CloudKitDaemon.framework/Support/cloudd
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 01:42:47
+ %CPU COMM
+ 34.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+ 11.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  6.3 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  4.6 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+  3.2 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds
+--- 01:42:57
+ %CPU COMM
+402.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 01:43:07
+ %CPU COMM
+399.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /Library/SystemExtensions/E9A2016A-F7D9-4CDE-BFDE-3AD046447497/io.tailscale.ipn.macsys.network-extension.systemextension/Contents/MacOS/io.tailscale.ipn.macsys.network-extension
+--- 01:43:17
+ %CPU COMM
+403.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.8 GoogleUpdater
+  1.2 /Users/gyuhan/Library/Application Support/Google/GoogleUpdater/156.0.8067.0/GoogleUpdater.app/Contents/MacOS/GoogleUpdater
+  0.7 /usr/libexec/opendirectoryd
+  0.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 01:43:27
+ %CPU COMM
+403.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.3 /usr/libexec/lsd
+  2.8 /usr/libexec/airportd
+  2.2 /usr/libexec/networkserviceproxy
+  1.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 01:43:37
+ %CPU COMM
+402.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  5.1 /usr/libexec/ContinuityCaptureAgent
+  0.7 claude bg-spare
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 /usr/libexec/rapportd
+--- 01:43:47
+ %CPU COMM
+  1.0 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.8 claude bg-spare
+  0.8 /usr/libexec/airportd
+  0.7 /usr/libexec/searchpartyd
+--- 01:43:57
+ %CPU COMM
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.5 claude bg-spare
+  0.4 claude bg-pty-host
+--- 01:44:07
+ %CPU COMM
+406.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /usr/libexec/searchpartyd
+--- 01:44:17
+ %CPU COMM
+402.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  2.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.2 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  0.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 01:44:27
+ %CPU COMM
+404.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.2 /usr/libexec/airportd
+  0.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.3 /usr/libexec/searchpartyd
+--- 01:44:37
+ %CPU COMM
+399.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.3 /usr/libexec/ContinuityCaptureAgent
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.4 /usr/libexec/rapportd
+--- 01:44:47
+ %CPU COMM
+402.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.8 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+  1.2 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds
+  0.6 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+  0.5 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+--- 01:44:57
+ %CPU COMM
+403.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.1 /usr/libexec/ContinuityCaptureAgent
+  1.3 /usr/libexec/rapportd
+  0.7 /usr/sbin/bluetoothd
+  0.6 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 01:45:07
+ %CPU COMM
+  9.5 /usr/libexec/ContinuityCaptureAgent
+  1.2 /usr/libexec/rapportd
+  0.9 /usr/libexec/airportd
+  0.7 /usr/libexec/SidecarRelay
+  0.6 /usr/sbin/bluetoothd
+--- 01:45:18
+ %CPU COMM
+361.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 60.6 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+ 18.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 15.0 /System/Library/Frameworks/ApplicationServices.framework/Frameworks/ATS.framework/Support/fontd
+  9.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 01:45:28
+ %CPU COMM
+401.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  5.7 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  2.7 /usr/libexec/opendirectoryd
+  1.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 01:45:38
+ %CPU COMM
+400.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  2.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.8 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  0.2 /usr/sbin/bluetoothd
+--- 01:45:48
+ %CPU COMM
+398.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.1 /usr/libexec/corebrightnessd
+--- 01:45:58
+ %CPU COMM
+401.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.1 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 01:46:08
+ %CPU COMM
+401.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.8 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.4 /usr/libexec/ContinuityCaptureAgent
+  0.8 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 01:46:18
+ %CPU COMM
+402.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.0 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  1.0 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  0.7 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 01:46:28
+ %CPU COMM
+  2.2 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  2.1 /usr/libexec/searchpartyd
+  1.9 /usr/sbin/bluetoothd
+  1.4 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.8 /Users/gyuhan/.local/bin/claude
+--- 01:46:38
+ %CPU COMM
+  1.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.8 /usr/libexec/sharingd
+  0.7 /Users/gyuhan/.local/bin/claude
+  0.7 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+--- 01:46:48
+ %CPU COMM
+410.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.8 /usr/libexec/ContinuityCaptureAgent
+  1.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /usr/sbin/bluetoothd
+  0.6 /usr/libexec/searchpartyd
+--- 01:46:58
+ %CPU COMM
+399.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.3 /usr/libexec/ContinuityCaptureAgent
+  2.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  1.6 /Users/gyuhan/Library/Application Support/Google/GoogleUpdater/156.0.8067.0/GoogleUpdater.app/Contents/MacOS/GoogleUpdater
+  1.5 GoogleUpdater
+--- 01:47:08
+ %CPU COMM
+398.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.0 /usr/libexec/searchpartyd
+  0.9 /usr/libexec/ContinuityCaptureAgent
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /Library/SystemExtensions/E9A2016A-F7D9-4CDE-BFDE-3AD046447497/io.tailscale.ipn.macsys.network-extension.systemextension/Contents/MacOS/io.tailscale.ipn.macsys.network-extension
+--- 01:47:18
+ %CPU COMM
+400.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  5.2 /usr/libexec/ContinuityCaptureAgent
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /usr/libexec/rapportd
+  0.4 /usr/libexec/SidecarRelay
+--- 01:47:28
+ %CPU COMM
+398.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 10.9 /usr/libexec/ContinuityCaptureAgent
+  1.3 /usr/sbin/bluetoothd
+  1.1 /usr/libexec/searchpartyd
+  0.9 /usr/libexec/rapportd
+--- 01:47:38
+ %CPU COMM
+401.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.4 /usr/libexec/sysmond
+  1.7 /usr/libexec/airportd
+  1.4 /usr/libexec/ContinuityCaptureAgent
+  1.3 /usr/libexec/networkserviceproxy
+--- 01:47:48
+ %CPU COMM
+  2.7 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds_stores
+  1.3 /usr/libexec/searchpartyd
+  0.9 /Users/gyuhan/.local/bin/claude
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.8 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 01:47:58
+ %CPU COMM
+  3.7 /usr/libexec/ContinuityCaptureAgent
+  1.1 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 claude bg-spare
+  0.6 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 01:48:08
+ %CPU COMM
+  6.1 /usr/libexec/ContinuityCaptureAgent
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 /Users/gyuhan/.local/bin/claude
+  0.6 /System/Library/Frameworks/CoreMediaIO.framework/Versions/A/Resources/com.apple.cmio.registerassistantservice
+  0.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 01:48:18
+ %CPU COMM
+402.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.6 /usr/libexec/ContinuityCaptureAgent
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /usr/libexec/rapportd
+  0.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 01:48:28
+ %CPU COMM
+404.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.2 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  2.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.8 /usr/libexec/ContinuityCaptureAgent
+  1.2 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 01:48:38
+ %CPU COMM
+401.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.4 /usr/libexec/ContinuityCaptureAgent
+  0.6 /usr/libexec/searchpartyd
+  0.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 01:48:48
+ %CPU COMM
+402.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.4 GoogleUpdater
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 01:48:59
+ %CPU COMM
+400.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  6.6 /usr/libexec/ContinuityCaptureAgent
+  0.7 /usr/libexec/rapportd
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /usr/libexec/SidecarRelay
+--- 01:49:09
+ %CPU COMM
+400.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.7 /usr/libexec/ContinuityCaptureAgent
+  0.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 01:49:19
+ %CPU COMM
+  1.4 /usr/libexec/ContinuityCaptureAgent
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.8 /usr/libexec/searchpartyd
+  0.3 /usr/sbin/bluetoothd
+  0.2 /usr/libexec/sharingd
+--- 01:49:29
+ %CPU COMM
+ 87.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 22.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  4.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  2.5 /usr/libexec/ContinuityCaptureAgent
+  1.8 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+--- 01:49:39
+ %CPU COMM
+406.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.2 /usr/libexec/searchpartyd
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /usr/libexec/locationd
+  0.3 /usr/sbin/bluetoothd
+--- 01:49:49
+ %CPU COMM
+402.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.5 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.5 /usr/sbin/bluetoothd
+  0.4 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  0.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 01:49:59
+ %CPU COMM
+397.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 GoogleUpdater
+  0.4 claude bg-spare
+--- 01:50:09
+ %CPU COMM
+401.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.4 claude bg-spare
+--- 01:50:19
+ %CPU COMM
+403.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.2 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.9 /usr/libexec/searchpartyd
+  0.7 /usr/libexec/ContinuityCaptureAgent
+  0.6 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+--- 01:50:29
+ %CPU COMM
+  2.6 claude bg-spare
+  1.8 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.1 /usr/libexec/ContinuityCaptureAgent
+--- 01:50:39
+ %CPU COMM
+  1.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.2 claude bg-spare
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.5 claude bg-pty-host
+--- 01:50:49
+ %CPU COMM
+405.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 claude bg-spare
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 01:50:59
+ %CPU COMM
+402.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  2.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.4 /usr/libexec/ContinuityCaptureAgent
+  0.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 01:51:09
+ %CPU COMM
+399.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.8 /Library/SystemExtensions/E9A2016A-F7D9-4CDE-BFDE-3AD046447497/io.tailscale.ipn.macsys.network-extension.systemextension/Contents/MacOS/io.tailscale.ipn.macsys.network-extension
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 claude bg-spare
+--- 01:51:19
+ %CPU COMM
+403.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 claude bg-spare
+--- 01:51:29
+ %CPU COMM
+401.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 13.9 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds_stores
+  6.0 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+  5.8 /System/Library/PrivateFrameworks/CoreAnalytics.framework/Support/analyticsd
+  0.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 01:51:39
+ %CPU COMM
+402.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 01:51:49
+ %CPU COMM
+  2.0 claude bg-spare
+  1.0 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.9 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.8 /Users/gyuhan/.local/bin/claude
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 01:51:59
+ %CPU COMM
+  1.2 claude bg-spare
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.7 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.5 /Users/gyuhan/.local/bin/claude
+--- 01:52:09
+ %CPU COMM
+400.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /usr/libexec/runningboardd
+  0.4 /System/Library/PrivateFrameworks/Stickers.framework/Support/stickersd
+  0.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 01:52:19
+ %CPU COMM
+397.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  3.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.6 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  0.4 claude bg-spare
+--- 01:52:29
+ %CPU COMM
+399.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 claude bg-spare
+  0.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 01:52:40
+ %CPU COMM
+396.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.6 claude bg-spare
+  0.6 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 01:52:50
+ %CPU COMM
+399.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.6 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.4 claude bg-spare
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 01:53:00
+ %CPU COMM
+398.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.5 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.2 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 01:53:10
+ %CPU COMM
+398.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  5.4 /usr/libexec/dasd
+  1.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  1.0 /usr/sbin/mDNSResponder
+  0.9 /usr/sbin/cfprefsd
+--- 01:53:20
+ %CPU COMM
+398.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.4 /System/Library/PrivateFrameworks/CoreAnalytics.framework/Support/analyticsd
+  2.1 /usr/libexec/UserEventAgent
+  1.6 /System/Library/CoreServices/powerd.bundle/powerd
+  1.5 /usr/libexec/PerfPowerServices
+--- 01:53:30
+ %CPU COMM
+397.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 01:53:40
+ %CPU COMM
+399.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.5 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.1 /usr/libexec/corebrightnessd
+--- 01:53:50
+ %CPU COMM
+400.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.2 claude bg-pty-host
+--- 01:54:00
+ %CPU COMM
+399.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.8 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  2.3 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+--- 01:54:10
+ %CPU COMM
+396.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.2 /usr/libexec/ContinuityCaptureAgent
+  1.8 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+--- 01:54:20
+ %CPU COMM
+400.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.8 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.6 /System/Library/PrivateFrameworks/CoreAnalytics.framework/Support/analyticsd
+  0.8 /usr/libexec/UserEventAgent
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 01:54:30
+ %CPU COMM
+399.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /usr/libexec/runningboardd
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+--- 01:54:40
+ %CPU COMM
+400.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.9 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 claude bg-spare
+--- 01:54:50
+ %CPU COMM
+398.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  7.6 /usr/libexec/eligibilityd
+  1.1 /usr/libexec/searchpartyd
+  1.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.8 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+--- 01:55:00
+ %CPU COMM
+399.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.7 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.5 /usr/libexec/routined
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 01:55:10
+ %CPU COMM
+395.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.4 /usr/sbin/bluetoothd
+--- 01:55:20
+ %CPU COMM
+399.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /System/Library/PrivateFrameworks/CoreAnalytics.framework/Support/analyticsd
+  0.3 /usr/libexec/UserEventAgent
+--- 01:55:30
+ %CPU COMM
+395.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.1 /usr/libexec/corebrightnessd
+--- 01:55:40
+ %CPU COMM
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 /Users/gyuhan/.local/bin/claude
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.2 claude bg-spare
+--- 01:55:50
+ %CPU COMM
+  2.1 ps
+  1.5 head
+  0.8 /Users/gyuhan/.local/bin/claude
+  0.7 bash
+  0.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 01:56:00
+ %CPU COMM
+402.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.2 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.0 /usr/libexec/ContinuityCaptureAgent
+  0.8 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 01:56:10
+ %CPU COMM
+400.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  5.5 /usr/libexec/ContinuityCaptureAgent
+  4.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  3.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.8 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 01:56:20
+ %CPU COMM
+396.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.8 /usr/libexec/ContinuityCaptureAgent
+  0.6 /System/Library/PrivateFrameworks/CoreAnalytics.framework/Support/analyticsd
+  0.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 01:56:30
+ %CPU COMM
+396.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  6.0 /usr/libexec/ContinuityCaptureAgent
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 /usr/libexec/rapportd
+  0.4 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+--- 01:56:40
+ %CPU COMM
+397.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.2 /usr/libexec/runningboardd
+--- 01:56:50
+ %CPU COMM
+398.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.0 /usr/sbin/bluetoothd
+  1.5 /usr/libexec/rapportd
+  0.6 /usr/libexec/milod
+  0.6 /usr/libexec/sharingd
+--- 01:57:01
+ %CPU COMM
+396.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.4 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 01:57:11
+ %CPU COMM
+398.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.3 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.3 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  0.2 /Users/gyuhan/.local/bin/claude
+--- 01:57:21
+ %CPU COMM
+398.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+164.7 /usr/libexec/PerfPowerServices
+ 29.9 /usr/libexec/runningboardd
+  1.3 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.8 /sbin/launchd
+--- 01:57:31
+ %CPU COMM
+400.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 01:57:41
+ %CPU COMM
+400.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.2 /usr/sbin/bluetoothd
+  0.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.1 /usr/libexec/locationd
+--- 01:57:51
+ %CPU COMM
+401.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.1 /usr/libexec/sharingd
+--- 01:58:01
+ %CPU COMM
+399.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.1 /usr/libexec/corebrightnessd
+--- 01:58:11
+ %CPU COMM
+391.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.8 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 01:58:21
+ %CPU COMM
+399.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.1 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.7 /System/Library/PrivateFrameworks/CoreDuetContext.framework/Resources/contextstored
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 01:58:31
+ %CPU COMM
+401.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /Users/gyuhan/.local/bin/claude
+  0.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 01:58:41
+ %CPU COMM
+399.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.0 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.1 /usr/libexec/corebrightnessd
+--- 01:58:51
+ %CPU COMM
+397.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.1 claude bg-spare
+  0.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 01:59:01
+ %CPU COMM
+399.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.2 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.3 claude bg-spare
+--- 01:59:11
+ %CPU COMM
+396.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.1 claude bg-spare
+--- 01:59:21
+ %CPU COMM
+399.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.0 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /System/Library/PrivateFrameworks/CoreDuetContext.framework/Resources/contextstored
+  0.3 /usr/libexec/ContinuityCaptureAgent
+--- 01:59:31
+ %CPU COMM
+  2.7 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  2.2 /System/Library/CoreServices/launchservicesd
+  1.8 /System/Library/CoreServices/loginwindow.app/Contents/MacOS/loginwindow
+  1.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.0 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framework/Versions/A/Support/fseventsd
+--- 01:59:41
+ %CPU COMM
+  1.2 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.9 /Users/gyuhan/.local/bin/claude
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 bash
+  0.5 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 01:59:51
+ %CPU COMM
+ 46.0 /sbin/launchd
+  0.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 claude bg-spare
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:00:01
+ %CPU COMM
+399.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.1 /usr/libexec/PerfPowerServices
+--- 02:00:11
+ %CPU COMM
+400.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  2.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:00:21
+ %CPU COMM
+398.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 42.5 /sbin/launchd
+  0.7 claude bg-spare
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:00:31
+ %CPU COMM
+399.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.0 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds_stores
+  0.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+--- 02:00:41
+ %CPU COMM
+395.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.0 /System/Library/PrivateFrameworks/CoreAnalytics.framework/Support/analyticsd
+  0.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.4 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+--- 02:00:51
+ %CPU COMM
+398.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.1 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:01:01
+ %CPU COMM
+399.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.8 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.7 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.5 claude bg-spare
+--- 02:01:12
+ %CPU COMM
+398.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.2 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.9 /usr/libexec/opendirectoryd
+  0.7 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+--- 02:01:22
+ %CPU COMM
+397.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.1 claude bg-spare
+  0.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:01:32
+ %CPU COMM
+398.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 /Users/gyuhan/.local/bin/claude
+  0.1 claude bg-spare
+  0.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:01:42
+ %CPU COMM
+398.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.5 /usr/libexec/searchpartyd
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 /usr/libexec/runningboardd
+  0.3 /usr/sbin/bluetoothd
+--- 02:01:52
+ %CPU COMM
+397.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /Users/gyuhan/.local/bin/claude
+  0.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:02:02
+ %CPU COMM
+399.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.4 /usr/libexec/ContinuityCaptureAgent
+  0.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.5 /usr/sbin/bluetoothd
+--- 02:02:12
+ %CPU COMM
+396.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.8 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:02:22
+ %CPU COMM
+399.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.8 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:02:32
+ %CPU COMM
+399.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.6 /usr/libexec/ContinuityCaptureAgent
+  1.0 /usr/libexec/searchpartyd
+  0.8 /usr/libexec/rapportd
+  0.8 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+--- 02:02:42
+ %CPU COMM
+399.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.8 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.3 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:02:52
+ %CPU COMM
+399.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 02:03:02
+ %CPU COMM
+397.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.1 /Users/gyuhan/.local/bin/claude
+--- 02:03:12
+ %CPU COMM
+401.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 02:03:22
+ %CPU COMM
+399.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.7 /sbin/launchd
+  1.0 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 02:03:32
+ %CPU COMM
+  7.0 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+  7.0 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+  4.2 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  3.3 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framework/Versions/A/Support/fseventsd
+  2.3 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds_stores
+--- 02:03:42
+ %CPU COMM
+  3.9 /usr/libexec/ContinuityCaptureAgent
+  1.9 /System/Library/CoreServices/ControlCenter.app/Contents/MacOS/ControlCenter
+  1.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 claude bg-spare
+--- 02:03:52
+ %CPU COMM
+400.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 16.0 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+ 12.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  5.2 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+  1.4 /sbin/launchd
+--- 02:04:02
+ %CPU COMM
+399.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  2.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.8 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:04:12
+ %CPU COMM
+399.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.1 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+--- 02:04:22
+ %CPU COMM
+399.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.4 GoogleUpdater
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /sbin/launchd
+--- 02:04:32
+ %CPU COMM
+400.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.2 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /Users/gyuhan/.local/bin/claude
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:04:42
+ %CPU COMM
+400.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:04:52
+ %CPU COMM
+398.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.7 /usr/libexec/PerfPowerServices
+  3.8 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  2.3 /usr/libexec/opendirectoryd
+  1.5 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:05:02
+ %CPU COMM
+397.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.8 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.2 /usr/sbin/distnoted
+--- 02:05:12
+ %CPU COMM
+397.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  6.3 /usr/libexec/PerfPowerServices
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.1 /usr/sbin/distnoted
+--- 02:05:22
+ %CPU COMM
+399.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.3 /sbin/launchd
+  0.3 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.2 /usr/sbin/distnoted
+--- 02:05:32
+ %CPU COMM
+399.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  6.1 /usr/libexec/PerfPowerServices
+  3.5 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /usr/libexec/runningboardd
+--- 02:05:43
+ %CPU COMM
+399.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.3 /usr/libexec/runningboardd
+  0.8 /Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/MacOS/Microsoft Update Assistant.app/Contents/MacOS/Microsoft Update Assistant
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:05:53
+ %CPU COMM
+400.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  6.0 /usr/libexec/PerfPowerServices
+  1.7 /usr/libexec/searchpartyd
+  0.6 /usr/sbin/bluetoothd
+  0.5 claude bg-spare
+--- 02:06:03
+ %CPU COMM
+397.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /usr/libexec/dasd
+  0.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.3 /usr/libexec/searchpartyd
+--- 02:06:13
+ %CPU COMM
+398.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.1 /usr/libexec/PerfPowerServices
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.3 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:06:23
+ %CPU COMM
+398.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 claude bg-spare
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:06:33
+ %CPU COMM
+401.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.2 /usr/libexec/PerfPowerServices
+  2.3 /System/Library/PrivateFrameworks/CloudKitDaemon.framework/Support/cloudd
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:06:43
+ %CPU COMM
+399.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.4 /Users/gyuhan/.local/bin/claude
+--- 02:06:53
+ %CPU COMM
+400.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.0 /usr/libexec/PerfPowerServices
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 claude bg-spare
+  0.2 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:07:03
+ %CPU COMM
+400.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.8 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 claude bg-spare
+  0.1 /Applications/Tailscale.app/Contents/MacOS/Tailscale
+--- 02:07:13
+ %CPU COMM
+398.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.5 /usr/libexec/PerfPowerServices
+  0.7 claude bg-spare
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:07:23
+ %CPU COMM
+  3.8 claude bg-spare
+  2.2 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.2 /Users/gyuhan/.local/bin/claude
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:07:33
+ %CPU COMM
+139.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 16.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.3 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  1.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.1 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+--- 02:07:43
+ %CPU COMM
+400.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /usr/libexec/runningboardd
+  0.3 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:07:53
+ %CPU COMM
+399.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.2 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.1 /usr/libexec/searchpartyd
+  1.1 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  1.1 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:08:03
+ %CPU COMM
+400.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.8 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 claude bg-spare
+  0.3 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:08:13
+ %CPU COMM
+399.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  5.4 /System/Library/PrivateFrameworks/CloudKitDaemon.framework/Support/cloudd
+  4.3 /usr/libexec/trustd
+  3.0 /System/Library/PrivateFrameworks/AppleMediaServicesUI.framework/amsengagementd
+  2.6 /System/Library/PrivateFrameworks/CloudTelemetry.framework/Versions/A/XPCServices/CloudTelemetryService.xpc/Contents/MacOS/CloudTelemetryService
+--- 02:08:23
+ %CPU COMM
+401.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.3 claude bg-spare
+--- 02:08:33
+ %CPU COMM
+398.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.1 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  1.0 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  0.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.9 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+--- 02:08:43
+ %CPU COMM
+399.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 12.3 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+ 11.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  3.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:08:53
+ %CPU COMM
+400.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /usr/libexec/dasd
+  0.3 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.3 /usr/libexec/PerfPowerServices
+--- 02:09:03
+ %CPU COMM
+397.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.3 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:09:13
+ %CPU COMM
+401.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /System/Library/PrivateFrameworks/CloudKitDaemon.framework/Support/cloudd
+  0.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.3 /usr/libexec/PerfPowerServices
+--- 02:09:23
+ %CPU COMM
+398.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.6 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  0.8 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /usr/libexec/searchpartyd
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:09:33
+ %CPU COMM
+400.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /usr/libexec/PerfPowerServices
+  0.3 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:09:43
+ %CPU COMM
+400.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.2 /Users/gyuhan/.local/bin/claude
+  0.1 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:09:53
+ %CPU COMM
+400.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.4 /usr/sbin/bluetoothd
+  0.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.3 /usr/libexec/rapportd
+  0.3 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:10:03
+ %CPU COMM
+399.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.9 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.7 /usr/libexec/airportd
+  0.6 /usr/libexec/searchpartyd
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:10:13
+ %CPU COMM
+399.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.8 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:10:24
+ %CPU COMM
+399.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.1 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.2 claude bg-spare
+--- 02:10:34
+ %CPU COMM
+399.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 97.1 /System/Library/Frameworks/Metal.framework/Versions/A/XPCServices/MTLCompilerService.xpc/Contents/MacOS/MTLCompilerService
+  2.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+--- 02:10:44
+ %CPU COMM
+393.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.3 /usr/sbin/bluetoothd
+  0.3 /usr/libexec/sharingd
+--- 02:10:54
+ %CPU COMM
+400.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.3 /usr/libexec/airportd
+  0.2 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:11:04
+ %CPU COMM
+  0.6 /usr/libexec/ContinuityCaptureAgent
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 claude bg-spare
+  0.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.2 /usr/sbin/bluetoothd
+--- 02:11:14
+ %CPU COMM
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 claude bg-spare
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.4 /usr/libexec/searchpartyd
+--- 02:11:24
+ %CPU COMM
+396.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.8 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  1.5 /usr/sbin/bluetoothd
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:11:34
+ %CPU COMM
+398.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 10.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  4.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  3.0 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  1.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:11:44
+ %CPU COMM
+401.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.8 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.1 /sbin/launchd
+--- 02:11:54
+ %CPU COMM
+400.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.8 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.4 /Users/gyuhan/.local/bin/claude
+--- 02:12:04
+ %CPU COMM
+400.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.2 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+--- 02:12:14
+ %CPU COMM
+399.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 02:12:24
+ %CPU COMM
+401.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.7 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  1.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:12:34
+ %CPU COMM
+400.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:12:44
+ %CPU COMM
+397.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.0 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:12:54
+ %CPU COMM
+395.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:13:04
+ %CPU COMM
+400.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.8 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 02:13:14
+ %CPU COMM
+398.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.8 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.1 claude bg-spare
+--- 02:13:24
+ %CPU COMM
+397.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.2 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.1 claude bg-spare
+--- 02:13:34
+ %CPU COMM
+396.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 53.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.2 /Users/gyuhan/.local/bin/claude
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:13:44
+ %CPU COMM
+400.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.6 /usr/libexec/runningboardd
+  0.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:13:54
+ %CPU COMM
+400.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.2 /Users/gyuhan/.local/bin/claude
+  0.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 02:14:04
+ %CPU COMM
+399.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.1 claude bg-spare
+--- 02:14:14
+ %CPU COMM
+396.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 02:14:24
+ %CPU COMM
+400.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  0.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 02:14:34
+ %CPU COMM
+400.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 43.2 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.0 claude bg-spare
+  0.3 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.1 claude bg-pty-host
+--- 02:14:45
+ %CPU COMM
+397.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.1 /usr/libexec/airportd
+  1.2 /usr/libexec/locationd
+  0.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 02:14:55
+ %CPU COMM
+ 15.3 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+ 15.0 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+ 13.8 /System/Library/CoreServices/WiFiAgent.app/Contents/MacOS/WiFiAgent
+ 12.6 /usr/libexec/dasd
+ 10.5 /usr/libexec/airportd
+--- 02:15:05
+ %CPU COMM
+  7.4 claude bg-spare
+  0.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.1 /usr/libexec/corebrightnessd
+--- 02:15:15
+ %CPU COMM
+  1.5 /Users/gyuhan/.local/bin/claude
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 claude bg-spare
+  0.5 /usr/sbin/bluetoothd
+  0.2 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:15:25
+ %CPU COMM
+385.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.6 .venv-bench/bin/python
+  2.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:15:35
+ %CPU COMM
+388.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 17.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  5.8 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framework/Versions/A/Support/fseventsd
+  4.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  3.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:15:45
+ %CPU COMM
+376.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.5 .venv-bench/bin/python
+  2.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.6 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:15:55
+ %CPU COMM
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 claude bg-spare
+  0.5 /Users/gyuhan/.local/bin/claude
+  0.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:16:05
+ %CPU COMM
+ 25.3 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+ 16.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+ 16.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  9.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  9.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+--- 02:16:15
+ %CPU COMM
+386.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.7 .venv-bench/bin/python
+  2.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:16:25
+ %CPU COMM
+387.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  7.0 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  6.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  4.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  3.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 02:16:35
+ %CPU COMM
+386.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 10.3 /System/Library/Frameworks/Contacts.framework/Support/contactsd
+  6.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  6.2 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds_stores
+  3.0 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framework/Versions/A/Support/fseventsd
+--- 02:16:45
+ %CPU COMM
+  1.6 claude bg-pty-host
+  1.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 claude bg-spare
+  0.4 /Users/gyuhan/.local/bin/claude
+--- 02:16:55
+ %CPU COMM
+  1.0 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 claude bg-spare
+  0.3 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.3 sleep
+--- 02:17:05
+ %CPU COMM
+ 33.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 30.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  9.8 /usr/libexec/rtcreportingd
+  5.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  1.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 02:17:15
+ %CPU COMM
+387.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.2 .venv-bench/bin/python
+  0.8 /usr/libexec/runningboardd
+  0.7 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:17:25
+ %CPU COMM
+390.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  4.2 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  2.1 .venv-bench/bin/python
+  2.0 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:17:35
+ %CPU COMM
+386.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.5 .venv-bench/bin/python
+  2.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.0 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.1 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framework/Versions/A/Support/fseventsd
+--- 02:17:45
+ %CPU COMM
+  1.5 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  1.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.8 claude bg-spare
+  0.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.3 /usr/libexec/airportd
+--- 02:17:55
+ %CPU COMM
+  1.7 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  1.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.5 /Users/gyuhan/.local/bin/claude
+--- 02:18:06
+ %CPU COMM
+  1.9 /Users/gyuhan/.local/bin/claude
+  1.5 claude bg-spare
+  1.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 bash
+--- 02:18:16
+ %CPU COMM
+426.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 20.7 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+  3.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  3.1 .venv-bench/bin/python
+  2.6 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:18:26
+ %CPU COMM
+380.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  3.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  2.9 .venv-bench/bin/python
+  2.1 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:18:36
+ %CPU COMM
+388.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.8 .venv-bench/bin/python
+  2.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.5 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  0.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:18:46
+ %CPU COMM
+  4.9 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framework/Versions/A/Support/fseventsd
+  4.1 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  2.8 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  1.7 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds_stores
+  1.3 /System/Library/CoreServices/WindowManager.app/Contents/MacOS/WindowManager
+--- 02:18:56
+ %CPU COMM
+  4.0 claude bg-spare
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 /Users/gyuhan/.local/bin/claude
+  0.7 sleep
+  0.6 sleep
+--- 02:19:06
+ %CPU COMM
+380.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.7 .venv-bench/bin/python
+  2.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.7 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:19:16
+ %CPU COMM
+383.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  5.0 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  4.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  3.2 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  3.0 .venv-bench/bin/python
+--- 02:19:26
+ %CPU COMM
+388.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.8 .venv-bench/bin/python
+  2.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.8 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:19:36
+ %CPU COMM
+ 14.0 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds_stores
+  4.1 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+  1.3 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 bash
+--- 02:19:46
+ %CPU COMM
+  4.6 claude bg-spare
+  2.8 /usr/libexec/searchpartyd
+  1.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.3 GoogleUpdater
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:19:56
+ %CPU COMM
+380.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.1 .venv-bench/bin/python
+  1.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.0 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.8 /System/Library/CoreServices/Finder.app/Contents/MacOS/Finder
+--- 02:20:06
+ %CPU COMM
+385.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  4.3 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  3.3 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  1.4 .venv-bench/bin/python
+--- 02:20:16
+ %CPU COMM
+392.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.9 .venv-bench/bin/python
+  0.8 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /usr/libexec/xprotectd
+--- 02:20:26
+ %CPU COMM
+380.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.3 /usr/libexec/locationd
+  1.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.6 .venv-bench/bin/python
+  0.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:20:36
+ %CPU COMM
+  2.3 claude bg-spare
+  1.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.1 /usr/libexec/locationd
+  0.7 /usr/libexec/xprotectd
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:20:46
+ %CPU COMM
+593.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 64.0 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+ 19.1 /System/Library/Frameworks/ApplicationServices.framework/Frameworks/ATS.framework/Support/fontd
+ 19.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  5.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 02:20:56
+ %CPU COMM
+388.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.0 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  3.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.5 .venv-bench/bin/python
+  2.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:21:06
+ %CPU COMM
+387.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.2 /usr/sbin/bluetoothd
+  2.7 .venv-bench/bin/python
+  2.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:21:16
+ %CPU COMM
+385.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.0 .venv-bench/bin/python
+  1.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:21:26
+ %CPU COMM
+  1.3 /usr/sbin/bluetoothd
+  0.7 /usr/libexec/xprotectd
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 claude bg-spare
+  0.4 /usr/libexec/locationd
+--- 02:21:36
+ %CPU COMM
+  0.6 /usr/libexec/locationd
+  0.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 claude bg-spare
+  0.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:21:47
+ %CPU COMM
+381.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.4 /usr/libexec/searchpartyd
+  2.7 .venv-bench/bin/python
+  2.5 /usr/sbin/bluetoothd
+  2.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 02:21:57
+ %CPU COMM
+384.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 11.3 /Applications/Utilities/Adobe Creative Cloud Experience/CCXProcess/CCXProcess.app/Contents/MacOS/Creative Cloud Content Manager.node
+  5.2 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  4.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  4.3 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:22:07
+ %CPU COMM
+380.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  8.2 /usr/libexec/ContinuityCaptureAgent
+  2.8 /usr/sbin/bluetoothd
+  2.4 .venv-bench/bin/python
+  2.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 02:22:17
+ %CPU COMM
+  0.9 claude bg-spare
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.3 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framework/Versions/A/Support/fseventsd
+  0.3 /Users/gyuhan/.local/bin/claude
+--- 02:22:27
+ %CPU COMM
+ 10.5 /Applications/Utilities/Adobe Creative Cloud Experience/CCXProcess/CCXProcess.app/Contents/MacOS/Creative Cloud Content Manager.node
+  6.0 /usr/libexec/ContinuityCaptureAgent
+  1.2 /Users/gyuhan/.local/bin/claude
+  1.2 /usr/sbin/bluetoothd
+  0.8 /usr/libexec/SidecarRelay
+--- 02:22:37
+ %CPU COMM
+388.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.5 .venv-bench/bin/python
+  2.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:22:47
+ %CPU COMM
+386.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  5.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  5.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  2.7 .venv-bench/bin/python
+  1.9 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:22:57
+ %CPU COMM
+385.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  5.0 /Applications/Utilities/Adobe Creative Cloud Experience/CCXProcess/CCXProcess.app/Contents/MacOS/Creative Cloud Content Manager.node
+  2.3 .venv-bench/bin/python
+  2.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:23:07
+ %CPU COMM
+  2.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  2.2 /Users/gyuhan/.local/bin/claude
+  1.8 GoogleUpdater
+  1.6 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  1.5 /usr/libexec/searchpartyd
+--- 02:23:17
+ %CPU COMM
+  1.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.2 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  1.0 /Users/gyuhan/.local/bin/claude
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 claude bg-spare
+--- 02:23:27
+ %CPU COMM
+628.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  5.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.9 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  2.4 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  1.3 .venv-bench/bin/python
+--- 02:23:37
+ %CPU COMM
+382.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  8.2 /usr/libexec/airportd
+  2.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.2 .venv-bench/bin/python
+  1.6 /usr/libexec/configd
+--- 02:23:47
+ %CPU COMM
+386.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.7 .venv-bench/bin/python
+  2.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.9 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.6 /usr/libexec/searchpartyd
+--- 02:23:57
+ %CPU COMM
+384.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.2 .venv-bench/bin/python
+  1.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.8 /Applications/Utilities/Adobe Creative Cloud Experience/CCXProcess/CCXProcess.app/Contents/MacOS/Creative Cloud Content Manager.node
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:24:07
+ %CPU COMM
+  3.8 /usr/libexec/ContinuityCaptureAgent
+  0.8 /usr/sbin/bluetoothd
+  0.6 /usr/libexec/rapportd
+  0.6 claude bg-spare
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:24:17
+ %CPU COMM
+  0.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 claude bg-spare
+  0.3 bash
+  0.3 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:24:27
+ %CPU COMM
+ 33.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 20.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  8.6 /System/Library/Frameworks/Metal.framework/Versions/A/XPCServices/MTLCompilerService.xpc/Contents/MacOS/MTLCompilerService
+  6.4 .venv-bench/bin/python
+  5.2 /System/Library/PrivateFrameworks/CloudKitDaemon.framework/Support/cloudd
+--- 02:24:37
+ %CPU COMM
+  1.1 claude bg-spare
+  0.6 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds_stores
+  0.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /Users/gyuhan/.local/bin/claude
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:24:48
+ %CPU COMM
+ 21.6 /usr/libexec/airportd
+ 16.0 /usr/libexec/locationd
+  2.3 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  2.1 ps
+  1.3 head
+--- 02:24:58
+ %CPU COMM
+269.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 30.3 /usr/libexec/airportd
+ 20.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+ 13.7 /System/Library/CoreServices/WiFiAgent.app/Contents/MacOS/WiFiAgent
+  5.3 .venv-bench/bin/python
+--- 02:25:08
+ %CPU COMM
+306.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 19.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  8.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  6.4 .venv-bench/bin/python
+  4.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:25:18
+ %CPU COMM
+  0.8 /Users/gyuhan/.local/bin/claude
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /usr/sbin/bluetoothd
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:25:28
+ %CPU COMM
+353.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 22.0 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+ 22.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  6.8 /System/Library/Frameworks/ApplicationServices.framework/Frameworks/ATS.framework/Support/fontd
+  6.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 02:25:38
+ %CPU COMM
+240.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 20.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  6.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  5.9 .venv-bench/bin/python
+  3.6 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:25:48
+ %CPU COMM
+  3.5 /usr/libexec/ContinuityCaptureAgent
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /usr/libexec/locationd
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:25:58
+ %CPU COMM
+ 38.0 .venv-bench/bin/python
+ 10.4 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  5.8 /usr/libexec/ContinuityCaptureAgent
+  5.1 /usr/libexec/syspolicyd
+  3.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:26:08
+ %CPU COMM
+ 41.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 23.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  7.9 .venv-bench/bin/python
+  5.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.3 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:26:18
+ %CPU COMM
+  2.3 /usr/libexec/ContinuityCaptureAgent
+  1.2 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.2 /Users/gyuhan/.local/bin/claude
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /usr/libexec/rapportd
+--- 02:26:28
+ %CPU COMM
+  1.3 /Applications/Utilities/Adobe Creative Cloud Experience/CCXProcess/CCXProcess.app/Contents/MacOS/Creative Cloud Content Manager.node
+  0.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.7 /Users/gyuhan/.local/bin/claude
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.2 /Library/Application Support/Adobe/Adobe Desktop Common/ADS/Adobe Desktop Service.app/Contents/MacOS/Adobe Desktop Service
+--- 02:26:38
+ %CPU COMM
+ 34.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 22.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  6.1 .venv-bench/bin/python
+  5.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.1 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:26:48
+ %CPU COMM
+  3.6 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  3.3 /usr/libexec/ContinuityCaptureAgent
+  3.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  2.3 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  1.4 .venv-bench/bin/python
+--- 02:26:58
+ %CPU COMM
+ 11.4 /usr/libexec/ContinuityCaptureAgent
+  2.1 claude bg-spare
+  1.3 /usr/libexec/rapportd
+  1.0 /Users/gyuhan/.local/bin/claude
+  0.8 /usr/libexec/SidecarRelay
+--- 02:27:08
+ %CPU COMM
+  3.9 claude bg-spare
+  1.5 /usr/libexec/ContinuityCaptureAgent
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /Users/gyuhan/.local/bin/claude
+--- 02:27:18
+ %CPU COMM
+  2.0 /usr/sbin/bluetoothd
+  1.8 /usr/libexec/ContinuityCaptureAgent
+  1.2 claude bg-spare
+  0.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /usr/libexec/logd
+--- 02:27:28
+ %CPU COMM
+284.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 20.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+ 13.2 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+  5.6 .venv-bench/bin/python
+  5.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 02:27:38
+ %CPU COMM
+210.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 20.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  8.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  5.5 .venv-bench/bin/python
+  4.3 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:27:49
+ %CPU COMM
+  7.3 claude bg-spare
+  1.7 /usr/libexec/transparencyd
+  1.4 /usr/libexec/airportd
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:27:59
+ %CPU COMM
+  1.0 claude bg-spare
+  0.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 /Users/gyuhan/.local/bin/claude
+  0.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.3 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:28:09
+ %CPU COMM
+ 71.3 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+ 50.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+ 32.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 17.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+ 17.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+--- 02:28:19
+ %CPU COMM
+195.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 22.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  6.7 .venv-bench/bin/python
+  5.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.8 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:28:29
+ %CPU COMM
+  1.0 /usr/libexec/ContinuityCaptureAgent
+  0.7 claude bg-spare
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:28:39
+ %CPU COMM
+  1.1 claude bg-pty-host
+  0.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 claude bg-spare
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:28:49
+ %CPU COMM
+ 36.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 20.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  6.0 .venv-bench/bin/python
+  4.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:28:59
+ %CPU COMM
+  2.4 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.8 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+  1.6 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 claude bg-spare
+--- 02:29:09
+ %CPU COMM
+  1.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.7 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 claude bg-spare
+  0.3 bash
+--- 02:29:19
+ %CPU COMM
+ 40.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 23.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  6.3 .venv-bench/bin/python
+  5.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.6 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:29:29
+ %CPU COMM
+ 32.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 21.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  7.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  7.2 .venv-bench/bin/python
+  3.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:29:39
+ %CPU COMM
+  8.3 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /Users/gyuhan/.npm-global/lib/node_modules/@bitkyc08/opencodex/node_modules/bun/bin/bun.exe
+  0.4 /Users/gyuhan/.local/bin/claude
+  0.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:29:49
+ %CPU COMM
+ 28.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+ 23.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  6.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  4.4 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  2.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 02:29:59
+ %CPU COMM
+147.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 19.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  6.4 .venv-bench/bin/python
+  5.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.2 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:30:09
+ %CPU COMM
+394.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.5 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  2.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.4 .venv-bench/bin/python
+  1.0 /System/Library/Frameworks/ApplicationServices.framework/Frameworks/ATS.framework/Support/fontd
+--- 02:30:19
+ %CPU COMM
+389.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  2.1 .venv-bench/bin/python
+  1.8 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:30:29
+ %CPU COMM
+391.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.5 .venv-bench/bin/python
+  2.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:30:39
+ %CPU COMM
+387.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.0 .venv-bench/bin/python
+  2.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.8 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:30:49
+ %CPU COMM
+395.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  8.7 /usr/libexec/ContinuityCaptureAgent
+  2.6 .venv-bench/bin/python
+  2.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.9 /usr/libexec/searchpartyd
+--- 02:30:59
+ %CPU COMM
+389.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.6 /usr/libexec/ContinuityCaptureAgent
+  2.3 .venv-bench/bin/python
+  2.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.6 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:31:10
+ %CPU COMM
+392.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.4 .venv-bench/bin/python
+  2.1 /usr/libexec/ContinuityCaptureAgent
+  0.9 /usr/libexec/searchpartyd
+--- 02:31:20
+ %CPU COMM
+391.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.2 .venv-bench/bin/python
+  1.3 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  1.2 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:31:30
+ %CPU COMM
+393.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.3 .venv-bench/bin/python
+  2.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:31:40
+ %CPU COMM
+391.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.7 .venv-bench/bin/python
+  2.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.7 /usr/libexec/airportd
+  0.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:31:50
+ %CPU COMM
+392.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.5 .venv-bench/bin/python
+  2.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:32:00
+ %CPU COMM
+390.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.3 .venv-bench/bin/python
+  1.8 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:32:10
+ %CPU COMM
+388.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.3 .venv-bench/bin/python
+  2.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:32:20
+ %CPU COMM
+388.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.2 .venv-bench/bin/python
+  1.4 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  1.0 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:32:30
+ %CPU COMM
+388.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.7 .venv-bench/bin/python
+  2.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.8 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:32:40
+ %CPU COMM
+ 12.3 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+  1.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.1 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds
+  0.5 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds_stores
+--- 02:32:50
+ %CPU COMM
+390.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.4 .venv-bench/bin/python
+  1.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.3 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:33:00
+ %CPU COMM
+396.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  4.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  4.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.8 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.9 .venv-bench/bin/python
+--- 02:33:10
+ %CPU COMM
+388.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.6 .venv-bench/bin/python
+  2.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:33:20
+ %CPU COMM
+385.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.1 .venv-bench/bin/python
+  2.1 /System/Library/PrivateFrameworks/CoreAnalytics.framework/Support/analyticsd
+  1.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:33:30
+ %CPU COMM
+392.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.8 .venv-bench/bin/python
+  1.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.3 /usr/libexec/ContinuityCaptureAgent
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:33:40
+ %CPU COMM
+393.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.2 .venv-bench/bin/python
+  1.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:33:50
+ %CPU COMM
+390.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.9 .venv-bench/bin/python
+  1.8 /usr/libexec/searchpartyd
+  1.4 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:34:00
+ %CPU COMM
+388.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.9 .venv-bench/bin/python
+  1.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.2 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.0 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:34:10
+ %CPU COMM
+393.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.8 .venv-bench/bin/python
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:34:20
+ %CPU COMM
+390.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.3 /usr/libexec/ContinuityCaptureAgent
+  2.1 .venv-bench/bin/python
+  2.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.8 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:34:30
+ %CPU COMM
+387.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.3 .venv-bench/bin/python
+  0.7 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:34:40
+ %CPU COMM
+390.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.4 .venv-bench/bin/python
+  2.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.4 claude bg-spare
+  0.6 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:34:50
+ %CPU COMM
+392.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.4 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.1 .venv-bench/bin/python
+  1.4 /usr/libexec/locationd
+  0.7 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:35:00
+ %CPU COMM
+389.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.0 .venv-bench/bin/python
+  0.7 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:35:10
+ %CPU COMM
+388.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.7 .venv-bench/bin/python
+  1.7 /usr/libexec/searchpartyd
+  0.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:35:20
+ %CPU COMM
+387.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.9 .venv-bench/bin/python
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+--- 02:35:31
+ %CPU COMM
+388.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.7 .venv-bench/bin/python
+  1.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.7 /usr/libexec/searchpartyd
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:35:41
+ %CPU COMM
+548.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+ 51.9 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+ 13.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  9.6 /System/Library/Frameworks/ApplicationServices.framework/Frameworks/ATS.framework/Support/fontd
+  5.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+--- 02:35:51
+ %CPU COMM
+386.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.3 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  3.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.5 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  1.8 .venv-bench/bin/python
+--- 02:36:01
+ %CPU COMM
+389.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  3.2 /usr/libexec/ContinuityCaptureAgent
+  2.3 .venv-bench/bin/python
+  1.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+--- 02:36:11
+ %CPU COMM
+385.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.0 .venv-bench/bin/python
+  1.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.9 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.6 ps
+--- 02:36:21
+ %CPU COMM
+392.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.3 .venv-bench/bin/python
+  1.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.5 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:36:31
+ %CPU COMM
+391.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.7 .venv-bench/bin/python
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  0.4 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+--- 02:36:41
+ %CPU COMM
+391.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.8 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+  2.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  2.3 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  2.1 .venv-bench/bin/python
+--- 02:36:51
+ %CPU COMM
+395.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.9 .venv-bench/bin/python
+  1.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.8 /Users/gyuhan/.local/bin/claude
+  0.6 /System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+--- 02:37:01
+ %CPU COMM
+392.5 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.1 .venv-bench/bin/python
+  1.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.6 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:37:11
+ %CPU COMM
+391.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.0 .venv-bench/bin/python
+  1.9 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.0 claude bg-spare
+--- 02:37:21
+ %CPU COMM
+386.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.9 .venv-bench/bin/python
+  1.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.7 /System/Library/PrivateFrameworks/CoreDuetContext.framework/Resources/contextstored
+--- 02:37:31
+ %CPU COMM
+392.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.9 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  1.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.4 .venv-bench/bin/python
+  1.0 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:37:41
+ %CPU COMM
+395.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.9 .venv-bench/bin/python
+  1.2 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:37:51
+ %CPU COMM
+391.1 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.7 .venv-bench/bin/python
+  2.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN
+--- 02:38:01
+ %CPU COMM
+388.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.3 .venv-bench/bin/python
+  2.0 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.1 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:38:11
+ %CPU COMM
+392.3 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  2.2 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.7 .venv-bench/bin/python
+  0.7 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:38:21
+ %CPU COMM
+387.6 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.8 .venv-bench/bin/python
+  1.7 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper.app/Contents/MacOS/Google Chrome Helper
+  1.2 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.5 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+--- 02:38:31
+ %CPU COMM
+ 93.9 .venv-bench/bin/python
+ 30.8 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/153.0.8010.54/Helpers/Google Chrome Helper (Renderer).app/Contents/MacOS/Google Chrome Helper (Renderer)
+  1.2 /usr/libexec/searchpartyd
+  0.8 /Applications/Vorssaint.app/Contents/MacOS/Vorssaint
+  0.6 /System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN

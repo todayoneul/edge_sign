@@ -1,0 +1,14 @@
+date=2026-09-28T16:37:42Z
+commit=c785c286dc26776969541dba442e401b0c9b291c
+Darwin igyuhan-ui-MacBookPro.local 25.6.0 Darwin Kernel Version 25.6.0: Fri Jul 31 19:18:48 PDT 2026; root:xnu-12377.161.14~5/RELEASE_ARM64_T6020 arm64
+ProductName:		macOS
+ProductVersion:		26.6.2
+BuildVersion:		25G83
+Apple M2 Pro
+10
+17179869184
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=7405667)	100%; charged; 0:00 remaining present: true
+Google Chrome 153.0.8010.54 
+python 3.13.11 onnxruntime 1.23.2
+ROUNDS=5 ROUNDS_V3=3 WITH_1T=0 QUIET_PCT=30 QUICK=0

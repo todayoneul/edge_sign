@@ -1,0 +1,164 @@
+{
+  "pairs": [
+    {
+      "wasm_threads": 4,
+      "fp32": "v4_fp32",
+      "int8": "v4_int8_head_excl",
+      "rounds": [
+        {
+          "round": "r1",
+          "fp32": {
+            "mean_ms": 43.626542969373986,
+            "p90_ms": 43.74000000953674,
+            "threads": 4,
+            "isolated": true
+          },
+          "int8": {
+            "mean_ms": 52.2049072238151,
+            "p90_ms": 52.547000122070315,
+            "threads": 4,
+            "isolated": true
+          },
+          "fp32_over_int8": 0.8356789675410478
+        },
+        {
+          "round": "r2",
+          "fp32": {
+            "mean_ms": 43.76877929945476,
+            "p90_ms": 43.97849998474121,
+            "threads": 4,
+            "isolated": true
+          },
+          "int8": {
+            "mean_ms": 52.16307128733024,
+            "p90_ms": 52.51849994659424,
+            "threads": 4,
+            "isolated": true
+          },
+          "fp32_over_int8": 0.8390759634984464
+        },
+        {
+          "round": "r3",
+          "fp32": {
+            "mean_ms": 43.569916990818456,
+            "p90_ms": 43.760999989509585,
+            "threads": 4,
+            "isolated": true
+          },
+          "int8": {
+            "mean_ms": 52.146372070070356,
+            "p90_ms": 52.47700002193451,
+            "threads": 4,
+            "isolated": true
+          },
+          "fp32_over_int8": 0.8355311263508897
+        },
+        {
+          "round": "r4",
+          "fp32": {
+            "mean_ms": 43.64551757229492,
+            "p90_ms": 44.125,
+            "threads": 4,
+            "isolated": true
+          },
+          "int8": {
+            "mean_ms": 52.18522461038083,
+            "p90_ms": 52.635999989509585,
+            "threads": 4,
+            "isolated": true
+          },
+          "fp32_over_int8": 0.8363577602310988
+        },
+        {
+          "round": "r5",
+          "fp32": {
+            "mean_ms": 43.71236327965744,
+            "p90_ms": 43.9475001335144,
+            "threads": 4,
+            "isolated": true
+          },
+          "int8": {
+            "mean_ms": 52.08217285829596,
+            "p90_ms": 52.355000019073486,
+            "threads": 4,
+            "isolated": true
+          },
+          "fp32_over_int8": 0.8392960754265971
+        }
+      ],
+      "median_fp32_mean_ms": 43.64551757229492,
+      "median_int8_mean_ms": 52.16307128733024,
+      "median_ratio": 0.8363577602310988,
+      "min_ratio": 0.8355311263508897,
+      "max_ratio": 0.8392960754265971,
+      "rounds_int8_faster": 0,
+      "effective_threads_seen": [
+        4
+      ]
+    },
+    {
+      "wasm_threads": 4,
+      "fp32": "v3_fp32",
+      "int8": "v3_int8_head_excl",
+      "rounds": [
+        {
+          "round": "r1",
+          "fp32": {
+            "mean_ms": 187.24039062228985,
+            "p90_ms": 193.0229999303818,
+            "threads": 4,
+            "isolated": true
+          },
+          "int8": {
+            "mean_ms": 196.9803076207172,
+            "p90_ms": 201.38899998664857,
+            "threads": 4,
+            "isolated": true
+          },
+          "fp32_over_int8": 0.9505538542604907
+        },
+        {
+          "round": "r2",
+          "fp32": {
+            "mean_ms": 186.73797851009294,
+            "p90_ms": 191.94800004959106,
+            "threads": 4,
+            "isolated": true
+          },
+          "int8": {
+            "mean_ms": 196.61946289148182,
+            "p90_ms": 200.73350009918212,
+            "threads": 4,
+            "isolated": true
+          },
+          "fp32_over_int8": 0.9497431015420754
+        },
+        {
+          "round": "r3",
+          "fp32": {
+            "mean_ms": 187.50733886426315,
+            "p90_ms": 193.19349989891052,
+            "threads": 4,
+            "isolated": true
+          },
+          "int8": {
+            "mean_ms": 196.82205077935942,
+            "p90_ms": 201.00699999332429,
+            "threads": 4,
+            "isolated": true
+          },
+          "fp32_over_int8": 0.9526744494419571
+        }
+      ],
+      "median_fp32_mean_ms": 187.24039062228985,
+      "median_int8_mean_ms": 196.82205077935942,
+      "median_ratio": 0.9505538542604907,
+      "min_ratio": 0.9497431015420754,
+      "max_ratio": 0.9526744494419571,
+      "rounds_int8_faster": 0,
+      "effective_threads_seen": [
+        4
+      ]
+    }
+  ]
+}

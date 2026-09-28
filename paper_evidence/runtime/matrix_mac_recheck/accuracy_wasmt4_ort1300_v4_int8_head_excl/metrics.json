@@ -1,0 +1,51 @@
+{
+  "mAP50": 0.4835765638232569,
+  "mAP50_95": 0.23583913971199014,
+  "precision": 0.765051806216746,
+  "recall": 0.40342587123449497,
+  "detection_count": 3571,
+  "ground_truth_count": 6772,
+  "true_positives": 2732,
+  "false_positives": 839,
+  "false_negatives": 4040,
+  "per_class": {
+    "traffic_sign": {
+      "AP50": 0.4794905371374396,
+      "AP50_95": 0.26071715688166736,
+      "precision": 0.7691867124856816,
+      "recall": 0.398989898989899,
+      "detection_count": 1746,
+      "ground_truth_count": 3366
+    },
+    "traffic_light": {
+      "AP50": 0.48766259050907423,
+      "AP50_95": 0.21096112254231292,
+      "precision": 0.7610958904109589,
+      "recall": 0.407809747504404,
+      "detection_count": 1825,
+      "ground_truth_count": 3406
+    }
+  },
+  "AP_confidence_floor": 0.001,
+  "AP_integration": "Ultralytics-compatible 101-point precision-envelope trapezoid",
+  "task_confidence_threshold": 0.25,
+  "IoU_thresholds": [
+    0.5,
+    0.55,
+    0.6,
+    0.65,
+    0.7,
+    0.75,
+    0.8,
+    0.85,
+    0.9,
+    0.95
+  ],
+  "runtime": "onnxruntime-web",
+  "ep": "wasm",
+  "ort_web_version": "1.30.0",
+  "model": "v4_int8_head_excl",
+  "input_dtype": "float32",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+  "frames_evaluated": 2417
+}
