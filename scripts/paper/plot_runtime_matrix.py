@@ -4,14 +4,20 @@
   fig7_runtime_latency         batch-1 latency per variant x runtime on one device (log scale)
   fig8_pipeline_assignment     browser detector+recognizer pipeline stages on one device
   with --compare <second device matrix>:
-  fig11_runtime_latency_devices  detector latency, representative conditions, one panel per device (paper Fig. 4)
-  fig12_pipeline_devices         key pipeline placements, device A and B bars per placement (paper Fig. 5)
+  fig11_runtime_latency_devices  detector latency, representative conditions, one panel per device (paper Fig. 5)
+  fig12_pipeline_devices         key pipeline placements, device A and B bars per placement (paper Fig. 6)
 
 Every figure is written as <name>.pdf (vector, for the manuscript) and <name>.png (600 dpi) in the
 shared paper style (scripts/paper/paper_style.py).
 
+--recheck <quiet re-check of device B> (needs --compare): the re-check applies the same CPU-quiet gate as the
+device A runs, so wherever it repeated a measurement it replaces the --compare value. The WASM 4T detector cells
+(YOLO26-n, YOLOv8s) become the median over its launches of the launch mean and p90, and the pipeline bars use its
+launches. Everything it did not repeat (YOLO11l, 1-thread WASM, the FP32 @WebGPU pipelines) stays as measured in
+the first run; both raw records stay in their own folders.
+
 Usage: python scripts/paper/plot_runtime_matrix.py --matrix paper_evidence/runtime/matrix
-       [--compare paper_evidence/runtime/matrix_mac]
+       [--compare paper_evidence/runtime/matrix_mac [--recheck paper_evidence/runtime/matrix_mac_recheck]]
 """
 
 from __future__ import annotations
@@ -225,10 +231,13 @@ STAGES = [("det_prepare_ms", "normalize"), ("det_ms", "detector"), ("decode_ms",
           ("rec_prepare_ms", "ROI crop"), ("rec_ms", "recognizer")]
 
 
+LAUNCH_SUFFIXES = ["", "_r2", "_r3", "_r4", "_r5"]  # launch 1 carries no suffix
+
+
 def pipeline_launches(matrix: Path, run: str) -> list[dict]:
     """Completed launches of one configuration: r1 (no suffix) and r2..r5."""
     out = []
-    for suffix in ["", "_r2", "_r3", "_r4", "_r5"]:
+    for suffix in LAUNCH_SUFFIXES:
         p = matrix / f"{run}{suffix}.json"
         if p.exists() and (r := json.loads(p.read_text(encoding="utf-8"))).get("status") == "completed":
             # per-frame trace is stored next to the result as <run>_trace.csv
@@ -246,6 +255,39 @@ def launch_summary(matrix: Path, run: str) -> tuple | None:
     means = [x["metrics"]["total_ms"]["mean_ms"] for x in launches]
     p90s = [float(np.percentile(x["total"], 90)) for x in launches]
     return stage, float(np.median(means)), min(means), max(means), float(np.median(p90s)), len(launches)
+
+
+def first_summary(matrices: list[Path], run: str) -> tuple | None:
+    """launch_summary from the first matrix that measured this configuration (the quiet re-check goes first)."""
+    return next((s for m in matrices if (s := launch_summary(m, run))), None)
+
+
+def wasm4t_launches(matrix: Path, model: str) -> list[dict]:
+    """inference_ms metrics of the completed single-model WASM 4T launches (ORT-Web 1.30) of one model variant."""
+    out = []
+    for suffix in LAUNCH_SUFFIXES:
+        p = matrix / f"speed_wasmt4_ort1300_{model}{suffix}.json"
+        if p.exists() and (r := json.loads(p.read_text(encoding="utf-8"))).get("status") == "completed":
+            out.append(r["metrics"]["inference_ms"])
+    return out
+
+
+def with_recheck(rows: list[dict], recheck: Path) -> list[dict]:
+    """Rows with the WASM 4T cell of every re-checked model replaced by the median over launches of the launch mean
+    and p90 (the aggregation used for the pipeline bars). Models the re-check did not run keep their row."""
+    out = []
+    for r in rows:
+        launches = wasm4t_launches(recheck, r["model"])
+        if not launches:
+            out.append(r)
+            continue
+        p90 = float(np.median([m["p90_ms"] for m in launches]))
+        cell = {**(r.get("wasmt4_1300") or {}),
+                "mean_ms": float(np.median([m["mean_ms"] for m in launches])), "p90_ms": p90,
+                "p99_ms": float(np.median([m["p99_ms"] for m in launches])), "n_launches": len(launches),
+                "A_30fps": p90 <= FPS_LINES[0][0], "B_15fps": p90 <= FPS_LINES[1][0]}
+        out.append({**r, "wasmt4_1300": cell})
+    return out
 
 
 def stacked_bar(ax, y: float, stage: dict, height: float, limit: float, first: bool, edge: bool) -> None:
@@ -289,7 +331,7 @@ def fig_pipeline(matrix: Path, out: Path) -> None:
     plt.close(fig)
 
 
-# Cross-device figures (paper Fig. 4 and 5): device A = --matrix, device B = --compare.
+# Cross-device figures (paper Fig. 5 and 6): device A = --matrix, device B = --compare (+ --recheck).
 # Representative conditions only; INT8 is the head-excluded variant with INT32 bias.
 DEVICE_RUNTIMES = [  # (label, summary column, base color): color = where it runs
     ("ORT CPU 4T", "cpu_t4", "#8C8C8C"),
@@ -415,13 +457,13 @@ def fig_latency_devices(rows_a: list[dict], rows_b: list[dict], names: tuple[str
     plt.close(fig)
 
 
-def fig_pipeline_devices(matrix_a: Path, matrix_b: Path, names: tuple[str, str], out: Path) -> None:
+def fig_pipeline_devices(matrix_a: Path, matrices_b: list[Path], names: tuple[str, str], out: Path) -> None:
     """Per-stage pipeline latency on both devices, as a table: detector | recognizer | device, stacked stage bars,
-    then the median launch mean, its p90 and the number of launches."""
+    then the median launch mean, its p90 and the number of launches. Device B reads `matrices_b` in priority order."""
     groups = []
     for run, name in DEVICE_PIPELINE_ROWS:
         det, rec = (part.split(" ", 1)[1].replace(" @", " · ") for part in name.split(" + "))
-        groups.append((det, rec, [launch_summary(matrix_a, run), launch_summary(matrix_b, run)]))
+        groups.append((det, rec, [launch_summary(matrix_a, run), first_summary(matrices_b, run)]))
     devices = [n.split(":")[0] for n in names]
     top, bottom = 0.55, -(len(groups) - 1) - 0.55
     axes_top = 0.42 + 0.36 * (top - bottom)  # 0.36 in per placement
@@ -485,9 +527,14 @@ def main() -> None:
     parser.add_argument("--matrix", type=Path, default=Path("paper_evidence/runtime/matrix"))
     parser.add_argument("--compare", type=Path, default=None,
                         help="second device's matrix (e.g. paper_evidence/runtime/matrix_mac): adds fig11 and fig12")
+    parser.add_argument("--recheck", type=Path, default=None,
+                        help="quiet re-check of the second device (e.g. paper_evidence/runtime/matrix_mac_recheck): "
+                             "replaces the --compare values it repeated")
     parser.add_argument("--names", nargs=2, default=["Windows: Ryzen 5 9600X + RTX 5070", "Mac: Apple M2 Pro"])
     parser.add_argument("--figures", type=Path, default=Path("paper_evidence/figures"))
     args = parser.parse_args()
+    if args.recheck and not args.compare:
+        parser.error("--recheck needs --compare")
     apply()
     rows = json.loads((args.matrix / "summary.json").read_text(encoding="utf-8"))["rows"]
     boot = args.matrix / "bootstrap_retention.json"
@@ -497,9 +544,13 @@ def main() -> None:
     fig_pipeline(args.matrix, args.figures / "fig8_pipeline_assignment.png")
     if args.compare:
         rows_b = json.loads((args.compare / "summary.json").read_text(encoding="utf-8"))["rows"]
+        matrices_b = [args.compare]
+        if args.recheck:
+            rows_b = with_recheck(rows_b, args.recheck)
+            matrices_b.insert(0, args.recheck)
         names = (args.names[0], args.names[1])
         fig_latency_devices(rows, rows_b, names, args.figures / "fig11_runtime_latency_devices.png")
-        fig_pipeline_devices(args.matrix, args.compare, names, args.figures / "fig12_pipeline_devices.png")
+        fig_pipeline_devices(args.matrix, matrices_b, names, args.figures / "fig12_pipeline_devices.png")
     print("figures written to", args.figures)
 
 

@@ -383,7 +383,11 @@
   - YOLOv8s 종단 정확도: 98.2%.
 - [x] 그림 공통 스타일(`paper_style.py`) 적용 (2026-09-27)
 - [x] 논문 원고와 원고 작업 메모는 저장소에 두지 않고 비공개로 관리 (2026-09-27)
-- [ ] Mac 조용한 환경 재측정: WASM FP32 대 INT8 (`run_mac_wasm_recheck.sh`, [안내 8절](../paper_evidence/reports/DEVICE_MEASUREMENT_GUIDE.md))
+- [x] Mac 조용한 환경 재측정: WASM FP32 대 INT8 (2026-09-29, `run_mac_wasm_recheck.sh`, [안내 8절](../paper_evidence/reports/DEVICE_MEASUREMENT_GUIDE.md), [runtime/matrix_mac_recheck](../paper_evidence/runtime/matrix_mac_recheck/), [RUNTIME_MATRIX §2.6](../paper_evidence/reports/RUNTIME_MATRIX.md))
+  - 1차 결과(Mac WASM에서 INT8이 빠르지 않음)가 배경 부하를 통제해도 재현됨: YOLO26-n 0.84(5회 모두), YOLOv8s 0.95(3회 모두), 파이프라인 INT8@WASM이 FP32@WASM보다 +8.86 ms(5회 모두 느림).
+  - 1차에서 1회뿐이던 파이프라인 두 배치(FP32@WASM, FP16 전 구간 WebGPU)가 5회가 됨. Mac 최적 배치는 15.77 ms에서 15.53 ms [15.47–15.59]로 갱신.
+  - Mac WASM 수치 일치성 측정(YOLO26-n): FP32는 CPU와 동일, INT8 헤드 제외 mAP 차이 +0.0010/+0.0008.
+  - 병합 규칙: 재측정이 반복한 항목은 재측정 값이 1차를 대체. COCO WASM 4T, WASM 1T, FP32@WebGPU 파이프라인 2개는 1차 값. 그림은 `plot_runtime_matrix.py --recheck`로 병합.
 - [ ] 기준안 확정 후 카메라/렌더 포함 경로를 재측정하고 판정
 - [ ] 야간/다른 장소 test 확장 및 가능한 경우 manual identity GT 구축
 

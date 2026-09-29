@@ -117,22 +117,23 @@ git push -u origin paper/mac-device-validation
 | `crossOriginIsolated`가 false이고 WASM 4스레드 결과의 스레드 수가 1 | 서버가 `--isolate`로 떠 있는지 `server.log`에서 확인한다 |
 | YOLO11l WASM 단계가 매우 오래 걸림 | 정상이다(Windows 기준 추론 1회 약 0.7초). 중단했다가 같은 명령으로 이어서 실행해도 된다 |
 
-## 8. 추가 재측정: WASM FP32 대 INT8 (약 1시간, 2026-09-27 추가)
+## 8. 추가 재측정: WASM FP32 대 INT8 (약 1시간, 2026-09-27 추가, 2026-09-29 완료)
 
 **목적.** 1차 Mac 측정에서 WASM INT8은 FP32보다 빠르지 않았다(0.89–1.01배). Windows와 반대 방향이라 논문 초록에 들어간 결과이지만, 근거가 약하다.
 - 모델마다 한 번씩만 측정했다.
 - 그 구간에 다른 앱(ChatGPT/Codex, Antigravity IDE, 평소 쓰는 Chrome 창)이 CPU를 썼다.
-- 파이프라인의 FP32@WASM도 1회만 측정했다.
+- 파이프라인의 FP32@WASM과 FP16 전 구간 WebGPU도 1회만 측정했다(기기 비교 그림의 n=1 막대).
 
 이 비교만 조용한 환경에서 반복해 결과를 확정한다. 스크립트는 `scripts/paper/run_mac_wasm_recheck.sh`이다.
 
-| 단계 | 내용 | 시간(대략) |
+| 단계 | 내용 | 걸린 시간(2026-09-29 실측, M2 Pro) |
 |---|---|---|
-| 1 | YOLO26-n FP32·INT8 헤드 제외, WASM 4스레드, 5회 | 10분 |
-| 2 | YOLOv8s FP32·INT8 헤드 제외, WASM 4스레드, 3회 | 20분 |
-| 3 | 파이프라인 FP32@WASM 대 INT8@WASM, 5회 | 10분 |
-| 4 | WASM 수치 일치성(YOLO26-n FP32, INT8 헤드 제외 2종; test 전체) | 10분 |
-| 선택 | `WITH_1T=1`을 붙이면 YOLO26-n 1스레드 3회 추가 | +20분 |
+| 1 | YOLO26-n FP32·INT8 헤드 제외, WASM 4스레드, 5회 | 14분 |
+| 2 | YOLOv8s FP32·INT8 헤드 제외, WASM 4스레드, 3회 | 23분 |
+| 3 | 파이프라인 FP32@WASM 대 INT8@WASM, 5회 | 9분 |
+| 3b | 파이프라인 FP16 전 구간 WebGPU 대 인식기 WASM(검출기 FP16@WebGPU), 5회 | 6분 |
+| 4 | WASM 수치 일치성(YOLO26-n FP32, INT8 헤드 제외 2종; test 전체) | 8분 |
+| 선택 | `WITH_1T=1`을 붙이면 YOLO26-n 1스레드 3회 추가 | 미측정(대략 +20분) |
 
 - 측정마다 Chrome을 새로 띄운다. 회차마다 FP32와 INT8의 순서를 바꿔, 발열이나 배경 작업이 한쪽에만 유리하지 않게 한다.
 - 측정 전마다 다른 프로세스의 CPU 사용 합이 30% 미만인 상태가 15초 이어질 때까지 기다린다(최대 5분). 기다린 결과는 `quiet.log`에 남는다.
@@ -176,3 +177,8 @@ git add -f paper_evidence/runtime/matrix_mac_recheck
 git commit -m "feat(paper): quiet re-check of WASM FP32 vs INT8 on the Mac"
 git push origin main
 ```
+
+**결과 (2026-09-29, 커밋 79f51ea).** 1차 결과가 재현되었다. 뒤집히지 않았다.
+- 조용한 환경에서 FP32가 INT8보다 빨랐다. YOLO26-n 0.84배(5회 모두), YOLOv8s 0.95배(3회 모두). 파이프라인에서도 INT8@WASM이 FP32@WASM보다 8.86 ms 느렸다(5회 모두).
+- 조용한 환경 확인: 36회 측정 중 `not quiet` 0회, 가장 오래 기다린 시간 55초.
+- 이 값들이 기기 비교 그림(fig11·fig12)과 RUNTIME_MATRIX 2.6절의 Mac 값을 대체했다(`plot_runtime_matrix.py --recheck`). 재측정이 반복하지 않은 항목(YOLO11l, 1스레드, FP32@WebGPU 파이프라인)은 1차 값이 그대로다.

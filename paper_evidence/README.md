@@ -21,13 +21,13 @@
 | 새 QDQ 변형의 생성 기록 | `models/quantize_variants_log.json`(검출기), `models/recognizer_variants_log.json`(인식기), `splits/recognition_calibration_manifest.jsonl` |
 | 인식기 변형 정확도 | `recognition/variants/{fp32,fp16,int8_*}_metrics.json`, `predictions.csv` |
 | 논문 그림 6–8 | `figures/fig6_component_sensitivity.png`, `fig7_runtime_latency.png`, `fig8_pipeline_assignment.png` (`scripts/paper/plot_runtime_matrix.py`) |
-| 기기 비교 그림 (논문 Fig. 5–6) | `figures/fig11_runtime_latency_devices.{pdf,png}`, `fig12_pipeline_devices.{pdf,png}` (`plot_runtime_matrix.py --compare runtime/matrix_mac`) |
+| 기기 비교 그림 (논문 Fig. 5–6) | `figures/fig11_runtime_latency_devices.{pdf,png}`, `fig12_pipeline_devices.{pdf,png}` (`plot_runtime_matrix.py --compare runtime/matrix_mac --recheck runtime/matrix_mac_recheck`). Mac 값은 재측정이 반복한 항목(WASM 4T YOLO26-n·YOLOv8s, 파이프라인 4개 배치)만 재측정 중앙값으로 대체하고 나머지는 1차 값이다 |
 | 검출 붕괴 원인 (활성값 ablation) | `runtime/matrix/cpu_{v4,v3}_a8sim_{all,head,decode,outconcat,decode_no_outconcat}/`, `cpu_{v4,v3}_int8_decode_excl/`, `runtime/matrix/decode_tensor_scan.json`, `models/activation_ablation_log.json` (`activation_ablation.py`, `decode_tensor_scan.py`) |
 | 파이프라인 5회 반복 | `runtime/matrix/pipeline_t4_ort1300_*_r{2..5}.json`·`_trace.csv`, 집계 `pipeline_repeats_summary.json` (`summarize_pipeline_repeats.py`) |
 | 검출→추적→인식 종단 정확도 (정밀도 조합) | `runtime/end_to_end/{summary.json,per_frame.csv}` (`evaluate_end_to_end.py`) |
 | 논문 그림 추가 | `figures/fig9_study_overview.png`(개요, `plot_study_overview.py`), `fig10_qualitative.png`(정성 비교, `plot_qualitative.py`) |
 | 표준 워크로드 외부 검증 (YOLO11l + MLPerf COCO safe subset) | 사전 등록 [COCO_VALIDATION_PLAN.md](reports/COCO_VALIDATION_PLAN.md), 결과 [COCO_VALIDATION.md](reports/COCO_VALIDATION.md); `coco/`(부분집합·보정 manifest, `cpu_<variant>/metrics.json`, `detections.npz`), 지연은 `runtime/matrix/*coco_*` (`coco_validation.py`, `runtime_matrix.py`) |
-| 두 번째 기기 측정 | [DEVICE_MEASUREMENT_GUIDE.md](reports/DEVICE_MEASUREMENT_GUIDE.md) (절차), [runtime/matrix_mac/](runtime/matrix_mac/) (Mac 결과, RUNTIME_MATRIX §2.6) |
+| 두 번째 기기 측정 | [DEVICE_MEASUREMENT_GUIDE.md](reports/DEVICE_MEASUREMENT_GUIDE.md) (절차), [runtime/matrix_mac/](runtime/matrix_mac/) (Mac 1차 결과, 배경 부하 통제 없음), [runtime/matrix_mac_recheck/](runtime/matrix_mac_recheck/) (2026-09-29 조용한 환경 재측정: WASM FP32 대 INT8, 파이프라인 4개 배치 5회, WASM 수치 일치성; `run_mac_wasm_recheck.sh`), RUNTIME_MATRIX §2.6 |
 | 추가 실험 (2026-09-27): 크기별 유지율, 좌표 정규화 기준선, 보정 방법, YOLOv8s 종단 정확도 | [extra/README.md](extra/README.md); 그림 `figures/fig13_size_retention.{pdf,png}` (논문 Fig. 3, `plot_size_bins.py`) |
 | 그림 스타일 | 모든 논문 그림은 `scripts/paper/paper_style.py`(Arial 8 pt, 6.3 in 폭, Okabe–Ito 팔레트)로 벡터 PDF와 600 dpi PNG를 함께 만든다 |
 
