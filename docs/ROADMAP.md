@@ -388,6 +388,10 @@
   - 1차에서 1회뿐이던 파이프라인 두 배치(FP32@WASM, FP16 전 구간 WebGPU)가 5회가 됨. Mac 최적 배치는 15.77 ms에서 15.53 ms [15.47–15.59]로 갱신.
   - Mac WASM 수치 일치성 측정(YOLO26-n): FP32는 CPU와 동일, INT8 헤드 제외 mAP 차이 +0.0010/+0.0008.
   - 병합 규칙: 재측정이 반복한 항목은 재측정 값이 1차를 대체. COCO WASM 4T, WASM 1T, FP32@WebGPU 파이프라인 2개는 1차 값. 그림은 `plot_runtime_matrix.py --recheck`로 병합.
+- [x] 기기 비교 그림을 초안 양식으로 되돌리고 그림 번호를 초안에 맞춤 (2026-09-30)
+  - fig11(초안 Fig. 3)은 막대 = 평균·수염 = p90 막대 그림, fig12(초안 Fig. 4)는 A(Windows)/B(Mac) 단계 막대 그림으로 `plot_runtime_matrix.py`가 다시 그림. 두 그림 모두 `--recheck` 병합 규칙으로 Mac 재측정 값을 씀.
+  - 초안 그림 대응표: [paper_evidence/README.md](../paper_evidence/README.md) (Fig. 1 = fig9, Fig. 2 = fig6, Fig. 3 = fig11, Fig. 4 = fig12, Fig. 5 = fig10).
+  - 저장소 루트의 `matrix_mac.log`를 `paper_evidence/runtime/matrix_mac/`로 옮김.
 - [ ] 기준안 확정 후 카메라/렌더 포함 경로를 재측정하고 판정
 - [ ] 야간/다른 장소 test 확장 및 가능한 경우 manual identity GT 구축
 

@@ -4,7 +4,7 @@ Conventions (cf. J.-B. Huang, "Deep Paper Gestalt", arXiv:1812.08775; standard I
 - Arial 8 pt at final print size (Helvetica-like sans stays legible when a figure is scaled into the page);
 - width = the TIIS single-column text width (6.3 in), heights chosen per figure; no rescaling in the document;
 - Okabe-Ito colorblind-safe palette with one fixed color per model, per runtime and per pipeline stage;
-  the table-style paper figures (Figs. 2, 5, 6) use the SOFT palette below to match the Fig. 1 schematic;
+  the table-style Fig. 2 uses the SOFT palette below to match the Fig. 1 schematic;
 - no top/right spines, a light grid on the value axis only, frameless legends, panel labels instead of titles;
 - every figure is written as vector PDF (for the manuscript) and 600-dpi PNG (for the Markdown draft).
 """

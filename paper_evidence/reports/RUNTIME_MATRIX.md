@@ -293,7 +293,7 @@ v4 검출기 + 인식기, test 앞 512프레임(INT8@WebGPU는 128프레임), OR
 
 - **기기:** MacBook Pro M2 Pro(성능 6 + 효율 4코어, GPU 16코어, 통합 메모리 16 GB), macOS 26.6.2, Chrome 153.0.8010.54(headless에서 하드웨어 WebGPU 어댑터 사용), ORT 1.23.2. 모델 파일 SHA-256은 Windows와 같다.
 - **원시 기록:** 두 번 측정했다.
-  - 1차 [runtime/matrix_mac/](../runtime/matrix_mac/) (2026-09-26): 전 항목. `summary.md`에 지연·배치 표와 파이프라인 5회 반복 요약, `environment.txt`, `cpu_load.log`. 측정 로그는 저장소 루트의 `matrix_mac.log`. 배경 부하를 통제하지 않았다.
+  - 1차 [runtime/matrix_mac/](../runtime/matrix_mac/) (2026-09-26): 전 항목. `summary.md`에 지연·배치 표와 파이프라인 5회 반복 요약, `environment.txt`, `cpu_load.log`. 측정 로그는 `matrix_mac.log`(2026-09-30 저장소 루트에서 이 폴더로 옮김). 배경 부하를 통제하지 않았다.
   - 2차 [runtime/matrix_mac_recheck/](../runtime/matrix_mac_recheck/) (2026-09-29): WASM FP32 대 INT8 비교만 조용한 환경에서 반복했다. `summary.md`, `quiet.log`(측정 전 배경 CPU 확인 36회), `environment.txt`, `cpu_load.log`. 절차는 [DEVICE_MEASUREMENT_GUIDE.md](DEVICE_MEASUREMENT_GUIDE.md) 8절, 측정 커밋은 `c785c28`.
 - **병합 규칙:** 2차가 반복한 항목은 2차 값이 1차 값을 대체한다. 2차는 Windows 측정과 같은 조용한 환경 절차(측정 전 배경 CPU 확인, 측정마다 새 Chrome)를 쓰고, 회차마다 FP32·INT8 순서를 바꿔 발열이 한쪽에만 유리하지 않게 했다. 반복하지 않은 항목은 1차 값을 쓰고 "1차"로 표시했다. 1차 원시 기록은 그대로 두었다. 그림(fig11·fig12)은 `plot_runtime_matrix.py --compare runtime/matrix_mac --recheck runtime/matrix_mac_recheck`로 같은 규칙을 적용한다.
 
@@ -349,7 +349,7 @@ v4 검출기 + 인식기, test 앞 512프레임(INT8@WebGPU는 128프레임), OR
     - 단계별 비율: 네이티브 CPU·WebGPU 1%(217개 중 3개), WASM 단일 모델 19%(494개 중 93개), 파이프라인 반복 8%(96개 중 8개), YOLO11l·수치 일치성 15%(247개 중 37개).
     - 22시 이후에는 측정에 쓰지 않은 다른 Chrome(153.0.8010.52, 사용자 창)이 약 0.2코어를 계속 썼다.
     - 이전 판의 "182개(17%)"는 표본이 아니라 프로세스 행 수를 센 값이었고, 다른 Chrome도 측정으로 잘못 분류했다.
-  - 2차가 반복하지 않은 항목(COCO WASM 4T, WASM 1T, FP32@WebGPU 파이프라인 2개, WebGPU·네이티브 CPU 전 항목)은 1차 값이다. 이들의 배경 부하 비율은 위와 같고, 논문 4.6절에 한계로 적었다.
+  - 2차가 반복하지 않은 항목(COCO WASM 4T, WASM 1T, FP32@WebGPU 파이프라인 2개, WebGPU·네이티브 CPU 전 항목)은 1차 값이다. 이들의 배경 부하 비율은 위와 같고, 논문 5.2절(한계)에 적었다.
 
 ## 3. 판정 요약
 
@@ -365,7 +365,7 @@ v4 검출기 + 인식기, test 앞 512프레임(INT8@WebGPU는 128프레임), OR
 | INT8은 실행 환경에 따라 빨라지기도 느려지기도 한다 | **지지** | 2.2(Windows): CPU·WASM 1.2–2.3배 가속, WebGPU 49–83배 감속. Mac의 WASM은 가속 없음(0.84–1.01배, 2.6절, 조용한 재측정 포함) |
 | WebGPU INT8 감속의 원인은 `QuantizeLinear`의 CPU 폴백이다 | **지지** | 2.3 배치 로그 |
 | 정밀도 효과는 런타임 버전에도 달려 있다 | **지지** | FP16 1.22 3–4배 감속 → 1.30 동등 |
-| 구성요소별 실행 환경 배치가 전부 WebGPU보다 빠르다 | **지지 (이 기기, 5회 모두)** | 2.5: 중앙값 16.7–17.3 vs 18.9–19.3 ms, 짝 비교 −1.84 ms (5/5) |
+| 구성요소별 실행 환경 배치가 전부 WebGPU보다 빠르다 | **지지 (두 기기, 5회 모두)** | 2.5(Windows): 중앙값 16.7–17.3 vs 18.9–19.3 ms, 짝 비교 −1.84 ms (5/5). 2.6(Mac): 인식기 WASM이 WebGPU보다 −0.55 ms(2차, FP16 검출기) · −0.59 ms(1차, FP32 검출기), 모두 5/5 |
 | 브라우저 파이프라인이 30 FPS 기준 A를 충족한다 | **조건부 지지** | WebGPU 검출기 배치에서 p90 중앙값 19.4–23.0 ms(5회 모두 통과). 추적기·렌더·카메라 입력 제외, 이 기기 한정 |
 
 ## 4. 한계

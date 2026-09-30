@@ -1,11 +1,13 @@
 """Figures for the component x precision x runtime matrix (reads summarize_runtime_matrix.py output).
 
   fig6_component_sensitivity   accuracy retention per component and precision, 95% and 99% lines (paper Fig. 2)
-  fig7_runtime_latency         batch-1 latency per variant x runtime on one device (log scale)
-  fig8_pipeline_assignment     browser detector+recognizer pipeline stages on one device
+  fig7_runtime_latency         batch-1 latency per variant x runtime on one device (log scale; not in the draft)
+  fig8_pipeline_assignment     browser detector+recognizer pipeline stages on one device (not in the draft)
   with --compare <second device matrix>:
-  fig11_runtime_latency_devices  detector latency, representative conditions, one panel per device (paper Fig. 5)
-  fig12_pipeline_devices         key pipeline placements, device A and B bars per placement (paper Fig. 6)
+  fig11_runtime_latency_devices  detector latency bars, representative conditions, one panel per device (paper Fig. 3)
+  fig12_pipeline_devices         key pipeline placements, device A and B stage bars per placement (paper Fig. 4)
+
+Paper figure numbers follow the current draft (Fig. 1 = fig9 schematic, Fig. 5 = fig10 qualitative).
 
 Every figure is written as <name>.pdf (vector, for the manuscript) and <name>.png (600 dpi) in the
 shared paper style (scripts/paper/paper_style.py).
@@ -46,8 +48,6 @@ from scripts.paper.paper_style import (
     INK,
     MODEL_COLOR,
     OKABE_ITO,
-    SOFT,
-    SOFT_STAGE,
     STAGE_COLOR,
     apply,
     key_row,
@@ -76,7 +76,7 @@ def label(key: str) -> str:
     return f"{MODEL_NAME[family]} {SHORT.get(rest, rest)}"
 
 
-# Table-style figures (Figs. 2, 5, 6 in the paper) share the look of the Fig. 1 schematic: fills with a darker
+# The table-style figure (Fig. 2 in the paper) shares the look of the Fig. 1 schematic: fills with a darker
 # outline of the same hue, ink for primary text, gray for secondary text, hairline rules between groups.
 DASHED, DOTTED = (0, (4, 2.5)), (0, (1, 1.6))  # 99% criterion / 30 FPS, and 95% reference / 15 FPS
 CELL = FONT_SIZE - 1  # table cell text
@@ -331,193 +331,128 @@ def fig_pipeline(matrix: Path, out: Path) -> None:
     plt.close(fig)
 
 
-# Cross-device figures (paper Fig. 5 and 6): device A = --matrix, device B = --compare (+ --recheck).
+# Cross-device figures (paper Figs. 3 and 4): device A = --matrix, device B = --compare (+ --recheck).
 # Representative conditions only; INT8 is the head-excluded variant with INT32 bias.
-DEVICE_RUNTIMES = [  # (label, summary column, base color): color = where it runs
-    ("ORT CPU 4T", "cpu_t4", "#8C8C8C"),
-    ("WASM 4T", "wasmt4_1300", OKABE_ITO["orange"]),
-    ("WebGPU", "webgpu_1300", OKABE_ITO["blue"]),
+DEVICE_RUNTIMES = [  # (label, summary column, FP32 fill, outline): color = where it runs
+    ("ORT CPU 4T", "cpu_t4", "#8F8F8F", "#505050"),
+    ("WASM 4T", "wasmt4_1300", "#E89F5D", "#AF641C"),
+    ("WebGPU", "webgpu_1300", "#2B689E", "#1E4A73"),
 ]
 DEVICE_PRECISIONS = {  # runtime column -> precisions measured there (INT8 = head-excluded, INT32 bias)
     "cpu_t4": ["fp32", "int8_head_excl"], "wasmt4_1300": ["fp32", "int8_head_excl"],
     "webgpu_1300": ["fp32", "fp16", "int8_head_excl"],
 }
-PRECISION_MARK = {"fp32": ("o", 5.6, "FP32"), "fp16": ("^", 6.2, "FP16"), "int8_head_excl": ("s", 5.2, "INT8")}
-DEVICE_MODELS = [("v4", "YOLO26-n"), ("v3", "YOLOv8s"), ("coco", "YOLO11l (COCO)")]
+PRECISION_TINT = {"fp32": 0.0, "fp16": 0.5, "int8_head_excl": 0.9}  # runtime fill blended toward white by this much
+PRECISION_KEY = [("FP32", "#5E5E5E"), ("FP16", "#AEAEAE"), ("INT8", "#EFEFEF")]
+DEVICE_MODELS = [("v4", "YOLO26-n", None), ("v3", "YOLOv8s", None), ("coco", "YOLO11l", "COCO")]  # (family, name, note)
 DEVICE_PIPELINE_ROWS = PIPELINE_ROWS[:1] + PIPELINE_ROWS[2:7]  # WebGPU and 4-thread WASM placements
 
 
-def panel_title(ax, tag: str, name: str, y_pt: float = 4.0) -> None:
-    """Panel tag and device in bold ink followed by the hardware in gray, `y_pt` points above the axes."""
+def panel_title(ax, name: str, y_pt: float = 4.0) -> None:
+    """Device in bold ink followed by the hardware in gray ("Windows: Ryzen ..."), `y_pt` points above the axes."""
     device, _, hardware = name.partition(":")
-    title = ax.annotate(f"{tag} {device}", xy=(0, 1), xycoords="axes fraction", xytext=(0, y_pt),
-                        textcoords="offset points", fontweight="bold", fontsize=FONT_SIZE - 0.5, color=INK, va="bottom")
+    title = ax.annotate(device, xy=(0, 1), xycoords="axes fraction", xytext=(0, y_pt), textcoords="offset points",
+                        fontweight="bold", fontsize=FONT_SIZE, color=INK, va="bottom")
     if hardware:
-        ax.annotate(f"  {hardware.strip()}", xy=(1, 0), xycoords=title, va="bottom", color=GRAY, fontsize=NOTE)
-
-
-def _marker_key(marker: str, size: float, face: str, edge: str, tick: bool = False, width: float = 10, height: float = 8):
-    """Legend glyph: one marker (or a mean-to-p90 range glyph when `tick`) in a DrawingArea."""
-    from matplotlib.offsetbox import DrawingArea
-
-    area = DrawingArea(width + (16 if tick else 0), height, 0, 0)
-    y = height / 2
-    if tick:
-        area.add_artist(Line2D([5, width + 11], [y, y], color=face, linewidth=1.2))
-        area.add_artist(Line2D([width + 11], [y], marker="|", markersize=7.5, markeredgewidth=1.2, color=edge))
-    area.add_artist(Line2D([5], [y], marker=marker, markersize=size, markerfacecolor=face, markeredgecolor=edge,
-                           markeredgewidth=1.0, linestyle="none"))
-    return area
+        ax.annotate(f"  {hardware.strip()}", xy=(1, 0), xycoords=title, va="bottom", color=GRAY, fontsize=CELL)
 
 
 def fig_latency_devices(rows_a: list[dict], rows_b: list[dict], names: tuple[str, str], out: Path) -> None:
-    """Point-range plot of batch-1 detector latency, one panel per device on a shared log axis.
+    """Grouped bars of batch-1 detector latency, one panel per device on a shared log axis (paper Fig. 3).
 
-    Rows: model > runtime. Color = runtime, marker shape = precision; filled marker = mean, tick = p90, joined by a
-    line. Precisions sharing a runtime row sit in fixed vertical lanes so near-equal values stay visible.
+    Groups = model; bar color = runtime, bar tint = precision (FP32 full, FP16 half, INT8 pale with the runtime
+    outline). Bar = mean, whisker = p90.
     """
-    lanes = {2: [0.2, -0.2], 3: [0.27, 0.0, -0.27]}
-    y_row, head_y, gaps, y = {}, {}, [], 0.0
-    for i, (fam, _) in enumerate(DEVICE_MODELS):
-        if i:
-            gaps.append(-(y - 0.15))
-            y += 0.3
-        head_y[fam] = -y
-        y += 0.85
-        for _, col, _ in DEVICE_RUNTIMES:
-            y_row[fam, col] = -y
-            y += 1.0
-    top, bottom = 0.45, -(y - 1.0) - 0.55
-    lo_x, hi_x = 8.0, 6000.0
+    bar_w, pitch, gap = 0.093, 0.114, 0.036  # in model-group units (one group = 1.0)
+    offsets, bars = [], []
+    x = 0.0
+    for r, (_, col, fill, edge) in enumerate(DEVICE_RUNTIMES):
+        x += gap if r else 0.0
+        for precision in DEVICE_PRECISIONS[col]:
+            offsets.append(x)
+            bars.append((col, precision, _blend(fill, "#FFFFFF", PRECISION_TINT[precision]), edge))
+            x += pitch
+    center = (offsets[0] + offsets[-1]) / 2
+    offsets = [o - center for o in offsets]
 
-    width_in, height_in = FULL_WIDTH, 3.45
-    a_left, a_right, b_left, b_right = 1.2, 3.66, 3.8, width_in - 0.04
-    plot_bottom, plot_top = 0.4, height_in - 0.5
-    fig = plt.figure(figsize=(width_in, height_in))
-    axes = [_axes_in(fig, width_in, height_in, left=a_left, right=a_right, bottom=plot_bottom, top=plot_top),
-            _axes_in(fig, width_in, height_in, left=b_left, right=b_right, bottom=plot_bottom, top=plot_top)]
-    tab = _Table(fig, axes[0], width_in)
-    for fam, name in DEVICE_MODELS:
-        tab.text(0.02, head_y[fam], name, weight="bold")
-        for runtime, col, _ in DEVICE_RUNTIMES:
-            tab.text(0.16, y_row[fam, col], runtime)
-    for yg in gaps:
-        tab.rule(0.02, b_right, yg, color="#E3E6E8", lw=0.6)
-
-    for ax, rows, name, tag in zip(axes, (rows_a, rows_b), names, ("(a)", "(b)"), strict=True):
+    fig, axes = plt.subplots(1, 2, figsize=(FULL_WIDTH, 3.11), sharey=True)
+    fig.subplots_adjust(left=0.085, right=0.925, bottom=0.12, top=0.875, wspace=0.06)
+    for ax, rows, name in zip(axes, (rows_a, rows_b), names, strict=True):
         by = {r["model"]: r for r in rows}
-        for fam, _ in DEVICE_MODELS:
-            for _, col, base in DEVICE_RUNTIMES:
-                face, edge = _blend(base, "#FFFFFF", 0.15), _blend(base, "#000000", 0.35)
-                precisions = DEVICE_PRECISIONS[col]
-                for precision, dy in zip(precisions, lanes[len(precisions)], strict=True):
-                    cell = by[f"{fam}_{precision}"][col]
-                    mean, p90, yi = cell["mean_ms"], cell["p90_ms"], y_row[fam, col] + dy
-                    marker, size, _ = PRECISION_MARK[precision]
-                    ax.plot([mean, p90], [yi, yi], color=face, linewidth=1.2, solid_capstyle="butt", zorder=2)
-                    ax.plot(mean, yi, marker=marker, markersize=size, markerfacecolor=face, markeredgecolor=edge,
-                            markeredgewidth=1.0, linestyle="none", zorder=4)
-                    # p90 tick drawn above the marker and slightly taller, so it stays visible when p90 ~ mean
-                    ax.plot(p90, yi, marker="|", markersize=7.5, markeredgewidth=1.2, color=edge, zorder=5)
-                    if col == "webgpu_1300" and precision == "int8_head_excl":  # the one outlier worth a number
-                        text = f"{mean:.0f} ms" if mean < 1000 else f"{mean / 1000:.2f} s"
-                        ax.annotate(text, xy=(max(mean, p90), yi), xytext=(5, 0), textcoords="offset points",
-                                    va="center", fontsize=NOTE, color=INK)
-        ax.axvline(1000 / 30, color="#333333", ls=DASHED, lw=1.0, zorder=1)
-        ax.axvline(1000 / 15, color="#8C8C8C", ls=DOTTED, lw=1.1, zorder=1)
-        ax.annotate("30 FPS", xy=(1000 / 30, 1), xycoords=ax.get_xaxis_transform(), xytext=(-2, 1.5),
-                    textcoords="offset points", ha="right", va="bottom", fontsize=NOTE - 0.5, color=INK)
-        ax.annotate("15 FPS", xy=(1000 / 15, 1), xycoords=ax.get_xaxis_transform(), xytext=(2, 1.5),
-                    textcoords="offset points", ha="left", va="bottom", fontsize=NOTE - 0.5, color=GRAY)
-        ax.set_xscale("log")
-        ax.set_xlim(lo_x, hi_x)
-        ax.set_ylim(bottom, top)
-        ax.xaxis.set_major_locator(FixedLocator([10, 100, 1000]))
-        ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:,.0f}"))
-        ax.xaxis.set_minor_formatter(NullFormatter())
-        ax.set_yticks([])
-        ax.spines["left"].set_visible(False)
-        ax.grid(axis="x", which="major", color="#EBEBEB", linewidth=0.5)
+        for g, (fam, _, _) in enumerate(DEVICE_MODELS):
+            for dx, (col, precision, face, edge) in zip(offsets, bars, strict=True):
+                cell = by[f"{fam}_{precision}"][col]
+                mean, p90 = cell["mean_ms"], cell["p90_ms"]
+                ax.bar(g + dx, mean, bar_w, color=face, edgecolor=edge, linewidth=0.6, zorder=2)
+                ax.errorbar(g + dx, mean, yerr=[[0.0], [max(0.0, p90 - mean)]], fmt="none", ecolor=INK,
+                            elinewidth=0.7, capsize=2.0, capthick=0.9, zorder=3)
+        ax.axhline(1000 / 30, color="#333333", ls=DASHED, lw=1.0, zorder=1)
+        ax.axhline(1000 / 15, color="#8C8C8C", ls=DOTTED, lw=1.1, zorder=1)
+        ax.set_yscale("log")
+        ax.set_ylim(5, 3000)
+        ax.yaxis.set_major_locator(FixedLocator([10, 100, 1000]))
+        ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:,.0f}"))
+        ax.yaxis.set_minor_formatter(NullFormatter())
+        ax.set_xlim(-0.5, len(DEVICE_MODELS) - 0.5)
+        ax.set_xticks(range(len(DEVICE_MODELS)), [m for _, m, _ in DEVICE_MODELS])
+        ax.tick_params(axis="x", length=0, pad=3)
+        for g, (_, _, note) in enumerate(DEVICE_MODELS):
+            if note:
+                ax.annotate(note, xy=(g, 0), xycoords=ax.get_xaxis_transform(), xytext=(0, -13),
+                            textcoords="offset points", ha="center", va="top", color=GRAY, fontsize=NOTE)
+        ax.grid(axis="y", which="major", color="#EBEBEB", linewidth=0.5)
         ax.set_axisbelow(True)
-        panel_title(ax, tag, name, y_pt=11.5)
-    fig.text((a_left + b_right) / 2 / width_in, 0.07 / height_in, "Latency (ms, log scale)", ha="center", va="bottom",
-             fontsize=FONT_SIZE, color=INK)
+        panel_title(ax, name, y_pt=5.0)
+    axes[0].set_ylabel("Latency (ms)")
+    for yv, text, color in ((1000 / 15, "15 FPS", GRAY), (1000 / 30, "30 FPS", INK)):
+        axes[1].annotate(text, xy=(1, yv), xycoords=axes[1].get_yaxis_transform(), xytext=(4, 0),
+                         textcoords="offset points", va="center", fontsize=NOTE, color=color)
 
-    runtime_key = [("Runtime", {"color": GRAY, "fontsize": NOTE})]
-    for runtime, _, base in DEVICE_RUNTIMES:
-        runtime_key += [_marker_key("o", 5.6, _blend(base, "#FFFFFF", 0.15), _blend(base, "#000000", 0.35)),
-                        runtime.replace(" 4T", "")]
-    precision_key = [("Precision", {"color": GRAY, "fontsize": NOTE})]
-    for marker, size, label_text in PRECISION_MARK.values():
-        precision_key += [_marker_key(marker, size, "#FFFFFF", INK), label_text]
-    stat_key = [_marker_key("o", 5.6, "#9A9A9A", "#333333", tick=True),
-                ("filled = mean,  tick = p90", {"color": GRAY, "fontsize": NOTE})]
-    key_row(fig, [runtime_key, precision_key, stat_key], x=0.5, y=(height_in - 0.07) / height_in, gap=14.0)
+    runtime_key = [("Runtime", {"color": GRAY})]
+    for runtime, _, fill, edge in DEVICE_RUNTIMES:
+        runtime_key += [swatch(fill, edge), runtime]
+    precision_key = [("Precision", {"color": GRAY})]
+    for text, fill in PRECISION_KEY:
+        precision_key += [swatch(fill, INK), text]
+    note_key = [("bar = mean; whisker = p90", {"color": GRAY})]
+    key_row(fig, [runtime_key, precision_key, note_key], x=0.5, y=0.975, gap=16.0)
     save(fig, out)
     plt.close(fig)
 
 
 def fig_pipeline_devices(matrix_a: Path, matrices_b: list[Path], names: tuple[str, str], out: Path) -> None:
-    """Per-stage pipeline latency on both devices, as a table: detector | recognizer | device, stacked stage bars,
-    then the median launch mean, its p90 and the number of launches. Device B reads `matrices_b` in priority order."""
-    groups = []
-    for run, name in DEVICE_PIPELINE_ROWS:
-        det, rec = (part.split(" ", 1)[1].replace(" @", " · ") for part in name.split(" + "))
-        groups.append((det, rec, [launch_summary(matrix_a, run), first_summary(matrices_b, run)]))
-    devices = [n.split(":")[0] for n in names]
-    top, bottom = 0.55, -(len(groups) - 1) - 0.55
-    axes_top = 0.42 + 0.36 * (top - bottom)  # 0.36 in per placement
-    width_in, height_in = FULL_WIDTH, axes_top + 0.5
-    x_det, x_rec, x_dev, x_mean, x_p90, x_n, x_end = 0.02, 1.3, 2.1, 5.6, 5.95, 6.24, 6.28
-    fig = plt.figure(figsize=(width_in, height_in))
-    ax = _axes_in(fig, width_in, height_in, left=2.56, right=5.2, bottom=0.42, top=axes_top)
-    tab = _Table(fig, ax, width_in)
-    limit, height = 72.0, 0.32
-
-    header = top + 0.5
-    for x, s, ha in ((x_det, "Detector", "left"), (x_rec, "Recognizer", "left"), (x_dev, "Device", "left"),
-                     (x_mean, "Mean", "right"), (x_p90, "p90", "right"), (x_n, "n", "right")):
-        tab.text(x, header, s, ha=ha, color=GRAY, size=NOTE)
-    tab.rule(x_det, x_end, top + 0.1, color="#C9CED2")
-    for g, (det, rec, bars) in enumerate(groups):
-        base = -g
-        tab.text(x_det, base, det)
-        tab.text(x_rec, base, rec)
-        if g:
-            tab.rule(x_det, x_end, base + 0.5)
+    """Per-stage pipeline latency, device A (upper bar) and device B (lower, outlined bar) for each placement
+    (paper Fig. 4). Device B reads `matrices_b` in priority order (the quiet re-check first)."""
+    groups = [(name, [launch_summary(matrix_a, run), first_summary(matrices_b, run)])
+              for run, name in DEVICE_PIPELINE_ROWS]
+    fig, ax = plt.subplots(figsize=(FULL_WIDTH, 0.52 * len(groups) + 0.8))
+    height, limit = 0.34, 108.0
+    yticks = []
+    for g, (_, bars) in enumerate(groups):
+        base = len(groups) - 1 - g
+        yticks.append(base)
         for d, bar in enumerate(bars):
             if bar is None:
                 continue
             stage, med, lo, hi, p90, n = bar
             y = base + (0.19 if d == 0 else -0.19)
-            left = 0.0
-            for key, _ in STAGES:
-                fill, edge, _ = SOFT[SOFT_STAGE[key]]
-                ax.barh(y, min(stage[key], limit - left), height, left=left, facecolor=fill, edgecolor=edge,
-                        linewidth=0.45)
-                left += stage[key]
+            stacked_bar(ax, y, stage, height, limit, first=g == 0 and d == 0, edge=d == 1)
             if n > 1:
-                ax.errorbar(med, y, xerr=[[med - lo], [hi - med]], fmt="none", ecolor=INK, elinewidth=0.6,
-                            capsize=1.3, capthick=0.6)
-            tab.text(x_dev, y, devices[d], color=GRAY, size=NOTE)
-            tab.text(x_mean, y, f"{med:.1f}", ha="right")
-            tab.text(x_p90, y, f"{p90:.1f}", ha="right", color=GRAY)
-            tab.text(x_n, y, f"{n}", ha="right", color=GRAY)
-
-    ax.axvline(1000 / 30, color=INK, ls=DASHED, lw=0.7)
-    ax.axvline(1000 / 15, color=INK, ls=DOTTED, lw=0.8)
-    for fps, xv in (("30 FPS", 1000 / 30), ("15 FPS", 1000 / 15)):
-        ax.text(xv, header, fps, ha="center", va="center", color=GRAY, fontsize=NOTE, clip_on=False)
+                ax.errorbar(med, y, xerr=[[med - lo], [hi - med]], fmt="none", ecolor=OKABE_ITO["black"],
+                            elinewidth=0.6, capsize=1.5)
+            ax.text(max(med, hi) + 1.2, y, f"{'AB'[d]}  {med:.1f} ms · p90 {p90:.1f} · n={n}", va="center", fontsize=7,
+                    bbox={"facecolor": "white", "edgecolor": "none", "pad": 0.4, "alpha": 0.9})
+    fps_lines(ax)
+    ax.set_yticks(yticks, [name for name, _ in groups])
     ax.set_xlim(0, limit)
-    ax.set_ylim(bottom, top)
-    ax.set_yticks([])
-    ax.set_xticks(range(0, int(limit) + 1, 10))
-    ax.set_xlabel("Per-frame latency (ms)")
-    ax.grid(axis="x", color=HAIR, linewidth=0.5)
-    ax.set_axisbelow(True)
-    key = [[swatch(SOFT[SOFT_STAGE[k]][0], SOFT[SOFT_STAGE[k]][1]), name] for k, name in STAGES]
-    key.append([("bar = median of launch means;  whisker = range over launches", {"color": GRAY, "fontsize": NOTE})])
-    key_row(fig, key, x=0.5, y=(height_in - 0.08) / height_in, gap=9.0)
+    ax.set_xlabel(f"Per-frame latency (ms). A (upper): {names[0].split(':')[0]}; "
+                  f"B (lower, outlined): {names[1].split(':')[0]}; whisker: range over launches")
+    handles, labels = ax.get_legend_handles_labels()
+    handles += [Line2D([], [], color=OKABE_ITO["black"], ls="--", lw=0.8),
+                Line2D([], [], color=OKABE_ITO["black"], ls=":", lw=0.8)]
+    labels += ["30 FPS", "15 FPS"]
+    ax.legend(handles, labels, ncol=7, loc="lower center", bbox_to_anchor=(0.5, 1.0))
+    value_grid(ax, "x")
     save(fig, out)
     plt.close(fig)
 
