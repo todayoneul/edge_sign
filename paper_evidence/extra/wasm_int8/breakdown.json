@@ -1,0 +1,1097 @@
+{
+  "wasm": "ort-wasm-simd-threaded.asyncify.wasm",
+  "decoder_mismatches": 0,
+  "functions_per_class": {
+    "int8_dot_gemm": 1,
+    "quant_convert": 83,
+    "fp32_simd_mac": 83,
+    "other_simd": 5956,
+    "scalar_wasm": 9448
+  },
+  "medians": {
+    "mac": {
+      "v3_fp32": {
+        "rounds": 2,
+        "inference_mean_ms": 749.8324583344161,
+        "class_ms_per_inference": {
+          "int8_dot_gemm": 0.0,
+          "quant_convert": 0.0,
+          "fp32_simd_mac": 711.1010000000001,
+          "other_simd": 35.84965,
+          "scalar_wasm": 2.3105083333333334,
+          "non_wasm": 2.0052
+        }
+      },
+      "v3_int8_head_excl": {
+        "rounds": 2,
+        "inference_mean_ms": 765.1757916664084,
+        "class_ms_per_inference": {
+          "int8_dot_gemm": 491.8517166666667,
+          "quant_convert": 19.607141666666664,
+          "fp32_simd_mac": 198.70350833333333,
+          "other_simd": 43.20073333333333,
+          "scalar_wasm": 11.313324999999999,
+          "non_wasm": 1.9774916666666666
+        }
+      },
+      "v4_fp32": {
+        "rounds": 2,
+        "inference_mean_ms": 166.44762500015398,
+        "class_ms_per_inference": {
+          "int8_dot_gemm": 0.0,
+          "quant_convert": 0.002216666666666667,
+          "fp32_simd_mac": 148.55189166666668,
+          "other_simd": 16.13939166666667,
+          "scalar_wasm": 1.3137166666666666,
+          "non_wasm": 1.9223666666666668
+        }
+      },
+      "v4_int8_head_excl": {
+        "rounds": 2,
+        "inference_mean_ms": 184.52150000085433,
+        "class_ms_per_inference": {
+          "int8_dot_gemm": 122.376225,
+          "quant_convert": 13.872908333333333,
+          "fp32_simd_mac": 13.966316666666668,
+          "other_simd": 23.97510833333333,
+          "scalar_wasm": 9.919683333333333,
+          "non_wasm": 1.8580666666666668
+        }
+      }
+    },
+    "windows": {
+      "v3_fp32": {
+        "rounds": 2,
+        "inference_mean_ms": 668.1614999949932,
+        "class_ms_per_inference": {
+          "int8_dot_gemm": 0.0,
+          "quant_convert": 0.0,
+          "fp32_simd_mac": 634.6708166666667,
+          "other_simd": 29.686208333333333,
+          "scalar_wasm": 3.238783333333333,
+          "non_wasm": 1.9917499999999997
+        }
+      },
+      "v3_int8_head_excl": {
+        "rounds": 2,
+        "inference_mean_ms": 399.1526666631301,
+        "class_ms_per_inference": {
+          "int8_dot_gemm": 163.40155833333336,
+          "quant_convert": 19.324283333333334,
+          "fp32_simd_mac": 173.66064999999998,
+          "other_simd": 34.862091666666664,
+          "scalar_wasm": 7.469875,
+          "non_wasm": 1.8360416666666666
+        }
+      },
+      "v4_fp32": {
+        "rounds": 2,
+        "inference_mean_ms": 157.42866666416327,
+        "class_ms_per_inference": {
+          "int8_dot_gemm": 0.0,
+          "quant_convert": 0.004600000000000001,
+          "fp32_simd_mac": 141.30365833333332,
+          "other_simd": 13.723208333333332,
+          "scalar_wasm": 1.9459083333333336,
+          "non_wasm": 1.9420083333333333
+        }
+      },
+      "v4_int8_head_excl": {
+        "rounds": 2,
+        "inference_mean_ms": 94.35670834084351,
+        "class_ms_per_inference": {
+          "int8_dot_gemm": 41.10098333333333,
+          "quant_convert": 13.066500000000001,
+          "fp32_simd_mac": 13.570166666666667,
+          "other_simd": 19.065350000000002,
+          "scalar_wasm": 7.131241666666667,
+          "non_wasm": 1.9896166666666666
+        }
+      }
+    }
+  },
+  "int8_minus_fp32": {
+    "mac": {
+      "v3_int8_head_excl - v3_fp32": {
+        "inference_mean_ms": 15.343333331992312,
+        "fp32_over_int8": 0.979947962939892,
+        "class_ms_per_inference": {
+          "int8_dot_gemm": 491.8517166666667,
+          "quant_convert": 19.607141666666664,
+          "fp32_simd_mac": -512.3974916666668,
+          "other_simd": 7.351083333333335,
+          "scalar_wasm": 9.002816666666666,
+          "non_wasm": -0.027708333333333224
+        }
+      },
+      "v4_int8_head_excl - v4_fp32": {
+        "inference_mean_ms": 18.073875000700355,
+        "fp32_over_int8": 0.9020500321067373,
+        "class_ms_per_inference": {
+          "int8_dot_gemm": 122.376225,
+          "quant_convert": 13.870691666666666,
+          "fp32_simd_mac": -134.585575,
+          "other_simd": 7.835716666666663,
+          "scalar_wasm": 8.605966666666667,
+          "non_wasm": -0.06430000000000002
+        }
+      }
+    },
+    "windows": {
+      "v3_int8_head_excl - v3_fp32": {
+        "inference_mean_ms": -269.00883333186306,
+        "fp32_over_int8": 1.6739497335211253,
+        "class_ms_per_inference": {
+          "int8_dot_gemm": 163.40155833333336,
+          "quant_convert": 19.324283333333334,
+          "fp32_simd_mac": -461.01016666666675,
+          "other_simd": 5.175883333333331,
+          "scalar_wasm": 4.231091666666667,
+          "non_wasm": -0.15570833333333312
+        }
+      },
+      "v4_int8_head_excl - v4_fp32": {
+        "inference_mean_ms": -63.07195832331976,
+        "fp32_over_int8": 1.668441697812155,
+        "class_ms_per_inference": {
+          "int8_dot_gemm": 41.10098333333333,
+          "quant_convert": 13.061900000000001,
+          "fp32_simd_mac": -127.73349166666665,
+          "other_simd": 5.34214166666667,
+          "scalar_wasm": 5.185333333333333,
+          "non_wasm": 0.04760833333333325
+        }
+      }
+    }
+  },
+  "runs": [
+    {
+      "device": "mac",
+      "run": "profile_wasmt1_ort1300_v3_fp32_r1",
+      "model": "v3_fp32",
+      "browser": "Chrome/154.0.8037.92",
+      "inference_mean_ms": 751.6145833350718,
+      "profiled_ms_per_inference": 753.0697500000001,
+      "class_ms_per_inference": {
+        "int8_dot_gemm": 0.0,
+        "quant_convert": 0.0,
+        "fp32_simd_mac": 710.0223000000001,
+        "other_simd": 38.17111666666666,
+        "scalar_wasm": 2.78945,
+        "non_wasm": 2.086883333333333
+      },
+      "top_functions": [
+        {
+          "function": "wasm-function[2139]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 531.4596
+        },
+        {
+          "function": "wasm-function[1386]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 136.02081666666666
+        },
+        {
+          "function": "wasm-function[1717]",
+          "class": "other_simd",
+          "ms_per_inference": 29.916283333333336
+        },
+        {
+          "function": "wasm-function[769]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 25.552650000000003
+        },
+        {
+          "function": "wasm-function[1043]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 13.834783333333332
+        },
+        {
+          "function": "wasm-function[2449]",
+          "class": "other_simd",
+          "ms_per_inference": 4.071433333333333
+        },
+        {
+          "function": "wasm-function[1253]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 2.3529
+        },
+        {
+          "function": "wasm-function[1757]",
+          "class": "other_simd",
+          "ms_per_inference": 2.0281499999999997
+        }
+      ]
+    },
+    {
+      "device": "mac",
+      "run": "profile_wasmt1_ort1300_v3_fp32_r2",
+      "model": "v3_fp32",
+      "browser": "Chrome/154.0.8037.92",
+      "inference_mean_ms": 748.0503333337605,
+      "profiled_ms_per_inference": 749.4629666666666,
+      "class_ms_per_inference": {
+        "int8_dot_gemm": 0.0,
+        "quant_convert": 0.0,
+        "fp32_simd_mac": 712.1797,
+        "other_simd": 33.52818333333333,
+        "scalar_wasm": 1.8315666666666668,
+        "non_wasm": 1.9235166666666668
+      },
+      "top_functions": [
+        {
+          "function": "wasm-function[2139]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 534.3459833333333
+        },
+        {
+          "function": "wasm-function[1386]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 136.7644
+        },
+        {
+          "function": "wasm-function[1717]",
+          "class": "other_simd",
+          "ms_per_inference": 26.064216666666667
+        },
+        {
+          "function": "wasm-function[769]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 25.686500000000002
+        },
+        {
+          "function": "wasm-function[1043]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 12.42255
+        },
+        {
+          "function": "wasm-function[2449]",
+          "class": "other_simd",
+          "ms_per_inference": 3.8561166666666664
+        },
+        {
+          "function": "wasm-function[1253]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 2.1677833333333334
+        },
+        {
+          "function": "wasm-function[1757]",
+          "class": "other_simd",
+          "ms_per_inference": 2.11285
+        }
+      ]
+    },
+    {
+      "device": "mac",
+      "run": "profile_wasmt1_ort1300_v3_int8_head_excl_r1",
+      "model": "v3_int8_head_excl",
+      "browser": "Chrome/154.0.8037.92",
+      "inference_mean_ms": 764.7822500000398,
+      "profiled_ms_per_inference": 766.2467666666666,
+      "class_ms_per_inference": {
+        "int8_dot_gemm": 491.3290833333333,
+        "quant_convert": 19.588916666666666,
+        "fp32_simd_mac": 198.60675,
+        "other_simd": 43.44793333333334,
+        "scalar_wasm": 11.338083333333334,
+        "non_wasm": 1.936
+      },
+      "top_functions": [
+        {
+          "function": "wasm-function[15735]",
+          "class": "int8_dot_gemm",
+          "ms_per_inference": 491.3290833333333
+        },
+        {
+          "function": "wasm-function[2139]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 170.00248333333332
+        },
+        {
+          "function": "wasm-function[14773]",
+          "class": "other_simd",
+          "ms_per_inference": 26.817933333333333
+        },
+        {
+          "function": "wasm-function[1386]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 21.016000000000002
+        },
+        {
+          "function": "wasm-function[14162]",
+          "class": "quant_convert",
+          "ms_per_inference": 12.485416666666667
+        },
+        {
+          "function": "wasm-function[1717]",
+          "class": "other_simd",
+          "ms_per_inference": 7.7961833333333335
+        },
+        {
+          "function": "wasm-function[2475]",
+          "class": "scalar_wasm",
+          "ms_per_inference": 6.739366666666667
+        },
+        {
+          "function": "wasm-function[2524]",
+          "class": "quant_convert",
+          "ms_per_inference": 5.177333333333333
+        }
+      ]
+    },
+    {
+      "device": "mac",
+      "run": "profile_wasmt1_ort1300_v3_int8_head_excl_r2",
+      "model": "v3_int8_head_excl",
+      "browser": "Chrome/154.0.8037.92",
+      "inference_mean_ms": 765.569333332777,
+      "profiled_ms_per_inference": 767.0610666666666,
+      "class_ms_per_inference": {
+        "int8_dot_gemm": 492.37435,
+        "quant_convert": 19.625366666666665,
+        "fp32_simd_mac": 198.80026666666666,
+        "other_simd": 42.95353333333333,
+        "scalar_wasm": 11.288566666666666,
+        "non_wasm": 2.0189833333333334
+      },
+      "top_functions": [
+        {
+          "function": "wasm-function[15735]",
+          "class": "int8_dot_gemm",
+          "ms_per_inference": 492.37435
+        },
+        {
+          "function": "wasm-function[2139]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 169.75331666666668
+        },
+        {
+          "function": "wasm-function[14773]",
+          "class": "other_simd",
+          "ms_per_inference": 26.815299999999997
+        },
+        {
+          "function": "wasm-function[1386]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 21.229216666666666
+        },
+        {
+          "function": "wasm-function[14162]",
+          "class": "quant_convert",
+          "ms_per_inference": 12.551016666666667
+        },
+        {
+          "function": "wasm-function[1717]",
+          "class": "other_simd",
+          "ms_per_inference": 7.5037666666666665
+        },
+        {
+          "function": "wasm-function[2475]",
+          "class": "scalar_wasm",
+          "ms_per_inference": 6.67045
+        },
+        {
+          "function": "wasm-function[2524]",
+          "class": "quant_convert",
+          "ms_per_inference": 5.164716666666666
+        }
+      ]
+    },
+    {
+      "device": "mac",
+      "run": "profile_wasmt1_ort1300_v4_fp32_r1",
+      "model": "v4_fp32",
+      "browser": "Chrome/154.0.8037.92",
+      "inference_mean_ms": 166.37333333368102,
+      "profiled_ms_per_inference": 167.93278333333333,
+      "class_ms_per_inference": {
+        "int8_dot_gemm": 0.0,
+        "quant_convert": 0.0021833333333333336,
+        "fp32_simd_mac": 148.4408,
+        "other_simd": 16.147366666666667,
+        "scalar_wasm": 1.3486166666666668,
+        "non_wasm": 1.9938166666666668
+      },
+      "top_functions": [
+        {
+          "function": "wasm-function[1386]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 63.262966666666664
+        },
+        {
+          "function": "wasm-function[2139]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 62.080466666666666
+        },
+        {
+          "function": "wasm-function[769]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 15.66235
+        },
+        {
+          "function": "wasm-function[1717]",
+          "class": "other_simd",
+          "ms_per_inference": 12.712183333333334
+        },
+        {
+          "function": "wasm-function[1043]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 5.4436333333333335
+        },
+        {
+          "function": "wasm-function[2449]",
+          "class": "other_simd",
+          "ms_per_inference": 2.35105
+        },
+        {
+          "function": "wasm-function[1253]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 1.2531999999999999
+        },
+        {
+          "function": "wasm-function[8167]",
+          "class": "scalar_wasm",
+          "ms_per_inference": 0.7962
+        }
+      ]
+    },
+    {
+      "device": "mac",
+      "run": "profile_wasmt1_ort1300_v4_fp32_r2",
+      "model": "v4_fp32",
+      "browser": "Chrome/154.0.8037.92",
+      "inference_mean_ms": 166.52191666662694,
+      "profiled_ms_per_inference": 167.92638333333335,
+      "class_ms_per_inference": {
+        "int8_dot_gemm": 0.0,
+        "quant_convert": 0.0022500000000000003,
+        "fp32_simd_mac": 148.66298333333333,
+        "other_simd": 16.131416666666667,
+        "scalar_wasm": 1.2788166666666667,
+        "non_wasm": 1.8509166666666668
+      },
+      "top_functions": [
+        {
+          "function": "wasm-function[2139]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 63.181850000000004
+        },
+        {
+          "function": "wasm-function[1386]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 62.570816666666666
+        },
+        {
+          "function": "wasm-function[769]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 15.633533333333332
+        },
+        {
+          "function": "wasm-function[1717]",
+          "class": "other_simd",
+          "ms_per_inference": 12.647716666666668
+        },
+        {
+          "function": "wasm-function[1043]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 5.363066666666667
+        },
+        {
+          "function": "wasm-function[2449]",
+          "class": "other_simd",
+          "ms_per_inference": 2.4255
+        },
+        {
+          "function": "wasm-function[1253]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 1.1682333333333332
+        },
+        {
+          "function": "wasm-function[8167]",
+          "class": "scalar_wasm",
+          "ms_per_inference": 0.8066833333333334
+        }
+      ]
+    },
+    {
+      "device": "mac",
+      "run": "profile_wasmt1_ort1300_v4_int8_head_excl_r1",
+      "model": "v4_int8_head_excl",
+      "browser": "Chrome/154.0.8037.92",
+      "inference_mean_ms": 185.71625000089406,
+      "profiled_ms_per_inference": 187.1924,
+      "class_ms_per_inference": {
+        "int8_dot_gemm": 122.90101666666666,
+        "quant_convert": 13.855333333333334,
+        "fp32_simd_mac": 14.162716666666666,
+        "other_simd": 24.321133333333332,
+        "scalar_wasm": 10.035449999999999,
+        "non_wasm": 1.91675
+      },
+      "top_functions": [
+        {
+          "function": "wasm-function[15735]",
+          "class": "int8_dot_gemm",
+          "ms_per_inference": 122.90101666666666
+        },
+        {
+          "function": "wasm-function[14773]",
+          "class": "other_simd",
+          "ms_per_inference": 16.48065
+        },
+        {
+          "function": "wasm-function[14162]",
+          "class": "quant_convert",
+          "ms_per_inference": 7.23365
+        },
+        {
+          "function": "wasm-function[1386]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 5.5220166666666675
+        },
+        {
+          "function": "wasm-function[2524]",
+          "class": "quant_convert",
+          "ms_per_inference": 4.95275
+        },
+        {
+          "function": "wasm-function[2139]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 4.400483333333333
+        },
+        {
+          "function": "wasm-function[2475]",
+          "class": "scalar_wasm",
+          "ms_per_inference": 3.89835
+        },
+        {
+          "function": "wasm-function[1717]",
+          "class": "other_simd",
+          "ms_per_inference": 3.1860833333333334
+        }
+      ]
+    },
+    {
+      "device": "mac",
+      "run": "profile_wasmt1_ort1300_v4_int8_head_excl_r2",
+      "model": "v4_int8_head_excl",
+      "browser": "Chrome/154.0.8037.92",
+      "inference_mean_ms": 183.3267500008146,
+      "profiled_ms_per_inference": 184.7442166666667,
+      "class_ms_per_inference": {
+        "int8_dot_gemm": 121.85143333333333,
+        "quant_convert": 13.890483333333332,
+        "fp32_simd_mac": 13.769916666666667,
+        "other_simd": 23.62908333333333,
+        "scalar_wasm": 9.803916666666668,
+        "non_wasm": 1.7993833333333333
+      },
+      "top_functions": [
+        {
+          "function": "wasm-function[15735]",
+          "class": "int8_dot_gemm",
+          "ms_per_inference": 121.85143333333333
+        },
+        {
+          "function": "wasm-function[14773]",
+          "class": "other_simd",
+          "ms_per_inference": 16.21333333333333
+        },
+        {
+          "function": "wasm-function[14162]",
+          "class": "quant_convert",
+          "ms_per_inference": 7.270316666666667
+        },
+        {
+          "function": "wasm-function[1386]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 5.315633333333333
+        },
+        {
+          "function": "wasm-function[2524]",
+          "class": "quant_convert",
+          "ms_per_inference": 4.9756
+        },
+        {
+          "function": "wasm-function[2139]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 4.333316666666667
+        },
+        {
+          "function": "wasm-function[2475]",
+          "class": "scalar_wasm",
+          "ms_per_inference": 3.9215666666666666
+        },
+        {
+          "function": "wasm-function[1717]",
+          "class": "other_simd",
+          "ms_per_inference": 3.0578333333333334
+        }
+      ]
+    },
+    {
+      "device": "windows",
+      "run": "profile_wasmt1_ort1300_v3_fp32_r1",
+      "model": "v3_fp32",
+      "browser": "Chrome/153.0.8010.53",
+      "inference_mean_ms": 669.6097499946753,
+      "profiled_ms_per_inference": 671.0513000000001,
+      "class_ms_per_inference": {
+        "int8_dot_gemm": 0.0,
+        "quant_convert": 0.0,
+        "fp32_simd_mac": 635.9272333333333,
+        "other_simd": 29.822633333333332,
+        "scalar_wasm": 3.26975,
+        "non_wasm": 2.031683333333333
+      },
+      "top_functions": [
+        {
+          "function": "wasm-function[2139]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 458.91768333333334
+        },
+        {
+          "function": "wasm-function[1386]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 117.63306666666668
+        },
+        {
+          "function": "wasm-function[769]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 46.322250000000004
+        },
+        {
+          "function": "wasm-function[1717]",
+          "class": "other_simd",
+          "ms_per_inference": 22.184416666666667
+        },
+        {
+          "function": "wasm-function[1043]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 10.571816666666667
+        },
+        {
+          "function": "wasm-function[2449]",
+          "class": "other_simd",
+          "ms_per_inference": 3.4520833333333334
+        },
+        {
+          "function": "wasm-function[8167]",
+          "class": "scalar_wasm",
+          "ms_per_inference": 2.42225
+        },
+        {
+          "function": "wasm-function[1757]",
+          "class": "other_simd",
+          "ms_per_inference": 2.027066666666667
+        }
+      ]
+    },
+    {
+      "device": "windows",
+      "run": "profile_wasmt1_ort1300_v3_fp32_r2",
+      "model": "v3_fp32",
+      "browser": "Chrome/153.0.8010.53",
+      "inference_mean_ms": 666.7132499953111,
+      "profiled_ms_per_inference": 668.1238166666667,
+      "class_ms_per_inference": {
+        "int8_dot_gemm": 0.0,
+        "quant_convert": 0.0,
+        "fp32_simd_mac": 633.4144,
+        "other_simd": 29.549783333333334,
+        "scalar_wasm": 3.2078166666666665,
+        "non_wasm": 1.9518166666666665
+      },
+      "top_functions": [
+        {
+          "function": "wasm-function[2139]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 458.44346666666667
+        },
+        {
+          "function": "wasm-function[1386]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 115.82838333333333
+        },
+        {
+          "function": "wasm-function[769]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 46.25828333333333
+        },
+        {
+          "function": "wasm-function[1717]",
+          "class": "other_simd",
+          "ms_per_inference": 22.092716666666668
+        },
+        {
+          "function": "wasm-function[1043]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 10.134716666666666
+        },
+        {
+          "function": "wasm-function[2449]",
+          "class": "other_simd",
+          "ms_per_inference": 3.30245
+        },
+        {
+          "function": "wasm-function[8167]",
+          "class": "scalar_wasm",
+          "ms_per_inference": 2.4546333333333332
+        },
+        {
+          "function": "wasm-function[1757]",
+          "class": "other_simd",
+          "ms_per_inference": 1.9619833333333332
+        }
+      ]
+    },
+    {
+      "device": "windows",
+      "run": "profile_wasmt1_ort1300_v3_int8_head_excl_r1",
+      "model": "v3_int8_head_excl",
+      "browser": "Chrome/153.0.8010.53",
+      "inference_mean_ms": 399.0899999976158,
+      "profiled_ms_per_inference": 400.49865000000005,
+      "class_ms_per_inference": {
+        "int8_dot_gemm": 163.1329,
+        "quant_convert": 19.224783333333335,
+        "fp32_simd_mac": 173.71778333333333,
+        "other_simd": 35.21548333333333,
+        "scalar_wasm": 7.352316666666667,
+        "non_wasm": 1.8553833333333332
+      },
+      "top_functions": [
+        {
+          "function": "wasm-function[15735]",
+          "class": "int8_dot_gemm",
+          "ms_per_inference": 163.1329
+        },
+        {
+          "function": "wasm-function[2139]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 145.51066666666665
+        },
+        {
+          "function": "wasm-function[14773]",
+          "class": "other_simd",
+          "ms_per_inference": 20.767816666666665
+        },
+        {
+          "function": "wasm-function[1386]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 18.180883333333334
+        },
+        {
+          "function": "wasm-function[14162]",
+          "class": "quant_convert",
+          "ms_per_inference": 13.764566666666667
+        },
+        {
+          "function": "wasm-function[1717]",
+          "class": "other_simd",
+          "ms_per_inference": 7.432316666666667
+        },
+        {
+          "function": "wasm-function[769]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 5.670066666666667
+        },
+        {
+          "function": "wasm-function[2475]",
+          "class": "scalar_wasm",
+          "ms_per_inference": 4.04995
+        }
+      ]
+    },
+    {
+      "device": "windows",
+      "run": "profile_wasmt1_ort1300_v3_int8_head_excl_r2",
+      "model": "v3_int8_head_excl",
+      "browser": "Chrome/153.0.8010.53",
+      "inference_mean_ms": 399.2153333286444,
+      "profiled_ms_per_inference": 400.6103499999999,
+      "class_ms_per_inference": {
+        "int8_dot_gemm": 163.67021666666668,
+        "quant_convert": 19.423783333333333,
+        "fp32_simd_mac": 173.60351666666665,
+        "other_simd": 34.5087,
+        "scalar_wasm": 7.587433333333333,
+        "non_wasm": 1.8167
+      },
+      "top_functions": [
+        {
+          "function": "wasm-function[15735]",
+          "class": "int8_dot_gemm",
+          "ms_per_inference": 163.67021666666668
+        },
+        {
+          "function": "wasm-function[2139]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 145.11685
+        },
+        {
+          "function": "wasm-function[14773]",
+          "class": "other_simd",
+          "ms_per_inference": 20.09801666666667
+        },
+        {
+          "function": "wasm-function[1386]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 18.411350000000002
+        },
+        {
+          "function": "wasm-function[14162]",
+          "class": "quant_convert",
+          "ms_per_inference": 13.754533333333335
+        },
+        {
+          "function": "wasm-function[1717]",
+          "class": "other_simd",
+          "ms_per_inference": 7.094266666666667
+        },
+        {
+          "function": "wasm-function[769]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 5.640833333333333
+        },
+        {
+          "function": "wasm-function[2475]",
+          "class": "scalar_wasm",
+          "ms_per_inference": 4.253233333333333
+        }
+      ]
+    },
+    {
+      "device": "windows",
+      "run": "profile_wasmt1_ort1300_v4_fp32_r1",
+      "model": "v4_fp32",
+      "browser": "Chrome/153.0.8010.53",
+      "inference_mean_ms": 155.5314166724682,
+      "profiled_ms_per_inference": 157.04436666666666,
+      "class_ms_per_inference": {
+        "int8_dot_gemm": 0.0,
+        "quant_convert": 0.009200000000000002,
+        "fp32_simd_mac": 138.98621666666668,
+        "other_simd": 14.082633333333332,
+        "scalar_wasm": 2.010266666666667,
+        "non_wasm": 1.95605
+      },
+      "top_functions": [
+        {
+          "function": "wasm-function[2139]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 52.22615
+        },
+        {
+          "function": "wasm-function[1386]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 51.93686666666667
+        },
+        {
+          "function": "wasm-function[769]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 28.736266666666666
+        },
+        {
+          "function": "wasm-function[1717]",
+          "class": "other_simd",
+          "ms_per_inference": 10.426566666666668
+        },
+        {
+          "function": "wasm-function[1043]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 4.356833333333333
+        },
+        {
+          "function": "wasm-function[2449]",
+          "class": "other_simd",
+          "ms_per_inference": 2.2268
+        },
+        {
+          "function": "wasm-function[8167]",
+          "class": "scalar_wasm",
+          "ms_per_inference": 0.9990166666666667
+        },
+        {
+          "function": "wasm-function[1253]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 0.8327333333333333
+        }
+      ]
+    },
+    {
+      "device": "windows",
+      "run": "profile_wasmt1_ort1300_v4_fp32_r2",
+      "model": "v4_fp32",
+      "browser": "Chrome/153.0.8010.53",
+      "inference_mean_ms": 159.32591665585835,
+      "profiled_ms_per_inference": 160.7944,
+      "class_ms_per_inference": {
+        "int8_dot_gemm": 0.0,
+        "quant_convert": 0.0,
+        "fp32_simd_mac": 143.62109999999998,
+        "other_simd": 13.363783333333334,
+        "scalar_wasm": 1.88155,
+        "non_wasm": 1.9279666666666666
+      },
+      "top_functions": [
+        {
+          "function": "wasm-function[2139]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 55.533116666666665
+        },
+        {
+          "function": "wasm-function[1386]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 53.44466666666666
+        },
+        {
+          "function": "wasm-function[769]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 28.392133333333334
+        },
+        {
+          "function": "wasm-function[1717]",
+          "class": "other_simd",
+          "ms_per_inference": 9.856916666666667
+        },
+        {
+          "function": "wasm-function[1043]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 4.436066666666666
+        },
+        {
+          "function": "wasm-function[2449]",
+          "class": "other_simd",
+          "ms_per_inference": 2.1340166666666667
+        },
+        {
+          "function": "wasm-function[8167]",
+          "class": "scalar_wasm",
+          "ms_per_inference": 1.0475833333333333
+        },
+        {
+          "function": "wasm-function[1253]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 0.8446666666666667
+        }
+      ]
+    },
+    {
+      "device": "windows",
+      "run": "profile_wasmt1_ort1300_v4_int8_head_excl_r1",
+      "model": "v4_int8_head_excl",
+      "browser": "Chrome/153.0.8010.53",
+      "inference_mean_ms": 94.30075000921885,
+      "profiled_ms_per_inference": 95.88146666666667,
+      "class_ms_per_inference": {
+        "int8_dot_gemm": 41.202283333333334,
+        "quant_convert": 13.262583333333334,
+        "fp32_simd_mac": 13.435633333333334,
+        "other_simd": 18.79035,
+        "scalar_wasm": 7.197116666666667,
+        "non_wasm": 1.9935
+      },
+      "top_functions": [
+        {
+          "function": "wasm-function[15735]",
+          "class": "int8_dot_gemm",
+          "ms_per_inference": 41.202283333333334
+        },
+        {
+          "function": "wasm-function[14773]",
+          "class": "other_simd",
+          "ms_per_inference": 12.387683333333333
+        },
+        {
+          "function": "wasm-function[14162]",
+          "class": "quant_convert",
+          "ms_per_inference": 8.085466666666667
+        },
+        {
+          "function": "wasm-function[769]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 4.69355
+        },
+        {
+          "function": "wasm-function[1386]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 4.358433333333333
+        },
+        {
+          "function": "wasm-function[2139]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 3.31765
+        },
+        {
+          "function": "wasm-function[2524]",
+          "class": "quant_convert",
+          "ms_per_inference": 3.2254666666666667
+        },
+        {
+          "function": "wasm-function[1717]",
+          "class": "other_simd",
+          "ms_per_inference": 2.439516666666667
+        }
+      ]
+    },
+    {
+      "device": "windows",
+      "run": "profile_wasmt1_ort1300_v4_int8_head_excl_r2",
+      "model": "v4_int8_head_excl",
+      "browser": "Chrome/153.0.8010.53",
+      "inference_mean_ms": 94.41266667246819,
+      "profiled_ms_per_inference": 95.96625,
+      "class_ms_per_inference": {
+        "int8_dot_gemm": 40.99968333333334,
+        "quant_convert": 12.870416666666667,
+        "fp32_simd_mac": 13.7047,
+        "other_simd": 19.34035,
+        "scalar_wasm": 7.065366666666667,
+        "non_wasm": 1.9857333333333334
+      },
+      "top_functions": [
+        {
+          "function": "wasm-function[15735]",
+          "class": "int8_dot_gemm",
+          "ms_per_inference": 40.99968333333334
+        },
+        {
+          "function": "wasm-function[14773]",
+          "class": "other_simd",
+          "ms_per_inference": 13.140833333333335
+        },
+        {
+          "function": "wasm-function[14162]",
+          "class": "quant_convert",
+          "ms_per_inference": 8.06395
+        },
+        {
+          "function": "wasm-function[769]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 4.5983833333333335
+        },
+        {
+          "function": "wasm-function[1386]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 4.598216666666667
+        },
+        {
+          "function": "wasm-function[2139]",
+          "class": "fp32_simd_mac",
+          "ms_per_inference": 3.4404166666666667
+        },
+        {
+          "function": "wasm-function[2524]",
+          "class": "quant_convert",
+          "ms_per_inference": 3.072
+        },
+        {
+          "function": "wasm-function[1717]",
+          "class": "other_simd",
+          "ms_per_inference": 2.4411
+        }
+      ]
+    }
+  ]
+}
