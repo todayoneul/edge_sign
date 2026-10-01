@@ -392,6 +392,23 @@
   - fig11(초안 Fig. 3)은 막대 = 평균·수염 = p90 막대 그림, fig12(초안 Fig. 4)는 A(Windows)/B(Mac) 단계 막대 그림으로 `plot_runtime_matrix.py`가 다시 그림. 두 그림 모두 `--recheck` 병합 규칙으로 Mac 재측정 값을 씀.
   - 초안 그림 대응표: [paper_evidence/README.md](../paper_evidence/README.md) (Fig. 1 = fig9, Fig. 2 = fig6, Fig. 3 = fig11, Fig. 4 = fig12, Fig. 5 = fig10).
   - 저장소 루트의 `matrix_mac.log`를 `paper_evidence/runtime/matrix_mac/`로 옮김.
+- [ ] Mac WASM에서 INT8 가속이 사라지는 원인 경로 분석 (2026-10-01 계획, 예측은 실행 전 기록)
+  - 근거: 네이티브 CPU 4T에서는 Mac도 INT8이 빠르다(FP32/INT8 v4 1.68, v3 1.97). 같은 Mac의 WASM 4T에서는 느리다(0.84, 0.95). Windows는 WASM에서도 빠르다(1.34, 1.62).
+  - 가설(검증 전): ORT-Web WASM의 INT8 커널은 fixed SIMD에서 8비트 값을 16비트로 넓힌 뒤 `i32x4.dot_i16x8_s`로 내적한다. V8은 이 명령을 x64에서는 `pmaddwd` 하나로, arm64에서는 여러 명령으로 바꾼다. 그래서 ARM에서는 INT8 내적이 비싸 FP32 대비 이득이 사라진다. 네이티브 ORT는 ARM에서 `SDOT`/`I8MM`을 직접 쓰므로 이 문제가 없다.
+  - 단계:
+    - 0: 배포 `.wasm`이 relaxed SIMD를 쓰는지, ORT 빌드 옵션 확인
+    - 1: 커널(함수)별 시간 분해, 두 기기, WASM 1T(1T에서도 Mac 0.91, Windows 1.7배로 같은 현상)
+    - 2: WASM 마이크로벤치(fp32 `f32x4` vs int8 `dot_i16x8` vs relaxed `i32x4.relaxed_dot_i8x16_i7x16_add`), 두 기기
+    - 3: V8의 arm64/x64 lowering을 소스에서 확인
+    - 4(선택): relaxed SIMD로 빌드한 ORT-Web으로 재측정
+  - 예측: 1단계에서 Mac INT8의 추가 시간은 Q/DQ 변환이 아니라 정수 GEMM 커널에 몰린다. 2단계에서 int8/fp32 처리량 비가 x86에서는 1보다 크고 ARM에서는 1 이하로 뒤집힌다.
+  - 논문 반영: 4.2.3절 문단 하나와 작은 표(+0.5쪽 안팎), 세부는 Appendix. 2단계 이후는 교수님의 실험량 답변을 보고 정한다.
+- [ ] Per-axis 활성값 양자화로 mixed-range 붕괴의 per-tensor 의존성 확인 (2026-10-01 계획, 예측은 실행 전 기록)
+  - 좌표·점수 분리 조건은 이미 있다: `a8sim_decode_no_outconcat`(좌표와 점수를 각자 scale로 양자화, concat은 FP32)은 붕괴 없음, 유지율 57.0%(v4)·61.2%(v3). 좌표 정규화 기준선은 34–55%. 새 실험은 하지 않고 초안 Table 4의 행 이름을 "좌표·점수 별도 scale"로 바꾼다.
+  - 새 조건: 실패 텐서(v4 5개, v3 1개, YOLO11l)의 Q/DQ scale·zero-point를 같은 보정 데이터로 구한 채널 축 per-axis 값으로 바꾼다(opset 13). 텐서는 INT8로 유지하고 ORT CPU로 test 전체를 평가한다.
+  - 예측: 붕괴는 사라지고(mAP > 0) 유지율은 분리 조건 근처(57–61%)에 머문다. 좌표 채널이 여전히 약 2.5 px 단위로 반올림되기 때문이다.
+  - 범위: 원인 확인용이다. 활성값 per-axis는 대부분의 정수 커널·NPU가 지원하지 않으므로 배포 해법으로 제시하지 않고, 속도도 재지 않는다.
+  - 논문 반영: Table 4 한 행과 4.2.2절 1–2문장.
 - [ ] 기준안 확정 후 카메라/렌더 포함 경로를 재측정하고 판정
 - [ ] 야간/다른 장소 test 확장 및 가능한 경우 manual identity GT 구축
 
