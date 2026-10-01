@@ -81,7 +81,8 @@ CHROME = {
     "darwin": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
 }.get(sys.platform, "google-chrome")
 HTML = Path(__file__).with_name("runtime_matrix.html")
-PAGES = {"/runtime_matrix.html": HTML, "/browser_pipeline.html": Path(__file__).with_name("browser_pipeline.html")}
+PAGES = {"/runtime_matrix.html": HTML, "/browser_pipeline.html": Path(__file__).with_name("browser_pipeline.html"),
+         "/wasm_kernel_profile.html": Path(__file__).with_name("wasm_kernel_profile.html")}  # wasm_kernel_profile.mjs
 
 
 # ── shared helpers ────────────────────────────────────────────────────────────

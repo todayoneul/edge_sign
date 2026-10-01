@@ -130,6 +130,8 @@ CNN_Quant/
 │   │                            #   coco_validation.py(외부 검증: YOLO11l + MLPerf COCO safe subset 1,525장)
 │   │                            #   export_device_bundle.py + run_device_matrix.sh(두 번째 기기 측정)
 │   │                            #   run_mac_wasm_recheck.sh·summarize_wasm_recheck.py(Mac 조용한 WASM 재측정·집계)
+│   │                            #   wasm_simd_scan.py·wasm_kernel_profile.{mjs,html}·wasm_kernel_breakdown.py
+│   │                            #     (Mac WASM INT8 원인: 바이너리 SIMD 스캔, CDP CPU 프로파일, 커널별 분해 — Node 22+)
 │   │                            #   추가 실험: normalization_baseline.py(좌표 정규화)·calibration_robustness.py(보정 방법)
 │   │                            #     ·size_bin_retention.py+plot_size_bins.py(크기별 유지율)·bootstrap_extra.py(CI)
 │   │                            #   초기 근거: build_test_split.py·evaluate_{qdq_detection,recognition,pipeline}.py

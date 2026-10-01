@@ -29,6 +29,7 @@
 | 표준 워크로드 외부 검증 (YOLO11l + MLPerf COCO safe subset) | 사전 등록 [COCO_VALIDATION_PLAN.md](reports/COCO_VALIDATION_PLAN.md), 결과 [COCO_VALIDATION.md](reports/COCO_VALIDATION.md); `coco/`(부분집합·보정 manifest, `cpu_<variant>/metrics.json`, `detections.npz`), 지연은 `runtime/matrix/*coco_*` (`coco_validation.py`, `runtime_matrix.py`) |
 | 두 번째 기기 측정 | [DEVICE_MEASUREMENT_GUIDE.md](reports/DEVICE_MEASUREMENT_GUIDE.md) (절차), [runtime/matrix_mac/](runtime/matrix_mac/) (Mac 1차 결과, 배경 부하 통제 없음), [runtime/matrix_mac_recheck/](runtime/matrix_mac_recheck/) (2026-09-29 조용한 환경 재측정: WASM FP32 대 INT8, 파이프라인 4개 배치 5회, WASM 수치 일치성; `run_mac_wasm_recheck.sh`), RUNTIME_MATRIX §2.6 |
 | 추가 실험 (2026-09-27): 크기별 유지율, 좌표 정규화 기준선, 보정 방법, YOLOv8s 종단 정확도 | [extra/README.md](extra/README.md); 그림 `figures/fig13_size_retention.{pdf,png}` (`plot_size_bins.py`; 초안에는 그림 없이 4.2.2절에서 서술만) |
+| Mac WASM INT8 원인 분석 (2026-10-01, 0–1단계) | [extra/wasm_int8/README.md](extra/wasm_int8/README.md): 배포 바이너리의 SIMD 명령 스캔(`step0_wasm_scan.json`), Mac WASM 1T CPU 프로파일(`mac/*.cpuprofile.gz`)과 커널별 분해(`breakdown_mac.json`) (`wasm_simd_scan.py`, `wasm_kernel_profile.{mjs,html}`, `wasm_kernel_breakdown.py`) |
 | 그림 스타일 | 모든 논문 그림은 `scripts/paper/paper_style.py`(Arial 8 pt, 6.3 in 폭, Okabe–Ito 팔레트)로 벡터 PDF와 600 dpi PNG를 함께 만든다 |
 
 ## 논문 그림 대응 (2026-09-30 초안 기준)

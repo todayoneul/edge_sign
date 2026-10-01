@@ -403,6 +403,12 @@
     - 4(선택): relaxed SIMD로 빌드한 ORT-Web으로 재측정
   - 예측: 1단계에서 Mac INT8의 추가 시간은 Q/DQ 변환이 아니라 정수 GEMM 커널에 몰린다. 2단계에서 int8/fp32 처리량 비가 x86에서는 1보다 크고 ARM에서는 1 이하로 뒤집힌다.
   - 논문 반영: 4.2.3절 문단 하나와 작은 표(+0.5쪽 안팎), 세부는 Appendix. 2단계 이후는 교수님의 실험량 답변을 보고 정한다.
+  - [x] 0단계 (2026-10-01, [extra/wasm_int8](../paper_evidence/extra/wasm_int8/README.md)): 측정에 쓴 `ort-wasm-simd-threaded.asyncify.wasm`(1.30.0)에는 relaxed SIMD 명령이 0개이다. INT8 GEMM은 u8을 i16으로 넓힌 뒤 `i32x4.dot_i16x8_s`를 쓴다. ORT 소스에는 relaxed SIMD QGEMM이 있지만 빌드 옵션이 기본 OFF라 배포판에 없다.
+  - [x] 1단계 Mac (2026-10-01, Chrome 154, 1스레드, 2라운드): FP32/INT8 v4 0.90, v3 0.98로 재현되었다.
+    - INT8 QGEMM은 자기가 대체한 FP32 SGEMM보다 1.10배(v4)·1.04배(v3)만 빠르다.
+    - 순손실은 Q/DQ·재양자화(+14–20 ms)와 기타 함수(+16–17 ms)에서 나온다.
+    - 예측("추가 시간이 정수 GEMM에 몰린다")은 문자 그대로는 틀렸다. GEMM은 느리지 않고 이득이 거의 없을 뿐이다.
+  - [ ] 1단계 Windows: 같은 분해로 x86에서 GEMM 배율이 크고 변환 비용은 비슷한지 확인(절차는 extra/wasm_int8/README.md).
 - [ ] Per-axis 활성값 양자화로 mixed-range 붕괴의 per-tensor 의존성 확인 (2026-10-01 계획, 예측은 실행 전 기록)
   - 좌표·점수 분리 조건은 이미 있다: `a8sim_decode_no_outconcat`(좌표와 점수를 각자 scale로 양자화, concat은 FP32)은 붕괴 없음, 유지율 57.0%(v4)·61.2%(v3). 좌표 정규화 기준선은 34–55%. 새 실험은 하지 않고 초안 Table 4의 행 이름을 "좌표·점수 별도 scale"로 바꾼다.
   - 새 조건: 실패 텐서(v4 5개, v3 1개, YOLO11l)의 Q/DQ scale·zero-point를 같은 보정 데이터로 구한 채널 축 per-axis 값으로 바꾼다(opset 13). 텐서는 INT8로 유지하고 ORT CPU로 test 전체를 평가한다.
