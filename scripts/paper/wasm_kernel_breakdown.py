@@ -1,6 +1,6 @@
 """Where does ORT-Web WASM inference spend its time? Breakdown of wasm_kernel_profile.mjs CPU profiles.
 
-Step 1 of the Mac WASM INT8 analysis (docs/ROADMAP.md). The ORT-Web build has no name section, so V8 reports
+Step 1 of the Mac WASM INT8 analysis. The ORT-Web build has no name section, so V8 reports
 frames as `wasm-function[N]`; N is matched to the function index space of the same .wasm (wasm_simd_scan.py) and
 each function is classed by the SIMD instructions it contains (first matching rule wins):
 

@@ -1,4 +1,4 @@
-// V8 CPU profile of ORT-Web WASM inference, step 1 of the Mac WASM INT8 analysis (docs/ROADMAP.md).
+// V8 CPU profile of ORT-Web WASM inference, step 1 of the Mac WASM INT8 analysis.
 //
 // For each model and round: a fresh headless Chrome opens wasm_kernel_profile.html (served by
 // `runtime_matrix.py serve`), the page warms up, then the V8 sampling profiler runs around window.profileRun(n)
