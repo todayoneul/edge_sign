@@ -1,73 +1,24 @@
-# React + TypeScript + Vite
+# Edge-Sign 웹 프런트엔드
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Edge-Sign의 검출·추적·인식 파이프라인을 브라우저에서 실행하는 React 애플리케이션이다. 모델은 ONNX Runtime Web으로 불러와 사용자의 기기에서 추론하며, 검출기와 정밀도, 실행 환경(WebGPU, WebAssembly)을 화면에서 바꿀 수 있다.
 
-Currently, two official plugins are available:
+## 구성
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+| 경로 | 내용 |
+| :--- | :--- |
+| `src/lib/clientPipeline.ts` | 브라우저 추론 파이프라인(전처리, 검출, 디코딩, 인식) |
+| `src/lib/byteTrack.ts` | ByteTrack의 TypeScript 구현 |
+| `src/lib/models.ts` | 검출기, 정밀도, 실행 환경의 목록 |
+| `src/components/`, `src/hooks/`, `src/store/` | 화면 구성과 상태 관리 |
+| `public/sample/` | 내장 샘플 영상 |
 
-## React Compiler
+## 개발
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+FastAPI 서버(저장소 루트에서 `uvicorn src.pipeline.app:app --port 8000`)를 먼저 띄운 뒤 개발 서버를 실행한다. 개발 서버는 `/api`, `/ws` 요청을 8000번 포트로 넘긴다.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm ci
+npm run dev      # http://localhost:5173
+npm test         # Vitest
+npm run build    # dist/ 생성, FastAPI가 /detection/ 경로로 제공
 ```
