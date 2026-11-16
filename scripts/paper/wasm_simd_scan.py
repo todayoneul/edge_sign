@@ -1,6 +1,6 @@
 """Static scan of a WebAssembly module: which SIMD instructions each function uses.
 
-Step 0 of the Mac WASM INT8 analysis (docs/ROADMAP.md): does the ORT-Web build that the paper measured
+Step 0 of the Mac WASM INT8 analysis: does the ORT-Web build that the paper measured
 use fixed or relaxed SIMD, and which instructions carry its INT8 dot products?
 
 The decoder walks every function body of the code section instruction by instruction (MVP, sign-extension,

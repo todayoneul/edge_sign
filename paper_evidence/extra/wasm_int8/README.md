@@ -2,7 +2,7 @@
 
 **질문.** 같은 Mac에서 네이티브 CPU 4T는 INT8이 빠르다(FP32/INT8: YOLO26-n 1.68, YOLOv8s 1.97). 그런데 브라우저 WASM 4T에서는 느리다(0.84, 0.95; [RUNTIME_MATRIX §2.6](../../reports/RUNTIME_MATRIX.md)). Windows는 WASM에서도 빠르다(1.34, 1.62). 이 차이가 어느 실행 경로(ORT-Web 커널, WASM SIMD, V8 lowering)에서 생기는가?
 
-계획, 가설, 예측은 실행 전에 [ROADMAP](../../../docs/ROADMAP.md)에 기록했다(`70268ba`). 이 폴더는 0단계와 1단계(Mac)의 결과이다.
+계획, 가설, 예측은 실행 전에 [ROADMAP](https://github.com/todayoneul/edge_sign/blob/70268ba1a620f74ca6dc9856a07b613ddcfc7c9b/docs/ROADMAP.md)에 기록했다(`70268ba`). 이 폴더는 0단계와 1단계(Mac)의 결과이다.
 
 ## 0단계: 측정에 쓴 WASM 바이너리 ([step0_wasm_scan.json](step0_wasm_scan.json))
 

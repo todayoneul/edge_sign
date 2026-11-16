@@ -1,6 +1,6 @@
-# Edge-Sign TIIS evidence index
+# Edge-Sign 실험 근거 색인
 
-이 폴더는 논문(투고 준비 중)의 수치를 다시 계산할 수 있는 원시 기록을 담습니다. 결과 요약은 [RUNTIME_MATRIX.md](reports/RUNTIME_MATRIX.md)와 [COCO_VALIDATION.md](reports/COCO_VALIDATION.md), 추가 실험은 [extra/README.md](extra/README.md)에 있습니다. 기존 v2/v3 문서의 숫자는 새 결과와 합치지 않았습니다.
+이 폴더는 README와 보고서의 수치를 다시 계산할 수 있는 원시 기록을 담습니다. 결과 요약은 [RUNTIME_MATRIX.md](reports/RUNTIME_MATRIX.md)와 [COCO_VALIDATION.md](reports/COCO_VALIDATION.md), 추가 실험은 [extra/README.md](extra/README.md)에 있습니다. 기존 v2/v3 문서의 숫자는 새 결과와 합치지 않았습니다.
 
 | 질문 | 새 원시 evidence |
 |---|---|

@@ -1,7 +1,7 @@
-# Edge-Sign v2 양자화 실험 매트릭스
+# Edge-Sign 초기 실험 기록
 
-> 이 문서는 모든 양자화 실험의 구성과 결과를 기록합니다.
-> 실험 실행 후 해당 행의 빈 셀을 채워나가세요.
+> 개발 초기 단계(Phase 1–3)부터 날짜순으로 남긴 실험 기록이다. 단계마다 평가 데이터와 방법이 달라 수치를 서로 직접 비교할 수 없다.
+> 현재 기준이 되는 결과는 시퀀스 독립 test로 다시 측정한 [RUNTIME_MATRIX.md](../paper_evidence/reports/RUNTIME_MATRIX.md)에 있으며, 이 문서의 초기 수치 가운데 일부는 그 결과로 대체되었다.
 
 ---
 
@@ -338,7 +338,7 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
 - **2026-05-31**: **v3 검출기(신호등 분리) 학습 — 조기종료(EARLY-STOPPED)** → `runs/detect/edge_sign_v3_lights-4/`
   - 설정: YOLOv8s · imgsz 1280 · batch 8 · 계획 40 epoch · `close_mosaic=10` · `patience=20` · 데이터 `data/yolo_signs_v2/dataset.yaml`(신호등 별도 클래스로 분리)
   - **채택 체크포인트**: `weights/best.pt` = **epoch 29**, mAP50=**0.7761**, mAP50-95=**0.4457** (training val 기준). `last.pt`(ep34)는 더 낮으므로 사용 금지.
-  - **조기종료(00:27 KST)**: best(ep29) 이후 5 epoch 연속 하락(mAP50-95 0.4457→0.4330). `close_mosaic`로 mosaic가 꺼진 ep31~34 구간에서도 **회복 없이 단조 하락** → 증강전환 아티팩트가 아닌 실제 정체/과적합으로 확정. 남은 6 epoch가 ep29를 넘길 가능성 희박 → 종료(약 70분 절약). 핸드오프: `docs/TRAINING_STATUS.md`.
+  - **조기종료(00:27 KST)**: best(ep29) 이후 5 epoch 연속 하락(mAP50-95 0.4457→0.4330). `close_mosaic`로 mosaic가 꺼진 ep31~34 구간에서도 **회복 없이 단조 하락** → 증강전환 아티팩트가 아닌 실제 정체/과적합으로 확정. 남은 6 epoch가 ep29를 넘길 가능성 희박 → 종료(약 70분 절약).
   - **비교 주의**: v3는 신호등 분리로 클래스 구성이 v2(v2split)와 달라 mAP **직접 비교 불가** (클래스 추가 시 mAP 하락은 자연스러움).
   - **다운스트림**: v3 검출기 관련 작업(ONNX export·INT8 양자화·E2E 평가)은 위 best.pt(ep29) 기준으로 진행. "40 epoch 완주본"은 존재하지 않음.
 - **2026-05-31**: **한국 표지판/신호등 14클래스 분류기 학습 완료** → `scripts/train_korean_classifier.py`
@@ -412,7 +412,7 @@ ConvNeXtV2-Nano 백본, ImageNet-1K 평가:
 
 ---
 
-## TIIS 독립 test evidence (2026-09-24, `paper/tiis-evidence-revalidation`)
+## 독립 test 재평가 (2026-09-24)
 
 위 Phase 11/12 표는 당시 validation/소수 프레임의 예비 기록이며, 아래 독립 test와 직접 이어 붙일 수 없다. 특히 `runs/detect/edge_sign_v4/results.csv`의 최고 **training validation mAP@0.5=0.75611**(epoch 28)은 위의 0.748과 충돌한다. Export된 640 입력 ONNX의 test mAP와도 다른 지표다.
 
